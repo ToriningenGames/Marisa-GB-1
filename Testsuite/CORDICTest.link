@@ -1,0 +1,4 @@
+[objects]
+CORDICTest.obj
+[libraries]
+BANK 0 SLOT 0 CORDIC2.lib

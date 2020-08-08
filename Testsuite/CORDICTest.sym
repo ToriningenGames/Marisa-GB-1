@@ -1,0 +1,27 @@
+; this file was created with wlalink by ville helin <vhelin@iki.fi>.
+; wla symbolic information for "CORDICTest.gb".
+
+[labels]
+00:026b Start
+00:0297 TestData
+00:02cd TestResults
+00:0150 Neg16
+00:0158 Add16
+00:0161 LUT
+00:017d Iteration
+00:0200 CORDIC
+00:024a KCorrect
+
+[definitions]
+0000c020 CORDIC_X
+0000c022 CORDIC_Y
+0000c024 CORDIC_Z
+0000002c _sizeof_Start
+00000036 _sizeof_TestData
+00000036 _sizeof_TestResults
+00000008 _sizeof_Neg16
+00000009 _sizeof_Add16
+0000001c _sizeof_LUT
+00000083 _sizeof_Iteration
+0000004a _sizeof_CORDIC
+00000021 _sizeof_KCorrect

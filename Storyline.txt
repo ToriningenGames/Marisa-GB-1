@@ -1,0 +1,62 @@
+Forest startings and endings:
+Marisa needs to go to Alice's house
+    Why?
+Marisa realizes she doesn't know where Alice lives
+Thus, she must search, to find Alice's house!
+
+Endings:
+    How many can we have?
+Finding her house
+[Requirements: Alice house, fighting still]
+    "Ah, I found it."
+    <Alice opens the door, and stands in the frame>
+    "Oh, Marisa!
+    "You're late.
+    "I thought you stood me up!"
+    <Fade to still>
+    Marisa lost the ensuing Danmaku battle. But, she found Alice's house!
+    THE END
+Finding her
+[Requirements: Alice house wreckage, (still?)]
+    "Oh, hey Alice!"
+    "Hi Marisa."
+    "Mind if I ask an embarrassing question?"
+    "...What is it?"
+    "Where... is your house?"
+    "Y-You forgot!?"
+    "Y-Yes..."
+    <Alice leads Marisa through the forest. Fade out.>
+    <Fade in to where her house would be. House is gone.>
+    "!!!"
+    "...I see you also forgot..."
+    *whack* "I didn't forget! It was right here!"
+    "Well, I guess it moved.
+    "Hence, you don't know where it is..."
+    " "
+    <Fade to black>
+    THE END
+Leaving Gensokyo
+[Requirements: still, song]
+    <Fade to text scroll>
+    The buildings around her bewildered her.
+    Marisa had seen them before, but the memory was like but a dream.
+    Coming across a vast body of water, wonder overtook her,
+    and she took flight.
+    After a long, uneventful, journey, Marisa came across a most unusual
+    foreign land.
+    Yet, their attitudes seemed familiar, or at least friendly.
+    She came across a crowd, waiting at an empty stage.
+    "Looks like the perfect opportunity!"
+    Marisa hopped on stage, in an effort to entertain the crowd.
+    Little did she know, this one action would change the rest of her life
+    <Fade to still>
+    Marisa ends up running to become President of the United States
+    THE END
+
+(Sensible) Encounters:
+        Sprite space for two
+    Narumi  (She does live there)
+    Alice   (She does live there)
+    Reimu   (Excuse?)
+    Kourin  (He does live next to there)
+    Yuuka   (w/ flowers)

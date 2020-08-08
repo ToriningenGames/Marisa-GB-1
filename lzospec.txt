@@ -1,0 +1,14 @@
+init:
+0-18    18-20       21+
+        match_next  Sub 18
+                    Use as copy count
+loop[
+outer:
+first_literal_run:
+loop[
+match:
+copy_match:
+match_done:
+match_next:
+]
+]

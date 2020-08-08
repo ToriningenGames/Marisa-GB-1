@@ -1,0 +1,22 @@
+.IFNDEF MEM_MAP
+.DEFINE MEM_MAP
+
+.MEMORYMAP          ;Memory Map (For wla-gb)
+SLOTSIZE $4000
+DEFAULTSLOT 1
+SLOT 0 $0000    ;ROM banks
+SLOT 1 $4000
+.ENDME
+
+.ROMBANKMAP         ;ROM Bank Map (no mapping)
+BANKSTOTAL 2
+BANKSIZE $4000
+BANKS 2
+.ENDRO
+
+.EMPTYFILL $FF  ;RST $38
+
+.COMPUTEGBCHECKSUM  ;Checksum calculations (perfomed by wla-gb)
+.COMPUTEGBCOMPLEMENTCHECK
+
+.ENDIF
