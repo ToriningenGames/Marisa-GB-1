@@ -1,0 +1,11 @@
+# Build files
+*.sym
+*.link
+*.d
+*.lib
+*.obj
+
+# Intermediate files
+*.mcs
+*.lzc
+*.gbm
