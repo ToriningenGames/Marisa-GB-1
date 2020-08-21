@@ -158,9 +158,9 @@ ClearMap_Task:
 
 ;General test map
 MAP002HALL:
-.incbin "Maps/Hall.gbm"
+.incbin "rsc/Hall.gbm"
 
 MapForest02:
-.incbin "Maps/Forest_20200414_(0;2).gbm"
+.incbin "rsc/Forest_20200414_(0~2).gbm"
 
 .ENDS

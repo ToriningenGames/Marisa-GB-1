@@ -56,9 +56,9 @@ $(OUT) : $(SUPP) $(SONGS) $(MAPS) $(OBJ) $(LIB0) $(LIB1) $(LINK)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
 %.obj.d :
-	$(TOOLDIR)\wla-gb -M -o obj/$(notdir $(basename $@)) $(notdir $(addsuffix .asm,$(basename $(basename $@)))) > $@
+	$(TOOLDIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
 %.lib.d :
-	$(TOOLDIR)\wla-gb -M -l lib/$(notdir $(basename $@)) $(notdir $(addsuffix .asm,$(basename $(basename $@)))) > $@
+	$(TOOLDIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB0)))
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB1)))
 include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))

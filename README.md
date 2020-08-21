@@ -75,6 +75,8 @@ There is no workaround, no alternative, and the provided advice is to wait.
 - It is encouraged, though not necessary, to ensure every resource has a compiled variant, so everything included is in Source or rsc.
 - The tools are not very well documented here (left the documentation in the source). This will get fixed when the folder gets cleaned up.
 - The Makefile is written on and for a Windows machine (line endings, commands, etc.). The executables are win64 binaries. The data of the project is fully portable.
+- If you're having issues with the submakes being out of date, build, then delete them, then build again! If you can't build, becuase they're out of date, you can either A: edit them by hand, or B: create dummy files where they're expected to be.
+    - If anybody knows how to wire GNU Make up correctly to handle updating submakes _without_ human intervention, I'm all ears.
 
 # TODO
 Outside game:

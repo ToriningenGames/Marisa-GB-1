@@ -11,15 +11,15 @@ FacesList:
  .dw Marisa1, Marisa2, Marisa1, Marisa1
  .dw Reimu1
 Alice1:
-.incbin "Faces/Alice1.lzc"
+.incbin "rsc/Alice1.lzc"
 Alice2:
-.incbin "Faces/Alice2.lzc"
+.incbin "rsc/Alice2.lzc"
 Marisa1:
-.incbin "Faces/Marisa1.lzc"
+.incbin "rsc/Marisa1.lzc"
 Marisa2:
-.incbin "Faces/Marisa2.lzc"
+.incbin "rsc/Marisa2.lzc"
 Reimu1:
-.incbin "Faces/Reimu1.lzc"
+.incbin "rsc/Reimu1.lzc"
 .ENDS
 
 ;Note on list:
