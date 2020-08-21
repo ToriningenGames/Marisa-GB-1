@@ -10,7 +10,7 @@ TOOLDIR = Tools
 #Source files
 vpath %.asm .\Source
 #Art/Face files
-vpath %.gb .\Art .\Faces
+vpath %.gb .\Faces .\Art
 #MML music files
 vpath %.mml .\Sound
 #Config files for tools
@@ -48,7 +48,7 @@ SPECFILE = Tools/specfile_marisa.cfg
 .PHONY : all
 all : $(OUT)
 
-$(OUT) : $(SUPP) $(SONGS) $(MAPS) $(OBJ) $(LIB0) $(LIB1) $(LINK)
+$(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK)
 	$(TOOLDIR)/wlalink -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
@@ -67,22 +67,26 @@ include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
 	$(TOOLDIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<
 %.lib : %.asm %.lib.d
 	$(TOOLDIR)\wla-gb -v -x -I $(<D) -l lib\$@ $<
-%.mcs : %.mml
-	$(TOOLDIR)\MML6.exe -i=$< -o=rsc/$@ -t=gb
-#%.hcd : %.gb
-#	$(TOOLDIR)\huffencoder2.exe $< rsc/$@
-%.raw : %.tmx
-	$(TOOLDIR)\Raw-MapConv.exe $< rsc/$@
+%.raw : ..\%.tmx
+	$(TOOLDIR)\Raw-MapConv.exe $< $@
 %.gbm : $(SPECFILE) %.raw
-	$(TOOLDIR)\LZifier.exe LZ77 $^ rsc/$@
-%.lzc : $(SPECFILE) %.gb
-	$(TOOLDIR)\LZifier.exe LZ77 $^ rsc/$@
+	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
+%.lzc : $(SPECFILE) ..\%.gb
+	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
+%.mcs : ..\%.mml
+	$(TOOLDIR)\MML6.exe -i=$< -o=$@ -t=gb
 $(LINK) : $(FILENAME)
 	$(file > $(LINK),[objects])
 	$(foreach I, $(OBJ),$(file >> $(LINK), obj/$(I)))
 	$(file >> $(LINK),[libraries])
 	$(foreach I, $(LIB0), $(file >> $(LINK),BANK 0 SLOT 0 lib/$(I)))
 	$(foreach I, $(LIB1), $(file >> $(LINK),BANK 1 SLOT 1 lib/$(I)))
+
+.PHONY : resources
+resources : 
+# Make a file for every resource. Needed for WLA to generate makefiles so make knows to build those resources
+# Additionally, make the files horrifically out of date
+# No stomping
 
 .PHONY : clean
 clean :
