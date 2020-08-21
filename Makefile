@@ -5,48 +5,75 @@ DEL = del 2>NUL
 QUIET = @
 GREP = findstr /v " SECTION" $(subst /,\,$(addsuffix .sym,$(basename $(OUT))))
 MV = move >NUL
+TOOLDIR = Tools
 
-LIB0 = $(addprefix lib/,task.lib OAM2.lib Actor.lib memory.lib CORDIC2.lib \
-	Pause.lib Sound.lib sndEffect.lib Text.lib LCD_IRQ_assist.lib Extract.lib \
-	Face.lib chara.lib Cutscenes.lib Fairy.lib )
-LIB1 = $(addprefix lib/,graphics.lib Songs.lib Maps.lib effects.lib \
-	TextStrings.lib Narumi.lib Alice.lib Reimu.lib ) 
+#Source files
+vpath %.asm ./Source
+#Art/Face files
+vpath %.gb ./Art ./Faces
+#MML music files
+vpath %.mml ./Sound
+#Config files for tools
+vpath %.cfg ./Tools
+#Map files
+vpath %.tmx ./Maps
+#Hypothetical sound effects here
+
+
+#Compiled intermediaries
+vpath %.obj ./obj
+vpath %.lib ./lib
+vpath %.lzc ./rsc
+vpath %.raw ./rsc
+
+#Submakes
+vpath %.d ./Submakes/obj ./Submakes/lib
+
+LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib CORDIC2.lib \
+	Pause.lib Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib \
+	Face.lib Chara.lib Cutscenes.lib Fairy.lib
+LIB1 = Graphics.lib Songs.lib Maps.lib Effects.lib \
+	TextStrings.lib Narumi.lib Alice.lib Reimu.lib
 LINK = Link.link
-OBJ = $(addprefix obj/,Assemble.obj vBlank2.obj)
+OBJ = Assemble.obj vBlank2.obj
 SUPP = TileData.lzc
 SONGS = Spark2.mcs NULL.mcs
-MAPS = $(addprefix Maps/,Test.gbm Debug.gbm Hall.gbm)
-OUT = Assemble.gb
+MAPS = Test.gbm Debug.gbm Hall.gbm
+OUT = bin/Assemble.gb
+SPECFILE = Tools/specfile_marisa.cfg
 
 all : $(SUPP) $(SONGS) $(MAPS) $(OBJ) $(LIB0) $(LIB1) $(LINK)
-	wlalink -v -S -r $(LINK) $(OUT)
+	$(TOOLDIR)/wlalink -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
 	$(QUIET)$(DEL) $(addsuffix .sym,$(basename $(OUT)))
 	$(QUIET)$(MV) ~tempsym $(addsuffix .sym,$(basename $(OUT)))
 	$(QUIET)$(DEL) ~tempsym
 
-Submakes/%.obj.d :
-	wla-gb -M -o obj/$(notdir $(basename $@)) $(notdir $(addsuffix .asm,$(basename $(basename $@)))) > $@
-Submakes/%.lib.d :
-	wla-gb -M -l lib/$(notdir $(basename $@)) $(notdir $(addsuffix .asm,$(basename $(basename $@)))) > $@
-include $(addprefix Submakes/,$(addsuffix .d,$(LIB0)))
-include $(addprefix Submakes/,$(addsuffix .d,$(LIB1)))
-include $(addprefix Submakes/,$(addsuffix .d,$(OBJ)))
+%.obj.d :
+	$(TOOLDIR)\wla-gb -M -o obj/$(notdir $(basename $@)) $(notdir $(addsuffix .asm,$(basename $(basename $@)))) > $@
+%.lib.d :
+	$(TOOLDIR)\wla-gb -M -l lib/$(notdir $(basename $@)) $(notdir $(addsuffix .asm,$(basename $(basename $@)))) > $@
+include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB0)))
+include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB1)))
+include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
 
-obj/%.obj : %.asm Submakes/obj/%.obj.d
-	wla-gb -v -x -o $@ $<
-lib/%.lib : %.asm Submakes/lib/%.lib.d
-	wla-gb -v -x -l $@ $<
+%.obj : %.asm %.obj.d
+	cd $(<D); \
+	..\$(TOOLDIR)\wla-gb -v -x -o ..\obj\$@ $(<F)
+%.lib : %.asm %.lib.d
+	cd $(<D); \
+	..\$(TOOLDIR)\wla-gb -v -x -l ..\lib\$@ $(<F)
 %.mcs : %.mml
-	MML6.exe -i=$< -o=$@ -t=gb
-%.hcd : %.gb
-	huffencoder2.exe $< $@
-Maps/%.gbm : Maps/%.tmx
-	Maps\Raw-MapConv.exe $< $@.raw
-	Maps\LZifier.exe LZ77 specfile_marisa.txt $@.raw $@
-%.lzc : %.gb specfile_marisa.txt
-	LZifier.exe LZ77 specfile_marisa.txt $< $@
+	$(TOOLDIR)\MML6.exe -i=$< -o=rsc/$@ -t=gb
+#%.hcd : %.gb
+#	$(TOOLDIR)\huffencoder2.exe $< rsc/$@
+%.raw : %.tmx
+	$(TOOLDIR)\Raw-MapConv.exe $< rsc/$@
+%.gbm : $(SPECFILE) %.raw
+	$(TOOLDIR)\LZifier.exe LZ77 $^ rsc/$@
+%.lzc : $(SPECFILE) %.gb
+	$(TOOLDIR)\LZifier.exe LZ77 $^ rsc/$@
 $(LINK) : $(FILENAME)
 	$(file > $(LINK),[objects])
 	$(foreach I, $(OBJ),$(file >> $(LINK), $(I)))
