@@ -5,12 +5,12 @@
 
 .SECTION "nullsong" FREE
 SongNull:
-.incbin "NULL.mcs"
+.incbin "rsc\NULL.mcs"
 .ENDS
 
 .SECTION "song_spark" FREE
 SongSpark:
- .incbin "Spark2.mcs"
+ .incbin "rsc\Spark2.mcs"
 .ENDS
 
 .SECTION "notepitches" ALIGN $100 FREE

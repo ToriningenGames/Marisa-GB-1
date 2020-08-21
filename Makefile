@@ -1,54 +1,59 @@
 #Must be first line!
 FILENAME := $(lastword $(MAKEFILE_LIST))
 
-DEL = del 2>NUL
+DEL = del /Q 2>NUL
 QUIET = @
-GREP = findstr /v " SECTION" $(subst /,\,$(addsuffix .sym,$(basename $(OUT))))
+GREP = findstr /v " SECTION" $(SYM)
 MV = move >NUL
 TOOLDIR = Tools
 
 #Source files
-vpath %.asm ./Source
+vpath %.asm .\Source
 #Art/Face files
-vpath %.gb ./Art ./Faces
+vpath %.gb .\Art .\Faces
 #MML music files
-vpath %.mml ./Sound
+vpath %.mml .\Sound
 #Config files for tools
-vpath %.cfg ./Tools
+vpath %.cfg .\Tools
 #Map files
-vpath %.tmx ./Maps
+vpath %.tmx .\Maps
 #Hypothetical sound effects here
 
 
 #Compiled intermediaries
-vpath %.obj ./obj
-vpath %.lib ./lib
-vpath %.lzc ./rsc
-vpath %.raw ./rsc
+vpath %.obj .\obj
+vpath %.lib .\lib
+vpath %.lzc .\rsc
+vpath %.raw .\rsc
+vpath %.mcs .\rsc
+vpath %.gbm .\rsc
 
 #Submakes
 vpath %.d ./Submakes/obj ./Submakes/lib
 
-LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib CORDIC2.lib \
+LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib CORDIC2.lib Fairy.lib Face.lib \
 	Pause.lib Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib \
-	Face.lib Chara.lib Cutscenes.lib Fairy.lib
-LIB1 = Graphics.lib Songs.lib Maps.lib Effects.lib \
-	TextStrings.lib Narumi.lib Alice.lib Reimu.lib
+	Chara.lib Cutscenes.lib
+LIB1 = Graphics.lib Songs.lib Maps.lib Effects.lib TextStrings.lib Reimu.lib \
+	Narumi.lib Alice.lib
 LINK = Link.link
 OBJ = Assemble.obj vBlank2.obj
 SUPP = TileData.lzc
 SONGS = Spark2.mcs NULL.mcs
 MAPS = Test.gbm Debug.gbm Hall.gbm
 OUT = bin/Assemble.gb
+SYM = $(subst /,\,$(addsuffix .sym,$(basename $(OUT))))
 SPECFILE = Tools/specfile_marisa.cfg
 
-all : $(SUPP) $(SONGS) $(MAPS) $(OBJ) $(LIB0) $(LIB1) $(LINK)
+.PHONY : all
+all : $(OUT)
+
+$(OUT) : $(SUPP) $(SONGS) $(MAPS) $(OBJ) $(LIB0) $(LIB1) $(LINK)
 	$(TOOLDIR)/wlalink -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
-	$(QUIET)$(DEL) $(addsuffix .sym,$(basename $(OUT)))
-	$(QUIET)$(MV) ~tempsym $(addsuffix .sym,$(basename $(OUT)))
-	$(QUIET)$(DEL) ~tempsym
+	$(QUIET)$(DEL) $(SYM)
+	$(QUIET)$(MV) ~tempsym $(SYM)
 
 %.obj.d :
 	$(TOOLDIR)\wla-gb -M -o obj/$(notdir $(basename $@)) $(notdir $(addsuffix .asm,$(basename $(basename $@)))) > $@
@@ -59,11 +64,9 @@ include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB1)))
 include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
 
 %.obj : %.asm %.obj.d
-	cd $(<D); \
-	..\$(TOOLDIR)\wla-gb -v -x -o ..\obj\$@ $(<F)
+	$(TOOLDIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<
 %.lib : %.asm %.lib.d
-	cd $(<D); \
-	..\$(TOOLDIR)\wla-gb -v -x -l ..\lib\$@ $(<F)
+	$(TOOLDIR)\wla-gb -v -x -I $(<D) -l lib\$@ $<
 %.mcs : %.mml
 	$(TOOLDIR)\MML6.exe -i=$< -o=rsc/$@ -t=gb
 #%.hcd : %.gb
@@ -76,20 +79,17 @@ include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
 	$(TOOLDIR)\LZifier.exe LZ77 $^ rsc/$@
 $(LINK) : $(FILENAME)
 	$(file > $(LINK),[objects])
-	$(foreach I, $(OBJ),$(file >> $(LINK), $(I)))
+	$(foreach I, $(OBJ),$(file >> $(LINK), obj/$(I)))
 	$(file >> $(LINK),[libraries])
-	$(foreach I, $(LIB0), $(file >> $(LINK),BANK 0 SLOT 0 $(I)))
-	$(foreach I, $(LIB1), $(file >> $(LINK),BANK 1 SLOT 1 $(I)))
+	$(foreach I, $(LIB0), $(file >> $(LINK),BANK 0 SLOT 0 lib/$(I)))
+	$(foreach I, $(LIB1), $(file >> $(LINK),BANK 1 SLOT 1 lib/$(I)))
 
 .PHONY : clean
 clean :
-	$(QUIET)$(DEL) $(subst /,\,$(OBJ))
-	$(QUIET)$(DEL) $(subst /,\,$(LIB0))
-	$(QUIET)$(DEL) $(subst /,\,$(LIB1))
+	$(QUIET)$(DEL) obj
+	$(QUIET)$(DEL) lib
+	$(QUIET)$(DEL) rsc
 	$(QUIET)$(DEL) $(subst /,\,$(LINK))
-	$(QUIET)$(DEL) $(subst /,\,$(SUPP))
-	$(QUIET)$(DEL) $(subst /,\,$(MAPS))
-	$(QUIET)$(DEL) $(subst /,\,$(SONGS))
-	$(QUIET)$(DEL) $(subst /,\,$(OUT))
+	$(QUIET)$(DEL) bin
 
 FORCE:

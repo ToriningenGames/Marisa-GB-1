@@ -2,7 +2,7 @@
 
 .SECTION "Tiledata" FREE
 Tiledata:
-.incbin "TileData.lzc"
+.incbin "rsc/TileData.lzc"
 .ENDS
 
 .SECTION "Facedata" FREE
