@@ -1,7 +1,6 @@
 # Build files
 *.sym
 *.link
-*.d
 *.lib
 *.obj
 
