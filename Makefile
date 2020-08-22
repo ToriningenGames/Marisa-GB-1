@@ -48,32 +48,32 @@ SPECFILE = Tools/specfile_marisa.cfg
 .PHONY : all
 all : $(OUT)
 
-$(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK)
+$(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(WLADIR)/wlalink -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
 	$(QUIET)$(RM) $(SYM)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
-%.obj.d :
+%.obj.d : | Submakes Submakes\obj
 	$(WLADIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
-%.lib.d :
+%.lib.d : | Submakes Submakes\lib
 	$(WLADIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB0)))
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB1)))
 include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
 
-%.obj : %.asm %.obj.d
+%.obj : %.asm %.obj.d | obj
 	$(WLADIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<
-%.lib : %.asm %.lib.d
+%.lib : %.asm %.lib.d | lib
 	$(WLADIR)\wla-gb -v -x -I $(<D) -l lib\$@ $<
-%.raw : ..\%.tmx
+%.raw : ..\%.tmx | rsc
 	$(TOOLDIR)\Raw-MapConv.exe $< $@
-%.gbm : $(SPECFILE) %.raw
+%.gbm : $(SPECFILE) %.raw | rsc
 	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
-%.lzc : $(SPECFILE) ..\%.gb
+%.lzc : $(SPECFILE) ..\%.gb | rsc
 	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
-%.mcs : ..\%.mml
+%.mcs : ..\%.mml | rsc
 	$(TOOLDIR)\MML6.exe -i=$< -o=$@ -t=gb
 $(LINK) : $(FILENAME)
 	$(file > $(LINK),[objects])
@@ -82,10 +82,12 @@ $(LINK) : $(FILENAME)
 	$(foreach I, $(LIB0), $(file >> $(LINK),BANK 0 SLOT 0 lib/$(I)))
 	$(foreach I, $(LIB1), $(file >> $(LINK),BANK 1 SLOT 1 lib/$(I)))
 
+bin obj lib rsc Submakes Submakes\obj Submakes\lib:
+	mkdir $@
+
 .PHONY : resources
 resources : 
 # Make a file for every resource. Needed for WLA to generate makefiles so make knows to build those resources
-# Additionally, make the files horrifically out of date
 # No stomping
 
 .PHONY : clean
