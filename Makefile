@@ -1,11 +1,8 @@
-#Must be first line!
-FILENAME := $(lastword $(MAKEFILE_LIST))
 
-DEL = del /Q 2>NUL
+RM = del /Q 2>NUL
 QUIET = @
 GREP = findstr /v " SECTION" $(SYM)
 MV = move >NUL
-TOOLDIR = Tools
 
 #Source files
 vpath %.asm .\Source
@@ -31,6 +28,9 @@ vpath %.gbm .\rsc
 #Submakes
 vpath %.d ./Submakes/obj ./Submakes/lib
 
+TOOLDIR = Tools
+WLADIR = 
+
 LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib CORDIC2.lib Fairy.lib Face.lib \
 	Pause.lib Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib \
 	Chara.lib Cutscenes.lib
@@ -49,24 +49,24 @@ SPECFILE = Tools/specfile_marisa.cfg
 all : $(OUT)
 
 $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK)
-	$(TOOLDIR)/wlalink -v -S -r $(LINK) $(OUT)
+	$(WLADIR)/wlalink -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
-	$(QUIET)$(DEL) $(SYM)
+	$(QUIET)$(RM) $(SYM)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
 %.obj.d :
-	$(TOOLDIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
+	$(WLADIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
 %.lib.d :
-	$(TOOLDIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
+	$(WLADIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB0)))
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB1)))
 include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
 
 %.obj : %.asm %.obj.d
-	$(TOOLDIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<
+	$(WLADIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<
 %.lib : %.asm %.lib.d
-	$(TOOLDIR)\wla-gb -v -x -I $(<D) -l lib\$@ $<
+	$(WLADIR)\wla-gb -v -x -I $(<D) -l lib\$@ $<
 %.raw : ..\%.tmx
 	$(TOOLDIR)\Raw-MapConv.exe $< $@
 %.gbm : $(SPECFILE) %.raw
@@ -90,10 +90,10 @@ resources :
 
 .PHONY : clean
 clean :
-	$(QUIET)$(DEL) obj
-	$(QUIET)$(DEL) lib
-	$(QUIET)$(DEL) rsc
-	$(QUIET)$(DEL) $(subst /,\,$(LINK))
-	$(QUIET)$(DEL) bin
+	$(QUIET)$(RM) obj
+	$(QUIET)$(RM) lib
+	$(QUIET)$(RM) rsc
+	$(QUIET)$(RM) $(subst /,\,$(LINK))
+	$(QUIET)$(RM) bin
 
 FORCE:

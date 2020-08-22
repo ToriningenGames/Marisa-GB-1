@@ -3,10 +3,10 @@ Simple exploration Touhou fangame for Gameboy
 
 ## Dependencies
 <ul>
-<li />Tiled
-<li />WLA-GB v. 9 or greater
-<li />WLA Link
-<li />GNU Make
+<li />Tiled (For map editing)
+<li />WLA-GB v. 9 or greater (Used for game code assembly)
+<li />WLA Link (Puts the game together)
+<li />GNU Make (Build system)
 </ul>
 
 ## Contained here
@@ -38,6 +38,7 @@ Stores the compiled versions of the non-library files during assembly. Safe to d
 Stores the compiled versions of game assets. Safe to delete.
 
 ### Sound
+Brings the hills to life with the sound of music. All text files. Edit away!
 
 ### Source
 All the assembly files for the game's code. Other asm files can be included as same directory ("file.asm"), but resources are included as "rsc\name.ext"
@@ -50,20 +51,26 @@ Stores the WLA generated Makefiles, so that dependencies are accurately reflecte
 If you change any includes, you must build, delete this directory, then build again, to ensure everything works like it should.
 Man, I suck at Make.
 
-### Testsuite
-Supposedly small subprograms made to test new libraries as they're written. As the game got more complete (and I got a little better at development), I don't use this much anymore, as the tests became just part of the game.
-
 ### Tools
-Every external program needed to make the game, including my tools, WLA, and even `make`. Config files for these tools are also here. Probably highly illegal-this directory will remain empty on GitHub until I sort out what can and cannot live here.
+Helper programs needed to make the game, writtem by me.
+- `MML6`: Music Macro Language compiler used for all the songs
+- `Raw-MapConv`: Converts Tiled formatted maps into an uncompressed compiled format
+- `LZifier`: LZ compresses data, used for maps and tiledata
+There's also some miscy files here
+- `specfile_marisa.cfg`: Tells LZifier the exact format of packets to output
+- `Tiledata.tsx`: Copy of Tiledata.gb for Tiled, so game maps look right
+- `System.tsx`: A few colored tiles, so Collsions, Priority, and Visibility bits can be visualized (and drawn)
+
 
 ### Root folder
-Here, generally, are all the source files, songs, tools, concept art, and other miscy needed to build the game. For laziness reasons, many things aren't sorted into folders like they **should** be. Maybe later.
-Also included are some helpful information files on Gameboy-ey things, like the Sound Mapping Table.
-The light smattering of xml files are for Notepad++, so it can properly highlight WLA syntax.
+Things I didn't know what to do with ended up here. Other than administrata, the linking file lives here. It can be safely deleted.
+The Storyline.txt is not engine, data, or art related, so it doesn't have a home
 
 ## Building
-- Gather your prerequisites in Tools
+- If you're not on Win64, build the tools in Tools
 - Run `make`
+    - WLA not in your path? Use `make WLADIR=path/to/wla/dir`
+    - Running Unix? Crack open the Makefile, do a find-replace from `\` to `/`, and replace the tooldefs in the first few Makefile lines
 
 For right now, the Tools folder should be empty. This makes building the project very hard, as more than a few files get compiled to intermediate formats.
 There is no workaround, no alternative, and the provided advice is to wait.
@@ -78,16 +85,18 @@ There is no workaround, no alternative, and the provided advice is to wait.
 - If you're having issues with the submakes being out of date, build, then delete them, then build again! If you can't build, becuase they're out of date, you can either A: edit them by hand, or B: create dummy files where they're expected to be.
     - If anybody knows how to wire GNU Make up correctly to handle updating submakes _without_ human intervention, I'm all ears.
     - There's a "resources" target in the works to make this much easier
+    - `make clean` does not delete the submake files
 
 # TODO
 Outside game:
 <ul>
 <li />[x] Organize the game files
 <li />[x] Add `.gitignore`s for intermediate files
-<li />[ ] Move the tools away from the repo
+<li />[x] Move the tools away from the repo
 <li />[ ] Add `resources` Makefile target
 <li />[ ] Add the music midis in
 <li />[ ] Release the "picnic" demo
+<li />[ ] Write a prereq script
 </ul>
 Inside game:
 <ul>
