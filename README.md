@@ -82,9 +82,8 @@ There is no workaround, no alternative, and the provided advice is to wait.
 - It is encouraged, though not necessary, to ensure every resource has a compiled variant, so everything included is in Source or rsc.
 - The tools are not very well documented here (left the documentation in the source). This will get fixed when the folder gets cleaned up.
 - The Makefile is written on and for a Windows machine (line endings, commands, etc.). The executables are win64 binaries. The data of the project is fully portable.
-- If you're having issues with the submakes being out of date, build, then delete them, then build again! If you can't build, becuase they're out of date, you can either A: edit them by hand, or B: create dummy files where they're expected to be.
-    - If anybody knows how to wire GNU Make up correctly to handle updating submakes _without_ human intervention, I'm all ears.
-    - There's a "resources" target in the works to make this much easier
+- The Makefile should rebuild submakes when the source file changes, which, while costly, ensures they don't fall out of date. Additionally, it _should_ make Make build most the file's dependencies first.
+    - Should something go wrong, or you add a new dependency, it is highly likely building will fail, because the Submake won't have it, but WLA refuses to output Make rules if it can't find all the file includes- which it won't, because they don't exist. The only recouse I know is to create dummy files, so the submakes can be remade, then delete the dummies so the files can be actually built. If anybody has a better solution to this chicken-egg problem, I'm all ears.
     - `make clean` does not delete the submake files
 
 # TODO

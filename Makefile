@@ -55,10 +55,10 @@ $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(QUIET)$(RM) $(SYM)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
-%.obj.d : | Submakes Submakes\obj
-	$(WLADIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
-%.lib.d : | Submakes Submakes\lib
-	$(WLADIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > $@
+%.obj.d : %.asm | Submakes Submakes\obj
+	$(WLADIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\obj\$(@F)
+%.lib.d : %.asm | Submakes Submakes\lib
+	$(WLADIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\lib\$(@F)
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB0)))
 include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB1)))
 include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
