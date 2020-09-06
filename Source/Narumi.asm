@@ -11,33 +11,30 @@
 NarumiFrame:
 ;Setup
   CALL Actor_New
+  ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE
   LD (HL),<DefaultHitboxes
   INC HL
   LD (HL),>DefaultHitboxes
+  ;Animation values
   LD HL,_HatVal
   ADD HL,DE
   LD (HL),3
-  CALL HaltTask
-;Initial facing
   LD BC,_DownFace
+  CALL HaltTask  ;Let rest of world catch up to our existence
+  ;Face new direction
   PUSH DE
-  SCF
-  CALL Actor_Draw
+    SCF
+    CALL Actor_Draw
   POP DE
   CALL HaltTask
-  CALL Actor_Draw
-  ;Permanent, no action: it's okay to drop this task
-  ;But we want to test how well the GB does under this load
-  ;Result: Sprite appearances get even worse, since the drawing task
-    ;might miss the frame it gets screen time
-    ;And, the object manager gets fewer frames, too, increasing base flickering
-  ;Minimal load:
-    ;Something's fishy with the manager. It doesn't dole out equally.
-    ;Fix'd
-    ;Removed separate draw task so too many things can go on screen
-  RET
+;Frame actions
+  CALL Actor_Message
+  JR c,+
+  ;Narumi specific messages
++
+  JP Actor_Draw
 
 _DownFace:
  .db -12, -8,$31,%00000000  ;Head left

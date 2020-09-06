@@ -35,26 +35,27 @@
 ;0: End
 ;1: Disable player input
 ;2: Enable player input
-;3: Wait
-;4: Run Text
-;5: Set camera
-;6: Move camera
-;7: Create actor
-;8: Destroy actor
-;9: Set actor position
-;10: Animate actor
-;11: Move actor
-;12: Load object palette
-;13: Load background palette
-;14: Load map
-;15: Load song
-;16: Load song panning
-;17: Assign hat to actor
-;18: Set actor speed
+;3: Run Text
+;4: Set camera
+;5: Move camera
+;6: Create actor
+;7: Destroy actor
+;8: Set actor position
+;9: Animate actor
+;10: Move actor
+;11: Load object palette
+;12: Load background palette
+;13: Load map
+;14: Load song
+;15: Load song panning
+;16: Assign hat to actor
+;17: Set actor speed
+;18: Alter Map
+    ;Open Alice's door
+    ;Close Alice's door
+;19: Shoot Danmaku
+;128: Wait
 
-;Initiate danmaku
-;Open Alice's door
-;Close Alice's door
 ;Attach hat to character
 ;Detach hat from characters
 
@@ -77,6 +78,8 @@ Cutscene_LUT:
  .dw Cutscene_SongPan
  .dw Cutscene_HatAssign
  .dw Cutscene_AnimateSpeed
+ .dw Cutscene_MapAlter
+ .dw Cutscene_DanmakuInit
 
 CharaTypes:
  .dw HatFrame
@@ -88,6 +91,7 @@ CharaTypes:
 
 .DEFINE Cutscene_Actors $C0A0
 .EXPORT Cutscene_Actors
+
 
 ;Cutscene loop
 Cutscene_Task:
@@ -118,17 +122,15 @@ Cutscene_Task:
   JR -
 +
 --
-  DEC E
   CALL HaltTask
+  DEC E
   JR nz,--
   DEC D
   JR nz,--
   JR -
 
 ;Cutscene functions
-Cutscene_End:
-  POP HL    ;Return
-  POP HL    ;Cutscene data
+Cutscene_End:           ;(Not a task)
   LD HL,Cutscene_Actors
   LDI A,(HL)
   LD C,A
@@ -143,13 +145,12 @@ Cutscene_End:
   CALL MsgSend
   CALL HaltTask
   JR c,-
-Cutscene_Wait:  ;Does nothing
   JP EndTask
 
-Cutscene_CameraMove:        ;TEST
-;D= Time
+Cutscene_CameraMove:
+;D= Distance
 ;E= %DDSSSSSS
-    ;||++++++--- Speed (3.3)
+    ;||++++++--- Speed (2.4)
     ;++--------- Movement direction
 ;Meanings:
 ;Direction:
@@ -157,60 +158,85 @@ Cutscene_CameraMove:        ;TEST
     ;1, camera moves left
     ;2, camera moves down
     ;3, camera moves right
-;Time:
-    ;How many frames to run for
+;Distance:
+    ;How many pixels to move the camera
 ;Speed:
     ;Pixels/frame
 ;Up down/Left right distinction
   LD C,<BkgVertScroll
-  LD A,%01000000
-  AND E
+  BIT 6,E
   JR z,+
   INC C
 +
-;Left up/Right down distinction
-  LD A,$BF
+;Convert E to 4.4 format
+  LD B,E
+  LD A,$3F
   AND E
-  LD B,A
-  LD A,$80
-  AND E
-  SLA E
-  OR E
+;  RLA  ;When speed is in 3.3
   LD E,A
+  XOR A
+  BIT 7,B
+  LD B,>BkgVertScroll
+  JR z,+
+-   ;Down/Right
+  ADD E
+  LD L,A    ;Delta accumulator
   AND $F0
   SWAP A
-  BIT 3,A
-  JR z,+
-  OR $F0
-+
-  LD B,A
-  LD A,$0F
-  AND E
-  LD E,B
-  SWAP A
-  LD B,A
--
-  LD L,A
-  ADD B
   LD H,A
-  LD B,>BkgVertScroll
   LD A,(BC)
-  ADC E
+  ADD H
   LD (BC),A
+  LD A,D        ;Check if distance covered
+  SUB H
+  JR c,++
+  LD D,A
   LD A,L
-  LD B,H
+  AND $0F       ;Integer applied; only accumulate fractional
   CALL HaltTask
-  DEC D
-  JR nz,-
+  JR -
+++
+  CPL       ;Correct for overshoot
+  INC A
+  LD D,A
+  LD A,(BC)
+  SUB D
+  LD (BC),A
+  JP EndTask
++
+-   ;Up/Left
+  ADD E
+  LD L,A
+  AND $F0
+  SWAP A
+  LD H,A
+  LD A,(BC)
+  SUB H
+  LD (BC),A
+  LD A,D        ;Check if distance covered
+  SUB H
+  JR c,++
+  LD D,A
+  LD A,L
+  AND $0F
+  CALL HaltTask
+  JR -
+++
+  CPL       ;Correct for overshoot
+  INC A
+  LD D,A
+  LD A,(BC)
+  ADD D
+  LD (BC),A
   JP EndTask
 
-Cutscene_BkgPaletteLoad:    ;TEST
+Cutscene_BkgPaletteLoad:
 ;D= New background palette
   LD HL,BkgPal
   LD (HL),D
   JP EndTask
 
-Cutscene_ObjPaletteLoad:    ;TEST
+Cutscene_ObjPaletteLoad:
 ;D= New OBJ0 palette
 ;E= New OBJ1 palette
   LD HL,SpritePal0
@@ -219,7 +245,7 @@ Cutscene_ObjPaletteLoad:    ;TEST
   LD (HL),E
   JP EndTask
 
-Cutscene_CameraSet:         ;TEST
+Cutscene_CameraSet:
 ;D = Camera X
 ;E = Camera Y
   LD HL,BkgVertScroll
@@ -228,7 +254,7 @@ Cutscene_CameraSet:         ;TEST
   LD (HL),D
   JP EndTask
 
-Cutscene_ActorNew:          ;TEST
+Cutscene_ActorNew:
 ;D= %CCCIIIII
     ;   +++++--- Reference ID
     ;+++-------- Character
@@ -398,7 +424,7 @@ Cutscene_AnimateSpeed:      ;TEST
   JR c,-
   JP EndTask
 
-Cutscene_MapLoad:           ;TEST
+Cutscene_MapLoad:
 ;DE->Map Data
 ;Load in the new map
   XOR A
@@ -413,7 +439,7 @@ Cutscene_MapLoad:           ;TEST
   LD A,4
   JP LoadToVRAM_Task
 
-Cutscene_SongLoad:          ;TEST
+Cutscene_SongLoad:
 ;DE->Song Data
   LD B,D
   LD C,E
@@ -423,7 +449,7 @@ Cutscene_SongLoad:          ;TEST
   LDH ($26),A
   JP EndTask
 
-Cutscene_SongPan:           ;TEST
+Cutscene_SongPan:
 ;D= Shadow $FF24
 ;E= Shadow $FF25
   LD A,D
@@ -434,17 +460,22 @@ Cutscene_SongPan:           ;TEST
 
 Cutscene_InputOff:          ;WRITE
 ;Send message to Marisa (actor ID 01), and hat (actor ID 00)
+  JP EndTask
 Cutscene_InputOn:           ;WRITE
 ;Send message to Marisa (actor ID 01), and hat (actor ID 00)
   JP EndTask
 Cutscene_HatAssign:         ;WRITE
 ;D= ID to assign hat to (0 to unassign)
   JP EndTask
+Cutscene_MapAlter:          ;WRITE
+;DE= Pointer to alteration data
+  JP EndTask
+Cutscene_DanmakuInit        ;WRITE
+;D= Actor ID
+;E= Danmaku type
+  JP EndTask 
 
 .ENDS
-
-;TODO: Macro cutscenes; I don't wanna type and monotonously calculate 100s of numbers
-;TODO: Remove wait field; use CsWait as a 16 bit frame counter for waits
 
 .DEFINE CsChHat    0
 .DEFINE CsChMarisa 1
@@ -492,26 +523,12 @@ Cutscene_HatAssign:         ;WRITE
  .db 4,Y,X
 .ENDM
 .MACRO CsMoveCameraSpeed ARGS dir, speed, dist
-  ;I want to move in [dir], and go [dist] via [speed] pixels/frame
- .IF dist > 0
-  .IF speed >= 8
-   .db 5,(dir<<6) | $38,dist/speed
-    CsMoveCameraSpeed dir, speed-7, dist - 7*dist/speed
-  .ELSE
-   .db 5,(dir<<6) | ((speed<<3) & $3F),dist/speed
-  .ENDIF
- .ENDIF
+;I want to move in [dir], and go [dist] via [speed] pixels/frame
+ .db 5,(dir<<6) | ((speed*16) & $3F),dist
 .ENDM
 .MACRO CsMoveCameraTime ARGS dir, time, dist
-  ;I want to move in [dir], and go [dist] in exactly [time] frames
- .IF dist > 0
-  .IF dist/time >= 8
-   .db 5,(dir<<6) | $38,time
-    CsMoveCameraTime dir, time, dist - 7*time
-  .ELSE
-   .db 5,(dir<<6) | (((dist/time)<<3) & $3F),time
-  .ENDIF
- .ENDIF
+;I want to move in [dir], and go [dist] in exactly [time] frames
+ .db 5,(dir<<6) | (((dist/time)*16) & $3F),dist
 .ENDM
 .MACRO CsNewActor ARGS ID, species, race
  .db 6,race,(species << 5) | ID
@@ -564,11 +581,11 @@ Cutscene_HatAssign:         ;WRITE
  .db 16,0,ID
 .ENDM
 .MACRO CsAlterMap ARGS alteration
- .db 0
+ .db 18
  .dw alteration
 .ENDM
 .MACRO CsShootDanmaku ARGS ID, type
- .db 0,type,ID
+ .db 19,type,ID
 .ENDM
 
 .SECTION "Cutscene Data" FREE
@@ -582,7 +599,22 @@ Cutscene_HatAssign:         ;WRITE
     ;Door cutscene functions
     ;Danmanku actor messages
         ;Danmaku as independent of actors?
+    ;How long does the text take (We can automate measurement)
+;Problems:
+    ;Something in the Actor chain isn't working right
+    ;Alter Map is not written
+    ;Shoot Danmaku is not written
+    ;Where do we need task reliefs?
+        ;Count per-cutscene items+actors. Try to keep usage under 32
+    ;The Camera Time macro can move camera too slow
+        ;Same distance covered, takes more time. Problem of speed's precision
+    ;Textbox cursor start always "No portrait"
+    ;Faces wrong
+    ;Final block of Demo1 too long.
+    ;Final line of Demo2 missing first letter?
+    ;Text waits before lowers too fast
     
+
 ;Camera starts on bottom of map
 ;Camera pans to top of map
   ;Camera pans over
@@ -612,45 +644,56 @@ Cutscene_HatAssign:         ;WRITE
 ;Narumi chills
 ;Fadeout
 OpeningDemo:
+  CsWait 30             ;Fade to black
+  CsLoadBkgColor $FD
+  CsWait 30
+  CsLoadBkgColor $FE
+  CsWait 30
   CsLoadBkgColor $FF
   CsLoadObjColor $FF,$FF
   CsPanSong $FF,$FF
   CsLoadSong SongSpark
+  CsWait 15
   CsLoadMap MapForest02
   CsSetCamera 0,112
+  CsWait 1      ;Task relief
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
+  CsWait 1      ;Task relief
   CsNewActor 2,CsChReimu,0
   CsNewActor 3,CsChNarumi,0
   CsInputOff
-  CsAssignHat 1
   CsWait 1      ;Task relief
+  CsAssignHat 1
   CsNewActor 4,CsChFairy,$00
   CsNewActor 5,CsChFairy,$54
   CsNewActor 6,CsChFairy,$A8
   CsNewActor 7,CsChFairy,$68
+  CsWait 1      ;Task relief
   CsAnimSpeed 1,$10
   CsAnimSpeed 2,$10
   CsAnimSpeed 3,$10
   CsAnimSpeed 4,$10
   CsAnimSpeed 5,$10
+  CsWait 1      ;Task relief
   CsAnimSpeed 6,$10
   CsAnimSpeed 7,$10
-  CsWait 1      ;Task relief
   CsAnimateActor 1,CsAnFaceLeft
   CsAnimateActor 2,CsAnFaceRight
   CsAnimateActor 3,CsAnFaceDown
+  CsWait 1      ;Task relief
   CsAnimateActor 4,CsAnWalkUp
   CsAnimateActor 5,CsAnWalkRight
   CsAnimateActor 6,CsAnWalkLeft
   CsAnimateActor 7,CsAnWalkLeft
-  CsWait 1      ;Task relief
   CsSetActor 1,10,16
+  CsWait 1      ;Task relief
   CsSetActor 2,6,16
   CsSetActor 3,14,17
   CsSetActor 4,9,29
   CsSetActor 5,5,24
   CsSetActor 6,16,19
+  CsWait 1      ;Task relief
   CsSetActor 7,17,28
   CsMoveActorTime 4,CsDirUp,255,96
   CsMoveActorSpeed 5,CsDirRight,1.5,72
@@ -676,11 +719,8 @@ OpeningDemo:
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
   CsWait 1
-  CsMoveCameraTime CsDirUp,255,56   ;112 pix over 3 seconds
-  CsWait 255
-  CsMoveCameraTime CsDirUp,255,56
-  CsWait 255
-  CsWait 120    ;2 second pause
+  CsMoveCameraTime CsDirUp,300,112     ;112 pix over 5 seconds
+  CsWait 300+120    ;2 second pause
   CsAlterMap 0      ;Door open
   CsNewActor 8,CsChAlice,0
   CsAnimateActor 8,CsAnFaceDown
@@ -696,7 +736,7 @@ OpeningDemo:
   CsMoveActorTime 8,CsDirDown,5,2.5
   CsWait 5
   CsAnimateActor 8,CsAnFaceDown
-  CsWait 1  ;Dialog finish wait
+  CsWait 65000  ;Dialog finish wait
   CsRunText StringDemoMessage2
   CsShootDanmaku 8,0
   CsWait 30

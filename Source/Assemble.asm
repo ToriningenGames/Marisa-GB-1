@@ -408,9 +408,6 @@ HRAMRoutineLoadLoop:
   LD (ObjUse),A
   LD BC,ObjManage_Task
   CALL NewTask
-;Set up palette darkener as a separate task
-  LD BC,OpeningAnimation
-  CALL NewTask
 ;Set up sound initializer as a serparate task
   LD BC,SoundInit
   CALL NewTask
@@ -465,7 +462,7 @@ SoundInit:
   LD (HL),B
 
 ;Sound test
-  LD BC,SongSpark
+  LD BC,SongNull
   CALL MusicLoad
   LD A,$FF
   LD (musicglobalbase+1),A
@@ -567,64 +564,18 @@ GraphicsInit:
   JP EndTask
 
 LoadTitle:
-;;Make the backdrop blank
-;  LD A,$30      ;Black tile
-;  LD BC,ClearMap_Task
-;  CALL NewTask
-;  LD A,B
-;  CALL WaitOnTask
-;;Load in the starting map
-;  LD (hotMap),A
-;  LD DE,MAP002HALL
-;  LD BC,LoadMap_Task
-;  CALL NewTask
-;;Wait for map to be loaded
-;  LD A,B
-;  CALL WaitOnTask
-;Is graphics initialization done?
-  LD B,%11000001
+;Set up cutscene player
+  LD HL,Cutscene_Actors
+  LD C,$20
+  XOR A
 -
-  CALL HaltTask
-  LD A,(LCDControl)
-  XOR B
+  LDI (HL),A
+  DEC C
   JR nz,-
-;;Put map on screen
-;  LD BC,LoadToVRAM_Task
-;  LD DE,LoadMapMagicVal
-;  LD A,4
-;  CALL NewTask
-;;Reposition the map... later
-;;Let the map finish loading!
-;  LD A,B
-;  CALL WaitOnTask
-;;Fade in
-;  LD A,%11111110
-;  LD (BkgPal),A
-;  CALL HaltTask
-;  CALL HaltTask
-;  CALL HaltTask
-;  LD A,%11111010
-;  LD (BkgPal),A
-;  CALL HaltTask
-;  CALL HaltTask
-;  CALL HaltTask
-;  LD A,%11111001
-;  LD (BkgPal),A
-;  CALL HaltTask
-;  CALL HaltTask
-;  CALL HaltTask
-;  LD A,%11101001
-;  LD (BkgPal),A
-;  CALL HaltTask
-;  CALL HaltTask
-;  CALL HaltTask
-;  LD A,%11100100
-;  LD (BkgPal),A
-;  CALL HaltTask
-;  CALL HaltTask
-;  CALL HaltTask
-;  LD A,%11100100
-;  LD (BkgPal),A
+;Play opening cutscene
+  LD DE,OpeningDemo
+  LD BC,Cutscene_Task
+  CALL NewTask
 ;Sprites
 ;Collision
   LD BC,HitboxUpdate_Task
@@ -632,80 +583,8 @@ LoadTitle:
 ;Now pausable
   LD BC,PauseTask
   CALL NewTask
-;Start up cutscene player
-;Play opening cutscene
-  LD DE,OpeningDemo
-  LD BC,Cutscene_Task
-  CALL NewTask
-  JP EndTask
-;Hat
-;  LD DE,$4048
-;  LD BC,HatInit
-;  CALL NewTask
-;  CALL HaltTask
-;  LD A,%11000011
-;  LD (LCDControl),A
-;;Menu?
-;;Give control to player
-;  LD DE,$3040   ;X, then Y
-;  LD A,%10000000
-;  LD BC,CharaFrame
-;  CALL NewTask
-
-;  LD DE,StringTestMessage
-;  LD BC,TextStart   ;Testing Text processing
-;  CALL NewTask      ;This requires a text pointer now (Yay!)
-;;Wait a few seconds and add characters with time
-;;Using Narumi b/c she doesn't move, and has a known size dummy load
-;  LD DE,$4090
-;--
-;-
-;  CALL HaltTask
-;  LDH A,($FE)
-;  AND $00000001 ;Looking for A presses
-;  JR z,-
-;  LD BC,NarumiFrame
-;  CALL NewTask
-;  LD A,E
-;  SUB $11
-;  LD E,A
-;  JR nc,--
-;  LD E,$90
-;  LD A,D
-;  SUB $11
-;  LD D,A
-;  JR nz,--
-;  JP EndTask
-
-OpeningAnimation:
-;Darken the screen from "Kinda dark" to "Black" over time.
-  LD C,2
---
-  LD A,30
--
-  CALL HaltTask
-  DEC A
-  JR nz,-
-  LD HL,BkgPal
-  INC (HL)
-  DEC C
-  JR nz,--
   JP EndTask
 .ENDS
-
-
-;
-;While functional, the decompressor still takes a long time!
-;Even with the "long" opening decay, the user is left waiting
-;What we can do:
-    ;Load less graphics
-    ;Load graphics in tandem with the opening cinematic
-    ;Make it faster
-;I like the sound of 2, because it implies making code that can load graphics
-;for us at any time, very useful for any game that requires more graphics than
-;there is VRAM space
-;Dangerously close to setting up the multitasker, though...
-;Done.
 
 
 ;16 bit Linear-Feedback Shift Register, for random number generation

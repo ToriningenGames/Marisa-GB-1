@@ -33,42 +33,9 @@
     ;2 bytes: X position (8.8)
     ;2 bytes: Y position (8.8)
     ;2 bytes: radius (8.8)
-    ;2 bytes: Action
+    ;2 bytes: Action. Signature:
         ;BC->Owning actor
         ;DE->Touching actor
-
-;Standard Message format:
-;MSG= %YYYYYYY0 XXXXXXXX: Set position
-      ;|||||||| ++++++++---- X position, pixels
-      ;++++++++------------- Y position, pixels
-;MSG= %00000001 SSSSSSSS: Move position
-      ;         ++++++++---- Move speed (4.4)
-;MSG= %DD100001 TTTTTTTT: Move position
-      ;||       ++++++++---- Time
-      ;++------------------- Direction
-            ;0, actor moves up
-            ;1, actor moves left
-            ;2, actor moves down
-            ;3, actor moves right
-;MSG= %00000011 AAAAAAAA: Play animation
-      ;         ++++++++---- Animation ID
-      ;             0: Left face
-      ;             1: Down face
-      ;             2: Right face
-      ;             3: Up face
-      ;             4: Left walk
-      ;             5: Down walk
-      ;             6: Right walk
-      ;             7: Up walk
-      ;             8: Left idle
-      ;             9: Down idle
-      ;             10: Right idle
-      ;             11: Up idle
-;MSG= %00001011 SSSSSSSS: Set animation speed
-      ;         ++++++++---- Animation speed
-;MSG= %00001111 ********: Cutscene control start
-;MSG= %00010111 ********: Cutscene control stop
-;MSG= %00000111 ********: Delete self
 
 ;STATS:
     ;W/ Minimal game items (only actor stuff, tasks, music, dummy hat):
@@ -396,7 +363,6 @@ HatDrawHackEntry:
   JR nz,-
   RET
 
-;Call to move the actor one speed unit
 ;!NEW! Call to move the actor in the indicated X and Y delta, with bg collision
 Actor_Move:
 ;BC = X delta
@@ -500,7 +466,7 @@ Actor_Move:
     LD H,>ColArea
     LD A,C    ;Bit portion
     AND $07
-    ;"BIT A,(HL)" here
+    ;"BIT A,(HL)"
     LD C,A
     LD A,(HL)
     INC C
@@ -522,11 +488,6 @@ Actor_Move:
   LDD (HL),A
 +
   RET
-
-;What are we storing?
-    ;2 byte pointer to object area
-    ;...for 8 items...
-    ;Not anymore.
 
 ;Remove from sprite viewing order
 Actor_Hide:
@@ -582,6 +543,185 @@ Actor_Show:
   INC HL
   LD (HL),D
   RET
+
+;Process common messages
+    ;1: Snap to X location
+        ;E= X position, in pixels
+    ;2: Snap to Y location
+        ;E= Y position, in pixels
+    ;3: Set animation speed
+        ;E= speed
+    ;4: Set actor speed
+        ;E= speed (4.4) pixels/frame
+    ;5: Move actor up
+        ;E= distance (pixels)
+    ;6: Move actor down
+        ;E= distance (pixels)
+    ;7: Move actor left
+        ;E= distance (pixels)
+    ;8: Move actor right
+        ;E= distance (pixels)
+    ;128: Cease existing
+    ;129: Start/Stop cutscene control
+    ;130: Play animation
+        ;E= animation ID
+Actor_Message:
+;DE->Actor data
+;Destroys A,BC,HL
+  CALL MsgGet
+  RET c
+  ;Message get!
+  ;H= Message ID
+  ;L= Data
+  LD A,L
+  DEC H
+  JR nz,+
+  ;Snap to X position
+  LD HL,_MasterX+1
+  ADD HL,DE
+  LDD (HL),A
+  ;LD (HL),0    ;If subpixel position causes problems, use this line
+  JR Actor_Message  ;Check for more messages
++
+  DEC H
+  JR nz,+
+  ;Snap to Y position
+  LD HL,_MasterY+1
+  ADD HL,DE
+  LDD (HL),A
+  JR Actor_Message  ;Check for more messages
++
+  DEC H
+  JR nz,+
+  ;Set animation speed
+  LD HL,_MoveSpeed
+  ADD HL,DE
+  ;4.4 to 8.8
+  SWAP A
+  LD C,A
+  AND $F0
+  LDI (HL),A
+  LD A,$0F
+  AND C
+  LD (HL),A
+  JR Actor_Message  ;Check for more messages
++
+  DEC H
+  JR nz,+
+  ;Move Actor up/down/left/right
+  LD A,L
+  LD BC,Actor_DistMove_Task
+  CALL NewTask
+  JR Actor_Message  ;Check for more messages
++
+  LD A,8
+  ADD H
+  LD H,A
+  RET   ;Actor-specific message
+
+;Move actor in a direction over a certain distance
+Actor_DistMove_Task:
+;DE->Actor Data
+;A= %DDLLLLLL
+    ;||++++++--- Length of move, in pixels
+    ;++--------- Direction U/D/L/R
+  LD B,A
+  AND $3F
+  BIT 7,B
+  JR nz,++
+  BIT 6,B
+  JR nz,+
+    ;Up movement
+-
+  CALL HaltTask
+  PUSH AF   ;Distance
+    LD HL,_MoveSpeed
+    ADD HL,DE
+    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
+    LD C,A
+    LD B,(HL)
+    LD HL,_MasterY
+    LD A,(HL)
+    SUB C
+    LDI (HL),A
+    LD A,(HL)
+    SBC B
+    LD (HL),A
+  POP AF
+  SUB B
+  JR nc,-
+  SUB (HL) ;Pos Hi
+  LD (HL),A ;Subtracting negative overflow to make position exact
+  JP EndTask
++   ;Down movement
+-
+  CALL HaltTask
+  PUSH AF   ;Distance
+    LD HL,_MoveSpeed
+    ADD HL,DE
+    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
+    LD C,A
+    LD B,(HL)
+    LD HL,_MasterY
+    LD A,(HL)
+    ADD C
+    LDI (HL),A
+    LD A,(HL)
+    ADC B
+    LD (HL),A
+  POP AF
+  SUB B
+  JR nc,-
+  ADD (HL) ;Pos Hi
+  LD (HL),A ;Adding negative overflow to make position exact
+  JP EndTask
+++  ;Left/Right
+  BIT 6,B
+  JR nz,+
+    ;Left movement
+-
+  CALL HaltTask
+  PUSH AF   ;Distance
+    LD HL,_MoveSpeed
+    ADD HL,DE
+    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
+    LD C,A
+    LD B,(HL)
+    LD HL,_MasterX
+    LD A,(HL)
+    SUB C
+    LDI (HL),A
+    LD A,(HL)
+    SBC B
+    LD (HL),A
+  POP AF
+  SUB B
+  JR nc,-
+  SUB (HL) ;Pos Hi
+  LD (HL),A ;Subtracting negative overflow to make position exact
+  JP EndTask
++   ;Right movement
+-
+  CALL HaltTask
+  PUSH AF   ;Distance
+    LD HL,_MoveSpeed
+    ADD HL,DE
+    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
+    LD C,A
+    LD B,(HL)
+    LD HL,_MasterX
+    LD A,(HL)
+    ADD C
+    LDI (HL),A
+    LD A,(HL)
+    ADC B
+    LD (HL),A
+  POP AF
+  SUB B
+  JR nc,-
+  ADD (HL) ;Pos Hi
+  LD (HL),A ;Adding negative overflow to make position exact
+  JP EndTask
 .ENDS
 
 .DEFINE HitboxStart     $C400

@@ -42,8 +42,6 @@ CharaFrame:
     ;1 = left
     ;2 = up
     ;3 = down
-;D = X start
-;E = Y start
 ;Convert from numerical direction to boolean direction
   RLCA
   RLCA
@@ -62,8 +60,6 @@ CharaFrame:
 +
   ADD %00010000
   PUSH AF
-    LD A,B
-    LD (Cutscene_Actors+1),A
     CALL Actor_New
     LD HL,_ButtonState
     ADD HL,DE
@@ -92,18 +88,16 @@ CharaFrame:
 -
   CALL HaltTask
 ;Frame loop
-;Got a message?
-  CALL MsgGet
+;Handle messages
+--
+  CALL Actor_Message
   JR c,+
-;Message get!
+;Marisa specifc message
 ;Messages Marisa will care about:
-    ;Cease existing
-    ;Stop moving
-    ;Start moving again
-    ;Cutscene manipulation
-;These things ought to be universal to all actors; cutscenes will be messaging
-    ;to control all characters in a scene
-+   ;No messages
+    ;x: Cutscene control
+    ;x: Play animation
+    ;x: Destruct
++   ;No Marisa messages
   LD HL,_ButtonState
   ADD HL,DE
   LDH A,($FE)
