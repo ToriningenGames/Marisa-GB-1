@@ -323,14 +323,13 @@ Cutscene_ActorMovement:     ;TEST
     ;               1: Set Y position
     ;               2: Set actor speed
     ;               3: Move actor up
-    ;               4: Move actor down
-    ;               5: Move actor left
+    ;               4: Move actor left
+    ;               5: Move actor down
     ;               6: Move actor right
-    ;               7: Set anim speed
 ;E= Value
     ;Set X, Y: Position (pixels)
     ;Actor speed: Pixels/frame (4.4)
-    ;Move actor U/D/L/R: Distance (pixels)
+    ;Move actor U/L/D/R: Distance (pixels)
     ;Anim speed: speed val
   LD H,>Cutscene_Actors
   LD A,$1F
@@ -491,19 +490,22 @@ Cutscene_DanmakuInit        ;WRITE
  .db 7,0,ID
 .ENDM
 .MACRO CsSetActor ARGS ID, X, Y
-; .db 9,((X<<2) & $FC) | ((Y>>3) & $03),ID | ((Y<<5) & $07)
+ .db 9,X,ID | ((0)*32)
+ .db 9,Y,ID | ((1)*32)
 .ENDM
-.MACRO CsAnimateActor ARGS ID, anim
-; .db 8,anim,ID
+.MACRO CsAnimateActor ARGS ID, anim                     ;Borks portrait & text
+ .db 8,anim,ID | ((1)*32)
 .ENDM
-.MACRO CsAnimSpeed ARGS ID, animspeed
-; .db 8,animspeed,ID
+.MACRO CsAnimSpeed ARGS ID, animspeed                   ;Borks portrait
+ .db 8,animspeed,ID | ((0)*32)
 .ENDM
-.MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
-; .db 9,dist/speed,(dir<<6) | $20 | ID
+.MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist       ;Borks text box
+ .db 9,speed*16,ID | ((2)*32)
+ .db 9,dist, ID | ((dir + 2)*32)
 .ENDM
 .MACRO CsMoveActorTime ARGS ID, dir, time, dist
-; .db 9,time,(dir<<6) | $20 | ID
+ .db 9,dist/time*16,ID | $40
+ .db 9,dist, ID | ((dir + 2)*32)
 .ENDM
 .MACRO CsLoadObjColor ARGS color0, color1
  .db 10,color1,color0
@@ -631,15 +633,15 @@ OpeningDemo:
   CsAnimateActor 5,CsAnWalkRight
   CsAnimateActor 6,CsAnWalkLeft
   CsAnimateActor 7,CsAnWalkLeft
-  CsSetActor 1,10,16
+  CsSetActor 1,80,128
   CsWait 1      ;Task relief
-  CsSetActor 2,6,16
-  CsSetActor 3,14,17
-  CsSetActor 4,9,29
-  CsSetActor 5,5,24
-  CsSetActor 6,16,19
+  CsSetActor 2,96,128
+  CsSetActor 3,112,136
+  CsSetActor 4,72,232
+  CsSetActor 5,40,192
+  CsSetActor 6,128,152
   CsWait 1      ;Task relief
-  CsSetActor 7,17,28
+  CsSetActor 7,136,224
   CsMoveActorTime 4,CsDirUp,255,96
   CsMoveActorSpeed 5,CsDirRight,1.5,72
   CsMoveActorSpeed 6,CsDirLeft,1.1,40
@@ -669,7 +671,7 @@ OpeningDemo:
   CsAlterMap 0      ;Door open
   CsNewActor 8,CsChAlice,0
   CsAnimateActor 8,CsAnFaceDown
-  CsSetActor 8,8,10.5
+  CsSetActor 8,64,84
   CsWait 5
   CsAnimateActor 1,CsAnFaceUp
   CsWait 3

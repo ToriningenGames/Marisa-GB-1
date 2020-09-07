@@ -61,6 +61,10 @@
  .db $00,$00,$73,%00000000  ;Leg right
 
 FairyFrame:
-  JP EndTask
+  CALL MsgClear     ;Null actor
+  CALL Actor_New
+  CALL HaltTask
+  CALL Actor_Message
+  RET
 
 .ENDS

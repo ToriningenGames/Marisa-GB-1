@@ -553,9 +553,9 @@ Actor_Show:
         ;E= speed (4.4) pixels/frame
     ;3: Move actor up
         ;E= distance (pixels)
-    ;4: Move actor down
+    ;4: Move actor left
         ;E= distance (pixels)
-    ;5: Move actor left
+    ;5: Move actor down
         ;E= distance (pixels)
     ;6: Move actor right
         ;E= distance (pixels)
@@ -661,32 +661,7 @@ Actor_DistMove_Task:
   SUB (HL) ;Pos Hi
   LD (HL),A ;Subtracting negative overflow to make position exact
   JP EndTask
-+   ;Down movement
--
-  CALL HaltTask
-  PUSH AF   ;Distance
-    LD HL,_MoveSpeed
-    ADD HL,DE
-    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
-    LD C,A
-    LD B,(HL)
-    LD HL,_MasterY
-    LD A,(HL)
-    ADD C
-    LDI (HL),A
-    LD A,(HL)
-    ADC B
-    LD (HL),A
-  POP AF
-  SUB B
-  JR nc,-
-  ADD (HL) ;Pos Hi
-  LD (HL),A ;Adding negative overflow to make position exact
-  JP EndTask
-++  ;Left/Right
-  BIT 6,B
-  JR nz,+
-    ;Left movement
++   ;Left movement
 -
   CALL HaltTask
   PUSH AF   ;Distance
@@ -706,6 +681,31 @@ Actor_DistMove_Task:
   SUB B
   JR nc,-
   SUB (HL) ;Pos Hi
+  LD (HL),A ;Adding negative overflow to make position exact
+  JP EndTask
+++  ;Down/Right
+  BIT 6,B
+  JR nz,+
+    ;Down movement
+-
+  CALL HaltTask
+  PUSH AF   ;Distance
+    LD HL,_MoveSpeed
+    ADD HL,DE
+    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
+    LD C,A
+    LD B,(HL)
+    LD HL,_MasterY
+    LD A,(HL)
+    ADD C
+    LDI (HL),A
+    LD A,(HL)
+    ADC B
+    LD (HL),A
+  POP AF
+  SUB B
+  JR nc,-
+  ADD (HL) ;Pos Hi
   LD (HL),A ;Subtracting negative overflow to make position exact
   JP EndTask
 +   ;Right movement
