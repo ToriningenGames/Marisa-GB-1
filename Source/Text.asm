@@ -253,7 +253,7 @@ TextProcessControlReturn:
   LD H,>TextData
   LD (HL),A
   LD A,L
-  LoadVRAMptA 1, 1
+  LoadVRAMptA 1, 1      ;Don't initiate a task for this.
   CALL Text_MoveRight
   JR TextProcessLoop
 

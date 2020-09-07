@@ -315,7 +315,7 @@ Cutscene_ActorDelete:       ;TEST
   JR c,-
   JP EndTask
 
-Cutscene_ActorMovement:     ;TEST
+Cutscene_ActorMovement:
 ;D= %DDDIIIII
     ;|||+++++--- Reference ID
     ;+++-------- Action
@@ -351,7 +351,7 @@ Cutscene_ActorMovement:     ;TEST
   CALL HaltTask
   JR -
 
-Cutscene_ActorAnimate:      ;TEST
+Cutscene_ActorAnimate:
 ;D= %DDDIIIII
     ;|||+++++--- Reference ID
     ;+++-------- Action
@@ -493,13 +493,13 @@ Cutscene_DanmakuInit        ;WRITE
  .db 9,X,ID | ((0)*32)
  .db 9,Y,ID | ((1)*32)
 .ENDM
-.MACRO CsAnimateActor ARGS ID, anim                     ;Borks portrait & text
+.MACRO CsAnimateActor ARGS ID, anim
  .db 8,anim,ID | ((1)*32)
 .ENDM
-.MACRO CsAnimSpeed ARGS ID, animspeed                   ;Borks portrait
+.MACRO CsAnimSpeed ARGS ID, animspeed
  .db 8,animspeed,ID | ((0)*32)
 .ENDM
-.MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist       ;Borks text box
+.MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
  .db 9,speed*16,ID | ((2)*32)
  .db 9,dist, ID | ((dir + 2)*32)
 .ENDM

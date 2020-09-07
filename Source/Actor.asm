@@ -600,7 +600,7 @@ Actor_Message:
   JR z,+
   DEC H
   JR nz,++
-+   ;Move Actor up/down/left/right
++   ;Move Actor up/left/down/right
   LD A,L
   LD BC,Actor_DistMove_Task
   CALL NewTask
@@ -632,7 +632,7 @@ Actor_DistMove_Task:
 ;DE->Actor Data
 ;A= %DDLLLLLL
     ;||++++++--- Length of move, in pixels
-    ;++--------- Direction U/D/L/R
+    ;++--------- Direction U/L/D/R
   LD B,A
   AND $3F
   BIT 7,B
@@ -649,6 +649,7 @@ Actor_DistMove_Task:
     LD C,A
     LD B,(HL)
     LD HL,_MasterY
+    ADD HL,DE
     LD A,(HL)
     SUB C
     LDI (HL),A
@@ -671,6 +672,7 @@ Actor_DistMove_Task:
     LD C,A
     LD B,(HL)
     LD HL,_MasterX
+    ADD HL,DE
     LD A,(HL)
     SUB C
     LDI (HL),A
@@ -696,6 +698,7 @@ Actor_DistMove_Task:
     LD C,A
     LD B,(HL)
     LD HL,_MasterY
+    ADD HL,DE
     LD A,(HL)
     ADD C
     LDI (HL),A
@@ -718,6 +721,7 @@ Actor_DistMove_Task:
     LD C,A
     LD B,(HL)
     LD HL,_MasterX
+    ADD HL,DE
     LD A,(HL)
     ADD C
     LDI (HL),A
