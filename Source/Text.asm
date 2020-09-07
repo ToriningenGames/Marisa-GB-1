@@ -641,29 +641,38 @@ Text_SetSpeed:
   RET
 
 Text_ShowFace:
+  POP HL    ;Return
+-
   LD A,(BC)
   INC BC
   PUSH BC
-  LD BC,FaceShow_Task
-  CALL NewTask
+    LD BC,FaceShow_Task
+    CALL NewTask
   POP BC
   LD A,1
-  POP HL    ;Return
-  JP _textWaitLoop
+  JP nc,_textWaitLoop
+  DEC BC        ;If not enough tasks, try again next frame
+  CALL HaltTask
+  JR -
 
 Text_LoadFace:
+  POP HL        ;Return
+-
   PUSH DE
-  LD A,(BC)
-  INC BC
-  LD D,A
-  LD A,(BC)
-  INC BC
-  PUSH BC
-  LD BC,FaceLoad_Task
-  CALL NewTask
-  POP BC
+    LD A,(BC)
+    INC BC
+    LD D,A
+    LD A,(BC)
+    INC BC
+    PUSH BC
+      LD BC,FaceLoad_Task
+      CALL NewTask
+    POP BC
   POP DE
-  RET
+  JP nc,TextProcessControlReturn
+  DEC BC    ;If task unavailable, try again next time
+  DEC BC
+  JR -
 
 Text_LoadBorder:
   LD A,(BC)

@@ -102,7 +102,7 @@ Cutscene_Task:
   OR A
   JP z,Cutscene_End
   LD H,>Cutscene_LUT
-  RLA
+  RLA       ;Carry out here important
   LD L,A
   LD A,(BC)
   INC BC
@@ -117,7 +117,13 @@ Cutscene_Task:
     LD B,(HL)
     CALL NewTask
   POP BC
-  JR -
+  JR nc,-
+  DEC BC    ;If task creation failed, try again next frame
+  DEC BC
+  DEC BC
+  ;CALL HaltTask
+  ;JR -
+  LD DE,$0101   ;Use the user's wait routine
 +
 --
   CALL HaltTask
@@ -501,11 +507,11 @@ Cutscene_DanmakuInit        ;WRITE
 .ENDM
 .MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
  .db 9,speed*16,ID | ((2)*32)
- .db 9,dist, ID | ((dir + 2)*32)
+ .db 9,dist, ID | ((dir + 3)*32)
 .ENDM
 .MACRO CsMoveActorTime ARGS ID, dir, time, dist
- .db 9,dist/time*16,ID | $40
- .db 9,dist, ID | ((dir + 2)*32)
+ .db 9,dist/time*16,ID | ((2)*32)
+ .db 9,dist, ID | ((dir + 3)*32)
 .ENDM
 .MACRO CsLoadObjColor ARGS color0, color1
  .db 10,color1,color0
@@ -603,50 +609,42 @@ OpeningDemo:
   CsWait 15
   CsLoadMap MapForest02
   CsSetCamera 0,112
-  CsWait 1      ;Task relief
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  CsWait 1      ;Task relief
   CsNewActor 2,CsChReimu,0
   CsNewActor 3,CsChNarumi,0
   CsInputOff
-  CsWait 1      ;Task relief
   CsAssignHat 1
   CsNewActor 4,CsChFairy,$00
   CsNewActor 5,CsChFairy,$54
   CsNewActor 6,CsChFairy,$A8
   CsNewActor 7,CsChFairy,$68
-  CsWait 1      ;Task relief
   CsAnimSpeed 1,$10
   CsAnimSpeed 2,$10
   CsAnimSpeed 3,$10
   CsAnimSpeed 4,$10
   CsAnimSpeed 5,$10
-  CsWait 1      ;Task relief
   CsAnimSpeed 6,$10
   CsAnimSpeed 7,$10
   CsAnimateActor 1,CsAnFaceLeft
   CsAnimateActor 2,CsAnFaceRight
   CsAnimateActor 3,CsAnFaceDown
-  CsWait 1      ;Task relief
   CsAnimateActor 4,CsAnWalkUp
   CsAnimateActor 5,CsAnWalkRight
   CsAnimateActor 6,CsAnWalkLeft
   CsAnimateActor 7,CsAnWalkLeft
   CsSetActor 1,80,128
-  CsWait 1      ;Task relief
   CsSetActor 2,96,128
   CsSetActor 3,112,136
   CsSetActor 4,72,232
   CsSetActor 5,40,192
   CsSetActor 6,128,152
-  CsWait 1      ;Task relief
   CsSetActor 7,136,224
+  CsWait 7      ;Wait for map load
   CsMoveActorTime 4,CsDirUp,255,96
   CsMoveActorSpeed 5,CsDirRight,1.5,72
   CsMoveActorSpeed 6,CsDirLeft,1.1,40
   CsMoveActorSpeed 7,CsDirLeft,1,96
-  CsWait 7      ;Wait for map load
  ;   Fade in
   CsLoadBkgColor %11111110
   CsLoadObjColor %11111000,%11111100

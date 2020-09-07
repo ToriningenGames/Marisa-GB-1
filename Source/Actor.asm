@@ -622,7 +622,7 @@ Actor_Message:
   LD (HL),A
   JR Actor_Message  ;Check for more messages
 +
-  LD A,8
+  LD A,7    ;No. of handles - 1 (we incremented at first to allow 0)
   ADD H
   LD H,A
   RET   ;Actor-specific message
