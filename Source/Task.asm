@@ -279,6 +279,7 @@ MsgClearOtherTask:      ;Don't use, stupid.
   DEC B
   JR nz,-
   RET
+
 MsgSend:
 ;A = Target ID
 ;BC = Data

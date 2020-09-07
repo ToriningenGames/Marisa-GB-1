@@ -1,1 +1,2 @@
-Alice.lib: Source\Alice.asm
+Alice.lib: Source\Alice.asm \
+	Source\ActorData.asm

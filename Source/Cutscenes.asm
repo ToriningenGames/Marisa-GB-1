@@ -277,10 +277,10 @@ Cutscene_ActorNew:
     ;||++------- Dress type
     ;++--------- Hair type
   PUSH BC       ;Task info
-    LD HL,Cutscene_Actors
+    LD H,>Cutscene_Actors
     LD A,$1F
     AND D
-    ADD L
+    ADD <Cutscene_Actors
     LD L,A
 ;Should the slot already be filled, do we
     ;Delete the old one?
@@ -353,12 +353,20 @@ Cutscene_ActorMovement:
   LD B,A
   LD C,E
   ;Send the message
-  LD A,(HL)
 -
+  LD A,(HL)
+  OR A
+  JR nz,_f
+  LD E,L
+  CALL HaltTask ;If actor does not exist, wait for them
+  LD L,E
+  LD H,>Cutscene_Actors
+  JR -
+__
   CALL MsgSend
   JP nc,EndTask
   CALL HaltTask
-  JR -
+  JR _b
 
 Cutscene_ActorAnimate:
 ;D= %DDDIIIII
@@ -383,8 +391,7 @@ Cutscene_ActorAnimate:
   LD B,A
   LD C,E
   ;Send the message
-  LD A,(HL)
-  JR -  ;Use previous taskloop
+  JR -  ;Use ActorMovement's message loop
 
 Cutscene_MapLoad:
 ;DE->Map Data
@@ -615,7 +622,7 @@ OpeningDemo:
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
   CsNewActor 2,CsChReimu,0
-;  CsNewActor 3,CsChNarumi,0
+  CsNewActor 3,CsChNarumi,0
   CsInputOff
   CsAssignHat 1
   CsNewActor 4,CsChFairy,$00
@@ -624,21 +631,21 @@ OpeningDemo:
   CsNewActor 7,CsChFairy,$68
   CsAnimSpeed 1,$10
   CsAnimSpeed 2,$10
-;  CsAnimSpeed 3,$10
+  CsAnimSpeed 3,$10
   CsAnimSpeed 4,$10
   CsAnimSpeed 5,$10
   CsAnimSpeed 6,$10
   CsAnimSpeed 7,$10
   CsAnimateActor 1,CsAnFaceLeft
   CsAnimateActor 2,CsAnFaceRight
-;  CsAnimateActor 3,CsAnFaceDown
+  CsAnimateActor 3,CsAnFaceDown
   CsAnimateActor 4,CsAnWalkUp
   CsAnimateActor 5,CsAnWalkRight
   CsAnimateActor 6,CsAnWalkLeft
   CsAnimateActor 7,CsAnWalkLeft
   CsSetActor 1,80,128
   CsSetActor 2,96,128
-;  CsSetActor 3,112,136
+  CsSetActor 3,112,136
   CsSetActor 4,72,232
   CsSetActor 5,40,192
   CsSetActor 6,128,152
@@ -671,6 +678,7 @@ OpeningDemo:
   CsWait 300+120    ;2 second pause
   CsAlterMap 0      ;Door open
   CsNewActor 8,CsChAlice,0
+  CsAnimSpeed 8,$10
   CsAnimateActor 8,CsAnFaceDown
   CsSetActor 8,64,84
   CsWait 5

@@ -1,1 +1,2 @@
-Fairy.lib: Source\Fairy.asm
+Fairy.lib: Source\Fairy.asm \
+	Source\ActorData.asm

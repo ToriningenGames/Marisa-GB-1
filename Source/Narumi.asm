@@ -38,6 +38,7 @@ NarumiFrame:
     ;x: Play animation
     ;x: Destruct
 +
+  OR A  ;Clear carry
   JP Actor_Draw
 
 _DownFace:
