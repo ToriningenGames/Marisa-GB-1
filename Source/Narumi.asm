@@ -33,6 +33,9 @@ NarumiFrame:
   CALL Actor_Message
   JR c,+
   ;Narumi specific messages
+    ;x: Cutscene control
+    ;x: Play animation
+    ;x: Destruct
 +
   JP Actor_Draw
 

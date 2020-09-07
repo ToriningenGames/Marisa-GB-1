@@ -68,16 +68,14 @@ Cutscene_LUT:
  .dw Cutscene_CameraMove
  .dw Cutscene_ActorNew
  .dw Cutscene_ActorDelete
- .dw Cutscene_ActorSet
  .dw Cutscene_ActorAnimate
- .dw Cutscene_ActorMove
+ .dw Cutscene_ActorMovement
  .dw Cutscene_ObjPaletteLoad
  .dw Cutscene_BkgPaletteLoad
  .dw Cutscene_MapLoad
  .dw Cutscene_SongLoad
  .dw Cutscene_SongPan
  .dw Cutscene_HatAssign
- .dw Cutscene_AnimateSpeed
  .dw Cutscene_MapAlter
  .dw Cutscene_DanmakuInit
 
@@ -317,112 +315,68 @@ Cutscene_ActorDelete:       ;TEST
   JR c,-
   JP EndTask
 
-Cutscene_ActorMove:         ;TEST
-;D= %DDKIIIII
+Cutscene_ActorMovement:     ;TEST
+;D= %DDDIIIII
     ;|||+++++--- Reference ID
-    ;||+-------- Data type
-    ;++--------- Direction
-;If K==0
-  ;E= %SSSSSSSS
-      ;++++++++--- Speed (4.4)
-;If K==1
-  ;E= %TTTTTTTT
-      ;++++++++--- Time
-;Meanings:
-;Direction:
-    ;0, actor moves up
-    ;1, actor moves left
-    ;2, actor moves down
-    ;3, actor moves right
-;Time:
-    ;How many frames to run for
-;Speed:
-    ;Pixels per frame movement
-  LD HL,Cutscene_Actors
+    ;+++-------- Action
+    ;               0: Set X position
+    ;               1: Set Y position
+    ;               2: Set actor speed
+    ;               3: Move actor up
+    ;               4: Move actor down
+    ;               5: Move actor left
+    ;               6: Move actor right
+    ;               7: Set anim speed
+;E= Value
+    ;Set X, Y: Position (pixels)
+    ;Actor speed: Pixels/frame (4.4)
+    ;Move actor U/D/L/R: Distance (pixels)
+    ;Anim speed: speed val
+  LD H,>Cutscene_Actors
   LD A,$1F
   AND D
-  ADD L
+  ADD A,<Cutscene_Actors
   LD L,A
-  ;Register fiddle
+  ;Set the message
+  LD A,$E0
+  AND D
+  SWAP A
+  RRA
+  LD B,A
   LD C,E
-  LD A,$E0
-  AND D
-  OR 1
-  LD B,A
-  ;Send Actor movement message
+  ;Send the message
   LD A,(HL)
 -
   CALL MsgSend
+  JP nc,EndTask
   CALL HaltTask
-  JR c,-
-  JP EndTask
-
-Cutscene_ActorSet:          ;TEST
-;D= %YYYIIIII
-    ;|||+++++--- Reference ID
-    ;+++-------- Lower Y position (in tiles)
-;E= %XXXXXXYY
-    ;||||||++--- Upper Y position
-    ;++++++----- X position (in half tiles)
-  LD HL,Cutscene_Actors
-  LD A,$1F
-  AND D
-  ADD L
-  LD L,A
-  ;Fiddle X and Y into BC
-  LD A,$E0
-  AND D
-  LD B,A
-  LD A,$03
-  AND E
-  OR B
-  RRCA
-  RRCA
-  LD B,A
-  LD A,$FC
-  AND E
-  LD C,A
-  ;Send Actor movement message
-  LD A,(HL)
--
-  CALL MsgSend
-  CALL HaltTask
-  JR c,-
-  JP EndTask
+  JR -
 
 Cutscene_ActorAnimate:      ;TEST
-;D= %000IIIII
-    ;   +++++--- Reference ID
-;E= Animation ID
+;D= %DDDIIIII
+    ;|||+++++--- Reference ID
+    ;+++-------- Action
+    ;               0: Set anim speed
+    ;               1: Play animation
+;E= Value
+    ;Play animation: anim ID
+    ;Anim speed: speed val
   LD H,>Cutscene_Actors
-  LD A,<Cutscene_Actors
-  ADD D
+  LD A,$1F
+  AND D
+  ADD A,<Cutscene_Actors
   LD L,A
+  ;Set the message
+  LD A,$E0
+  AND D
+  SWAP A
+  RRA
+  OR 8
+  LD B,A
+  LD C,E
+  ;Send the message
   LD A,(HL)
-  LD C,E    ;Animation ID
-  LD B,3    ;Animation indicator
--
-  CALL MsgSend
-  CALL HaltTask
-  JR c,-
-  JP EndTask
-
-Cutscene_AnimateSpeed:      ;TEST
-;D= %000IIIII
-    ;   +++++--- Reference ID
-;E= Animation Speed
-  LD H,>Cutscene_Actors
-  LD A,<Cutscene_Actors
-  ADD D
-  LD L,A
-  LD A,(HL)
-  LD C,E    ;Animation ID
-  LD B,11   ;Animation speed indicator
--
-  CALL MsgSend
-  CALL HaltTask
-  JR c,-
-  JP EndTask
+  JR -  ;Use previous taskloop
 
 Cutscene_MapLoad:
 ;DE->Map Data
@@ -537,55 +491,46 @@ Cutscene_DanmakuInit        ;WRITE
  .db 7,0,ID
 .ENDM
 .MACRO CsSetActor ARGS ID, X, Y
- .db 8,((X<<2) & $FC) | ((Y>>3) & $03),ID | ((Y<<5) & $07)
+; .db 9,((X<<2) & $FC) | ((Y>>3) & $03),ID | ((Y<<5) & $07)
 .ENDM
 .MACRO CsAnimateActor ARGS ID, anim
- .db 9,anim,ID
+; .db 8,anim,ID
 .ENDM
 .MACRO CsAnimSpeed ARGS ID, animspeed
- .db 18,animspeed,ID
+; .db 8,animspeed,ID
 .ENDM
-.DEFINE oldspeed -1
 .MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
- .IF speed != oldspeed
-  .db 10,speed<<4,(dir<<6) | ID
- .ENDIF
- .redefine oldspeed speed
- .db 10,dist/speed,(dir<<6) | $20 | ID
+; .db 9,dist/speed,(dir<<6) | $20 | ID
 .ENDM
 .MACRO CsMoveActorTime ARGS ID, dir, time, dist
- .IF dist/time != oldspeed
-  .db 10,dist/time,(dir<<6) | ID
- .ENDIF
- .redefine oldspeed dist/time
- .db 10,time,(dir<<6) | $20 | ID
+; .db 9,time,(dir<<6) | $20 | ID
 .ENDM
 .MACRO CsLoadObjColor ARGS color0, color1
- .db 11,color1,color0
+ .db 10,color1,color0
 .ENDM
 .MACRO CsLoadBkgColor ARGS color
- .db 12,0,color
+ .db 11,0,color
 .ENDM
 .MACRO CsLoadMap ARGS Map
- .db 13
+ .db 12
  .dw Map
 .ENDM
 .MACRO CsLoadSong ARGS Song
- .db 14
+ .db 13
  .dw Song
 .ENDM
 .MACRO CsPanSong ARGS channelSelect, stereoVolume
- .db 15,channelSelect,stereoVolume
+ .db 14,channelSelect,stereoVolume
 .ENDM
 .MACRO CsAssignHat ARGS ID
- .db 16,0,ID
+ .db 15,0,ID
 .ENDM
 .MACRO CsAlterMap ARGS alteration
- .db 18
+ .db 16
  .dw alteration
 .ENDM
 .MACRO CsShootDanmaku ARGS ID, type
- .db 19,type,ID
+ .db 17,type,ID
 .ENDM
 
 .SECTION "Cutscene Data" FREE
@@ -644,6 +589,8 @@ Cutscene_DanmakuInit        ;WRITE
 ;Narumi chills
 ;Fadeout
 OpeningDemo:
+  CsPanSong $FF,$FF
+  CsLoadSong SongSpark
   CsWait 30             ;Fade to black
   CsLoadBkgColor $FD
   CsWait 30
@@ -651,8 +598,6 @@ OpeningDemo:
   CsWait 30
   CsLoadBkgColor $FF
   CsLoadObjColor $FF,$FF
-  CsPanSong $FF,$FF
-  CsLoadSong SongSpark
   CsWait 15
   CsLoadMap MapForest02
   CsSetCamera 0,112

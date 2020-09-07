@@ -545,26 +545,26 @@ Actor_Show:
   RET
 
 ;Process common messages
-    ;1: Snap to X location
+    ;0: Snap to X location
         ;E= X position, in pixels
-    ;2: Snap to Y location
+    ;1: Snap to Y location
         ;E= Y position, in pixels
-    ;3: Set animation speed
-        ;E= speed
-    ;4: Set actor speed
+    ;2: Set actor speed
         ;E= speed (4.4) pixels/frame
-    ;5: Move actor up
+    ;3: Move actor up
         ;E= distance (pixels)
-    ;6: Move actor down
+    ;4: Move actor down
         ;E= distance (pixels)
-    ;7: Move actor left
+    ;5: Move actor left
         ;E= distance (pixels)
-    ;8: Move actor right
+    ;6: Move actor right
         ;E= distance (pixels)
+    ;8: Set animation speed
+        ;E= speed
+    ;9: Play animation
+        ;E= animation ID
     ;128: Cease existing
     ;129: Start/Stop cutscene control
-    ;130: Play animation
-        ;E= animation ID
 Actor_Message:
 ;DE->Actor data
 ;Destroys A,BC,HL
@@ -573,6 +573,7 @@ Actor_Message:
   ;Message get!
   ;H= Message ID
   ;L= Data
+  INC H ;Allow 0
   LD A,L
   DEC H
   JR nz,+
@@ -592,6 +593,21 @@ Actor_Message:
   JR Actor_Message  ;Check for more messages
 +
   DEC H
+  JR z,+
+  DEC H
+  JR z,+
+  DEC H
+  JR z,+
+  DEC H
+  JR nz,++
++   ;Move Actor up/down/left/right
+  LD A,L
+  LD BC,Actor_DistMove_Task
+  CALL NewTask
+  JR Actor_Message  ;Check for more messages
+++
+  DEC H
+  DEC H
   JR nz,+
   ;Set animation speed
   LD HL,_MoveSpeed
@@ -604,14 +620,6 @@ Actor_Message:
   LD A,$0F
   AND C
   LD (HL),A
-  JR Actor_Message  ;Check for more messages
-+
-  DEC H
-  JR nz,+
-  ;Move Actor up/down/left/right
-  LD A,L
-  LD BC,Actor_DistMove_Task
-  CALL NewTask
   JR Actor_Message  ;Check for more messages
 +
   LD A,8
