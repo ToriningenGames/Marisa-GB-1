@@ -63,8 +63,7 @@
  .db $00,$00,$73,%00000000  ;Leg right
 
 FairyFrame:
-  CALL MsgClear     ;Null actor (w/visibility)
-  CALL Actor_New
+  CALL Actor_New    ;Null actor (w/visibility)
   ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE

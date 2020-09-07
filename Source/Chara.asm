@@ -80,7 +80,6 @@ CharaFrame:
   LD (HL),<Speed
   INC HL
   LD (HL),>Speed
-  CALL MsgClear
 ;TODO:
     ;Destructor
     ;Hat play

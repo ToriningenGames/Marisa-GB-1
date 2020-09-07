@@ -568,7 +568,8 @@ Actor_Show:
 Actor_Message:
 ;DE->Actor data
 ;Destroys A,BC,HL
-  CALL MsgGet
+  RET
+-
   RET c
   ;Message get!
   ;H= Message ID
@@ -582,7 +583,7 @@ Actor_Message:
   ADD HL,DE
   LDD (HL),A
   ;LD (HL),0    ;If subpixel position causes problems, use this line
-  JR Actor_Message  ;Check for more messages
+  JR -  ;Check for more messages
 +
   DEC H
   JR nz,+
@@ -590,7 +591,7 @@ Actor_Message:
   LD HL,_MasterY+1
   ADD HL,DE
   LDD (HL),A
-  JR Actor_Message  ;Check for more messages
+  JR -  ;Check for more messages
 +
   DEC H
   JR nz,+
@@ -598,14 +599,16 @@ Actor_Message:
   LD HL,_MoveSpeed
   ADD HL,DE
   ;4.4 to 8.8
-  SWAP A
-  LD C,A
-  AND $F0
-  LDI (HL),A
-  LD A,$0F
-  AND C
-  LD (HL),A
-  JR Actor_Message  ;Check for more messages
+  PUSH BC
+    SWAP A
+    LD C,A
+    AND $F0
+    LDI (HL),A
+    LD A,$0F
+    AND C
+    LD (HL),A
+  POP BC
+  JR -  ;Check for more messages
 +
   DEC H
   JR z,+
@@ -617,9 +620,11 @@ Actor_Message:
   JR nz,++
 +   ;Move Actor up/left/down/right
   LD A,L
-  LD BC,Actor_DistMove_Task
-  CALL NewTask
-  JR Actor_Message  ;Check for more messages
+  PUSH BC
+    LD BC,Actor_DistMove_Task
+    CALL NewTask
+  POP BC
+  JR -  ;Check for more messages
 ++
   DEC H
   DEC H
@@ -628,7 +633,7 @@ Actor_Message:
   LD HL,_AnimSpeed
   ADD HL,DE
   LD (HL),A
-  JR Actor_Message  ;Check for more messages
+  JR -  ;Check for more messages
 +
   LD A,7    ;No. of handles - 1 (we incremented at first to allow 0)
   ADD H

@@ -5,8 +5,7 @@
 .SECTION "Reimu" FREE
 
 ReimuFrame:
-  CALL MsgClear     ;Null actor (w/visibility)
-  CALL Actor_New
+  CALL Actor_New    ;Null actor (w/visibility)
   ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE

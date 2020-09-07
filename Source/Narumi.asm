@@ -10,7 +10,6 @@
 
 NarumiFrame:
 ;Setup
-  CALL MsgClear
   CALL Actor_New
   ;Hitbox setup
   LD HL,_Hitbox

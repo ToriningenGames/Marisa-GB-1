@@ -136,19 +136,19 @@ Cutscene_Task:
 ;Cutscene functions
 Cutscene_End:           ;(Not a task)
   LD HL,Cutscene_Actors
-  LDI A,(HL)
-  LD C,A
-  LD A,(HL)
-  LD B,$17  ;Resume free will
--
-  CALL MsgSend
-  CALL HaltTask
-  JR c,-
-  LD A,C
--
-  CALL MsgSend
-  CALL HaltTask
-  JR c,-
+;  LDI A,(HL)
+;  LD C,A
+;  LD A,(HL)
+;  LD B,$17  ;Resume free will
+;-
+;  CALL MsgSend
+;  CALL HaltTask
+;  JR c,-
+;  LD A,C
+;-
+;  CALL MsgSend
+;  CALL HaltTask
+;  JR c,-
   JP EndTask
 
 Cutscene_CameraMove:
@@ -319,7 +319,7 @@ Cutscene_ActorDelete:       ;TEST
   LD A,(HL)
   LD (HL),0
 -
-  CALL MsgSend
+  OR A
   CALL HaltTask
   JR c,-
   JP EndTask
@@ -363,7 +363,7 @@ Cutscene_ActorMovement:
   LD H,>Cutscene_Actors
   JR -
 __
-  CALL MsgSend
+  OR A  ;Clear carry
   JP nc,EndTask
   CALL HaltTask
   JR _b
