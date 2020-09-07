@@ -276,32 +276,35 @@ Cutscene_ActorNew:
     ;||||++----- Wing type
     ;||++------- Dress type
     ;++--------- Hair type
-  LD HL,Cutscene_Actors
-  LD A,$1F
-  AND D
-  ADD L
-  LD L,A
+  PUSH BC       ;Task info
+    LD HL,Cutscene_Actors
+    LD A,$1F
+    AND D
+    ADD L
+    LD L,A
 ;Should the slot already be filled, do we
     ;Delete the old one?
     ;Forgo the new one?     v
-  LD A,(HL)
-  OR A
-  JP nz,EndTask
-  LD A,$E0
-  AND D
-  SWAP A
-  ADD <CharaTypes
-  PUSH HL
-    LD L,A
-    LD H,>CharaTypes
-    LDI A,(HL)
-    LD B,(HL)
-    LD C,A
-    CALL NewTask
-  POP HL
-  JP c,EndTask  ;If no task slots, abort!!!
-  LD (HL),B
-  JP EndTask
+    LD A,(HL)
+    OR A
+    JP nz,EndTask
+    LD A,$E0
+    AND D
+    SWAP A
+    ADD <CharaTypes
+    PUSH HL
+      LD L,A
+      LD H,>CharaTypes
+      LDI A,(HL)
+      LD B,(HL)
+      LD C,A
+    POP HL
+  POP AF    ;Task info
+  LD (HL),A
+  CALL HaltTask ;Become the new character
+  LD H,B
+  LD L,C
+  JP HL
 
 Cutscene_ActorDelete:       ;TEST
 ;D= %000IIIII
