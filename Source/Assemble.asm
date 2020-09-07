@@ -461,7 +461,7 @@ SoundInit:
   INC L
   LD (HL),B
 
-;Sound test
+;Music init
   LD BC,SongNull
   CALL MusicLoad
   LD A,$FF
@@ -560,7 +560,7 @@ GraphicsInit:
   LD A,2
   CALL NewTask
   LD HL,LCDControl
-  LD (HL),%11000001 ;BKG ON @ $98, WIN OFF @ $9C, SPR OFF & 8x8, BKG TILE @ $88
+  LD (HL),%11000011 ;BKG ON @ $98, WIN OFF @ $9C, SPR ON & 8x8, BKG TILE @ $88
   JP EndTask
 
 LoadTitle:

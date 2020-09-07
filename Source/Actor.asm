@@ -593,6 +593,21 @@ Actor_Message:
   JR Actor_Message  ;Check for more messages
 +
   DEC H
+  JR nz,+
+  ;Set animation speed
+  LD HL,_MoveSpeed
+  ADD HL,DE
+  ;4.4 to 8.8
+  SWAP A
+  LD C,A
+  AND $F0
+  LDI (HL),A
+  LD A,$0F
+  AND C
+  LD (HL),A
+  JR Actor_Message  ;Check for more messages
++
+  DEC H
   JR z,+
   DEC H
   JR z,+
@@ -610,15 +625,8 @@ Actor_Message:
   DEC H
   JR nz,+
   ;Set animation speed
-  LD HL,_MoveSpeed
+  LD HL,_AnimSpeed
   ADD HL,DE
-  ;4.4 to 8.8
-  SWAP A
-  LD C,A
-  AND $F0
-  LDI (HL),A
-  LD A,$0F
-  AND C
   LD (HL),A
   JR Actor_Message  ;Check for more messages
 +

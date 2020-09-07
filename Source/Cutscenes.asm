@@ -599,20 +599,20 @@ Cutscene_DanmakuInit        ;WRITE
 OpeningDemo:
   CsPanSong $FF,$FF
   CsLoadSong SongSpark
-  CsWait 30             ;Fade to black
+  CsWait 10             ;Fade to black
   CsLoadBkgColor $FD
-  CsWait 30
+  CsWait 35
   CsLoadBkgColor $FE
-  CsWait 30
+  CsWait 35
   CsLoadBkgColor $FF
   CsLoadObjColor $FF,$FF
-  CsWait 15
+  CsWait 35
   CsLoadMap MapForest02
   CsSetCamera 0,112
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
   CsNewActor 2,CsChReimu,0
-  CsNewActor 3,CsChNarumi,0
+;  CsNewActor 3,CsChNarumi,0
   CsInputOff
   CsAssignHat 1
   CsNewActor 4,CsChFairy,$00
@@ -621,27 +621,27 @@ OpeningDemo:
   CsNewActor 7,CsChFairy,$68
   CsAnimSpeed 1,$10
   CsAnimSpeed 2,$10
-  CsAnimSpeed 3,$10
+;  CsAnimSpeed 3,$10
   CsAnimSpeed 4,$10
   CsAnimSpeed 5,$10
   CsAnimSpeed 6,$10
   CsAnimSpeed 7,$10
   CsAnimateActor 1,CsAnFaceLeft
   CsAnimateActor 2,CsAnFaceRight
-  CsAnimateActor 3,CsAnFaceDown
+;  CsAnimateActor 3,CsAnFaceDown
   CsAnimateActor 4,CsAnWalkUp
   CsAnimateActor 5,CsAnWalkRight
   CsAnimateActor 6,CsAnWalkLeft
   CsAnimateActor 7,CsAnWalkLeft
   CsSetActor 1,80,128
   CsSetActor 2,96,128
-  CsSetActor 3,112,136
+;  CsSetActor 3,112,136
   CsSetActor 4,72,232
   CsSetActor 5,40,192
   CsSetActor 6,128,152
   CsSetActor 7,136,224
   CsWait 7      ;Wait for map load
-  CsMoveActorTime 4,CsDirUp,255,96
+  CsMoveActorTime 4,CsDirUp,300,96
   CsMoveActorSpeed 5,CsDirRight,1.5,72
   CsMoveActorSpeed 6,CsDirLeft,1.1,40
   CsMoveActorSpeed 7,CsDirLeft,1,96
@@ -678,7 +678,7 @@ OpeningDemo:
   CsRunText StringDemoMessage1
   CsAlterMap 0      ;Door close
   CsAnimateActor 8,CsAnWalkDown
-  CsMoveActorTime 8,CsDirDown,5,2.5
+  CsMoveActorTime 8,CsDirDown,5,20
   CsWait 5
   CsAnimateActor 8,CsAnFaceDown
   CsWait 65000  ;Dialog finish wait
