@@ -53,8 +53,10 @@
 .DEFINE _MoveSpeed $0C
 .DEFINE _Hitbox $0E
 .DEFINE _Visible $10
+.DEFINE _LandingPad $1D
 .DEFINE _HatVal $1F
 
 .DEFINE _ButtonState $11
 
 .DEFINE _ParentChar $11
+

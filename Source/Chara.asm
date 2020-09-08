@@ -89,14 +89,13 @@ CharaFrame:
 ;Frame loop
 ;Handle messages
 --
-  CALL Actor_Message
-  JR c,+
+  LD HL,_LandingPad
+  ADD HL,DE
 ;Marisa specifc message
 ;Messages Marisa will care about:
     ;x: Cutscene control
     ;x: Play animation
     ;x: Destruct
-+   ;No Marisa messages
   LD HL,_ButtonState
   ADD HL,DE
   LDH A,($FE)

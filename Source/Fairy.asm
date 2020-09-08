@@ -82,13 +82,12 @@ FairyFrame:
     CALL Actor_Draw
   POP DE
   CALL HaltTask
-  CALL Actor_Message
-  JR c,+
+  LD HL,_LandingPad
+  ADD HL,DE
 ;Fairy specific messages
     ;x: Cutscene control
     ;x: Play animation
     ;x: Destruct
-+
   OR A  ;Clear carry
   JP Actor_Draw
 

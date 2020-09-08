@@ -1,1 +1,2 @@
-Cutscenes.lib: Source\Cutscenes.asm
+Cutscenes.lib: Source\Cutscenes.asm \
+	Source\ActorData.asm

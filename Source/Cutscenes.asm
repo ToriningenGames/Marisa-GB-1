@@ -90,6 +90,22 @@ CharaTypes:
 .DEFINE Cutscene_Actors $C0A0
 .EXPORT Cutscene_Actors
 
+.include "ActorData.asm"
+
+
+_Access_ActorDE:
+;A= Task ID
+;Returns task's DE in HL
+  LD H,>taskpointer
+  RLA
+  RLA
+  RLA
+  ADD <taskpointer + 4
+  LD L,A
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  RET
 
 ;Cutscene loop
 Cutscene_Task:
@@ -315,13 +331,12 @@ Cutscene_ActorDelete:       ;TEST
   ADD L
   LD L,A
   ;Send deletion message
-  LD B,$07
   LD A,(HL)
   LD (HL),0
--
-  OR A
-  CALL HaltTask
-  JR c,-
+  CALL _Access_ActorDE
+  LD DE,_LandingPad
+  ADD HL,DE
+  LD (HL),$FF   ;Message to self-destruct
   JP EndTask
 
 Cutscene_ActorMovement:
@@ -356,17 +371,64 @@ Cutscene_ActorMovement:
 -
   LD A,(HL)
   OR A
-  JR nz,_f
+  JR nz,+
   LD E,L
   CALL HaltTask ;If actor does not exist, wait for them
   LD L,E
   LD H,>Cutscene_Actors
   JR -
-__
-  OR A  ;Clear carry
-  JP nc,EndTask
-  CALL HaltTask
-  JR _b
++   ;Modify the actor data
+  CALL _Access_ActorDE
+  INC B
+  DEC B
+  JR nz,+
+  ;Set X
+  LD DE,_MasterX
+  XOR A
+  JR ++
++
+  DEC B
+  JR nz,+
+  ;Set Y
+  LD DE,_MasterY
+  XOR A
+  JR ++
++
+  DEC B
+  JR nz,+
+  ;Set speed
+  LD DE,_MoveSpeed
+  SWAP C
+  LD A,$F0
+  AND C
+  LD B,A
+  LD A,$0F
+  AND C
+  LD C,A
+  LD A,B
+  LD B,0
+  JR ++
++
+  DEC B
+  DEC B
+  DEC B
+  DEC B
+  DEC B ;Options 3-6 should now be <0
+  BIT 7,B   ;Is it now negative?
+  JR z,++
+  ;Move actor U/L/D/R
+  LD A,5
+  ADD B
+  LD H,D
+  LD L,E
+  RRCA
+  RRCA  ;Fix this later
+  JP Actor_DistMove
+++
+  ADD HL,DE
+  LDI (HL),A
+  LD (HL),C
+  JP EndTask
 
 Cutscene_ActorAnimate:
 ;D= %DDDIIIII
