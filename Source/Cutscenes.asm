@@ -61,8 +61,8 @@
 
 Cutscene_LUT:
  .dw Cutscene_End
- .dw Cutscene_InputOff
- .dw Cutscene_InputOn
+ .dw Cutscene_InputChange
+ .dw Cutscene_End
  .dw TextStart
  .dw Cutscene_CameraSet
  .dw Cutscene_CameraMove
@@ -316,8 +316,10 @@ Cutscene_ActorNew:
       LD C,A
     POP HL
   POP AF    ;Task info
-  LD (HL),A
+  LD D,H
+  LD E,L
   CALL HaltTask ;Become the new character
+  LD (DE),A ;Place task
   LD H,B
   LD L,C
   JP HL
@@ -449,11 +451,34 @@ Cutscene_ActorAnimate:
   AND D
   SWAP A
   RRA
-  OR 8
   LD B,A
   LD C,E
   ;Send the message
-  JR -  ;Use ActorMovement's message loop
+-
+  LD A,(HL)
+  OR A
+  JR nz,+
+  LD E,L
+  CALL HaltTask ;If actor does not exist, wait for them
+  LD L,E
+  LD H,>Cutscene_Actors
+  JR -
++   ;Modify the actor data
+  CALL _Access_ActorDE
+  INC B
+  DEC B
+  JR nz,+
+  ;Set anim speed
+  LD DE,_AnimSpeed
++
+  DEC B
+  JR nz,+
+  ;New Animation
+  LD DE,_AnimChange
++
+  ADD HL,DE
+  LD (HL),C
+  JP EndTask
 
 Cutscene_MapLoad:
 ;DE->Map Data
@@ -489,12 +514,27 @@ Cutscene_SongPan:
   LDH ($25),A
   JP EndTask
 
-Cutscene_InputOff:          ;WRITE
-;Send message to Marisa (actor ID 01), and hat (actor ID 00)
+Cutscene_InputChange:       ;TEST
+;Send message to actor that control state is now X?
+  LD A,D
+  RLA
+  ADD <Cutscene_Actors
+  LD C,A
+  LD B,>Cutscene_Actors
+  ;Get the actor task, once extant
+-
+  LD A,(BC)
+  OR A
+  JR nz,+
+  CALL HaltTask
+  JR -
++ ;Insert new Existence status
+  CALL _Access_ActorDE
+  LD BC,_LandingPad
+  ADD HL,BC
+  LD (HL),E
   JP EndTask
-Cutscene_InputOn:           ;WRITE
-;Send message to Marisa (actor ID 01), and hat (actor ID 00)
-  JP EndTask
+
 Cutscene_HatAssign:         ;WRITE
 ;D= ID to assign hat to (0 to unassign)
   JP EndTask
@@ -540,11 +580,8 @@ Cutscene_DanmakuInit        ;WRITE
 .MACRO CsEnd
  .db 0
 .ENDM
-.MACRO CsInputOff
- .db 1,0,0
-.ENDM
-.MACRO CsInputOn
- .db 2,0,0
+.MACRO CsInputChange ARGS ID, control
+ .db 1,control,ID
 .ENDM
 .MACRO CsRunText ARGS TextPtr
  .db 3
@@ -619,18 +656,14 @@ Cutscene_DanmakuInit        ;WRITE
 ;TODO for Demo 1:
     ;Write appropriate music track
     ;Cutscene data
-    ;Actors receiving messages
     ;Player Cutscene control control
     ;Door cutscene functions
     ;Danmanku actor messages
         ;Danmaku as independent of actors?
     ;How long does the text take (We can automate measurement)
 ;Problems:
-    ;Something in the Actor chain isn't working right
     ;Alter Map is not written
     ;Shoot Danmaku is not written
-    ;Where do we need task reliefs?
-        ;Count per-cutscene items+actors. Try to keep usage under 32
     ;The Camera Time macro can move camera too slow
         ;Same distance covered, takes more time. Problem of speed's precision
     ;Textbox cursor start always "No portrait"
@@ -685,7 +718,6 @@ OpeningDemo:
   CsNewActor 1,CsChMarisa,0
   CsNewActor 2,CsChReimu,0
   CsNewActor 3,CsChNarumi,0
-  CsInputOff
   CsAssignHat 1
   CsNewActor 4,CsChFairy,$00
   CsNewActor 5,CsChFairy,$54
