@@ -22,25 +22,30 @@ Reimu1:
 .incbin "rsc/Reimu1.lzc"
 .ENDS
 
-;Note on list:
+;List
 ;Alice Smile
 ;Alice Concern
 ;Alice Angry
 ;Alice Sleeping
-;^ matches Faces line 2/
-;Reimu Neutral
-;Reimu Talk
-;Reimu Unamused
-;Reimu Angry
-;^ matches Faces line 1/
-;Null x8
-;^ expected 8 null
+;Alice Shineless
+;Alice Laughing
+;Null x10
 ;Marisa Yukkuri
-;Marisa Smug (most; missing top layer)
+;Marisa Smug
 ;Marisa Worried
 ;Marisa Zoned out
-;^ matches Faces line 4/
+;Marisa Shocked
+;Marisa Interested
+;Marisa Confused
+;Marisa Catlike
+;Null x8
+;Reimu Neutral
+;Reimu Interested
+;Reimu Unamused
+;Reimu Angry
 ;Null x12
-;^ expected Marisa 2
-;Reimu etc...
-;(lol task overflow kills faceload)
+
+;Need:
+;Reimu Talking
+;Alice Shocked
+;Alice Annoyed talking

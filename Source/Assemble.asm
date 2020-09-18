@@ -39,8 +39,10 @@
     ;Hat task pointer
     ;Player task pointer
     ;Other cutscene actor task pointers
-;$C0C0 - $C0E7
+;$C0C0 - $C0E9
     ;Unused. But still reserved.
+;$C0EA:
+    ;Text status (Text.asm)
 ;$C0EC - $C0ED:
     ;End of Hitboxes pointer
 ;$C0EE - $C0F8:
@@ -54,9 +56,7 @@
 ;$C0FD,$C0FE,$C0FF
     ;Storage place for tea while working.
 ;$C100 - $C19F: Text Data
-;$C1A0 - $C2FF: Free
-;$C300 - $C3FF: Task Message Area
-    ;task.asm
+;$C1A0 - $C3FF: Free
 ;$C400 - $CCFF: Initial decompression zone
 ;$C400 - $C8FF    |||    Overlaps    |||
     ;Hitbox data  |||                |||

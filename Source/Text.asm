@@ -88,6 +88,7 @@
 .DEFINE TextSize    5 * 32
 .DEFINE WinYRaised  144 - 8 * 5
 .DEFINE WinYLowered 144
+.DEFINE TextStatus  $C0EA
 ;Dynamic memory format:
 .define _textSource 0   ;+$00: Source   (Only save this if you have to!)
 .define _textCurPos 2   ;+$02: Cursor Position
@@ -96,7 +97,13 @@
 ;+$0A
 ;+$20: OOB
 
+.ENUMID 0 EXPORT
+.ENUMID textStatus_done
+.ENUMID textStatus_typing
+.ENUMID textStatus_waiting
+
 .EXPORT TextData
+.EXPORT TextStatus
 
 .MACRO LoadVRAMptA ARGS width, height
   LD HL,_vRAMBuf
@@ -165,6 +172,9 @@ WindowLUTEnd:
 
 TextStart:
 ;DE -> Text String
+;Declare status
+  LD HL,TextStatus
+  LD (HL),textStatus_typing
 ;Clear FaceState
   XOR A
   LD (FaceState),A
@@ -253,7 +263,7 @@ TextProcessControlReturn:
   LD H,>TextData
   LD (HL),A
   LD A,L
-  LoadVRAMptA 1, 1      ;Don't initiate a task for this.
+  LoadVRAMptA 1, 1      ;Idea: Don't initiate a task for this.
   CALL Text_MoveRight
   JR TextProcessLoop
 
@@ -349,6 +359,8 @@ Text_EndOfText:
   ;Escape this prison!
   CALL MemFree
   POP HL    ;Return address
+  LD HL,TextStatus  ;Update status
+  LD (HL),textStatus_done
   JP EndTask
 
 Text_ReturnToCorner:
@@ -576,7 +588,7 @@ Text_Pause:             ;!!!!
 ;Remember the animation!
 ;To do so, we want to take C.
 ;This is okay because we clear afterwards.
-  POP HL
+  ;
 ;  JR TextProcessLoop
 ;Calling pause resets the cursor to the upper left. Which is what clear does.
 Text_Clear:
@@ -672,6 +684,7 @@ Text_LoadFace:
   JP nc,TextProcessControlReturn
   DEC BC    ;If task unavailable, try again next time
   DEC BC
+  CALL HaltTask
   JR -
 
 Text_LoadBorder:

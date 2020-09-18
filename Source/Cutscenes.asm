@@ -78,6 +78,23 @@ Cutscene_LUT:
  .dw Cutscene_HatAssign
  .dw Cutscene_MapAlter
  .dw Cutscene_DanmakuInit
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_End
+ .dw Cutscene_Wait
+ .dw Cutscene_TextWait
 
 CharaTypes:
  .dw HatFrame
@@ -112,13 +129,12 @@ Cutscene_Task:
 ;DE->Cutscene data
   LD B,D    ;Do not control player; cutscenes can have player movement
   LD C,E
+_Cutscene_ItemReturn:
 -
   LD A,(BC)
   INC BC
-  OR A
-  JP z,Cutscene_End
   LD H,>Cutscene_LUT
-  RLA       ;Carry out here important
+  SLA A     ;Carry out here important
   LD L,A
   LD A,(BC)
   INC BC
@@ -137,21 +153,27 @@ Cutscene_Task:
   DEC BC    ;If task creation failed, try again next frame
   DEC BC
   DEC BC
-  ;CALL HaltTask
-  ;JR -
-  LD DE,$0101   ;Use the user's wait routine
+  CALL HaltTask
+  JR -
 +
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  JP HL
+
+;Cutscene functions
+;These are not tasks
+Cutscene_Wait:          ;TEST
 --
   CALL HaltTask
   DEC E
   JR nz,--
   DEC D
   JR nz,--
-  JR -
+  JR _Cutscene_ItemReturn
 
-;Cutscene functions
-Cutscene_End:           ;(Not a task)
-  LD HL,Cutscene_Actors
+Cutscene_End:
+;  LD HL,Cutscene_Actors
 ;  LDI A,(HL)
 ;  LD C,A
 ;  LD A,(HL)
@@ -166,6 +188,19 @@ Cutscene_End:           ;(Not a task)
 ;  CALL HaltTask
 ;  JR c,-
   JP EndTask
+
+Cutscene_TextWait       ;TEST
+  LD DE,TextStatus
+-
+  CALL HaltTask
+  LD A,(DE)
+  CP textStatus_done
+  JR nz,-
+  JR _Cutscene_ItemReturn
+
+
+;These are tasks
+
 
 Cutscene_CameraMove:
 ;D= Distance
@@ -544,7 +579,7 @@ Cutscene_MapAlter:          ;WRITE
 Cutscene_DanmakuInit        ;WRITE
 ;D= Actor ID
 ;E= Danmaku type
-  JP EndTask 
+  JP EndTask
 
 .ENDS
 
@@ -574,11 +609,15 @@ Cutscene_DanmakuInit        ;WRITE
 .DEFINE CsDirRight  3
 
 .MACRO CsWait ARGS time
- .db $80
+ .db $A1
  .dw time+$100
 .ENDM
 .MACRO CsEnd
- .db 0
+ .db $80
+.ENDM
+.MACRO CsWaitText
+ .db $A2
+ .dw 0      ;Dummy
 .ENDM
 .MACRO CsInputChange ARGS ID, control
  .db 1,control,ID
@@ -655,20 +694,16 @@ Cutscene_DanmakuInit        ;WRITE
 ;Demo cutscene
 ;TODO for Demo 1:
     ;Write appropriate music track
-    ;Cutscene data
-    ;Player Cutscene control control
     ;Door cutscene functions
     ;Danmanku actor messages
         ;Danmaku as independent of actors?
-    ;How long does the text take (We can automate measurement)
+;General TODO:
+    ;Player Cutscene control control
 ;Problems:
     ;Alter Map is not written
     ;Shoot Danmaku is not written
     ;The Camera Time macro can move camera too slow
         ;Same distance covered, takes more time. Problem of speed's precision
-    ;Textbox cursor start always "No portrait"
-    ;Faces wrong
-    ;Final block of Demo1 too long.
     ;Final line of Demo2 missing first letter?
     ;Text waits before lowers too fast
     
@@ -786,8 +821,9 @@ OpeningDemo:
   CsMoveActorTime 8,CsDirDown,5,20
   CsWait 5
   CsAnimateActor 8,CsAnFaceDown
-  CsWait 65000  ;Dialog finish wait
+  CsWaitText
   CsRunText StringDemoMessage2
+  CsWaitText
   CsShootDanmaku 8,0
   CsWait 30
   ;Reimu Marisa danmaku
@@ -797,4 +833,5 @@ OpeningDemo:
   ;Fairy escape
   CsWait 2
   ;Fade out
+  CsEnd
 .ENDS

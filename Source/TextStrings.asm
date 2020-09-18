@@ -123,32 +123,32 @@ StringTestMessage:  ;missing input, up, right, corner; right and corner are done
     ;Narrow format
     ;|FFFF 0123456789ABCD |
 StringDemoMessage1:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$01, CtrlSpeed,3, CtrlClear, CtrlWait,5
-  .DB CtrlFaceShow,1, CtrlRaise
+.DB CtrlFaceLoad,1,$02, CtrlFaceLoad,2,$17, CtrlSpeed,3
+  .DB CtrlFaceShow,1, CtrlClear, CtrlRaise, CtrlWait,5
   .ASC    "WHAT ARE YOU", CtrlLine
   .ASC    "ALL DOING AT", CtrlLine
   .ASC    "MY HOUSE?"
-.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$02
+.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$22
   .ASC    "PARTYING."
-.DB CtrlWait,20, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$03
+.DB CtrlWait,20, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$04
   .ASC    "ALCOHOL."
-.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$04
+.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$11
   .ASC    "AND "
   .DB CtrlSpeed,6
   .ASC        "WHY "
   .DB CtrlLine, CtrlWait,10, CtrlSpeed,3
   .ASC    "AT MY HOUSE?"
-.DB CtrlWait,25, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$05
+.DB CtrlWait,25, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$22
   .ASC    "CONVENIENCE."
-.DB CtrlWait,20, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$06
+.DB CtrlWait,20, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$00
   .ASC    "ALL THE", CtrlLine
   .ASC    "ALCOHOL LANDED", CtrlLine
   .ASC    "HERE AFTER THE", CtrlLine
   .ASC    "EXPLOSION."
-.DB CtrlWait,25, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$07
+.DB CtrlWait,25, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$01
   .ASC    "!!!"
   .DB CtrlWait,25, CtrlLine
-  .DB CtrlSpeed,6, CtrlFaceShow,2, CtrlFaceLoad,1,$10
+  .DB CtrlSpeed,6, CtrlFaceShow,2, CtrlFaceLoad,1,$11
   .ASC    "..."
   .DB CtrlSpeed,3
   .ASC       "???"
@@ -156,26 +156,26 @@ StringDemoMessage1:
   .ASC    "MASTER SPARK.", CtrlLine
   .ASC    "PRIOR OWNERS", CtrlLine
   .ASC    "WEREN'T TOO", CtrlLine
-  .ASC    "KEEN ON...", CtrlLine
+  .ASC    "KEEN ON...", CtrlWait,35, CtrlClear
   .ASC    "<DONATING\" IT.", CtrlLine
 .DB CtrlWait,25, CtrlLower, CtrlEnd
 
 StringDemoMessage2:
-.DB CtrlSpeed,3, CtrlClear, CtrlFaceLoad,1,$11, CtrlFaceLoad,2,$12, CtrlWait,5
-  .DB CtrlFaceShow,1, CtrlRaise
+.DB CtrlFaceLoad,1,$01, CtrlFaceLoad,2,$12, CtrlSpeed,3
+  .DB CtrlFaceShow,1, CtrlClear, CtrlRaise, CtrlWait,5
   .ASC    "NOW WOULD BE A", CtrlLine
   .ASC    "GOOD TIME TO", CtrlLine
   .ASC    "RELOCATE."
-.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$13
+.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$22
   .ASC    "WHY?"
-.DB CtrlWait,20, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$14
+.DB CtrlWait,20, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$00
   .ASC    "HOW ABOUT A", CtrlLine
   .ASC    "DRINK?"
-.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$15
-  .ASC    "HOW ABOUT NO,", CtrlLine, CtrlFaceShow,1, CtrlFaceLoad,2,$15
+.DB CtrlWait,25, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$04
+  .ASC    "HOW ABOUT NO,", CtrlLine, CtrlFaceShow,1, CtrlFaceLoad,2,$02
   .ASC    "AND HOW ABOUT..."
 .DB CtrlWait,25, CtrlClear, CtrlFaceShow,2
-.DB CtrlShake
+.DB CtrlShake,$80
   .ASC    "GETTING AWAY", CtrlLine
   .ASC    "FROM MY HOUSE!"
 .DB CtrlWait,25, CtrlLower, CtrlEnd
