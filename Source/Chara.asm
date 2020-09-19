@@ -213,6 +213,7 @@ CharaFrame:
 ;All UDLR designations are screen-based
 ;See Actor.asm for change format
 _DownWalk:
+ .db 6
  .db -10,-9,$69,%00100000  ;Head left
  .db -10,-1,$68,%00100000  ;Head right
  .db  -8,-7,$6B,%00000000  ;Shoulder left
@@ -226,6 +227,7 @@ _VertLoop:
  .db %00100000,%11010110,%01011010,$FF
  .dw _VertLoop
 _UpWalk:
+ .db 6
  .db -10,-7,$6A,%00100000  ;Head left
  .db -10, 1,$69,%00000000  ;Head right
  .db  -8,-7,$6C,%00100000  ;Shoulder left
@@ -236,6 +238,7 @@ _UpWalk:
  .db $FF
  .dw _VertLoop
 _LeftWalk:
+ .db 6
  .db -10, -4,$6D,%00100000  ;Head
  .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
@@ -253,6 +256,7 @@ _SideLoop:
  .db %11100000,%10010110,%10011010,$FF
  .dw _SideLoop
 _RightWalk:
+ .db 6
  .db -10, -4,$78,%00100000  ;Head
  .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
@@ -263,6 +267,7 @@ _RightWalk:
  .db $FF
  .dw _SideLoop
 _DownFace:
+ .db 6
  .db -10,-9,$69,%00100000  ;Head left
  .db -10,-1,$68,%00100000  ;Head right
  .db  -8,-7,$6B,%00000000  ;Shoulder left
@@ -274,6 +279,7 @@ _IdleLoop:
  .db $FF
  .dw _IdleLoop
 _UpFace:
+ .db 6
  .db -10,-7,$6A,%00100000  ;Head left
  .db -10, 1,$69,%00000000  ;Head right
  .db  -8,-7,$6C,%00100000  ;Shoulder left
@@ -284,6 +290,7 @@ _UpFace:
  .db $FF
  .dw _IdleLoop
 _LeftFace:
+ .db 6
  .db -10, -4,$6D,%00100000  ;Head
  .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
@@ -294,6 +301,7 @@ _LeftFace:
  .db $FF
  .dw _IdleLoop
 _RightFace:
+ .db 6
  .db -10, -4,$78,%00100000  ;Head
  .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
@@ -303,6 +311,25 @@ _RightFace:
  .db $F1
  .db $FF
  .dw _IdleLoop
+
+_Animations:
+ .dw _LeftFace
+ .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
+ .dw _LeftWalk
+ .dw _DownWalk
+ .dw _RightWalk
+ .dw _UpWalk
+ .dw _LeftFace
+ .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
+
+DefaultIdleAnim:
+ .db $F1
+ .db $FF
+ .dw DefaultIdleAnim
 
 DefaultHitboxes:
  .db 1
@@ -494,88 +521,57 @@ HatFrame:
 ;TODO:
     ;Detect a change in parent
         ;Do via collision
-  LD A,B
-  LD (Cutscene_Actors),A
-  CALL Actor_New
-  INC DE
-  LD A,$CF      ;Constant sprite pointer
-  LD (DE),A
-  DEC DE
-  XOR A
-  LD (DE),A
-  LD HL,_ParentChar
-  ADD HL,DE
-  LD (HL),E     ;No parent, so make ourselves the parent
-  INC HL
-  LD (HL),D
+  CALL Actor_New    ;Null actor (w/visibility)
+  ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE
-  LD (HL),<CollisionHitbox
+  LD (HL),<DefaultHitboxes
   INC HL
-  LD (HL),>CollisionHitbox
-  LD HL,_HatVal
+  LD (HL),>DefaultHitboxes
+  ;Animation values
+  LD HL,_AnimChange
   ADD HL,DE
-  LD (HL),0
+  LD (HL),1 ;Face down
   CALL HaltTask
-;DE->Actor data
-;Override automatic sprite hiding
-  INC DE
-  LD A,$CF      ;Constant sprite pointer
-  LD (DE),A
-  DEC DE
-;Copy our character's position
+  LD HL,_LandingPad
+  ADD HL,DE
+  ;Check for doing AI stuffs here
+;Hat specific messages
+    ;x: Parent detect
+    ;x: Destruct
+  ;Move based on parent
   LD HL,_ParentChar
   ADD HL,DE
   LDI A,(HL)
-  LD C,A
   LD B,(HL)
-  PUSH DE
-  INC DE
-  INC DE
-  LD HL,_MasterX
-  ADD HL,BC
-  LDI A,(HL)
-  LD (DE),A
-  INC DE
-  LDI A,(HL)
-  LD (DE),A
-  INC DE
-  LDI A,(HL)
-  LD (DE),A
-  INC DE
-  LD A,(HL)
-  LD (DE),A
-  POP DE
-;Find the hat value
-  LD HL,_HatVal
-  ADD HL,BC
-  LD A,(HL)
-  PUSH AF
-;Set relational data to the proper table
-  LD BC,HeadDataTable
-  AND $F0   ;Multiples of 16
-  LD L,A
-  LD H,0
-  ADD HL,BC
-  LD B,H
-  LD C,L
-  LD HL,_RelData
+  LD C,A
+  INC BC
+  INC BC
+  INC BC
+  LD HL,_MasterX+1
   ADD HL,DE
-  LD (HL),C
+  LD A,(BC)
+  INC BC
+  INC BC
+  LDI (HL),A
   INC HL
-  LD (HL),B
-;Edit hat's position based on table
-  LD BC,HeadPosTable
-  POP AF
+  LD A,(BC)
+  LD (HL),A
+  LD A,_HatVal
+  ADD E
+  LD C,A
+  LD A,0
+  ADC D
+  LD B,A
+  LD A,(BC)
+  ;Actor specific adjustment
   AND $0F
-  RLCA
-  LD L,A
-  LD H,0
-  ADD HL,BC
-  LD B,H
-  LD C,L
-  LD HL,_MasterY+1
-  ADD HL,DE
+  RLA
+  ADD <HeadPosTable
+  LD C,A
+  LD A,>HeadPosTable
+  ADC 0
+  LD B,A
   LD A,(BC)
   INC BC
   ADD (HL)
@@ -584,22 +580,76 @@ HatFrame:
   LD A,(BC)
   ADD (HL)
   LD (HL),A
-+   ;Draw
-  LD A,4
-  JP HatDrawHackEntry
+;Anim check
+  LD A,$FF
+  LD HL,_AnimChange
+  ADD HL,DE
+  CP (HL)
+  JR z,+
+  ;Change animation
+  LD C,(HL)
+  LD (HL),A
+  ;Send new anim pointer
+  LD A,C
+  RLA
+  ADD <_Animations
+  LD L,A
+  LD A,>_Animations
+  ADC 0
+  LD H,A
+  LDI A,(HL)
+  LD B,(HL)
+  LD C,A
+  SCF   ;New animation
++
+  ;Carry correct b/c CMP against $FF
+  JP Actor_Draw
 
-.ENDS
-
-.SECTION "HatData" FREE
 ;Table of positions and tile choices for the hat, when it finds a head tile
-HeadDataTable:
-;Tile and position choice
+
 ;Tip, left, right, side edge
 ;Universal order: Left/Down/Right/Up
- .db -6, 1,$67,%00000000, 1, -4,$63,%00000000, 1, 4,$64,%00000000, -0,-6,$67,%00000000   ;left
- .db -7, 1,$67,%00000000,-0, -9,$61,%00000000,-0,-1,$62,%00000000,-16,-0,$03,%00000000   ;down
- .db -6,-4,$67,%00000000, 1,-12,$64,%00100000, 1,-4,$63,%00100000, -1, 3,$67,%00000000   ;right
- .db -7,-3,$67,%00000000,-0, -7,$65,%00000000,-0, 1,$66,%00000000,-32,-0,$03,%00000000   ;up
+_Left
+ .db 4
+ .db -6, 1,$67,%00000000    ;Tip
+ .db  1,-4,$63,%00000000    ;Left
+ .db  1, 4,$64,%00000000    ;Right
+ .db -0,-6,$67,%00000000    ;Side
+ .db $F1
+ .db $FF
+ .dw DefaultIdleAnim
+_Down:
+ .db 3
+ .db  -7, 1,$67,%00000000
+ .db  -0,-9,$61,%00000000
+ .db  -0,-1,$62,%00000000
+ .db $F1
+ .db $FF
+ .dw DefaultIdleAnim
+_Right:
+ .db 4
+ .db -6, -4,$67,%00000000
+ .db  1,-12,$64,%00100000
+ .db  1, -4,$63,%00100000
+ .db -1,  3,$67,%00000000
+ .db $F1
+ .db $FF
+ .dw DefaultIdleAnim
+_Up:
+ .db 3
+ .db  -7,-3,$67,%00000000
+ .db  -0,-7,$65,%00000000
+ .db  -0, 1,$66,%00000000
+ .db $F1
+ .db $FF
+ .dw DefaultIdleAnim
+
+_Animations:
+ .dw _Left
+ .dw _Down
+ .dw _Right
+ .dw _Up
+
 ;Character offset value
 HeadPosTable:
 ;Y,X
@@ -611,10 +661,4 @@ HeadPosTable:
  .db  -14, 0    ;Reimu
  .db    0, 0    ;Danmaku
 
-;NEW: Dedicate hat and menu pointer, use remaining 36 sprite slots as
-;fixed blocks of 6? Would work so far, since everything is multiple of 6
-;except the hat and the kedama and the decorations, which could be fixed in
-;a few ways. May limit our future creativity, but would guarantee contiguous
-;sprite tiles for metasprites, and would fix data sizes for... anything really
-;Definitions, animations, area would all be fixed.
 .ENDS

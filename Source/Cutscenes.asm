@@ -570,9 +570,29 @@ Cutscene_InputChange:       ;TEST
   LD (HL),E
   JP EndTask
 
-Cutscene_HatAssign:         ;WRITE
-;D= ID to assign hat to (0 to unassign)
+Cutscene_HatAssign:         ;TEST
+;D= ID to assign hat to (self to unassign)
+  LD A,D
+  RLA
+  ADD <Cutscene_Actors
+  LD C,A
+  LD B,>Cutscene_Actors
+  ;Get actor task, once it exists
+-
+  LD A,(BC)
+  OR A
+  JR nz,+
+  CALL HaltTask
+  JR -
++
+  CALL _Access_ActorDE
+  LD BC,_ParentChar
+  ADD HL,BC
+  LD (HL),E
+  INC HL
+  LD (HL),D
   JP EndTask
+
 Cutscene_MapAlter:          ;WRITE
 ;DE= Pointer to alteration data
   JP EndTask
@@ -697,8 +717,15 @@ Cutscene_DanmakuInit        ;WRITE
     ;Door cutscene functions
     ;Danmanku actor messages
         ;Danmaku as independent of actors?
+    ;Write actor animations
+    ;Draw a few more faces
+    ;Reposition everybody
+    ;Realign the camera to show everybody
+    ;Ideal value for that text shake?
+    ;Write up the last few actions
 ;General TODO:
     ;Player Cutscene control control
+        ;A Marisa rewrite
 ;Problems:
     ;Alter Map is not written
     ;Shoot Danmaku is not written
@@ -829,6 +856,7 @@ OpeningDemo:
   ;Reimu Marisa danmaku
   CsWait 5
   ;Narumi Watch
+  CsAnimateActor 3,CsAnFaceUp
   CsWait 7
   ;Fairy escape
   CsWait 2

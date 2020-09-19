@@ -13,6 +13,7 @@
     ;+$0C, size 2: Movement Speed (pixels, 8.8)
     ;+$0E, size 2: Hitbox data
     ;+$10, size 1: Visible on screen
+    ;+$1C, size 1: Animation sprite count
     ;+$1D, size 1: Existence status
     ;+$1E, size 1: Animation ID
     ;+$1F, size 1: Hat value
@@ -66,6 +67,7 @@
 ;52: Alice,  facing up
 ;53: Reimu,  facing up
 
+;General
 .DEFINE _SprPtr $00
 .DEFINE _MasterX $02
 .DEFINE _MasterY $04
@@ -76,11 +78,15 @@
 .DEFINE _MoveSpeed $0C
 .DEFINE _Hitbox $0E
 .DEFINE _Visible $10
+
+.DEFINE _SprCount $1C
 .DEFINE _LandingPad $1D
 .DEFINE _AnimChange $1E
 .DEFINE _HatVal $1F
 
+;Marisa
 .DEFINE _ButtonState $11
 
+;Hat
 .DEFINE _ParentChar $11
 

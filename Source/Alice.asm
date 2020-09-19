@@ -57,22 +57,59 @@ AliceFrame:
   JP Actor_Draw
 
 _DownFace:
- .db -10,-9,$69,%00100000  ;Head left
- .db -10,-1,$68,%00100000  ;Head right
- .db  -8,-7,$6B,%00000000  ;Shoulder left
- .db  -8, 0,$6B,%00100000  ;Shoulder right
- .db   0,-7,$6E,%00000000  ;Leg left
- .db   0, 0,$6E,%00100000  ;Leg right
+ .db 6
+ .db -11,-8,$0B,%00000000  ;Head left
+ .db -11, 0,$0C,%00000000  ;Head right
+ .db  -8,-8,$10,%00000000  ;Shoulder left
+ .db  -8, 0,$11,%00000000  ;Shoulder right
+ .db   0,-8,$14,%00000000  ;Leg left
+ .db   0, 0,$15,%00000000  ;Leg right
 _IdleLoop:
  .db $F1
  .db $FF
  .dw _IdleLoop
 
+_UpFace:
+ .db 6
+ .db -11,-8,$0D,%00000000  ;Head left
+ .db -11, 0,$0E,%00000000  ;Head right
+ .db  -8,-8,$12,%00000000  ;Shoulder left
+ .db  -8, 0,$12,%00100000  ;Shoulder right
+ .db   0,-8,$1A,%00000000  ;Leg left
+ .db   0, 0,$1A,%00100000  ;Leg right
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
+_RightFace:
+ .db 6
+ .db -11, 0,$0F,%00000000  ;Head
+ .db  -8, 0,$13,%00000000  ;Shoulder
+ .db   0, 0,$1D,%00000000  ;Leg
+ .db -36, 0,$03,%00000000  ;Unused
+ .db -28, 0,$03,%00000000  ;Unused
+ .db -20, 0,$03,%00000000  ;Unused
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
+_LeftFace:
+ .db 6
+ .db -11, 0,$0F,%00100000  ;Head
+ .db  -8, 0,$13,%00100000  ;Shoulder
+ .db   0, 0,$1D,%00100000  ;Leg
+ .db -36, 0,$03,%00000000  ;Unused
+ .db -28, 0,$03,%00000000  ;Unused
+ .db -20, 0,$03,%00000000  ;Unused
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
 _Animations:
+ .dw _LeftFace
  .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
  .dw _DownFace
  .dw _DownFace
  .dw _DownFace

@@ -16,7 +16,7 @@
 .define SelOAMupdates $CFAC
 
 .define TileDataBuffer $C0EE
-.define TileMapBuffer $C0F4
+.define TileMapBuffer $C0F3
 
 .export OAMBuffer
 .export OpControl

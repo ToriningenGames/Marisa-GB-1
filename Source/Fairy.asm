@@ -115,6 +115,7 @@ FairyFrame:
   JP Actor_Draw
 
 _DownFace:
+ .db 6
  .db -10,-9,$69,%00100000  ;Head left
  .db -10,-1,$68,%00100000  ;Head right
  .db  -8,-7,$6B,%00000000  ;Shoulder left

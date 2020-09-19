@@ -96,11 +96,14 @@ Actor_New:
   LD (HL),C ;Y
 ;Set up Actor Draw
 ;DE=Actor Data
-  LD B,D
+  LD B,D    ;Save to BC due to next alloc
   LD C,E
   INC DE    ;Set up inital OAM dummy pointer
   LD A,1
   LD (DE),A
+  LD HL,_SprCount
+  ADD HL,BC
+  LD (HL),0
 ;Allocate relational data memory
   CALL MemAlloc ;Subsprite
   LD HL,_RelData
@@ -118,19 +121,27 @@ Actor_Draw:
 ;Destroys all
   JR nc,+
 ;Initial
+  LD HL,_SprCount
+  ADD HL,DE
+  LD A,(BC) ;Sprite counter
+  LD (HL),A
   LD HL,_RelData
   ADD HL,DE
   LDI A,(HL)
   LD H,(HL)
   LD L,A
-  PUSH DE
-  LD D,24
--
-  LD A,(BC)
+  LD A,(BC) ;Sprite counter
   INC BC
-  LDI (HL),A
-  DEC D
-  JR nz,-
+  PUSH DE
+    RLA
+    RLA
+    LD D,A
+-
+    LD A,(BC)
+    INC BC
+    LDI (HL),A
+    DEC D
+    JR nz,-
   POP DE
 ;Store anim ptr & count
   LD HL,_AnimPtr
@@ -142,7 +153,6 @@ Actor_Draw:
   LD A,(BC)
   AND $F0
   LD (HL),A
-  JR +
 +   ;Perform animation timer
   LD HL,_AnimWait
   ADD HL,DE
@@ -160,102 +170,102 @@ Actor_Draw:
   LD C,A
   PUSH DE
   ;Update anim pointer here
-  LD A,(BC)
-  INC BC
-  AND $0F
-  INC A
-  PUSH AF
-  ADD (HL)
-  LDI (HL),A
-  LD A,0
-  ADC (HL)
-  LDD (HL),A
-  DEC HL
-  LDD A,(HL)
-  LD L,(HL)
-  LD H,A
-  PUSH HL
+    LD A,(BC)
+    INC BC
+    AND $0F
+    INC A
+    PUSH AF
+      ADD (HL)
+      LDI (HL),A
+      LD A,0
+      ADC (HL)
+      LDD (HL),A
+      DEC HL
+      LDD A,(HL)
+      LD L,(HL)
+      LD H,A
+      PUSH HL
 ;Act on each edit
 --
-  POP HL
-  POP AF
-  DEC A
-  JR z,++++
-  PUSH AF
-  LD A,(BC)
-  INC BC
-  LD E,A
-  INC A     ;Test for end of animation
-  JR z,++
-  PUSH HL
+      POP HL
+    POP AF
+    DEC A
+    JR z,++++
+    PUSH AF
+      LD A,(BC)
+      INC BC
+      LD E,A
+      INC A     ;Test for end of animation
+      JR z,++
+      PUSH HL
 ;Do change sprite
 ;Detect all sprite/Perform load
-  LD D,1    ;General case
-  LD A,$1C
-  AND E
-  JR nz,+++
+        LD D,1    ;General case
+        LD A,$1C
+        AND E
+        JR nz,+++
 ;All sprites affected
-  LD A,$04  ;Adjust E so position hits right
-  ADD E
-  LD E,A
-  LD D,6
+        LD A,$04  ;Adjust E so position hits right
+        ADD E
+        LD E,A
+        LD D,6
 +++ ;Go to position
-  LD A,E
-  AND $1F
-  SUB $04
-  ADD L
-  LD L,A
-  LD A,0
-  ADC H
-  LD H,A
+        LD A,E
+        AND $1F
+        SUB $04
+        ADD L
+        LD L,A
+        LD A,0
+        ADC H
+        LD H,A
 ;Detect Attribute change
-  LD A,$03
-  AND E
-  XOR $03
-  JR z,+++
+        LD A,$03
+        AND E
+        XOR $03
+        JR z,+++
 ;General change
 ;Sign extend the 3 bit value
-  SRA E
-  SRA E
-  SRA E
-  SRA E
-  SRA E
+        SRA E
+        SRA E
+        SRA E
+        SRA E
+        SRA E
 -
-  LD A,E
-  ADD (HL)
-  LDI (HL),A
-  INC HL
-  INC HL
-  INC HL
-  DEC D
-  JR nz,-
-  JR --
+        LD A,E
+        ADD (HL)
+        LDI (HL),A
+        INC HL
+        INC HL
+        INC HL
+        DEC D
+        JR nz,-
+        JR --
 +++
 ;Attribute change
-  LD A,$E0
-  AND E
+        LD A,$E0
+        AND E
 ;Turn %ab000000 to %a00b0000
 ;Turn %ab100000 to %0ab00000 
-  RRCA
-  RRCA
-  BIT 3,A
-  JR z,+++
-  ADD %01100000
-  AND %10010000
-  RRCA
+        RRCA
+        RRCA
+        BIT 3,A
+        JR z,+++
+        ADD %01100000
+        AND %10010000
+        RRCA
 +++
-  ADD A
-  LD E,A
+        ADD A
+        LD E,A
 -
-  LD A,E
-  XOR (HL)
-  LDI (HL),A
-  INC HL
-  INC HL
-  INC HL
-  DEC D
-  JR nz,-
-  JR --
+        LD A,E
+        XOR (HL)
+        LDI (HL),A
+        INC HL
+        INC HL
+        INC HL
+        DEC D
+        JR nz,-
+        JR --
 ++  ;End of animation
   POP AF
   POP DE
@@ -279,40 +289,41 @@ Actor_Draw:
   ADD (HL)
   LD (HL),A
 +   ;Move visual data to shadow OAM
-  LD A,6    ;No. of sprites
-HatDrawHackEntry:
-  PUSH AF   ;Hat only has 3, so it's hacked in here
-  LD H,D
-  LD L,E
-  LDI A,(HL)    ;SprPtr
-  LD C,A
-  LDI A,(HL)
-  LD B,A
-  PUSH BC
-  INC HL
-  LDI A,(HL)    ;_MasterX hi
-  LD B,A
-  INC HL
-  LDI A,(HL)    ;_MasterY hi
-  LD C,A
-  LDI A,(HL)    ;_RelData
-  LD H,(HL)
-  LD L,A
-  PUSH HL
-  CALL ObjOffset
-  JR nc,+
-;Object not visible
-  LD HL,_Visible
+  LD HL,_SprCount
   ADD HL,DE
-  LD A,(HL) ;Test and reset bit 0
-  RRCA
-  SCF
-  CCF
-  RLA
-  LD (HL),A
-  CALL c,Actor_Hide
-  POP HL
-  POP BC
+  LD A,(HL) ;No. of sprites
+  PUSH AF
+    LD H,D
+    LD L,E
+    LDI A,(HL)    ;SprPtr
+    LD C,A
+    LDI A,(HL)
+    LD B,A
+    PUSH BC
+      INC HL
+      LDI A,(HL)    ;_MasterX hi
+      LD B,A
+      INC HL
+      LDI A,(HL)    ;_MasterY hi
+      LD C,A
+      LDI A,(HL)    ;_RelData
+      LD H,(HL)
+      LD L,A
+      PUSH HL
+        CALL ObjOffset
+        JR nc,+
+        ;Object not visible
+        LD HL,_Visible
+        ADD HL,DE
+        LD A,(HL) ;Test and reset bit 0
+        RRCA
+        SCF
+        CCF
+        RLA
+        LD (HL),A
+        CALL c,Actor_Hide
+      POP HL
+    POP BC
   POP AF
   RET
 +
@@ -997,10 +1008,10 @@ _nohit:     ;Result greater than zero? Didn't hit
 
 .ENDS
 
-.DEFINE ObjUse $C0FA
+.DEFINE ObjUse $C0E9
 .EXPORT ObjUse
 
-.DEFINE MidQueue $C0F9
+.DEFINE MidQueue $C0E8
 
 .SECTION "ObjData" FREE
 ObjLoc:
@@ -1010,13 +1021,123 @@ ObjLoc:
 .SECTION "Object" FREE
 ;Provide management functions
 
+ObjManage_Task:
+;Initialization
+  XOR A
+  LD (ObjUse),A
+  LD A,<ActiveActorArray+1
+  LD (MidQueue),A
+-   ;Frame loop
+  CALL HaltTask
+;Clear stale memory
+  LD HL,$CF9F
+  XOR A
+-
+  LDD (HL),A
+  CP L
+  JR nz,-
+  LD A,(ObjUse)
+  OR A
+  RET z ;No sprites -> no work
+;Move MidQueue, should it be higher than our actor count allows
+  RLA
+  ADD <ActiveActorArray-1
+  LD HL,MidQueue
+  CP (HL)
+  JR nc,+
+  LD (HL),A ;Replace MidQueue with new top
++   ;Pick up where we left off
+  LD A,(MidQueue)
+  LD L,A
+  LD H,>ActiveActorArray
+  LD D,0    ;Current sprite use count
+--  ;Sprite loop
+;For this actor:
+    ;Do we have enough sprites left?
+  LDD A,(HL)
+  LD B,A
+  LDD A,(HL)
+  ADD _SprCount
+  LD C,A
+  LD A,B
+  ADC 0
+  LD B,A
+  LD A,(BC)
+  ADD D
+  CP 41
+  JR nc,+
+  ;Assign sprite pointer
+  LD E,D
+  LD D,A    ;Sprite use
+  LD A,E    ;Where this sprite group starts
+  OR A  ;Clear carry
+  RLA   ;Sprites->bytes
+  RLA
+  INC L
+  LD C,(HL)
+  INC L
+  LD B,(HL)
+  DEC L
+  DEC L
+  LD (BC),A
+  INC BC
+  LD A,$CF
+  LD (BC),A
+  ;Check for underflow
+  LD A,<ActiveActorArray
+  CP L
+  JR c,++
+  LD H,>ActiveActorArray
+  LD A,(ObjUse)
+  SLA A
+  ADD <ActiveActorArray-1
+  LD L,A
+++
+  ;Check for all written
+  LD A,(MidQueue)
+  CP L
+  JR nz,--
+  ;All written
+  RET
++   ;Out of sprites
+  INC L
+  INC L
+  LD E,L
+  ;Give remainder null values
+--
+  LDD A,(HL)
+  LD B,A
+  LDD A,(HL)
+  LD C,A
+  INC BC
+  XOR A
+  LD (BC),A
+  ;Check for underflow
+  LD A,<ActiveActorArray
+  CP L
+  JR c,++
+  LD H,>ActiveActorArray
+  LD A,(ObjUse)
+  SLA A
+  ADD <ActiveActorArray-1
+  LD L,A
+++
+  ;Check for all written
+  LD A,(MidQueue)
+  CP L
+  JR nz,--
+  ;All written
+  LD A,E
+  LD (MidQueue),A
+  RET
+
 ;Manipulates the sprite pointers in Active actors
 ;to allow additional sprites at the cost of flickering
 
 ;This turns ObjUse into an actor counter,
 ;so we know if and when to sprite cycle, and how much
 ;Alt, for just doing a rotating buffer
-ObjManage_Task:
+_ObjManage_Task:
   LD DE,ActiveActorArray    ;Setup Rotating queue
 --
   CALL HaltTask

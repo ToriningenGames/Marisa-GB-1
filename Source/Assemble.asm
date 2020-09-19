@@ -39,18 +39,18 @@
     ;Hat task pointer
     ;Player task pointer
     ;Other cutscene actor task pointers
-;$C0C0 - $C0E9
+;$C0C0 - $C0E7
     ;Unused. But still reserved.
+;$C0E8 - $C0E9
+    ;Object manager state
 ;$C0EA:
     ;Text status (Text.asm)
 ;$C0EC - $C0ED:
     ;End of Hitboxes pointer
-;$C0EE - $C0F8:
+;$C0EE - $C0FA:
     ;VRAM update buffer
         ;Contains, in order, an 8 bit counter, a 16 bit source, and a 16 bit destination
         ;If something else is in the way, you can wait a frame.
-;$C0F9 - $C0FA
-    ;Object manager state
 ;$C0FB - $C0FC
     ;Memory ring starting point
 ;$C0FD,$C0FE,$C0FF
