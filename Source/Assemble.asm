@@ -33,12 +33,12 @@
     ;Free?
 ;$C080 - $C08F
     ;Button data area
-;$C090 - $C09F
+;$C090 - $C09E
     ;Unused
+;$C09E - $C09F
+    ;Hat data pointer
 ;$C0A0 - $C0BF
-    ;Hat task pointer
-    ;Player task pointer
-    ;Other cutscene actor task pointers
+    ;Cutscene actor task pointers
 ;$C0C0 - $C0E7
     ;Unused. But still reserved.
 ;$C0E8 - $C0E9

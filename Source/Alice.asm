@@ -58,8 +58,8 @@ AliceFrame:
 
 _DownFace:
  .db 6
- .db -11,-8,$0B,%00000000  ;Head left
- .db -11, 0,$0C,%00000000  ;Head right
+ .db -12,-8,$0B,%00000000  ;Head left
+ .db -12, 0,$0C,%00000000  ;Head right
  .db  -8,-8,$10,%00000000  ;Shoulder left
  .db  -8, 0,$11,%00000000  ;Shoulder right
  .db   0,-8,$14,%00000000  ;Leg left
@@ -71,8 +71,8 @@ _IdleLoop:
 
 _UpFace:
  .db 6
- .db -11,-8,$0D,%00000000  ;Head left
- .db -11, 0,$0E,%00000000  ;Head right
+ .db -12,-8,$0D,%00000000  ;Head left
+ .db -12, 0,$0E,%00000000  ;Head right
  .db  -8,-8,$12,%00000000  ;Shoulder left
  .db  -8, 0,$12,%00100000  ;Shoulder right
  .db   0,-8,$1A,%00000000  ;Leg left
@@ -82,25 +82,19 @@ _UpFace:
  .dw _IdleLoop
 
 _RightFace:
- .db 6
+ .db 3
  .db -11, 0,$0F,%00000000  ;Head
  .db  -8, 0,$13,%00000000  ;Shoulder
  .db   0, 0,$1D,%00000000  ;Leg
- .db -36, 0,$03,%00000000  ;Unused
- .db -28, 0,$03,%00000000  ;Unused
- .db -20, 0,$03,%00000000  ;Unused
  .db $F1
  .db $FF
  .dw _IdleLoop
 
 _LeftFace:
- .db 6
+ .db 3
  .db -11, 0,$0F,%00100000  ;Head
  .db  -8, 0,$13,%00100000  ;Shoulder
  .db   0, 0,$1D,%00100000  ;Leg
- .db -36, 0,$03,%00000000  ;Unused
- .db -28, 0,$03,%00000000  ;Unused
- .db -20, 0,$03,%00000000  ;Unused
  .db $F1
  .db $FF
  .dw _IdleLoop
@@ -110,13 +104,13 @@ _Animations:
  .dw _DownFace
  .dw _RightFace
  .dw _UpFace
+ .dw _LeftFace
  .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
+ .dw _LeftFace
  .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
 
 .ENDS

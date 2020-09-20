@@ -57,13 +57,11 @@ ReimuFrame:
   JP Actor_Draw
 
 _DownFace:
- .db 6
- .db -10,-9,$69,%00100000  ;Head ribbon
- .db -10,-1,$68,%00100000  ;Head
- .db  -8,-7,$6B,%00000000  ;Waist left
- .db  -8, 0,$6B,%00100000  ;Waist right
- .db -90,-7,$03,%00000000  ;Unused
- .db -99, 0,$03,%00100000  ;Unused
+ .db 4
+ .db -16,-4,$20,%00000000  ;Head ribbon
+ .db  -8,-4,$23,%00000000  ;Head
+ .db  -0,-8,$25,%00000000  ;Waist left
+ .db  -0, 0,$26,%00000000  ;Waist right
 _IdleLoop:
  .db $F1
  .db $FF

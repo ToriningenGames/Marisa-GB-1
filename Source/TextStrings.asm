@@ -175,7 +175,7 @@ StringDemoMessage2:
   .ASC    "HOW ABOUT NO,", CtrlLine, CtrlFaceShow,1, CtrlFaceLoad,2,$02
   .ASC    "AND HOW ABOUT..."
 .DB CtrlWait,25, CtrlClear, CtrlFaceShow,2
-.DB CtrlShake,$80
+.DB CtrlShake,$20
   .ASC    "GETTING AWAY", CtrlLine
   .ASC    "FROM MY HOUSE!"
 .DB CtrlWait,25, CtrlLower, CtrlEnd

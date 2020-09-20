@@ -96,11 +96,13 @@ CharaFrame:
     ;x: Cutscene control
     ;x: Play animation
     ;x: Destruct
+;Button check
   LD HL,_ButtonState
   ADD HL,DE
   LDH A,($FE)
   XOR (HL)  ;Get direction button delta
   AND $F0
+  JR +  ;Control can be regiven when cutscene override is established
   JR z,+
 ;New animation
 ;Buttons still held mean walking animation
@@ -108,48 +110,71 @@ CharaFrame:
   AND $F0
 ;Otherwise, buttons previously held mean standing animation
   JR z,++
-  LD HL,_HatVal
+  LD HL,_AnimChange
   ADD HL,DE
   ;Walking animation
-  LD BC,_DownWalk
-  LD (HL),1
+  LD (HL),5
   RLA
   JR c,+++
-  LD BC,_UpWalk
-  LD (HL),17
+  LD (HL),7
   RLA
   JR c,+++
-  LD BC,_LeftWalk
-  LD (HL),33
+  LD (HL),4
   RLA
   JR c,+++
-  LD BC,_RightWalk
-  LD (HL),49
+  LD (HL),6
   JR +++
 ++  ;Standing animation
   LD A,(HL)
-  LD HL,_HatVal
+  LD HL,_AnimChange
   ADD HL,DE
-  LD BC,_DownFace
   LD (HL),1
   RLA
   JR c,+++
-  LD BC,_UpFace
-  LD (HL),17
+  LD (HL),3
   RLA
   JR c,+++
-  LD BC,_LeftFace
-  LD (HL),33
+  LD (HL),0
   RLA
   JR c,+++
-  LD BC,_RightFace
-  LD (HL),49
+  LD (HL),2
 +++
++
+  ;Anim change
+  LD HL,_AnimChange
+  ADD HL,DE
+  LD A,$FF
+  CP (HL)
+  JR z,+
+  LD C,(HL)
+  LD (HL),A
+  LD A,C
+  ;Set Hatval
+  ADD <_HatValues
+  LD L,A
+  LD A,0
+  ADC >_HatValues
+  LD H,A
+  LD A,(HL)
+  LD HL,_HatVal
+  ADD HL,DE
+  LD (HL),A
+  LD A,C
+  RLCA
+  ADD <_Animations
+  LD L,A
+  LD A,0
+  ADC >_Animations
+  LD H,A
+  LDI A,(HL)
+  LD C,A
+  LD A,(HL)
+  LD B,A
   SCF
 +
   ;Carry is set correctly, so draw this frame
   PUSH DE
-  CALL Actor_Draw
+    CALL Actor_Draw
   POP DE
 ;Check for movement
   LD HL,_ButtonState
@@ -238,29 +263,25 @@ _UpWalk:
  .db $FF
  .dw _VertLoop
 _LeftWalk:
- .db 6
+ .db 4
  .db -10, -4,$6D,%00100000  ;Head
- .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0,  0,$03,%00000000  ;Hide sprite
  .db   0, -8,$73,%00100000  ;Leg left
  .db   0,  0,$72,%00100000  ;Leg right
 _SideLoop:
  .db $63
- .db %00100000,%01010110,%01011010
+ .db %00100000,%01001110,%01010010
  .db $43
- .db %11100000,%11010110,%11011010
+ .db %11100000,%11001110,%11010010
  .db $55
- .db %00100000,%01010110,%01010110,%01011010,%01011010
+ .db %00100000,%01001110,%01001110,%01010010,%01010010
  .db $54
- .db %11100000,%10010110,%10011010,$FF
+ .db %11100000,%10001110,%10010010,$FF
  .dw _SideLoop
 _RightWalk:
- .db 6
+ .db 4
  .db -10, -4,$78,%00100000  ;Head
- .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0,  0,$03,%00000000  ;Hide sprite
  .db   0, -8,$72,%00000000  ;Leg left
  .db   0,  0,$73,%00000000  ;Leg right
  .db $01
@@ -290,22 +311,18 @@ _UpFace:
  .db $FF
  .dw _IdleLoop
 _LeftFace:
- .db 6
+ .db 4
  .db -10, -4,$6D,%00100000  ;Head
- .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0,  0,$03,%00000000  ;Hide sprite
  .db   0, -8,$73,%00100000  ;Leg left
  .db   0,  0,$72,%00100000  ;Leg right
  .db $F1
  .db $FF
  .dw _IdleLoop
 _RightFace:
- .db 6
+ .db 4
  .db -10, -4,$78,%00100000  ;Head
- .db   0,  0,$03,%00000000  ;Hide Sprite
  .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0,  0,$03,%00000000  ;Hide sprite
  .db   0, -8,$72,%00000000  ;Leg left
  .db   0,  0,$73,%00000000  ;Leg right
  .db $F1
@@ -325,6 +342,20 @@ _Animations:
  .dw _DownFace
  .dw _RightFace
  .dw _UpFace
+
+_HatValues:
+ .db 1
+ .db 17
+ .db 33
+ .db 49
+ .db 1
+ .db 17
+ .db 33
+ .db 49
+ .db 1
+ .db 17
+ .db 33
+ .db 49
 
 DefaultIdleAnim:
  .db $F1
@@ -510,6 +541,9 @@ CollisionHitboxAction:
 
 .SECTION "Hat" FREE
 
+.DEFINE HatSig $C09E    ;To identify a data pointer as a hat
+.EXPORT HatSig
+
 HatFrame:
 ;Follow the character pointed to by DE
 ;If I collide with another character, follow them instead
@@ -521,13 +555,24 @@ HatFrame:
 ;TODO:
     ;Detect a change in parent
         ;Do via collision
-  CALL Actor_New    ;Null actor (w/visibility)
+  CALL Actor_New
   ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE
   LD (HL),<DefaultHitboxes
   INC HL
   LD (HL),>DefaultHitboxes
+  ;Spriting setup
+  XOR A
+  LD (DE),A
+  INC DE
+  LD A,$CF
+  LD (DE),A
+  DEC DE
+  LD HL,HatSig
+  LD A,E
+  LDI (HL),A
+  LD (HL),D
   ;Animation values
   LD HL,_AnimChange
   ADD HL,DE
@@ -557,14 +602,28 @@ HatFrame:
   INC HL
   LD A,(BC)
   LD (HL),A
-  LD A,_HatVal
-  ADD E
+  LD A,_HatVal-5
+  ADD C
   LD C,A
   LD A,0
-  ADC D
+  ADC B
   LD B,A
   LD A,(BC)
-  ;Actor specific adjustment
+  LD HL,_HatVal
+  ADD HL,DE
+  CP (HL)
+  JR z,+
+  ;New anim
+  LD (HL),A
+  AND $F0
+  SWAP A
+  LD HL,_AnimChange
+  ADD HL,DE
+  LD (HL),A
++ ;Actor specific placement adjustment
+  LD HL,_MasterY+1
+  ADD HL,DE
+  LD A,(BC)
   AND $0F
   RLA
   ADD <HeadPosTable
@@ -609,7 +668,7 @@ HatFrame:
 
 ;Tip, left, right, side edge
 ;Universal order: Left/Down/Right/Up
-_Left
+_Left:
  .db 4
  .db -6, 1,$67,%00000000    ;Tip
  .db  1,-4,$63,%00000000    ;Left

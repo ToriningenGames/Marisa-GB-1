@@ -1008,25 +1008,24 @@ _nohit:     ;Result greater than zero? Didn't hit
 
 .ENDS
 
+.SECTION "Object" FREE
+
+.DEFINE MidQueue $C0E8
 .DEFINE ObjUse $C0E9
 .EXPORT ObjUse
 
-.DEFINE MidQueue $C0E8
-
-.SECTION "ObjData" FREE
-ObjLoc:
- .db $10,$28,$40,$58,$70,$88
-.ENDS
-
-.SECTION "Object" FREE
 ;Provide management functions
 
+;Manipulates the sprite pointers in Active actors
+;to allow additional sprites at the cost of flickering
 ObjManage_Task:
 ;Initialization
+  LD DE,MidQueue
+  LD BC,ObjUse
   XOR A
-  LD (ObjUse),A
+  LD (BC),A
   LD A,<ActiveActorArray+1
-  LD (MidQueue),A
+  LD (DE),A
 -   ;Frame loop
   CALL HaltTask
 ;Clear stale memory
@@ -1036,27 +1035,38 @@ ObjManage_Task:
   LDD (HL),A
   CP L
   JR nz,-
-  LD A,(ObjUse)
+  LD A,(BC)
   OR A
   RET z ;No sprites -> no work
 ;Move MidQueue, should it be higher than our actor count allows
   RLA
   ADD <ActiveActorArray-1
-  LD HL,MidQueue
+  LD H,D
+  LD L,E
   CP (HL)
   JR nc,+
   LD (HL),A ;Replace MidQueue with new top
 +   ;Pick up where we left off
-  LD A,(MidQueue)
+  LD A,(HL)
   LD L,A
   LD H,>ActiveActorArray
-  LD D,0    ;Current sprite use count
+  LD D,4    ;Current sprite use count (4 to allow hat to always be lowest)
 --  ;Sprite loop
 ;For this actor:
-    ;Do we have enough sprites left?
   LDD A,(HL)
   LD B,A
   LDD A,(HL)
+  LD C,A
+  ;Is it the hat?
+  LD A,(HatSig)
+  CP C
+  JR nz,++  ;Is not the hat
+  LD A,(HatSig+1)
+  CP B
+  JR z,+    ;Is the hat
+++
+  ;Do we have enough sprites left?
+  LD A,C
   ADD _SprCount
   LD C,A
   LD A,B
@@ -1083,6 +1093,7 @@ ObjManage_Task:
   INC BC
   LD A,$CF
   LD (BC),A
++
   ;Check for underflow
   LD A,<ActiveActorArray
   CP L
@@ -1109,9 +1120,18 @@ ObjManage_Task:
   LD B,A
   LDD A,(HL)
   LD C,A
+  ;Is it the hat?
+  LD A,(HatSig)
+  CP C
+  JR nz,++
+  LD A,(HatSig+1)
+  CP B
+  JR z,+
+++
   INC BC
   XOR A
   LD (BC),A
++
   ;Check for underflow
   LD A,<ActiveActorArray
   CP L
@@ -1130,97 +1150,6 @@ ObjManage_Task:
   LD A,E
   LD (MidQueue),A
   RET
-
-;Manipulates the sprite pointers in Active actors
-;to allow additional sprites at the cost of flickering
-
-;This turns ObjUse into an actor counter,
-;so we know if and when to sprite cycle, and how much
-;Alt, for just doing a rotating buffer
-_ObjManage_Task:
-  LD DE,ActiveActorArray    ;Setup Rotating queue
---
-  CALL HaltTask
-;Clear stale memory
-  LD HL,$CF9F
-  XOR A
--
-  LDD (HL),A
-  CP L
-  JR nz,-
-  LD HL,ObjUse
-  LD A,(HL)
-;Sprite counts may have changed between now and the last time the queue was set.
-;Since we use it now, only do the bounds check now
-  INC A
-  PUSH AF
-  DEC A
-  RLCA
-  ADD <ActiveActorArray - 1
-  LD B,A
-;Start assigning object pointers
-  LD C,$10
--       ;Done check here so hat and menu pointer work right
-  POP AF
-  DEC A
-  JR z,--
-  PUSH AF
-  ; MidQueue >= ObjUse == overflow
-  LD A,B
-  CP E
-  JR nc,+
-;MidQueue overflowed
-  ;Mod logical queue point with ObjUse
-  ;...or just go to beginning
-  LD E,<ActiveActorArray
-+   ;Valid MidQueue obtained
-;Find this object and give it one
-  LD A,(DE)
-  LD L,A
-  INC E
-  LD A,(DE)
-  LD H,A
-  INC E
-  LD A,(HL)
-  CP 4
-  JR c,-   ;If lower byte is <4, this is hat/menu pointer, and we don't touch
-  LD A,C
-  LDI (HL),A
-  LD (HL),$CF
-++
-;Next object pointer!
-  LD A,$18
-  ADD C
-  LD C,A
-  CP $9F
-  JR c,-
-;...Fresh out of pointers. Save DE for next time
-  LD H,D
-  LD L,E
-  POP AF    ;Swap stack
-  PUSH DE
-  LD D,B
-  LD E,A
--
-  LD A,D
-  CP L
-  JR nc,+
-  ;HL Wrapped
-  LD L,<ActiveActorArray
-+
-  LD C,(HL)
-  INC L
-  LD B,(HL)
-  INC L
-  LD A,5    ;In ROM, but >= 4
-  LD (BC),A
-  INC BC
-  LD (BC),A
-;Finished?
-  DEC E
-  JR nz,-
-  POP DE
-  JR --
 
 ;In contrast to the above, this one needs to be absolutely last in the tasklist
 ;This one goes through all of the sprites, and puts them behind the background

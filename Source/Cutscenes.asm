@@ -570,13 +570,28 @@ Cutscene_InputChange:       ;TEST
   LD (HL),E
   JP EndTask
 
-Cutscene_HatAssign:         ;TEST
+Cutscene_HatAssign:
 ;D= ID to assign hat to (self to unassign)
+;E= ID of hat
   LD A,D
-  RLA
   ADD <Cutscene_Actors
   LD C,A
   LD B,>Cutscene_Actors
+  ;Get actor task, once it exists
+-
+  LD A,(BC)
+  OR A
+  JR nz,+
+  CALL HaltTask
+  JR -
++
+  CALL _Access_ActorDE
+  LD A,E
+  LD D,H
+  LD E,L
+  ;Get hat
+  ADD <Cutscene_Actors
+  LD C,A
   ;Get actor task, once it exists
 -
   LD A,(BC)
@@ -664,8 +679,8 @@ Cutscene_DanmakuInit        ;WRITE
  .db 7,0,ID
 .ENDM
 .MACRO CsSetActor ARGS ID, X, Y
- .db 9,X,ID | ((0)*32)
- .db 9,Y,ID | ((1)*32)
+ .db 9,X+8, ID | ((0)*32)
+ .db 9,Y+16,ID | ((1)*32)
 .ENDM
 .MACRO CsAnimateActor ARGS ID, anim
  .db 8,anim,ID | ((1)*32)
@@ -698,8 +713,8 @@ Cutscene_DanmakuInit        ;WRITE
 .MACRO CsPanSong ARGS channelSelect, stereoVolume
  .db 14,channelSelect,stereoVolume
 .ENDM
-.MACRO CsAssignHat ARGS ID
- .db 15,0,ID
+.MACRO CsAssignHat ARGS hat, ID
+ .db 15,hat,ID
 .ENDM
 .MACRO CsAlterMap ARGS alteration
  .db 16
@@ -780,7 +795,7 @@ OpeningDemo:
   CsNewActor 1,CsChMarisa,0
   CsNewActor 2,CsChReimu,0
   CsNewActor 3,CsChNarumi,0
-  CsAssignHat 1
+  CsAssignHat 0,1
   CsNewActor 4,CsChFairy,$00
   CsNewActor 5,CsChFairy,$54
   CsNewActor 6,CsChFairy,$A8
@@ -799,9 +814,9 @@ OpeningDemo:
   CsAnimateActor 5,CsAnWalkRight
   CsAnimateActor 6,CsAnWalkLeft
   CsAnimateActor 7,CsAnWalkLeft
-  CsSetActor 1,80,128
-  CsSetActor 2,96,128
-  CsSetActor 3,112,136
+  CsSetActor 1,76,116
+  CsSetActor 2,54,116
+  CsSetActor 3,112,130
   CsSetActor 4,72,232
   CsSetActor 5,40,192
   CsSetActor 6,128,152
@@ -830,7 +845,7 @@ OpeningDemo:
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
   CsWait 1
-  CsMoveCameraTime CsDirUp,300,112     ;112 pix over 5 seconds
+  CsMoveCameraTime CsDirUp,300,94      ;Not quite top of map (Keep all in view)
   CsWait 300+120    ;2 second pause
   CsAlterMap 0      ;Door open
   CsNewActor 8,CsChAlice,0
@@ -861,5 +876,25 @@ OpeningDemo:
   ;Fairy escape
   CsWait 2
   ;Fade out
+  CsMoveCameraTime CsDirUp,60,18    ;Rest of map
+  CsWait 10
+  CsLoadBkgColor %11100100
+  CsLoadObjColor %11010000,%11100100
+  CsWait 10
+  CsLoadBkgColor %11101001
+  CsLoadObjColor %11100100,%11101000
+  CsWait 10
+  CsLoadBkgColor %11111001
+  CsLoadObjColor %11100100,%11111000
+  CsWait 10
+  CsLoadBkgColor %11111010
+  CsLoadObjColor %11101000,%11111000
+  CsWait 10
+  CsLoadBkgColor %11111110
+  CsLoadObjColor %11111000,%11111100
+  CsWait 10
+  CsLoadBkgColor %11111111
+  CsLoadObjColor %11111100,%11111100
+  CsWait 10
   CsEnd
 .ENDS
