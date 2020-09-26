@@ -349,27 +349,19 @@ Cutscene_ActorNew:
       LD C,A
     POP HL
   POP AF    ;Task info
-  LD D,H
-  LD E,L
   CALL HaltTask ;Become the new character
-  LD (DE),A ;Place task
-  LD H,B
-  LD L,C
-  JP HL
-  ;
-  POP AF    ;Task info
-  CALL HaltTask ;Become the new character
-  LD H,>Cutscene_Actors
-  LD A,$1F
-  AND D
-  ADD <Cutscene_Actors
-  LD L,A
+  PUSH AF
+    LD H,>Cutscene_Actors
+    LD A,$1F
+    AND D
+    ADD <Cutscene_Actors
+    LD L,A
+  POP AF
   LD (HL),A ;Place task
   LD A,E    ;Character Type
   LD H,B
   LD L,C
   JP HL
-  ;
 
 Cutscene_ActorDelete:       ;TEST
 ;D= %000IIIII
