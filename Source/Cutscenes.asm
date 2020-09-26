@@ -54,7 +54,9 @@
     ;Open Alice's door
     ;Close Alice's door
 ;19: Shoot Danmaku
-;128: Wait
+;32: End
+;33: Wait
+;34: Wait on text
 
 ;Attach hat to character
 ;Detach hat from characters
@@ -70,8 +72,8 @@ Cutscene_LUT:
  .dw Cutscene_ActorDelete
  .dw Cutscene_ActorAnimate
  .dw Cutscene_ActorMovement
- .dw Cutscene_ObjPaletteLoad
- .dw Cutscene_BkgPaletteLoad
+ .dw Cutscene_End
+ .dw Cutscene_End
  .dw Cutscene_MapLoad
  .dw Cutscene_SongLoad
  .dw Cutscene_SongPan
@@ -95,6 +97,8 @@ Cutscene_LUT:
  .dw Cutscene_End
  .dw Cutscene_Wait
  .dw Cutscene_TextWait
+ .dw Cutscene_ObjPaletteLoad
+ .dw Cutscene_BkgPaletteLoad
 
 CharaTypes:
  .dw HatFrame
@@ -189,13 +193,28 @@ Cutscene_End:
 ;  JR c,-
   JP EndTask
 
-Cutscene_TextWait       ;TEST
+Cutscene_TextWait
   LD DE,TextStatus
 -
   CALL HaltTask
   LD A,(DE)
   CP textStatus_done
   JR nz,-
+  JR _Cutscene_ItemReturn
+
+Cutscene_BkgPaletteLoad:
+;D= New background palette
+  LD HL,BkgPal
+  LD (HL),D
+  JR _Cutscene_ItemReturn
+
+Cutscene_ObjPaletteLoad:
+;D= New OBJ0 palette
+;E= New OBJ1 palette
+  LD HL,SpritePal0
+  LD (HL),D
+  INC L
+  LD (HL),E
   JR _Cutscene_ItemReturn
 
 
@@ -285,21 +304,6 @@ Cutscene_CameraMove:
   LD (BC),A
   JP EndTask
 
-Cutscene_BkgPaletteLoad:
-;D= New background palette
-  LD HL,BkgPal
-  LD (HL),D
-  JP EndTask
-
-Cutscene_ObjPaletteLoad:
-;D= New OBJ0 palette
-;E= New OBJ1 palette
-  LD HL,SpritePal0
-  LD (HL),D
-  INC L
-  LD (HL),E
-  JP EndTask
-
 Cutscene_CameraSet:
 ;D = Camera X
 ;E = Camera Y
@@ -321,12 +325,6 @@ Cutscene_ActorNew:
     ;3: Reimu
     ;4: Narumi
     ;5: Fairy
-;Fairy types:
-    ;HHDDWWAA:
-    ;||||||++--- AI type
-    ;||||++----- Wing type
-    ;||++------- Dress type
-    ;++--------- Hair type
   PUSH BC       ;Task info
     LD H,>Cutscene_Actors
     LD A,$1F
@@ -358,6 +356,20 @@ Cutscene_ActorNew:
   LD H,B
   LD L,C
   JP HL
+  ;
+  POP AF    ;Task info
+  CALL HaltTask ;Become the new character
+  LD H,>Cutscene_Actors
+  LD A,$1F
+  AND D
+  ADD <Cutscene_Actors
+  LD L,A
+  LD (HL),A ;Place task
+  LD A,E    ;Character Type
+  LD H,B
+  LD L,C
+  JP HL
+  ;
 
 Cutscene_ActorDelete:       ;TEST
 ;D= %000IIIII
@@ -392,30 +404,29 @@ Cutscene_ActorMovement:
     ;Actor speed: Pixels/frame (4.4)
     ;Move actor U/L/D/R: Distance (pixels)
     ;Anim speed: speed val
-  LD H,>Cutscene_Actors
   LD A,$1F
   AND D
   ADD A,<Cutscene_Actors
-  LD L,A
-  ;Set the message
+  LD C,A
+  LD A,>Cutscene_Actors
+  ADC 0
+  LD B,A
+  ;Send the message
+-
+  LD A,(BC)
+  OR A
+  JR nz,+
+  CALL HaltTask ;If actor does not exist, wait for them
+  JR -
++   ;Set the message
+  CALL _Access_ActorDE
   LD A,$E0
   AND D
   SWAP A
   RRA
   LD B,A
   LD C,E
-  ;Send the message
--
-  LD A,(HL)
-  OR A
-  JR nz,+
-  LD E,L
-  CALL HaltTask ;If actor does not exist, wait for them
-  LD L,E
-  LD H,>Cutscene_Actors
-  JR -
-+   ;Modify the actor data
-  CALL _Access_ActorDE
+    ;Modify the actor data
   INC B
   DEC B
   JR nz,+
@@ -454,12 +465,13 @@ Cutscene_ActorMovement:
   BIT 7,B   ;Is it now negative?
   JR z,++
   ;Move actor U/L/D/R
+  LD D,H
+  LD E,L
   LD A,5
   ADD B
-  LD H,D
-  LD L,E
   RRCA
   RRCA  ;Fix this later
+  ;C preset
   JP Actor_DistMove
 ++
   ADD HL,DE
@@ -520,8 +532,13 @@ Cutscene_MapLoad:
 ;Load in the new map
   XOR A
   LD (hotMap),A
+-
   LD BC,LoadMap_Task
   CALL NewTask
+  JR nc,+
+  CALL HaltTask
+  JR -
++
 ;Wait for map to be loaded
   LD A,B
   CALL WaitOnTask
@@ -697,10 +714,10 @@ Cutscene_DanmakuInit        ;WRITE
  .db 9,dist, ID | ((dir + 3)*32)
 .ENDM
 .MACRO CsLoadObjColor ARGS color0, color1
- .db 10,color1,color0
+ .db $A3,color1,color0
 .ENDM
 .MACRO CsLoadBkgColor ARGS color
- .db 11,0,color
+ .db $A4,0,color
 .ENDM
 .MACRO CsLoadMap ARGS Map
  .db 12
@@ -781,7 +798,7 @@ Cutscene_DanmakuInit        ;WRITE
 OpeningDemo:
   CsPanSong $FF,$FF
   CsLoadSong SongSpark
-  CsWait 10             ;Fade to black
+  CsWait 15             ;Fade to black
   CsLoadBkgColor $FD
   CsWait 35
   CsLoadBkgColor $FE
@@ -795,11 +812,11 @@ OpeningDemo:
   CsNewActor 1,CsChMarisa,0
   CsNewActor 2,CsChReimu,0
   CsNewActor 3,CsChNarumi,0
+  CsNewActor 4,CsChFairy,%00011001
+  CsNewActor 5,CsChFairy,%00000101
+  CsNewActor 6,CsChFairy,%00101010
+  CsNewActor 7,CsChFairy,%00000000
   CsAssignHat 0,1
-  CsNewActor 4,CsChFairy,$00
-  CsNewActor 5,CsChFairy,$54
-  CsNewActor 6,CsChFairy,$A8
-  CsNewActor 7,CsChFairy,$68
   CsAnimSpeed 1,$10
   CsAnimSpeed 2,$10
   CsAnimSpeed 3,$10
@@ -822,10 +839,10 @@ OpeningDemo:
   CsSetActor 6,128,152
   CsSetActor 7,136,224
   CsWait 7      ;Wait for map load
-  CsMoveActorTime 4,CsDirUp,300,96
-  CsMoveActorSpeed 5,CsDirRight,1.5,72
-  CsMoveActorSpeed 6,CsDirLeft,1.1,40
-  CsMoveActorSpeed 7,CsDirLeft,1,96
+;  CsMoveActorTime 4,CsDirUp,300,96
+;  CsMoveActorSpeed 5,CsDirRight,1.5,72
+;  CsMoveActorSpeed 6,CsDirLeft,1.1,40
+;  CsMoveActorSpeed 7,CsDirLeft,1,96
  ;   Fade in
   CsLoadBkgColor %11111110
   CsLoadObjColor %11111000,%11111100
@@ -858,6 +875,7 @@ OpeningDemo:
   CsAnimateActor 2,CsAnFaceUp
   CsWait 4
   CsRunText StringDemoMessage1
+  CsWaitText
   CsAlterMap 0      ;Door close
   CsAnimateActor 8,CsAnWalkDown
   CsMoveActorTime 8,CsDirDown,5,20

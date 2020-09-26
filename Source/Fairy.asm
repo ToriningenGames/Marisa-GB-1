@@ -26,6 +26,18 @@
     ;Head bob optional
     ;Move the wings inwards too?
 
+;Fairy Types:
+    ;%AAHHBBWW
+    ;       ++--- Wing type
+    ;     ++----- Body type
+    ;   ++------- Hair type
+    ; ++--------- AI type
+  ;Values:
+    ;0: Zombie part
+    ;1: Prim part
+    ;2: Experienced part
+    ;3: Invalid part
+
 ;facing data
 ;Order:
     ;Relative Y
@@ -33,43 +45,32 @@
     ;Tile
     ;Attribute XOR (For correct flips)
 ;All UDLR designations are screen-based
-;Down
- .db $00,$00,$67,%00000000  ;Head left
- .db $00,$00,$68,%00000000  ;Head right
- .db $00,$00,$6B,%00000000  ;Shoulder left
- .db $00,$00,$6B,%00100000  ;Shoulder right
- .db $00,$00,$6E,%00000000  ;Leg left
- .db $00,$00,$6E,%00100000  ;Leg right
-;Up
- .db $00,$00,$69,%00000000  ;Head left
- .db $00,$00,$6A,%00000000  ;Head right
- .db $00,$00,$6C,%00100000  ;Shoulder left
- .db $00,$00,$6C,%00000000  ;Shoulder right
- .db $00,$00,$6F,%00100000  ;Leg left
- .db $00,$00,$6F,%00000000  ;Leg right
-;Left
- .db $00,$00,$78,%00000000  ;Head
- .db $00,$00,$00,%00000000  ;Hide Sprite
- .db $00,$00,$79,%00000000  ;Shoulder
- .db $00,$00,$00,%00000000  ;Hide sprite
- .db $00,$00,$73,%00100000  ;Leg left
- .db $00,$00,$72,%00100000  ;Leg right
-;Right
- .db $00,$00,$6D,%00000000  ;Head
- .db $00,$00,$00,%00000000  ;Hide Sprite
- .db $00,$00,$79,%00000000  ;Shoulder
- .db $00,$00,$00,%00000000  ;Hide sprite
- .db $00,$00,$72,%00000000  ;Leg left
- .db $00,$00,$73,%00000000  ;Leg right
 
 FairyFrame:
-  CALL Actor_New    ;Null actor (w/visibility)
+  PUSH AF
+    CALL Actor_New    ;Null actor (w/visibility)
+    ;Config data
+  POP AF
+  LD HL,_Settings
+  ADD HL,DE
+  LD (HL),A
+  LD B,D
+  LD C,E
+  CALL MemAlloc
+  LD HL,_AnimRAM
+  ADD HL,BC
+  LD (HL),E
+  INC HL
+  LD (HL),D
+  LD D,B
+  LD E,C
   ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE
   LD (HL),<DefaultHitboxes
   INC HL
   LD (HL),>DefaultHitboxes
+  ;Animation setup
   ;Animation values
   LD HL,_AnimChange
   ADD HL,DE
@@ -93,51 +94,148 @@ FairyFrame:
   ;Change HatVal
   LD A,$03
   AND C
-  SWAP A
-  ADD 2     ;Fairy Hat constant
+  ADD <_HatValues
+  LD L,A
+  LD A,<_HatValues
+  ADC 0
+  LD H,A
+  LD A,(HL)
   LD HL,_HatVal
   ADD HL,DE
   LD (HL),A
   ;Send new anim pointer
-  LD A,C
-  RLA
-  ADD <_Animations
-  LD L,A
-  LD A,>_Animations
-  ADC 0
-  LD H,A
-  LDI A,(HL)
-  LD B,(HL)
-  LD C,A
-  SCF   ;New animation
+  LD HL,_Settings
+  ADD HL,DE
+  LD A,$3F  ;Omit AI setting
+  AND (HL)
+  LD B,A
+;B=Fairy Type
+    ;%00HHBBWW
+    ;       ++--- Wing type
+    ;     ++----- Body type
+    ;   ++------- Hair type
+  PUSH DE
+    LD HL,_AnimRAM  ;Grab RAM buffer
+    ADD HL,DE
+    LDI A,(HL)
+    LD D,(HL)
+    LD E,A
+    PUSH DE
+      LD A,C
+      RLA
+      ADD <_Animations ;Grab this animation pointer
+      LD L,A
+      LD A,>_Animations
+      ADC 0
+      LD H,A
+      LDI A,(HL)
+      LD H,(HL)
+      LD L,A
+      LD C,29
+-
+      LDI A,(HL)    ;Copy animation to RAM
+      LD (DE),A
+      INC DE
+      DEC C
+      JR nz,-
+    POP HL
+    PUSH HL
+      LD A,$30  ;Get fairy type modifications into DE
+      AND B
+      RLCA
+      RLCA
+      OR B
+      LD E,A
+      LD A,$F0
+      AND E
+      SWAP A
+      LD D,A
+      LD C,6
+-
+      INC HL        ;Edit tiles to match fairy type
+      INC HL
+      INC HL
+      LD A,$03
+      AND E
+      RR D
+      RR E
+      RR D
+      RR E
+      ADD (HL)
+      LDI (HL),A
+      DEC C
+      JR nz,-
+    POP BC
+  POP DE
+  SCF
 +
   ;Carry correct b/c CMP against $FF
   JP Actor_Draw
 
 _DownFace:
  .db 6
- .db -10,-9,$69,%00100000  ;Head left
- .db -10,-1,$68,%00100000  ;Head right
- .db  -8,-7,$6B,%00000000  ;Shoulder left
- .db  -8, 0,$6B,%00100000  ;Shoulder right
- .db   0,-7,$6E,%00000000  ;Leg left
- .db   0, 0,$6E,%00100000  ;Leg right
+ .db -8, -4,$50,%00000000  ;Head
+ .db  0, -4,$53,%00000000  ;Body
+ .db -8,-12,$5C,%00000000  ;Upper left wing
+ .db -8,  4,$5C,%00100000  ;Upper right wing
+ .db  0,-12,$59,%00000000  ;Lower left wing
+ .db  0,  4,$59,%00100000  ;Lower right wing
 _IdleLoop:
  .db $F1
  .db $FF
  .dw _IdleLoop
 
+_UpFace:
+ .db 6
+ .db -8, -4,$5F,%00000000  ;Head
+ .db  0, -4,$56,%00000000  ;Body
+ .db -8,-12,$5C,%00000000  ;Upper left wing
+ .db -8,  4,$5C,%00100000  ;Upper right wing
+ .db  0,-12,$59,%00000000  ;Lower left wing
+ .db  0,  4,$59,%00100000  ;Lower right wing
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
+_LeftFace:
+ .db 4
+ .db -8, -4,$4A,%00000000  ;Head
+ .db  0, -4,$4D,%00000000  ;Body
+ .db -8,  4,$5C,%00100000  ;Upper wing
+ .db  0,  4,$59,%00100000  ;Lower wing
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
+_RightFace:
+ .db 4
+ .db -8, -4,$4A,%00100000  ;Head
+ .db  0, -4,$4D,%00100000  ;Body
+ .db -8,-12,$5C,%00000000  ;Upper wing
+ .db  0,-12,$59,%00000000  ;Lower wing
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
+
 _Animations:
+ .dw _LeftFace
  .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
+; .dw _LeftWalk
+; .dw _DownWalk
+; .dw _RightWalk
+; .dw _UpWalk
+ .dw _LeftFace
  .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
- .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
+
+_HatValues:
+ .db 2
+ .db 18
+ .db 34
+ .db 50
+
 .ENDS

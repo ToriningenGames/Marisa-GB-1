@@ -35,8 +35,12 @@ AliceFrame:
   ;Change HatVal
   LD A,$03
   AND C
-  SWAP A
-  ADD 4     ;Alice Hat constant
+  ADD <_HatValues
+  LD L,A
+  LD A,<_HatValues
+  ADC 0
+  LD H,A
+  LD A,(HL)
   LD HL,_HatVal
   ADD HL,DE
   LD (HL),A
@@ -99,18 +103,33 @@ _LeftFace:
  .db $FF
  .dw _IdleLoop
 
+_DownWalk:
+ .db 6
+ .db -12,-8,$0B,%00000000  ;Head left
+ .db -12, 0,$0C,%00000000  ;Head right
+ .db  -8,-8,$10,%00000000  ;Shoulder left
+ .db  -8, 0,$11,%00000000  ;Shoulder right
+ .db   0,-8,$14,%00000000  ;Leg left
+ .db   0, 0,$15,%00000000  ;Leg right
+_WalkLoop:
+ .db $F1
+ .db $FF
+ .dw _WalkLoop
+
 _Animations:
  .dw _LeftFace
  .dw _DownFace
  .dw _RightFace
  .dw _UpFace
  .dw _LeftFace
- .dw _DownFace
+ .dw _DownWalk
  .dw _RightFace
  .dw _UpFace
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _UpFace
+
+_HatValues:
+ .db 4
+ .db 20
+ .db 36
+ .db 52
 
 .ENDS

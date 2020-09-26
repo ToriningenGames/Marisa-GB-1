@@ -150,6 +150,7 @@ CharaFrame:
   LD (HL),A
   LD A,C
   ;Set Hatval
+  AND $03
   ADD <_HatValues
   LD L,A
   LD A,0
@@ -338,20 +339,8 @@ _Animations:
  .dw _DownWalk
  .dw _RightWalk
  .dw _UpWalk
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _UpFace
 
 _HatValues:
- .db 1
- .db 17
- .db 33
- .db 49
- .db 1
- .db 17
- .db 33
- .db 49
  .db 1
  .db 17
  .db 33
@@ -670,35 +659,35 @@ HatFrame:
 ;Universal order: Left/Down/Right/Up
 _Left:
  .db 4
- .db -6, 1,$67,%00000000    ;Tip
- .db  1,-4,$63,%00000000    ;Left
- .db  1, 4,$64,%00000000    ;Right
- .db -0,-6,$67,%00000000    ;Side
+ .db -6, 1,$01,%00000000    ;Tip
+ .db  1,-4,$64,%00000000    ;Left
+ .db  1, 4,$65,%00000000    ;Right
+ .db -0,-6,$01,%00000000    ;Side
  .db $F1
  .db $FF
  .dw DefaultIdleAnim
 _Down:
  .db 3
- .db  -7, 1,$67,%00000000
- .db  -0,-9,$61,%00000000
- .db  -0,-1,$62,%00000000
+ .db  -7, 1,$01,%00000000
+ .db  -0,-9,$62,%00000000
+ .db  -0,-1,$63,%00000000
  .db $F1
  .db $FF
  .dw DefaultIdleAnim
 _Right:
  .db 4
- .db -6, -4,$67,%00000000
- .db  1,-12,$64,%00100000
- .db  1, -4,$63,%00100000
- .db -1,  3,$67,%00000000
+ .db -6, -4,$01,%00000000
+ .db  1,-12,$65,%00100000
+ .db  1, -4,$64,%00100000
+ .db -1,  3,$01,%00000000
  .db $F1
  .db $FF
  .dw DefaultIdleAnim
 _Up:
  .db 3
- .db  -7,-3,$67,%00000000
- .db  -0,-7,$65,%00000000
- .db  -0, 1,$66,%00000000
+ .db  -7,-3,$01,%00000000
+ .db  -0,-7,$66,%00000000
+ .db  -0, 1,$67,%00000000
  .db $F1
  .db $FF
  .dw DefaultIdleAnim

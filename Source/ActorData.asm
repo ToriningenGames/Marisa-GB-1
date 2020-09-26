@@ -21,6 +21,9 @@
     ;+$11, size 1: current button state
 ;Hat
     ;+$11, size 2: current character wearing
+;Fairy
+    ;+$11, size 2: Pointer to RAM holding animation data
+    ;+$13, size 1: Configuration settings
 
 ;Existence values:
 ;0:   Exist freely
@@ -90,3 +93,6 @@
 ;Hat
 .DEFINE _ParentChar $11
 
+;Fairy
+.DEFINE _AnimRAM $11
+.DEFINE _Settings $13

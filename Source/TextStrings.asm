@@ -123,7 +123,7 @@ StringTestMessage:  ;missing input, up, right, corner; right and corner are done
     ;Narrow format
     ;|FFFF 0123456789ABCD |
 StringDemoMessage1:
-.DB CtrlFaceLoad,1,$02, CtrlFaceLoad,2,$17, CtrlSpeed,3
+.DB CtrlBorder,1, CtrlFaceLoad,1,$02, CtrlFaceLoad,2,$17, CtrlSpeed,3
   .DB CtrlFaceShow,1, CtrlClear, CtrlRaise, CtrlWait,5
   .ASC    "WHAT ARE YOU", CtrlLine
   .ASC    "ALL DOING AT", CtrlLine

@@ -75,20 +75,20 @@ Actor_New:
 ;Destroys all else
   PUSH DE   ;X, Y
 ;Allocate and initialize memory
-  CALL MemAlloc
-  LD H,D
-  LD L,E
-  LD A,5
-  LDI (HL),A
-  LDI (HL),A
-  XOR A
-  LD C,$10
+    CALL MemAlloc
+    LD H,D
+    LD L,E
+    LD A,5
+    LDI (HL),A
+    LDI (HL),A
+    XOR A
+    LD C,$10
 -
-  LDI (HL),A
-  DEC C
-  JR nz,-
-  LD HL,_MasterX+1
-  ADD HL,DE
+    LDI (HL),A
+    DEC C
+    JR nz,-
+    LD HL,_MasterX+1
+    ADD HL,DE
   POP BC
   LD A,B    ;X
   LDI (HL),A
@@ -267,7 +267,7 @@ Actor_Draw:
         JR nz,-
         JR --
 ++  ;End of animation
-  POP AF
+    POP AF
   POP DE
   LD HL,_AnimPtr
   ADD HL,DE
@@ -555,133 +555,11 @@ Actor_Show:
   LD (HL),D
   RET
 
-;Process common messages
-    ;0: Snap to X location
-        ;E= X position, in pixels
-    ;1: Snap to Y location
-        ;E= Y position, in pixels
-    ;2: Set actor speed
-        ;E= speed (4.4) pixels/frame
-    ;3: Move actor up
-        ;E= distance (pixels)
-    ;4: Move actor left
-        ;E= distance (pixels)
-    ;5: Move actor down
-        ;E= distance (pixels)
-    ;6: Move actor right
-        ;E= distance (pixels)
-    ;8: Set animation speed
-        ;E= speed
-    ;9: Play animation
-        ;E= animation ID
-    ;128: Cease existing
-    ;129: Start/Stop cutscene control
-
 ;Move actor in a direction over a certain distance
 Actor_DistMove:
 ;DE->Actor Data
 ;C= Length of move, in pixels
 ;A= Direction U/L/D/R
-  RLCA
-  JR c,++
-  RLCA
-  LD A,C
-  JR c,+
-    ;Up movement
--
-  CALL HaltTask
-  PUSH AF   ;Distance
-    LD HL,_MoveSpeed
-    ADD HL,DE
-    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
-    LD C,A
-    LD B,(HL)
-    LD HL,_MasterY
-    ADD HL,DE
-    LD A,(HL)
-    SUB C
-    LDI (HL),A
-    LD A,(HL)
-    SBC B
-    LD (HL),A
-  POP AF
-  SUB B
-  JR nc,-
-  SUB (HL) ;Pos Hi
-  LD (HL),A ;Subtracting negative overflow to make position exact
-  JP EndTask
-+   ;Left movement
--
-  CALL HaltTask
-  PUSH AF   ;Distance
-    LD HL,_MoveSpeed
-    ADD HL,DE
-    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
-    LD C,A
-    LD B,(HL)
-    LD HL,_MasterX
-    ADD HL,DE
-    LD A,(HL)
-    SUB C
-    LDI (HL),A
-    LD A,(HL)
-    SBC B
-    LD (HL),A
-  POP AF
-  SUB B
-  JR nc,-
-  SUB (HL) ;Pos Hi
-  LD (HL),A ;Adding negative overflow to make position exact
-  JP EndTask
-++  ;Down/Right
-  RLCA
-  LD A,C
-  JR c,+
-    ;Down movement
--
-  CALL HaltTask
-  PUSH AF   ;Distance
-    LD HL,_MoveSpeed
-    ADD HL,DE
-    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
-    LD C,A
-    LD B,(HL)
-    LD HL,_MasterY
-    ADD HL,DE
-    LD A,(HL)
-    ADD C
-    LDI (HL),A
-    LD A,(HL)
-    ADC B
-    LD (HL),A
-  POP AF
-  SUB B
-  JR nc,-
-  ADD (HL) ;Pos Hi
-  LD (HL),A ;Subtracting negative overflow to make position exact
-  JP EndTask
-+   ;Right movement
--
-  CALL HaltTask
-  PUSH AF   ;Distance
-    LD HL,_MoveSpeed
-    ADD HL,DE
-    LDI A,(HL)  ;Collected inside loop in case of changes (allow acceleration)
-    LD C,A
-    LD B,(HL)
-    LD HL,_MasterX
-    ADD HL,DE
-    LD A,(HL)
-    ADD C
-    LDI (HL),A
-    LD A,(HL)
-    ADC B
-    LD (HL),A
-  POP AF
-  SUB B
-  JR nc,-
-  ADD (HL) ;Pos Hi
-  LD (HL),A ;Adding negative overflow to make position exact
   JP EndTask
 .ENDS
 

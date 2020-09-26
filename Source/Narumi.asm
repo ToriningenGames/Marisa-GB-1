@@ -39,8 +39,12 @@ NarumiFrame:
   ;Change HatVal
   LD A,$03
   AND C
-  SWAP A
-  ADD 3     ;Narumi Hat constant
+  ADD <_HatValues
+  LD L,A
+  LD A,<_HatValues
+  ADC 0
+  LD H,A
+  LD A,(HL)
   LD HL,_HatVal
   ADD HL,DE
   LD (HL),A
@@ -110,9 +114,11 @@ _Animations:
  .dw _DownFace
  .dw _RightFace
  .dw _UpFace
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _UpFace
+
+_HatValues:
+ .db 3
+ .db 19
+ .db 35
+ .db 51
 
 .ENDS
