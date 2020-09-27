@@ -112,7 +112,21 @@ _DownWalk:
  .db   0,-8,$14,%00000000  ;Leg left
  .db   0, 0,$15,%00000000  ;Leg right
 _WalkLoop:
- .db $F1
+ .db $22
+ .db %01010110  ;Left Arm raise
+ .db %01011010  ;Right Leg raise
+ .db $32
+ .db %11010110  ;Left Arm lower
+ .db %11011010  ;Right Leg lower
+ .db $34
+ .db %01010110  ;Left Leg raise
+ .db %01010110
+ .db %01011010  ;Right Arm raise
+ .db %01011010
+ .db $35
+ .db %10010110  ;Left Leg lower
+ .db %10011010  ;Right Arm lower
+ .db $11
  .db $FF
  .dw _WalkLoop
 

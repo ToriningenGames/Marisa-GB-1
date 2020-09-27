@@ -1,6 +1,49 @@
 ;Actor data
     ;Centralized place for all character's memory assignments
 
+;Animation format:
+    ;Two parts: Base and Active
+    ;Base determines the default state to display when animation is off
+    ;Active determines the actions to go through when animation is on
+;Base part:
+    ;24 bytes: Sprite data state
+;Active part:
+    ;1 byte: Counts
+        ;%WWWWCCCC
+        ; ||||++++--- Change counts
+        ; ++++------- Wait time (Loaded hi)
+    ;N bytes: Sprite Changes
+        ;%VVVTTTPP
+        ; ||||||++--- Portion (Y val, X val, Tile, Attr, 3 if loop)
+        ; |||+++----- Target (Sprite #1-6, 0 for all, 7 for loop instead)
+        ; +++-------- Value (7 if loop)
+        ;Meaning of Value:
+            ;If selected byte is Y val, X val, or Tile:
+                ;Value=Two's Compliment signed value to be added to selection
+            ;If selected byte is Attribute:
+                ;Value=Lowest bit decides targets, high two bits toggle if set (XOR)
+                ;Bit 0: Targets are bit6 and bit5 of Attribute
+                ;Bit 1: Targets are bit7 and bit4 of Attribute
+        ;If target is loop, two bytes for loop destination address follow
+
+;Hitbox data format:
+;All actor hitboxes are squares
+    ;1 byte: hitbox count
+    ;2 bytes: X position (8.8)
+    ;2 bytes: Y position (8.8)
+    ;2 bytes: radius (8.8)
+    ;2 bytes: Action. Signature:
+        ;BC->Owning actor
+        ;DE->Touching actor
+
+.MACRO Animate ARGS sprite, attr, val
+ .db ((val & $07) << 5) | ((sprite & $07) << 2) | (attr & $03)
+.ENDM
+.DEFINE AnimY 0
+.DEFINE AnimX 1
+.DEFINE AnimTile 2
+.DEFINE AnimAttr 3
+
 ;Memory format:
 ;Global
     ;+$00, size 2: Sprite pointer (to shadow OAM)

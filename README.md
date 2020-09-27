@@ -68,7 +68,7 @@ The Storyline.txt is not engine, data, or art related, so it doesn't have a home
 
 ## Building
 - If you're not on Win64, build the tools in Tools
-- Run `make`
+- Run `make` in the root folder
     - WLA not in your path? Use `make WLADIR=path/to/wla/dir`
     - Running Unix? Crack open the Makefile, do a find-replace from `\` to `/`, and replace the tooldefs in the first few Makefile lines
 
@@ -92,7 +92,6 @@ Outside game:
 <li />[x] Organize the game files
 <li />[x] Add `.gitignore`s for intermediate files
 <li />[x] Move the tools away from the repo
-<li />[ ] Add `resources` Makefile target
 <li />[ ] Add the music midis in
 <li />[ ] Release the "picnic" demo
 <li />[ ] Write a prereq script
@@ -102,9 +101,14 @@ Inside game:
 <li />[ ] Debug cutscene elements to find which are crashing.
 <li />[ ] Add Danmaku
 <li />[ ] Add Reimu character behavior
+<li />[ ] Add Reimu walking animations
 <li />[ ] Add Narumi character behavior
 <li />[ ] Add Alice character behavior
+<li />[ ] Add Alice's other walking animations
 <li />[ ] Add Fairy character behaviors
+<li />[x] Add Fairy floaing animations
+<li />[ ] Add text option to wait for button press
+<li />[ ] Add some sort of character talk interation
 <li />[ ] Create most more maps
 <li />[ ] Write some title music
 <li />[ ] Pare down unused utility functions

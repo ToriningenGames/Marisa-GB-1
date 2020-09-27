@@ -51,8 +51,6 @@
 ;16: Assign hat to actor
 ;17: Set actor speed
 ;18: Alter Map
-    ;Open Alice's door
-    ;Close Alice's door
 ;19: Shoot Danmaku
 ;32: End
 ;33: Wait
@@ -78,7 +76,7 @@ Cutscene_LUT:
  .dw Cutscene_SongLoad
  .dw Cutscene_SongPan
  .dw Cutscene_HatAssign
- .dw Cutscene_MapAlter
+ .dw LoadRectToVRAM_Task
  .dw Cutscene_DanmakuInit
  .dw Cutscene_End
  .dw Cutscene_End
@@ -617,9 +615,6 @@ Cutscene_HatAssign:
   LD (HL),D
   JP EndTask
 
-Cutscene_MapAlter:          ;WRITE
-;DE= Pointer to alteration data
-  JP EndTask
 Cutscene_DanmakuInit        ;WRITE
 ;D= Actor ID
 ;E= Danmaku type
@@ -742,23 +737,35 @@ Cutscene_DanmakuInit        ;WRITE
     ;Danmanku actor messages
         ;Danmaku as independent of actors?
     ;Write actor animations
+        ;Reimu Floating animation would be cute (during danmaku firing)
+        ;All fairy walk cycles
+        ;Alice Down Walk
     ;Draw a few more faces
-    ;Reposition everybody
-    ;Realign the camera to show everybody
-    ;Ideal value for that text shake?
     ;Write up the last few actions
 ;General TODO:
     ;Player Cutscene control control
         ;A Marisa rewrite
 ;Problems:
-    ;Alter Map is not written
+    ;Alter Map items are not written
+      ;Open Alice's door
+      ;Close Alice's door
     ;Shoot Danmaku is not written
     ;The Camera Time macro can move camera too slow
         ;Same distance covered, takes more time. Problem of speed's precision
-    ;Final line of Demo2 missing first letter?
     ;Text waits before lowers too fast
-    
 
+;Map Alterations
+;Order: width,height,source,dest
+MapAlt_AliceDoorOpen:   ;Opens Alice's door
+ .db 2,3
+ .dw _AliceDoorOpen_Data,$9927
+_AliceDoorOpen_Data:
+ .db $84,$85,$84,$85,$86,$87
+MapAlt_AliceDoorClose:  ;Closes Alice's door
+ .db 2,3
+ .dw _AliceDoorClose_Data,$9927
+_AliceDoorClose_Data:
+ .db $DA,$DB,$E0,$E1,$E6,$E7
 ;Camera starts on bottom of map
 ;Camera pans to top of map
   ;Camera pans over
@@ -809,13 +816,13 @@ OpeningDemo:
   CsNewActor 6,CsChFairy,%00101010
   CsNewActor 7,CsChFairy,%00000000
   CsAssignHat 0,1
-  CsAnimSpeed 1,$10
-  CsAnimSpeed 2,$10
-  CsAnimSpeed 3,$10
-  CsAnimSpeed 4,$10
-  CsAnimSpeed 5,$10
-  CsAnimSpeed 6,$10
-  CsAnimSpeed 7,$10
+  CsAnimSpeed 1,$05
+  CsAnimSpeed 2,$05
+  CsAnimSpeed 3,$05
+  CsAnimSpeed 4,$05
+  CsAnimSpeed 5,$05
+  CsAnimSpeed 6,$05
+  CsAnimSpeed 7,$05
   CsAnimateActor 1,CsAnFaceLeft
   CsAnimateActor 2,CsAnFaceRight
   CsAnimateActor 3,CsAnFaceDown
@@ -838,27 +845,26 @@ OpeningDemo:
  ;   Fade in
   CsLoadBkgColor %11111110
   CsLoadObjColor %11111000,%11111100
-  CsWait 1
+  CsWait 3
+  CsMoveCameraTime CsDirUp,300,94      ;Not quite top of map (Keep all in view)
   CsLoadBkgColor %11111010
   CsLoadObjColor %11101000,%11111000
-  CsWait 1
+  CsWait 3
   CsLoadBkgColor %11111001
   CsLoadObjColor %11100100,%11111000
-  CsWait 1
+  CsWait 3
   CsLoadBkgColor %11101001
   CsLoadObjColor %11100100,%11101000
-  CsWait 1
+  CsWait 3
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
-  CsWait 1
+  CsWait 3
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
-  CsWait 1
-  CsMoveCameraTime CsDirUp,300,94      ;Not quite top of map (Keep all in view)
   CsWait 300+120    ;2 second pause
-  CsAlterMap 0      ;Door open
+  CsAlterMap MapAlt_AliceDoorOpen   ;Door open
   CsNewActor 8,CsChAlice,0
-  CsAnimSpeed 8,$10
+  CsAnimSpeed 8,$05
   CsAnimateActor 8,CsAnFaceDown
   CsSetActor 8,64,84
   CsWait 5
@@ -868,7 +874,7 @@ OpeningDemo:
   CsWait 4
   CsRunText StringDemoMessage1
   CsWaitText
-  CsAlterMap 0      ;Door close
+  CsAlterMap MapAlt_AliceDoorClose  ;Door close
   CsAnimateActor 8,CsAnWalkDown
   CsMoveActorTime 8,CsDirDown,5,20
   CsWait 5
