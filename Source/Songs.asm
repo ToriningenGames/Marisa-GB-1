@@ -13,6 +13,11 @@ SongSpark:
  .incbin "rsc\Spark2.mcs"
 .ENDS
 
+.SECTION "song_retrib" FREE
+SongRetrib:
+ .incbin "rsc\EasternStory.mcs"
+.ENDS
+
 .SECTION "notepitches" ALIGN $100 FREE
 ;Channel pitches
 Channel1Pitch:
@@ -35,14 +40,14 @@ Channel4Pitch:
 ;The high-order byte is the associated envelope
  ;      A           B     C           D           E     F           G
  .dw $F173,$4934,$8134,$7101,$3511,$9351,$1E51,$7425,$8A25,$8124,$BA23,$F251
- .dw $00FF,$00FF,$4921,$00FF,$00FF,$D351,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
+ .dw $00FF,$3C34,$4921,$B134,$E234,$D351,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
 Channel4Stacatto:
 ;Associated Stacatto data
  .db $1D,  $00,  $02,  $1F,  $00,  $04,  $00,  $00,  $00,  $30,  $00,  $04
- .db $FF,  $FF,  $00,  $FF,  $FF,  $04,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
+ .db $FF,  $00,  $00,  $02,  $01,  $04,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
  .db $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
  .db $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
  .db $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
@@ -62,7 +67,8 @@ Channel4Stacatto:
 ;Octave 3: Rolls, rides, and runs
     ;A
     ;B: Snare roll crescendo
-    ;C
+    ;C: Snare drum louder
+    ;C+: Snare drum loudest
     ;D: Elec. Snare (mid-loud)
     ;E
     ;F

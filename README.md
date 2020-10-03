@@ -98,7 +98,8 @@ Outside game:
 </ul>
 Inside game:
 <ul>
-<li />[ ] Debug cutscene elements to find which are crashing.
+<li />[ ] Fix cutscene Actor control (movement, delete, control)
+<li />[ ] Add actor destructors
 <li />[ ] Add Danmaku
 <li />[ ] Add Reimu character behavior
 <li />[ ] Add Reimu walking animations

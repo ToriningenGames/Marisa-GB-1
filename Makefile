@@ -26,22 +26,22 @@ vpath %.mcs .\rsc
 vpath %.gbm .\rsc
 
 #Submakes
-vpath %.d ./Submakes/obj ./Submakes/lib
+vpath %.d .\Submakes\obj .\Submakes\lib
 
 TOOLDIR = Tools
 WLADIR = 
 
 LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib CORDIC2.lib Fairy.lib Face.lib \
 	Pause.lib Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib \
-	Chara.lib Cutscenes.lib
-LIB1 = Graphics.lib Songs.lib Maps.lib Effects.lib TextStrings.lib Reimu.lib \
+	Chara.lib Cutscenes.lib Songs.lib
+LIB1 = Graphics.lib Maps.lib Effects.lib TextStrings.lib Reimu.lib \
 	Narumi.lib Alice.lib
 LINK = Link.link
 OBJ = Assemble.obj vBlank2.obj
 SUPP = TileData.lzc
 SONGS = Spark2.mcs NULL.mcs
 MAPS = Test.gbm Debug.gbm Hall.gbm
-OUT = bin/Assemble.gb
+OUT = bin\Assemble.gb
 SYM = $(subst /,\,$(addsuffix .sym,$(basename $(OUT))))
 SPECFILE = Tools/specfile_marisa.cfg
 
@@ -49,19 +49,19 @@ SPECFILE = Tools/specfile_marisa.cfg
 all : $(OUT)
 
 $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
-	$(WLADIR)/wlalink -v -S -r $(LINK) $(OUT)
+	$(WLADIR)\wlalink -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
 	$(QUIET)$(RM) $(SYM)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
-%.obj.d : %.asm | Submakes Submakes\obj
+%.obj.d : ..\..\%.asm | Submakes Submakes\obj
 	$(WLADIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\obj\$(@F)
-%.lib.d : %.asm | Submakes Submakes\lib
+%.lib.d : ..\..\%.asm | Submakes Submakes\lib
 	$(WLADIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\lib\$(@F)
-include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB0)))
-include $(addprefix Submakes/lib/,$(addsuffix .d,$(LIB1)))
-include $(addprefix Submakes/obj/,$(addsuffix .d,$(OBJ)))
+include $(addprefix Submakes\lib\,$(addsuffix .d,$(LIB0)))
+include $(addprefix Submakes\lib\,$(addsuffix .d,$(LIB1)))
+include $(addprefix Submakes\obj\,$(addsuffix .d,$(OBJ)))
 
 %.obj : %.asm %.obj.d | obj
 	$(WLADIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<

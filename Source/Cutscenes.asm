@@ -15,7 +15,7 @@
     ;Change palette
     ;Play actor animation
     ;Open door
-    ;Stopping player movement
+    ;Stopping player controlled movement
     ;Try to never have a "Call this function" function
 ;Cutscenes will be responsible for tracking which character is which, and where,
 ;EXCEPT for the hat and the player; IDs for those are available at $C0E9/A
@@ -24,37 +24,36 @@
 ;Each cutscene piece refers to a function call
     ;1 byte:  function to call
     ;2 bytes: data
-    ;1 byte:  waiting period
 
 .SECTION "Cutscene" ALIGN 256 FREE
 
 ;Cutscene function signature:
-    ;Are tasks
+    ;Some are tasks
     ;DE->Data
 ;Cutscene abilities:
-;0: End
-;1: Disable player input
-;2: Enable player input
-;3: Run Text
-;4: Set camera
-;5: Move camera
-;6: Create actor
-;7: Destroy actor
-;8: Set actor position
-;9: Animate actor
-;10: Move actor
-;11: Load object palette
-;12: Load background palette
-;13: Load map
-;14: Load song
-;15: Load song panning
-;16: Assign hat to actor
-;17: Set actor speed
-;18: Alter Map
-;19: Shoot Danmaku
-;32: End
-;33: Wait
-;34: Wait on text
+;End
+;Disable player input
+;Enable player input
+;Run Text
+;Set camera
+;Move camera
+;Create actor
+;Destroy actor
+;Set actor position
+;Animate actor
+;Move actor
+;Load object palette
+;Load background palette
+;Load map
+;Load song
+;Load song panning
+;Assign hat to actor
+;Set actor speed
+;Alter Map
+;Shoot Danmaku
+;End
+;Wait for time
+;Wait on text
 
 ;Attach hat to character
 ;Detach hat from characters
@@ -175,20 +174,6 @@ Cutscene_Wait:          ;TEST
   JR _Cutscene_ItemReturn
 
 Cutscene_End:
-;  LD HL,Cutscene_Actors
-;  LDI A,(HL)
-;  LD C,A
-;  LD A,(HL)
-;  LD B,$17  ;Resume free will
-;-
-;  CALL MsgSend
-;  CALL HaltTask
-;  JR c,-
-;  LD A,C
-;-
-;  CALL MsgSend
-;  CALL HaltTask
-;  JR c,-
   JP EndTask
 
 Cutscene_TextWait
@@ -217,7 +202,6 @@ Cutscene_ObjPaletteLoad:
 
 
 ;These are tasks
-
 
 Cutscene_CameraMove:
 ;D= Distance
@@ -637,10 +621,6 @@ Cutscene_DanmakuInit        ;WRITE
 .DEFINE CsAnWalkDown    5
 .DEFINE CsAnWalkRight   6
 .DEFINE CsAnWalkUp      7
-.DEFINE CsAnIdleLeft    8
-.DEFINE CsAnIdleDown    9
-.DEFINE CsAnIdleRight  10
-.DEFINE CsAnIdleUp     11
 
 .DEFINE CsDirUp     0
 .DEFINE CsDirLeft   1
@@ -733,13 +713,10 @@ Cutscene_DanmakuInit        ;WRITE
 ;Demo cutscene
 ;TODO for Demo 1:
     ;Write appropriate music track
-    ;Door cutscene functions
     ;Danmanku actor messages
         ;Danmaku as independent of actors?
     ;Write actor animations
         ;Reimu Floating animation would be cute (during danmaku firing)
-        ;All fairy walk cycles
-        ;Alice Down Walk
     ;Draw a few more faces
     ;Write up the last few actions
 ;General TODO:
@@ -752,7 +729,6 @@ Cutscene_DanmakuInit        ;WRITE
     ;Shoot Danmaku is not written
     ;The Camera Time macro can move camera too slow
         ;Same distance covered, takes more time. Problem of speed's precision
-    ;Text waits before lowers too fast
 
 ;Map Alterations
 ;Order: width,height,source,dest
@@ -796,7 +772,7 @@ _AliceDoorClose_Data:
 ;Fadeout
 OpeningDemo:
   CsPanSong $FF,$FF
-  CsLoadSong SongSpark
+  CsLoadSong SongRetrib
   CsWait 15             ;Fade to black
   CsLoadBkgColor $FD
   CsWait 35
@@ -883,18 +859,21 @@ OpeningDemo:
   CsRunText StringDemoMessage2
   CsWaitText
   CsShootDanmaku 8,0
-  CsWait 30
-  ;Reimu Marisa danmaku
-  CsWait 5
-  ;Narumi Watch
-  CsAnimateActor 3,CsAnFaceUp
-  CsWait 7
-  ;Fairy escape
-  CsWait 2
-  ;Fade out
+  CsWait 8
+  CsShootDanmaku 2,0    ;Reimu Marisa danmaku
+  CsWait 10
+  CsShootDanmaku 1,0
+  CsWait 20
+  CsAnimateActor 3,CsAnFaceUp   ;Narumi Watch
+  CsWait 25
+  CsMoveActorTime 4,CsDirDown,5,5   ;Fairy escape
+  CsWait 12
+  CsAnimateActor 4,CsAnWalkDown
+  CsMoveActorTime 4,CsDirDown,5,10
+  CsWait 20
   CsMoveCameraTime CsDirUp,60,18    ;Rest of map
   CsWait 10
-  CsLoadBkgColor %11100100
+  CsLoadBkgColor %11100100  ;Fade out
   CsLoadObjColor %11010000,%11100100
   CsWait 10
   CsLoadBkgColor %11101001
