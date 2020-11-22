@@ -31,11 +31,10 @@ vpath %.d .\Submakes\obj .\Submakes\lib
 TOOLDIR = Tools
 WLADIR = 
 
-LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib CORDIC2.lib Fairy.lib Face.lib \
-	Pause.lib Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib \
-	Chara.lib Cutscenes.lib Songs.lib
-LIB1 = Graphics.lib Maps.lib Effects.lib TextStrings.lib Reimu.lib \
-	Narumi.lib Alice.lib
+LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib Fairy.lib Face.lib Pause.lib \
+	Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib Chara.lib \
+	Cutscenes.lib Reimu.lib Narumi.lib Alice.lib SinCos.lib Danmaku.lib
+LIB1 = Graphics.lib Maps.lib Effects.lib TextStrings.lib Songs.lib
 LINK = Link.link
 OBJ = Assemble.obj vBlank2.obj
 SUPP = TileData.lzc
@@ -75,7 +74,7 @@ include $(addprefix Submakes\obj\,$(addsuffix .d,$(OBJ)))
 	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
 %.mcs : ..\%.mml | rsc
 	$(TOOLDIR)\MML6.exe -i=$< -o=$@ -t=gb
-$(LINK) : $(FILENAME)
+$(LINK) : Makefile
 	$(file > $(LINK),[objects])
 	$(foreach I, $(OBJ),$(file >> $(LINK), obj/$(I)))
 	$(file >> $(LINK),[libraries])

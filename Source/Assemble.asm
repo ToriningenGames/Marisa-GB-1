@@ -209,6 +209,7 @@ __MultLoop:
   ADD HL,BC         ;8
   DEC A             ;4
   JR nz,__MultLoop  ;12,8
+Return:
   RET               ;16
 
 .ORG $08

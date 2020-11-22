@@ -6,7 +6,8 @@
     ;Base determines the default state to display when animation is off
     ;Active determines the actions to go through when animation is on
 ;Base part:
-    ;24 bytes: Sprite data state
+    ;1 byte: Sprite count (up to 6)
+    ;<=24 bytes: Sprite data state
 ;Active part:
     ;1 byte: Counts
         ;%WWWWCCCC
@@ -21,10 +22,28 @@
             ;If selected byte is Y val, X val, or Tile:
                 ;Value=Two's Compliment signed value to be added to selection
             ;If selected byte is Attribute:
-                ;Value=Lowest bit decides targets, high two bits toggle if set (XOR)
-                ;Bit 0: Targets are bit6 and bit5 of Attribute
-                ;Bit 1: Targets are bit7 and bit4 of Attribute
+                ;Value=XOR mask for attribute values
+                ;Bit 0: Palette choice
+                ;Bit 1: X mirror
+                ;Bit 2: Y mirror
         ;If target is loop, two bytes for loop destination address follow
+
+;Attribute bit reminder:
+    ;%PYXC0000
+    ; |||||||+--- (Used for forcing priority)
+    ; ||||++++--- CGB Only
+    ; |||+------- Palette choice
+    ; ||+-------- X mirror
+    ; |+--------- Y mirror
+    ; +---------- Hide behind BKG
+
+.MACRO Animate ARGS sprite, attr, val
+ .db ((val & $07) << 5) | ((sprite & $07) << 2) | (attr & $03)
+.ENDM
+.DEFINE AnimY 0
+.DEFINE AnimX 1
+.DEFINE AnimTile 2
+.DEFINE AnimAttr 3
 
 ;Hitbox data format:
 ;All actor hitboxes are squares
@@ -35,14 +54,6 @@
     ;2 bytes: Action. Signature:
         ;BC->Owning actor
         ;DE->Touching actor
-
-.MACRO Animate ARGS sprite, attr, val
- .db ((val & $07) << 5) | ((sprite & $07) << 2) | (attr & $03)
-.ENDM
-.DEFINE AnimY 0
-.DEFINE AnimX 1
-.DEFINE AnimTile 2
-.DEFINE AnimAttr 3
 
 ;Memory format:
 ;Global
@@ -139,3 +150,17 @@
 ;Fairy
 .DEFINE _AnimRAM $11
 .DEFINE _Settings $13
+
+;Danmaku
+;.DEFINE _AnimRAM $11
+.DEFINE _IsDirected $13 ;0 if undirected. Holds base tile if directed
+.DEFINE _MovementID $14     ;ID of danmaku movement type
+.DEFINE _MovementData $15   ;Data/state to assist movement
+
+;Movement function notes:
+    ;DE->Actor Data
+  ;Edit X and Y in place
+  ;Return:
+    ;B = X integer movement, signed
+    ;C = Y integer movement, signed
+

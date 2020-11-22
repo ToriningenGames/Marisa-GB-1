@@ -210,17 +210,7 @@ Actor_Draw:
 ;Attribute change
         LD A,$E0
         AND E
-;Turn %ab000000 to %a00b0000
-;Turn %ab100000 to %0ab00000 
         RRCA
-        RRCA
-        BIT 3,A
-        JR z,+++
-        ADD %01100000
-        AND %10010000
-        RRCA
-+++
-        ADD A
         LD E,A
 -
         LD A,E
@@ -1007,6 +997,8 @@ ObjectPriority_Task:
   DEC L
   BIT 7,(HL)
   JR nz,+   ;If object decided it should be background anyways, no need
+  BIT 0,(HL)
+  JR nz,+   ;If object demands it stays in the foreground, let it
 ;Decide if bit should be set
 ;Is this sprite offscreen? (Stricter than below)
   DEC L

@@ -602,7 +602,9 @@ Cutscene_HatAssign:
 Cutscene_DanmakuInit        ;WRITE
 ;D= Actor ID
 ;E= Danmaku type
-  JP EndTask
+  LD A,3
+  LD DE,$3038
+  JP Danmaku_AnimUndirected
 
 .ENDS
 
@@ -712,23 +714,19 @@ Cutscene_DanmakuInit        ;WRITE
 
 ;Demo cutscene
 ;TODO for Demo 1:
-    ;Write appropriate music track
     ;Danmanku actor messages
         ;Danmaku as independent of actors?
-    ;Write actor animations
-        ;Reimu Floating animation would be cute (during danmaku firing)
     ;Draw a few more faces
-    ;Write up the last few actions
+    ;Actor movement fails
 ;General TODO:
     ;Player Cutscene control control
         ;A Marisa rewrite
 ;Problems:
-    ;Alter Map items are not written
-      ;Open Alice's door
-      ;Close Alice's door
     ;Shoot Danmaku is not written
     ;The Camera Time macro can move camera too slow
         ;Same distance covered, takes more time. Problem of speed's precision
+    ;Write extra actor animations
+        ;Reimu Floating animation would be cute (during danmaku firing)
 
 ;Map Alterations
 ;Order: width,height,source,dest
@@ -792,6 +790,7 @@ OpeningDemo:
   CsNewActor 6,CsChFairy,%00101010
   CsNewActor 7,CsChFairy,%00000000
   CsAssignHat 0,1
+  CsShootDanmaku 1,1
   CsAnimSpeed 1,$05
   CsAnimSpeed 2,$05
   CsAnimSpeed 3,$05
@@ -814,10 +813,10 @@ OpeningDemo:
   CsSetActor 6,128,152
   CsSetActor 7,136,224
   CsWait 7      ;Wait for map load
-;  CsMoveActorTime 4,CsDirUp,300,96
-;  CsMoveActorSpeed 5,CsDirRight,1.5,72
-;  CsMoveActorSpeed 6,CsDirLeft,1.1,40
-;  CsMoveActorSpeed 7,CsDirLeft,1,96
+  CsMoveActorTime 4,CsDirUp,300,96
+  CsMoveActorSpeed 5,CsDirRight,1.5,72
+  CsMoveActorSpeed 6,CsDirLeft,1.1,40
+  CsMoveActorSpeed 7,CsDirLeft,1,96
  ;   Fade in
   CsLoadBkgColor %11111110
   CsLoadObjColor %11111000,%11111100
