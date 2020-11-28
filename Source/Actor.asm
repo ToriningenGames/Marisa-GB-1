@@ -511,11 +511,138 @@ Actor_Show:
   LD (HL),D
   RET
 
+;Force actor priority over background
+Actor_HighPriority:
+  LD HL,_SprCount
+  ADD HL,DE
+  LD B,(HL)
+  LD HL,_RelData
+  ADD HL,DE
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+-
+  INC HL
+  INC HL
+  INC HL
+  LD A,$7F
+  AND (HL)
+  OR 1
+  LDI (HL),A
+  DEC B
+  JR nz,-
+  RET
+
+;Force actor priority behind background
+;Destroys HL,A,B
+Actor_LowPriority:
+  LD HL,_SprCount
+  ADD HL,DE
+  LD B,(HL)
+  LD HL,_RelData
+  ADD HL,DE
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  INC HL
+-
+  INC HL
+  INC HL
+  LD A,$FE
+  AND (HL)
+  OR $80
+  LDI (HL),A
+  DEC B
+  JR nz,-
+  RET
+
+;Free actor priority to natural state
+;Destroys HL,A,B
+Actor_NormalPriority:
+  LD HL,_SprCount
+  ADD HL,DE
+  LD B,(HL)
+  LD HL,_RelData
+  ADD HL,DE
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  INC HL
+-
+  INC HL
+  INC HL
+  LD A,$7E
+  AND (HL)
+  LDI (HL),A
+  DEC B
+  JR nz,-
+  RET
+
 ;Move actor in a direction over a certain distance
 Actor_DistMove:
 ;DE->Actor Data
-;C= Length of move, in pixels
+;BC= Length of move, in pixels (8.8)
 ;A= Direction U/L/D/R
+  PUSH AF
+    AND 1   ;Move DE to MasterX/Y depending on direction
+    XOR 1
+    RLCA
+    ADD 2
+    ADD E
+    LD E,A
+    LD A,D
+    ADC 0
+    LD D,A
+-
+  POP AF
+  CALL HaltTask
+  PUSH AF
+    AND 1   ;Set HL to MoveSpeed value, regarding of DE's location
+    RLCA
+    ADD <(_MoveSpeed-_MasterY)
+    LD L,A
+    LD A,>(_MoveSpeed-_MasterY)
+    ADC 0
+    LD H,A
+    ADD HL,DE
+    LDI A,(HL)
+    LD H,(HL)
+    LD L,A
+  POP AF
+  PUSH AF
+    AND $02     ;Determine between addition/subtraction
+    LD A,(DE)
+    JR z,+
+    ADD L           ;Add MoveSpeed to MasterX/Y
+    LD (DE),A
+    INC DE
+    LD A,(DE)
+    ADC H
+    JR ++
++
+    SUB L           ;Subtract MoveSpeed from MasterX/Y
+    LD (DE),A
+    INC DE
+    LD A,(DE)
+    SBC H
+++
+    LD (DE),A
+    DEC DE
+    LD A,C        ;Subtract MoveSpeed from BC (MoveDist)
+    SUB L
+    LD C,A
+    LD A,B
+    SBC H
+    LD B,A
+    JR nc,-   ;Go until full distance moved
+  POP AF
+  LD A,(DE)     ;Remove overshoot from MasterX/Y
+  ADD C
+  LD (DE),A
+  INC DE
+  LD A,(DE)
+  ADC B
+  LD (DE),A
   JP EndTask
 .ENDS
 
@@ -536,6 +663,7 @@ Actor_DistMove:
 ;This task needs more speed.
     ;Make hit detection squares. Handlers can decide actual shape
     ;Streamline data organization for execution speed
+    ;TODO: Detect against Marisa only
 HitboxUpdate_Task:
 ;Puts updated hitbox information in the extract area so pushing etc are up to date
 ---

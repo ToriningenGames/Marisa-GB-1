@@ -16,27 +16,40 @@
         ;1 (Undirected): Dark Bubble
         ;2 (Undirected): Light Bubble
         ;3 (Undirected): Yin-Yang
-        ;$08 (Directed): Yin-Yang
-        ;$40 (Directed): Orb
-        ;$43 (Directed): Ofuda
-        ;$46 (Directed): Bullet
+        ;4 (Directed): Orb
+        ;5 (Directed): Ofuda
+        ;6 (Directed): Bullet
     ;DE = Initial placement
 
 .include "ActorData.asm"
 
 .SECTION "Danmaku" FREE
 
-Danmaku_AnimDirected:
-  ;We will be changing the animation data repeatedly
+Danmaku_Entry:
   PUSH AF
     CALL Actor_New
   POP AF
+  LD B,A
+  LD HL,_MovementID
+  ADD HL,DE
+  AND $F0
+  SWAP A
+  LD (HL),A ;Animation ID
+  LD A,$0F
+  AND B
+  CP 4
+  JR c,_AnimUndirected
+_AnimDirected:
+  ;We will be changing the animation data repeatedly
+  ADD <(_DirectedStarts-4)
+  LD L,A
+  LD A,>(_DirectedStarts-4)
+  ADC 0
+  LD H,A
+  LD A,(HL)
   LD HL,_IsDirected
   ADD HL,DE
   LD (HL),A ;Tile base
-  LD HL,_MovementID
-  ADD HL,DE
-  LD (HL),A ;Animation ID
   PUSH DE
     CALL MemAlloc
     LD C,E
@@ -47,21 +60,25 @@ Danmaku_AnimDirected:
   LD (HL),C
   INC HL
   LD (HL),B
-  ;LOAD TEMPLATE HERE
-  
+  LD HL,_DirectedTemplate
+  PUSH BC
+  PUSH DE
+    LD E,9
+-
+    LDI A,(HL)
+    LD (BC),A
+    INC BC
+    DEC E
+    JR nz,-
+  POP DE
+  POP BC
   ;AnimRAM set, BC with animation pointer
   JR _Danmaku_General
-Danmaku_AnimUndirected:         ;TEST ME!!!
+_AnimUndirected:
   ;We will be leaving the animation data alone
-  PUSH AF
-    CALL Actor_New
-  POP AF
   LD HL,_IsDirected
   ADD HL,DE
   LD (HL),0
-  LD HL,_MovementID
-  ADD HL,DE
-  LD (HL),A ;Animation ID
   RLCA      ;Look up animation index
   ADD <_UndirectedAnims
   LD L,A
@@ -76,13 +93,13 @@ _Danmaku_General:
   ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE
-  LD (HL),<DefaultHitboxes
+  LD (HL),<DanmakuHitboxes
   INC HL
-  LD (HL),>DefaultHitboxes
+  LD (HL),>DanmakuHitboxes
   ;Animation values
   LD HL,_AnimSpeed
   ADD HL,DE
-  LD (HL),$10
+  LD (HL),$06
   SCF
   PUSH DE
     CALL Actor_Draw
@@ -91,6 +108,7 @@ _Danmaku_General:
     ;x: Hits
     ;x: Destruct
   ;Carry correct b/c CMP against $FF
+  CALL Actor_HighPriority
   CALL HaltTask
   LD HL,_MovementID
   ADD HL,DE
@@ -233,6 +251,11 @@ _UndirectedAnims:
  .dw _LightBubble
  .dw _YinYang
 
+_DirectedStarts:
+ .db $40    ;(Directed): Orb
+ .db $43    ;(Directed): Ofuda
+ .db $46    ;(Directed): Bullet
+
 _DirectedTemplate
  .db 1
  .db -4,-4,$00,%00000000
@@ -257,31 +280,31 @@ _Still:
  .dw _Still
 
 _YinYang:
- .db 1
- .db -4,-4,$0A,%00000000
+ .db 2
+ .db -4,12,$09,%00000000
+ .db  4,12,$09,%00000000
 _Spin:                      ;Enter with Down
- .db $12
- Animate 1,AnimTile,-1
- Animate 1,AnimAttr,%010    ;Down left, or Up right
  .db $11
- Animate 1,AnimTile,-1      ;Left, or Right
+ Animate 0,AnimTile,+1      ;Down left, or Up right
  .db $12
- Animate 1,AnimTile,+1
- Animate 1,AnimAttr,%100    ;Down right, or Up left
+ Animate 0,AnimAttr,%110
+ Animate 0,AnimTile,-3      ;Left, or Right
+ .db $11
+ Animate 0,AnimTile,+1      ;Down right, or Up left
  .db $12
- Animate 1,AnimTile,+1      ;Down, or Up
+ Animate 0,AnimTile,+1      ;Down, or Up
  .db $FF
  .dw _Spin
 
 ;Spin positions:
-;Down:          Tile: $48, Attr: %0x
-;Down Left:     Tile: $47, Attr: %01
-;Left:          Tile: $46, Attr: %x1
-;Up Left:       Tile: $47, Attr: %11
-;Up:            Tile: $48, Attr: %1x
-;Up Right:      Tile: $47, Attr: %10
-;Right:         Tile: $46, Attr: %x0
-;Down Right:    Tile: $47, Attr: %00
+;Down:          Tile: $48, Attr: %0x v
+;Down Left:     Tile: $47, Attr: %01 x
+;Left:          Tile: $46, Attr: %x1 x
+;Up Left:       Tile: $47, Attr: %11 v
+;Up:            Tile: $48, Attr: %1x v
+;Up Right:      Tile: $47, Attr: %10 x
+;Right:         Tile: $46, Attr: %x0 x
+;Down Right:    Tile: $47, Attr: %00 v
 
 ;Pattern
 _Patterns:
@@ -289,5 +312,13 @@ _Patterns:
  .dw Return
  .dw Return
  .dw Return
+
+;Mechanics
+DanmakuHitboxes:
+ .db 1
+ .dw $0000,$0000,$0202
+ .dw DanmakuHitboxAction
+DanmakuHitboxAction:
+  RET
 
 .ENDS

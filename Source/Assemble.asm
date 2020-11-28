@@ -579,8 +579,8 @@ LoadTitle:
   CALL NewTask
 ;Sprites
 ;Collision
-  LD BC,HitboxUpdate_Task
-  CALL NewTask
+;  LD BC,HitboxUpdate_Task
+;  CALL NewTask
 ;Now pausable
   LD BC,PauseTask
   CALL NewTask

@@ -164,7 +164,7 @@ _Cutscene_ItemReturn:
 
 ;Cutscene functions
 ;These are not tasks
-Cutscene_Wait:          ;TEST
+Cutscene_Wait:
 --
   CALL HaltTask
   DEC E
@@ -441,11 +441,11 @@ Cutscene_ActorMovement:
   ;Move actor U/L/D/R
   LD D,H
   LD E,L
-  LD A,5
+  LD A,4
   ADD B
-  RRCA
-  RRCA  ;Fix this later
-  ;C preset
+  ;Set BC
+  LD B,C
+  LD C,0
   JP Actor_DistMove
 ++
   ADD HL,DE
@@ -602,9 +602,29 @@ Cutscene_HatAssign:
 Cutscene_DanmakuInit        ;WRITE
 ;D= Actor ID
 ;E= Danmaku type
-  LD A,3
-  LD DE,$3038
-  JP Danmaku_AnimUndirected
+  LD A,D
+  ADD <Cutscene_Actors
+  LD C,A
+  LD B,>Cutscene_Actors
+  ;Get actor task, once it exists
+-
+  LD A,(BC)
+  OR A
+  JR nz,+
+  CALL HaltTask
+  JR -
++
+  LD B,E
+  CALL _Access_ActorDE
+  INC HL
+  INC HL
+  INC HL
+  LDI A,(HL)
+  LD D,A
+  INC HL
+  LD E,(HL)
+  LD A,B
+  JP Danmaku_Entry
 
 .ENDS
 
@@ -790,14 +810,13 @@ OpeningDemo:
   CsNewActor 6,CsChFairy,%00101010
   CsNewActor 7,CsChFairy,%00000000
   CsAssignHat 0,1
-  CsShootDanmaku 1,1
   CsAnimSpeed 1,$05
   CsAnimSpeed 2,$05
   CsAnimSpeed 3,$05
   CsAnimSpeed 4,$05
-  CsAnimSpeed 5,$05
-  CsAnimSpeed 6,$05
-  CsAnimSpeed 7,$05
+  CsAnimSpeed 5,$07
+  CsAnimSpeed 6,$04
+  CsAnimSpeed 7,$06
   CsAnimateActor 1,CsAnFaceLeft
   CsAnimateActor 2,CsAnFaceRight
   CsAnimateActor 3,CsAnFaceDown
@@ -805,18 +824,20 @@ OpeningDemo:
   CsAnimateActor 5,CsAnWalkRight
   CsAnimateActor 6,CsAnWalkLeft
   CsAnimateActor 7,CsAnWalkLeft
-  CsSetActor 1,76,116
-  CsSetActor 2,54,116
+  CsSetActor 1,76,117
+  CsSetActor 2,54,117
   CsSetActor 3,112,130
   CsSetActor 4,72,232
   CsSetActor 5,40,192
   CsSetActor 6,128,152
   CsSetActor 7,136,224
+  CsWait 1
+  CsShootDanmaku 1,3
   CsWait 7      ;Wait for map load
-  CsMoveActorTime 4,CsDirUp,300,96
-  CsMoveActorSpeed 5,CsDirRight,1.5,72
-  CsMoveActorSpeed 6,CsDirLeft,1.1,40
-  CsMoveActorSpeed 7,CsDirLeft,1,96
+  CsMoveActorTime 4,CsDirUp,300,89
+  CsMoveActorSpeed 5,CsDirRight,0.18,72
+  CsMoveActorSpeed 6,CsDirLeft,0.101,160
+  CsMoveActorSpeed 7,CsDirLeft,0.21,96
  ;   Fade in
   CsLoadBkgColor %11111110
   CsLoadObjColor %11111000,%11111100
@@ -851,25 +872,25 @@ OpeningDemo:
   CsWaitText
   CsAlterMap MapAlt_AliceDoorClose  ;Door close
   CsAnimateActor 8,CsAnWalkDown
-  CsMoveActorTime 8,CsDirDown,5,20
-  CsWait 5
+  CsMoveActorTime 8,CsDirDown,50,20
+  CsWait 50
   CsAnimateActor 8,CsAnFaceDown
   CsWaitText
-  CsRunText StringDemoMessage2
+  CsRunText StringDemoMessage2  ;Fight!
   CsWaitText
-  CsShootDanmaku 8,0
-  CsWait 8
-  CsShootDanmaku 2,0    ;Reimu Marisa danmaku
-  CsWait 10
-  CsShootDanmaku 1,0
-  CsWait 20
-  CsAnimateActor 3,CsAnFaceUp   ;Narumi Watch
-  CsWait 25
-  CsMoveActorTime 4,CsDirDown,5,5   ;Fairy escape
+  ;CsShootDanmaku 8,0
   CsWait 12
+  ;CsShootDanmaku 2,0    ;Reimu, Marisa danmaku
+  CsWait 15
+  ;CsShootDanmaku 1,0
+  CsWait 30
+  CsAnimateActor 3,CsAnFaceUp   ;Narumi Watch
+  CsWait 35
+  CsMoveActorTime 4,CsDirDown,15,5   ;Fairy escape
+  CsWait 31
   CsAnimateActor 4,CsAnWalkDown
-  CsMoveActorTime 4,CsDirDown,5,10
-  CsWait 20
+  CsMoveActorTime 4,CsDirDown,25,30
+  CsWait 60
   CsMoveCameraTime CsDirUp,60,18    ;Rest of map
   CsWait 10
   CsLoadBkgColor %11100100  ;Fade out
