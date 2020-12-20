@@ -67,6 +67,7 @@
     ;+$0C, size 2: Movement Speed (pixels, 8.8)
     ;+$0E, size 2: Hitbox data
     ;+$10, size 1: Visible on screen
+    
     ;+$1C, size 1: Animation sprite count
     ;+$1D, size 1: Existence status
     ;+$1E, size 1: Animation ID
@@ -78,6 +79,11 @@
 ;Fairy
     ;+$11, size 2: Pointer to RAM holding animation data
     ;+$13, size 1: Configuration settings
+;Danmaku
+    ;+$11, size 2: Pointer to RAM holding animation data
+    ;+$13, size 1: Tile animation direction setting
+    ;+$14, size 2: Function for moving danmaku
+    ;+$16, size ?: Data for moving danmaku (2+ bytes)
 
 ;Existence values:
 ;0:   Exist freely
@@ -153,14 +159,7 @@
 
 ;Danmaku
 ;.DEFINE _AnimRAM $11
-.DEFINE _IsDirected $13 ;0 if undirected. Holds base tile if directed
-.DEFINE _MovementID $14     ;ID of danmaku movement type
-.DEFINE _MovementData $15   ;Data/state to assist movement
-
-;Movement function notes:
-    ;DE->Actor Data
-  ;Edit X and Y in place
-  ;Return:
-    ;B = X integer movement, signed
-    ;C = Y integer movement, signed
+.DEFINE _IsDirected $13         ;0 if undirected. Holds base tile if directed
+.DEFINE _MovementFunction $14   ;Function for moving danmaku
+.DEFINE _MovementData $16       ;Data for moving danmaku (2 bytes)
 

@@ -599,7 +599,7 @@ Cutscene_HatAssign:
   LD (HL),D
   JP EndTask
 
-Cutscene_DanmakuInit        ;WRITE
+Cutscene_DanmakuInit
 ;D= Actor ID
 ;E= Danmaku type
   LD A,D
@@ -615,6 +615,7 @@ Cutscene_DanmakuInit        ;WRITE
   JR -
 +
   LD B,E
+  LD C,A
   CALL _Access_ActorDE
   INC HL
   INC HL
@@ -831,8 +832,6 @@ OpeningDemo:
   CsSetActor 5,40,192
   CsSetActor 6,128,152
   CsSetActor 7,136,224
-  CsWait 1
-  CsShootDanmaku 1,3
   CsWait 7      ;Wait for map load
   CsMoveActorTime 4,CsDirUp,300,89
   CsMoveActorSpeed 5,CsDirRight,0.18,72
@@ -872,22 +871,23 @@ OpeningDemo:
   CsWaitText
   CsAlterMap MapAlt_AliceDoorClose  ;Door close
   CsAnimateActor 8,CsAnWalkDown
-  CsMoveActorTime 8,CsDirDown,50,20
+  CsMoveActorTime 8,CsDirDown,50,18
   CsWait 50
   CsAnimateActor 8,CsAnFaceDown
-  CsWaitText
   CsRunText StringDemoMessage2  ;Fight!
   CsWaitText
-  ;CsShootDanmaku 8,0
+  CsWait 20
+  CsShootDanmaku 8,0
   CsWait 12
-  ;CsShootDanmaku 2,0    ;Reimu, Marisa danmaku
+  CsShootDanmaku 2,1    ;Reimu options
+  CsShootDanmaku 2,0    ;Reimu danmaku
   CsWait 15
-  ;CsShootDanmaku 1,0
-  CsWait 30
+  CsShootDanmaku 1,0    ;Marisa danmaku
+  CsWait 40
   CsAnimateActor 3,CsAnFaceUp   ;Narumi Watch
-  CsWait 35
+  CsWait 45
   CsMoveActorTime 4,CsDirDown,15,5   ;Fairy escape
-  CsWait 31
+  CsWait 51
   CsAnimateActor 4,CsAnWalkDown
   CsMoveActorTime 4,CsDirDown,25,30
   CsWait 60

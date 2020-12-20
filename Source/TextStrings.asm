@@ -148,7 +148,7 @@ StringDemoMessage1:
 .DB CtrlWait,35, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$01
   .ASC    "!!!"
   .DB CtrlWait,25, CtrlLine
-  .DB CtrlSpeed,1, CtrlFaceShow,2, CtrlFaceLoad,1,$11
+  .DB CtrlSpeed,16, CtrlFaceShow,2, CtrlFaceLoad,1,$11
   .ASC    "..."
   .DB CtrlWait,25, CtrlSpeed,6
   .ASC       "???"

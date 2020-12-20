@@ -81,6 +81,22 @@ Actor_New:
   LD E,C
   RET
 
+;Not a function; JP to here
+Actor_Delete:
+;DE-> Actor data
+;Does not return
+  CALL Actor_Hide
+  LD HL,_RelData
+  ADD HL,DE
+  LDI A,(HL)
+  LD B,(HL)
+  LD C,A
+  CALL MemFree
+  LD D,B
+  LD E,C
+  CALL MemFree
+  JP EndTask
+
 Actor_Draw:
 ;DE-> Actor data
 ;If carry set, new animation in BC
