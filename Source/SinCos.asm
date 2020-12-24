@@ -24,7 +24,7 @@ SinCosTable:
  .db $F2,$F4,$F5,$F7,$F8,$FA,$FB,$FD,$FE
 
 ;Example of getting cosine:
-Cosine:
+Cos:
   ADD $40   ;One quarter turn off
 ;Example of getting sine:
 Sin:

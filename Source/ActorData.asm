@@ -83,7 +83,7 @@
     ;+$11, size 2: Pointer to RAM holding animation data
     ;+$13, size 1: Tile animation direction setting
     ;+$14, size 2: Function for moving danmaku
-    ;+$16, size ?: Data for moving danmaku (2+ bytes)
+    ;+$16, size 2: Pointer to data for moving danmaku
 
 ;Existence values:
 ;0:   Exist freely
@@ -161,5 +161,5 @@
 ;.DEFINE _AnimRAM $11
 .DEFINE _IsDirected $13         ;0 if undirected. Holds base tile if directed
 .DEFINE _MovementFunction $14   ;Function for moving danmaku
-.DEFINE _MovementData $16       ;Data for moving danmaku (2 bytes)
+.DEFINE _MovementData $16       ;Pointer to data for moving danmaku
 
