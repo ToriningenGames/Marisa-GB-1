@@ -93,14 +93,14 @@ Outside game:
 <li />[x] Add `.gitignore`s for intermediate files
 <li />[x] Move the tools away from the repo
 <li />[ ] Add the music midis in
-<li />[ ] Release the "picnic" demo
+<li />[x] Release the "picnic" demo
 <li />[ ] Write a prereq script
 </ul>
 Inside game:
 <ul>
-<li />[ ] Fix cutscene Actor control (movement, delete, control)
-<li />[ ] Add actor destructors
-<li />[ ] Add Danmaku
+<li />[x] Fix cutscene Actor control (movement, delete, control)
+<li />[x] Add actor destructors
+<li />[x] Add Danmaku
 <li />[ ] Add Reimu character behavior
 <li />[ ] Add Reimu walking animations
 <li />[ ] Add Narumi character behavior
@@ -114,4 +114,5 @@ Inside game:
 <li />[ ] Write some title music
 <li />[ ] Pare down unused utility functions
 <li />[ ] Write all the cutscenes
+<li />[ ] Add camera behavior to follow player movement
 </ul>

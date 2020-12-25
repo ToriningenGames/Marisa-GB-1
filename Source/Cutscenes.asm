@@ -357,7 +357,7 @@ Cutscene_ActorDelete:       ;TEST
   LD A,(HL)
   LD (HL),0
   CALL _Access_ActorDE
-  LD DE,_LandingPad
+  LD DE,_ControlState
   ADD HL,DE
   LD (HL),$FF   ;Message to self-destruct
   JP EndTask
@@ -556,7 +556,7 @@ Cutscene_InputChange:       ;TEST
   JR -
 + ;Insert new Existence status
   CALL _Access_ActorDE
-  LD BC,_LandingPad
+  LD BC,_ControlState
   ADD HL,BC
   LD (HL),E
   JP EndTask

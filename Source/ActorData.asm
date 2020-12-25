@@ -69,7 +69,7 @@
     ;+$10, size 1: Visible on screen
     
     ;+$1C, size 1: Animation sprite count
-    ;+$1D, size 1: Existence status
+    ;+$1D, size 1: Control state
     ;+$1E, size 1: Animation ID
     ;+$1F, size 1: Hat value
 ;Marisa
@@ -85,10 +85,9 @@
     ;+$14, size 2: Function for moving danmaku
     ;+$16, size 2: Pointer to data for moving danmaku
 
-;Existence values:
-;0:   Exist freely
-;1:   Cutscene control
-;2:   Be unseen. Exist but hidden
+;Control states:
+;0:   Cutscene control
+;1:   Free existence
 ;255: Destruct
 
 ;Animation IDs:
@@ -143,7 +142,7 @@
 .DEFINE _Visible $10
 
 .DEFINE _SprCount $1C
-.DEFINE _LandingPad $1D
+.DEFINE _ControlState $1D
 .DEFINE _AnimChange $1E
 .DEFINE _HatVal $1F
 

@@ -21,13 +21,22 @@ NarumiFrame:
   ADD HL,DE
   LD (HL),1 ;Face down
   CALL HaltTask
-  LD HL,_LandingPad
+  LD HL,_ControlState
   ADD HL,DE
   ;Check for doing AI stuffs here
 ;Narumi specific messages
-    ;x: Cutscene control
+    ;v: Cutscene control
     ;v: Play animation
-    ;x: Destruct
+    ;v: Destruct
+  ;Cutscene detect
+  LD HL,_ControlState
+  ADD HL,DE
+  LD A,(HL)
+  OR A
+  JR z,+
+  INC A
+  JP z,Actor_Delete
+  ;Animation check
   LD A,$FF
   LD HL,_AnimChange
   ADD HL,DE
@@ -61,7 +70,7 @@ NarumiFrame:
   LD C,A
   SCF   ;New animation
 +
-  ;Carry correct b/c CMP against $FF
+  ;Carry correct b/c CMP against $FF always yields no carry
   JP Actor_Draw
 
 _DownFace:

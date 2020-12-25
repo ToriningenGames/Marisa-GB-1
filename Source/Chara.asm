@@ -29,7 +29,6 @@
     ;Space for coordinates
     ;Hatted state
         ;Hat count
-;TODO: NEW: Start Marisa and hat in Cutscene mode
 ;TODO: Move pausing authority to Marisa?
 
 ;Memory format:
@@ -89,20 +88,25 @@ CharaFrame:
 ;Frame loop
 ;Handle messages
 --
-  LD HL,_LandingPad
-  ADD HL,DE
 ;Marisa specifc message
 ;Messages Marisa will care about:
-    ;x: Cutscene control
-    ;x: Play animation
-    ;x: Destruct
+    ;v: Cutscene control
+    ;v: Play animation
+    ;v: Destruct
+  ;Cutscene detect
+  LD HL,_ControlState
+  ADD HL,DE
+  LD A,(HL)
+  OR A
+  JR z,+
+  INC A
+  JP z,Actor_Delete
 ;Button check
   LD HL,_ButtonState
   ADD HL,DE
   LDH A,($FE)
   XOR (HL)  ;Get direction button delta
   AND $F0
-  JR +  ;Control can be regiven when cutscene override is established
   JR z,+
 ;New animation
 ;Buttons still held mean walking animation
@@ -177,6 +181,12 @@ CharaFrame:
   PUSH DE
     CALL Actor_Draw
   POP DE
+  ;Again; check for full control before moving in response to input
+  LD HL,_ControlState
+  ADD HL,DE
+  LD A,(HL)
+  DEC A
+  RET nz
 ;Check for movement
   LD HL,_ButtonState
   ADD HL,DE
@@ -567,12 +577,16 @@ HatFrame:
   ADD HL,DE
   LD (HL),1 ;Face down
   CALL HaltTask
-  LD HL,_LandingPad
-  ADD HL,DE
   ;Check for doing AI stuffs here
 ;Hat specific messages
     ;x: Parent detect
-    ;x: Destruct
+    ;v: Destruct
+  ;Destruct detect
+  LD HL,_ControlState
+  ADD HL,DE
+  LD A,(HL)
+  INC A
+  JP z,Actor_Delete
   ;Move based on parent
   LD HL,_ParentChar
   ADD HL,DE
