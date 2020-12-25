@@ -12,14 +12,6 @@
 
 ;Signature:
     ;A = Animation ID
-        ;0 (Undirected): Selector
-        ;1 (Undirected): Dark Bubble
-        ;2 (Undirected): Light Bubble
-        ;3 (Undirected): Yin-Yang
-        ;4 (Directed): Orb
-        ;5 (Directed): Ofuda
-        ;6 (Directed): Bullet
-        ;7 (Directed): Laser (Proposed)
     ;DE = Initial placement
 
 .include "ActorData.asm"
@@ -493,10 +485,14 @@ _DanmakuFunction_ReimuDanmaku:
   ;3 streams, laserlike, waving back and forth
   ;Implement: 3 equidistant sprites, moving outward, direction set via data
     ;Fire repeatedly, and quickly, with slightly changing data values
+  DEC A     ;Only tick life on danmaku 1
+  JR nz,+
   LD H,D
   LD L,E
   DEC (HL)
   JP z,_Danmaku_Die
++
+  INC A
   LD B,A
   PUSH AF
     LD C,256/6    ;Rotate to this sprite
@@ -802,7 +798,7 @@ _Patterns:
  .dw _DirectedOrb
  .db $46
  .dw _DanmakuFunction_ReimuDanmaku
- .db 120, 20,  0,  0
+ .db  20, 20,  0,  0
  .dw _DanmakuHitboxes
 ;Hitboxes
 _DanmakuHitboxes:

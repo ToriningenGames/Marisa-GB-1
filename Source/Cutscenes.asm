@@ -625,7 +625,7 @@ Cutscene_DanmakuInit
   INC HL
   LD E,(HL)
   LD A,B
-  JP Danmaku_Entry
+  JP PatternFire
 
 .ENDS
 
@@ -863,25 +863,25 @@ OpeningDemo:
   CsAnimateActor 8,CsAnFaceDown
   CsSetActor 8,64,84
   CsWait 5
-  CsAnimateActor 1,CsAnFaceUp
+  CsAnimateActor 1,CsAnFaceDown
   CsWait 3
   CsAnimateActor 2,CsAnFaceUp
   CsWait 4
-  ;CsRunText StringDemoMessage1
-  ;CsWaitText
+  CsRunText StringDemoMessage1
+  CsWaitText
   CsAlterMap MapAlt_AliceDoorClose  ;Door close
   CsAnimateActor 8,CsAnWalkDown
   CsMoveActorTime 8,CsDirDown,50,18
   CsWait 50
   CsAnimateActor 8,CsAnFaceDown
-  ;CsRunText StringDemoMessage2  ;Fight!
-  ;CsWaitText
+  CsRunText StringDemoMessage2  ;Fight!
+  CsWaitText
   CsWait 20
   CsShootDanmaku 8,4
   CsWait 12
+  CsWait 15
   CsShootDanmaku 2,1    ;Reimu options
   ;CsShootDanmaku 2,3    ;Reimu danmaku
-  CsWait 15
   ;CsShootDanmaku 1,2    ;Marisa danmaku
   CsWait 40
   CsAnimateActor 3,CsAnFaceUp   ;Narumi Watch
