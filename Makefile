@@ -33,8 +33,8 @@ WLADIR =
 
 LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib Fairy.lib Face.lib Pause.lib \
 	Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib Chara.lib \
-	Cutscenes.lib Reimu.lib Narumi.lib Alice.lib SinCos.lib Danmaku.lib
-LIB1 = Graphics.lib Maps.lib Effects.lib TextStrings.lib Songs.lib Patterns.lib
+	Cutscenes.lib Reimu.lib Narumi.lib Alice.lib SinCos.lib Maps.lib
+LIB1 = Graphics.lib Effects.lib TextStrings.lib Songs.lib
 LINK = Link.link
 OBJ = Assemble.obj vBlank2.obj
 SUPP = TileData.lzc

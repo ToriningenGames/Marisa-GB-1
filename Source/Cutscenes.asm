@@ -625,7 +625,8 @@ Cutscene_DanmakuInit
   INC HL
   LD E,(HL)
   LD A,B
-  JP PatternFire
+  ;JP PatternFire
+  JP EndTask
 
 .ENDS
 
