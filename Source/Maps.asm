@@ -163,4 +163,9 @@ MAP002HALL:
 MapForest02:
 .incbin "rsc/Forest_20200414_(0~2).gbm"
 
+MapForest12:
+.incbin "rsc/Forest_20210129_(1~2).gbm"
+
+MapForest30:
+.incbin "rsc/Forest_20210130_(3~0).gbm"
 .ENDS
