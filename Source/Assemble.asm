@@ -574,9 +574,9 @@ LoadTitle:
   DEC C
   JR nz,-
 ;Play opening cutscene
-  LD DE,OpeningDemo
-  LD BC,Cutscene_Task
-  CALL NewTask
+;  LD DE,OpeningDemo
+;  LD BC,Cutscene_Task
+;  CALL NewTask
 ;Sprites
 ;Collision
 ;  LD BC,HitboxUpdate_Task

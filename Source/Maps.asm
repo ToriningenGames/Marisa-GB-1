@@ -156,10 +156,6 @@ ClearMap_Task:
 
 .SECTION "Maps" FREE
 
-;General test map
-MAP002HALL:
-.incbin "rsc/Hall.gbm"
-
 MapForest02:
 .incbin "rsc/Forest_20200414_(0~2).gbm"
 

@@ -25,7 +25,7 @@
     ;1 byte:  function to call
     ;2 bytes: data
 
-.SECTION "Cutscene" ALIGN 256 FREE
+.SECTION "Cutscene Code" ALIGN 256 FREE
 
 ;Cutscene function signature:
     ;Some are tasks
@@ -731,6 +731,8 @@ Cutscene_DanmakuInit
 .MACRO CsShootDanmaku ARGS ID, type
  .db 17,type,ID
 .ENDM
+
+.ENDASM
 
 .SECTION "Cutscene Data" FREE
 
