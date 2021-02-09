@@ -745,7 +745,7 @@ Cs_LoadDebug:
   CsPanSong $FF,$FF
   CsLoadSong SongNull
   CsWait 130
-  CsLoadMap MapForest41
+  CsLoadMap MapForest02
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
   CsWait 1

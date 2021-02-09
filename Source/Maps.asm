@@ -139,7 +139,7 @@ _GetItmAtBC:
   SUB 16    ;Fix GB-level location offset
   LD B,A
   LD A,C
-  SUB 24
+  SUB 8
   LD C,A
   LD A,$F8  ;Get byte address, Y portion
   AND B
@@ -161,7 +161,7 @@ _GetItmAtBC:
   LD C,A
   LD A,(HL)
 -
-  RRA
+  RLA
   DEC C
   JR nz,-
   RET
