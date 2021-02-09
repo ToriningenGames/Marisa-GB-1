@@ -122,6 +122,50 @@ LoadMap_Task:
   POP BC
   JP EndTask
 
+;B=Y pos
+;C=X pos
+;Returns value in carry
+;Destroys BC,A,HL
+GetPriAtBC:
+  LD HL,PriArea
+  JR _GetItmAtBC
+GetVisAtBC:
+  LD HL,VisArea
+  JR _GetItmAtBC
+GetColAtBC:
+  LD HL,ColArea
+_GetItmAtBC:
+  LD A,B
+  SUB 16    ;Fix GB-level location offset
+  LD B,A
+  LD A,C
+  SUB 24
+  LD C,A
+  LD A,$F8  ;Get byte address, Y portion
+  AND B
+  RRCA
+  ADD L
+  LD L,A
+  LD A,$C0  ;Get byte address, X portion
+  AND C
+  RLCA
+  RLCA
+  ADD L
+  LD L,A
+  LD A,$38  ;Get bit from byte
+  AND C
+  RRCA
+  RRCA
+  RRCA
+  INC A
+  LD C,A
+  LD A,(HL)
+-
+  RRA
+  DEC C
+  JR nz,-
+  RET
+
 ;Sets entire map to tile specified in A
 ;Sets Priority, Collision, and Visibility to bits 0, 1, and 2 set in B
 ;Sets hotMap upon finishing
@@ -164,4 +208,7 @@ MapForest12:
 
 MapForest30:
 .incbin "rsc/Forest_20210130_(3~0).gbm"
+
+MapForest41:
+.incbin "rsc/Forest_20200414_(4~1).gbm"
 .ENDS

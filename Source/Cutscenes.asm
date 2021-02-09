@@ -25,6 +25,11 @@
     ;1 byte:  function to call
     ;2 bytes: data
 
+;IMPORTANT: Cutscene Actor 0 must always be the hat,
+       ;and Cutscene Actor 1 must always be Marisa!
+       ;Actor 1 is assumed to be playable,
+       ;and Actor 0 is assumed to be assignable.
+
 .SECTION "Cutscene Code" ALIGN 256 FREE
 
 ;Cutscene function signature:
@@ -111,7 +116,7 @@ CharaTypes:
 .include "ActorData.asm"
 
 
-_Access_ActorDE:
+Access_ActorDE:
 ;A= Task ID
 ;Returns task's DE in HL
   LD H,>taskpointer
@@ -356,7 +361,7 @@ Cutscene_ActorDelete:       ;TEST
   ;Send deletion message
   LD A,(HL)
   LD (HL),0
-  CALL _Access_ActorDE
+  CALL Access_ActorDE
   LD DE,_ControlState
   ADD HL,DE
   LD (HL),$FF   ;Message to self-destruct
@@ -393,7 +398,7 @@ Cutscene_ActorMovement:
   CALL HaltTask ;If actor does not exist, wait for them
   JR -
 +   ;Set the message
-  CALL _Access_ActorDE
+  CALL Access_ActorDE
   LD A,$E0
   AND D
   SWAP A
@@ -485,7 +490,7 @@ Cutscene_ActorAnimate:
   LD H,>Cutscene_Actors
   JR -
 +   ;Modify the actor data
-  CALL _Access_ActorDE
+  CALL Access_ActorDE
   INC B
   DEC B
   JR nz,+
@@ -555,7 +560,7 @@ Cutscene_InputChange:       ;TEST
   CALL HaltTask
   JR -
 + ;Insert new Existence status
-  CALL _Access_ActorDE
+  CALL Access_ActorDE
   LD BC,_ControlState
   ADD HL,BC
   LD (HL),E
@@ -576,7 +581,7 @@ Cutscene_HatAssign:
   CALL HaltTask
   JR -
 +
-  CALL _Access_ActorDE
+  CALL Access_ActorDE
   LD A,E
   LD D,H
   LD E,L
@@ -591,7 +596,7 @@ Cutscene_HatAssign:
   CALL HaltTask
   JR -
 +
-  CALL _Access_ActorDE
+  CALL Access_ActorDE
   LD BC,_ParentChar
   ADD HL,BC
   LD (HL),E
@@ -616,7 +621,7 @@ Cutscene_DanmakuInit
 +
   LD B,E
   LD C,A
-  CALL _Access_ActorDE
+  CALL Access_ActorDE
   INC HL
   INC HL
   INC HL
@@ -732,187 +737,22 @@ Cutscene_DanmakuInit
  .db 17,type,ID
 .ENDM
 
-.ENDASM
 
 .SECTION "Cutscene Data" FREE
 
-;Demo cutscene
-;TODO for Demo 1:
-    ;Danmanku actor messages
-        ;Danmaku as independent of actors?
-    ;Draw a few more faces
-    ;Actor movement fails
-;General TODO:
-    ;Player Cutscene control control
-        ;A Marisa rewrite
-;Problems:
-    ;Shoot Danmaku is not written
-    ;The Camera Time macro can move camera too slow
-        ;Same distance covered, takes more time. Problem of speed's precision
-    ;Write extra actor animations
-        ;Reimu Floating animation would be cute (during danmaku firing)
-
-;Map Alterations
-;Order: width,height,source,dest
-MapAlt_AliceDoorOpen:   ;Opens Alice's door
- .db 2,3
- .dw _AliceDoorOpen_Data,$9927
-_AliceDoorOpen_Data:
- .db $84,$85,$84,$85,$86,$87
-MapAlt_AliceDoorClose:  ;Closes Alice's door
- .db 2,3
- .dw _AliceDoorClose_Data,$9927
-_AliceDoorClose_Data:
- .db $DA,$DB,$E0,$E1,$E6,$E7
-;Camera starts on bottom of map
-;Camera pans to top of map
-  ;Camera pans over
-    ;Reimu & Marisa, facing each other, having a drink. Able to face the door
-    ;Narumi, off a little ways
-    ;3-5 Fairies, visible throughout pan
-;Alice opens door
-;Alice: "..."
-;Alice: "What are you all doing at my house?"
-;Maris: "Partying."
-;Reimu: "Alcohol."
-;Alice: "And WHY at my house?"
-;Maris: "Convenience."
-;Reimu: "All the alcohol landed here after the explosion."
-;Alice: "!!!"
-;Alice: "...???"
-;Maris: "Master spark. Previous owners weren't too keen on giving it up."
-;Alice closes door behind her, steps off porch
-;Alice: "Now would be a good time to relocate."
-;Reimu: "Why?"
-;Maris: "How about a drink?"
-;Alice: "How about no, and how about..."
-;Alice: "Getting away from my house!"
-;Alice starts shooting danmaku.
-;Reimu and Marisa respond in kind.
-;Fairies flee
-;Narumi chills
-;Fadeout
-OpeningDemo:
-  CsPanSong $FF,$FF
-  CsLoadSong SongRetrib
-  CsWait 15             ;Fade to black
-  CsLoadBkgColor $FD
-  CsWait 35
-  CsLoadBkgColor $FE
-  CsWait 35
+Cs_LoadDebug:
   CsLoadBkgColor $FF
-  CsLoadObjColor $FF,$FF
-  CsWait 35
-  CsLoadMap MapForest02
-  CsSetCamera 0,112
+  CsPanSong $FF,$FF
+  CsLoadSong SongNull
+  CsWait 130
+  CsLoadMap MapForest41
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  CsNewActor 2,CsChReimu,0
-  CsNewActor 3,CsChNarumi,0
-  CsNewActor 4,CsChFairy,%00011001
-  CsNewActor 5,CsChFairy,%00000101
-  CsNewActor 6,CsChFairy,%00101010
-  CsNewActor 7,CsChFairy,%00000000
+  CsWait 1
   CsAssignHat 0,1
-  CsAnimSpeed 1,$05
-  CsAnimSpeed 2,$05
-  CsAnimSpeed 3,$05
-  CsAnimSpeed 4,$05
-  CsAnimSpeed 5,$07
-  CsAnimSpeed 6,$04
-  CsAnimSpeed 7,$06
-  CsAnimateActor 1,CsAnFaceLeft
-  CsAnimateActor 2,CsAnFaceRight
-  CsAnimateActor 3,CsAnFaceDown
-  CsAnimateActor 4,CsAnWalkUp
-  CsAnimateActor 5,CsAnWalkRight
-  CsAnimateActor 6,CsAnWalkLeft
-  CsAnimateActor 7,CsAnWalkLeft
   CsSetActor 1,76,117
-  CsSetActor 2,54,117
-  CsSetActor 3,112,130
-  CsSetActor 4,72,232
-  CsSetActor 5,40,192
-  CsSetActor 6,128,152
-  CsSetActor 7,136,224
-  CsWait 7      ;Wait for map load
-  CsMoveActorTime 4,CsDirUp,300,89
-  CsMoveActorSpeed 5,CsDirRight,0.18,72
-  CsMoveActorSpeed 6,CsDirLeft,0.101,160
-  CsMoveActorSpeed 7,CsDirLeft,0.21,96
- ;   Fade in
-  CsLoadBkgColor %11111110
-  CsLoadObjColor %11111000,%11111100
-  CsWait 3
-  CsMoveCameraTime CsDirUp,300,94      ;Not quite top of map (Keep all in view)
-  CsLoadBkgColor %11111010
-  CsLoadObjColor %11101000,%11111000
-  CsWait 3
-  CsLoadBkgColor %11111001
-  CsLoadObjColor %11100100,%11111000
-  CsWait 3
-  CsLoadBkgColor %11101001
-  CsLoadObjColor %11100100,%11101000
-  CsWait 3
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
-  CsWait 3
-  CsLoadBkgColor %11100100
-  CsLoadObjColor %11010000,%11100100
-  CsWait 300+120    ;2 second pause
-  CsAlterMap MapAlt_AliceDoorOpen   ;Door open
-  CsNewActor 8,CsChAlice,0
-  CsAnimSpeed 8,$05
-  CsAnimateActor 8,CsAnFaceDown
-  CsSetActor 8,64,84
-  CsWait 5
-  CsAnimateActor 1,CsAnFaceDown
-  CsWait 3
-  CsAnimateActor 2,CsAnFaceUp
-  CsWait 4
-  CsRunText StringDemoMessage1
-  CsWaitText
-  CsAlterMap MapAlt_AliceDoorClose  ;Door close
-  CsAnimateActor 8,CsAnWalkDown
-  CsMoveActorTime 8,CsDirDown,50,18
-  CsWait 50
-  CsAnimateActor 8,CsAnFaceDown
-  CsRunText StringDemoMessage2  ;Fight!
-  CsWaitText
-  CsWait 20
-  CsShootDanmaku 8,4
-  CsWait 12
-  CsWait 15
-  CsShootDanmaku 2,1    ;Reimu options
-  ;CsShootDanmaku 2,3    ;Reimu danmaku
-  ;CsShootDanmaku 1,2    ;Marisa danmaku
-  CsWait 40
-  CsAnimateActor 3,CsAnFaceUp   ;Narumi Watch
-  CsWait 45
-  CsMoveActorTime 4,CsDirDown,15,5   ;Fairy escape
-  CsWait 51
-  CsAnimateActor 4,CsAnWalkDown
-  CsMoveActorTime 4,CsDirDown,25,30
-  CsWait 60
-  CsMoveCameraTime CsDirUp,60,18    ;Rest of map
-  CsWait 10
-  CsLoadBkgColor %11100100  ;Fade out
-  CsLoadObjColor %11010000,%11100100
-  CsWait 10
-  CsLoadBkgColor %11101001
-  CsLoadObjColor %11100100,%11101000
-  CsWait 10
-  CsLoadBkgColor %11111001
-  CsLoadObjColor %11100100,%11111000
-  CsWait 10
-  CsLoadBkgColor %11111010
-  CsLoadObjColor %11101000,%11111000
-  CsWait 10
-  CsLoadBkgColor %11111110
-  CsLoadObjColor %11111000,%11111100
-  CsWait 10
-  CsLoadBkgColor %11111111
-  CsLoadObjColor %11111100,%11111100
-  CsWait 10
   CsEnd
+
 .ENDS

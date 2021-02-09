@@ -353,124 +353,241 @@ Actor_Move:
 ;HL-> Actor Data
 ;Destroys A, HL
 
-;For collision, we only need a tile address
-;That is, high 5 bits of X and Y, after adding current pos and delta
-;Only apply new position if collision check passes
-;Do a buffer of 4 pixels on U/D, and 8 on L/R?
-    ;While this applies to every character, the only one who really cares is the player
-;Idea: Attempt X and Y separately, to allow semi-diagonal movement
-;Test deltas
-  INC HL
-  INC HL
-  PUSH HL
-    LD A,C
-    OR B
-    JR z,++ ;No X delta; don't check
-    ;Test X delta
-    LD A,B  ;Round up and away from 0
-    CP 1
-    INC HL
-    LDI A,(HL)    ;Master X
-    ADC B ;X delta
-    INC HL
-    LD H,(HL)     ;Master Y
-    RRCA  ;Get bit address
-    RRCA
-    RRCA
-    DEC A   ;X positions are 8 pixels greater than collision map positions
-    PUSH AF
-      RRCA    ;Get byte address
-      RRCA
-      RRCA
-      AND $03
-      LD L,A
-      LD A,$F8
-      AND H
-      SUB 16  ;Y position is 16 pixels greater than collision map position
-      RRCA
-      OR L
-      ADD <ColArea    ;Guarantee no carry. In fact, no bit overlap; ADD is easier to read
-      LD L,A
-      LD H,>ColArea
-    POP AF    ;Bit portion
-    AND $07
-    ;"BIT A,(HL)" here
-    LD H,(HL)
-    LD L,A
-    LD A,H
-    INC L
--
-    RLA
-    DEC L
-    JR nz,-
-  POP HL
-  PUSH HL
-    JR nc,++  ;If 0 (collidable block), don't do X movement
-    ;Perform X movement
+;TODO: There is some bug involving being able to pass into collision when
+    ;moving diagonally near the corner of bg collision groups
+    ;Specifically, when Marisa moves diagonally, the point to her side and to
+    ;her front are separately checked for collision, providing the bounding.
+    ;When she moves diagonally into an object, she "slots" into the corner.
+    ;She can then move extra close to walls, because horizonal collision isn't
+    ;checked for vertical movement, and vice-versa
+    ;A fix would involve a total of 4 more point checks written,
+    ;and two to run each movement.
+
+  PUSH DE
+    PUSH BC
+;Maginify movements by 5 (x) and 3 (y) constant for hitboxing
+      BIT 7,B
+      JR z,+
+      LD A,B
+      SUB 5
+      LD B,A
+      JR ++
++
+      LD A,B
+      ADD 5
+      LD B,A
+++
+      BIT 7,D
+      JR z,+
+      LD A,D
+      SUB 3
+      LD D,A
+      JR ++
++
+      LD A,D
+      ADD 3
+      LD D,A
+++
+;Test X+Y deltas simultaneously
+;      PUSH BC
+        INC HL
+        INC HL
+;        LDI A,(HL)
+;        ADD C
+;        LDI A,(HL)
+;        ADC B
+;        LD C,A
+;        LDI A,(HL)
+;        ADD E
+;        LDD A,(HL)
+;        ADC D
+;        LD B,A
+;        PUSH HL
+;          CALL GetColAtBC
+;        POP HL
+;      POP BC
+;      JR nc,+   ;Fully diagonal movement failed
+;;Move along diagonal
+;    POP BC
+;  POP DE
+;  LD A,(HL)
+;  ADD E
+;  LDI (HL),A
+;  LD A,(HL)
+;  ADC D
+;  LDD (HL),A
+;  DEC HL
+;  DEC HL
+;  LD A,(HL)
+;  ADD C
+;  LDI (HL),A
+;  LD A,(HL)
+;  ADC B
+;  LD (HL),A
+;  RET
++
+;Test X delta
+;      DEC HL
+;      DEC HL
+      LDI A,(HL)
+      ADD C
+      LDI A,(HL)
+      ADC B
+      LD C,A      ;Set up BC to integer XY
+      INC HL
+      LD B,(HL)
+      PUSH HL
+        CALL GetColAtBC
+      POP HL
+    POP BC
+    DEC HL
+    JR nc,+     ;Don't perform movement if there is collision
+    DEC HL
+    DEC HL
     LD A,(HL)
     ADD C
     LDI (HL),A
     LD A,(HL)
     ADC B
-    LDD (HL),A
-++
-    LD A,E
-    OR D
-    SCF ;Do not move!
-    JR z,++ ;No Y delta
-    ;Test Y delta
-    LD A,D
-    CP 1    ;Round up to 1 from numbers less than 0
-    INC HL
-    LD C,(HL)     ;Master X
-    INC HL
-    INC HL
-    LD A,(HL)     ;Master Y
-    ADC D   ;Y delta, rounded away from 0
-    SUB 16  ;Y position is 16 pixels greater than collision map position
-    LD B,A
-    LD A,C
-    RRCA  ;Get bit address
-    RRCA
-    RRCA
-    DEC A   ;X positions are 8 pixels greater than collision map positions
-    LD C,A
-    RRCA    ;Get byte address
-    RRCA
-    RRCA
-    AND $03
-    LD L,A
-    LD A,$F8
-    AND B
-    RRCA
-    OR L
-    ADD <ColArea    ;Guarantee no carry. In fact, no bit overlap; ADD is easier to read
-    LD L,A
-    LD H,>ColArea
-    LD A,C    ;Bit portion
-    AND $07
-    ;"BIT A,(HL)"
-    LD C,A
-    LD A,(HL)
-    INC C
--
-    RLA
-    DEC C
-    JR nz,-
-++
-  POP HL
-  JR nc,+   ;If 0 (collidable block), don't do Y movement
-  ;Perform Y movement
-  INC HL
+    LDI (HL),A
+;  POP DE        ;Because diagonal movement was tested, and horizonal succeeded,
+;  RET           ;we know that vertical failed; no need to test it.
++
+;Test Y delta
+    LDI A,(HL)
+    ADD E
+    LDD A,(HL)
+    ADC D
+    LD B,A      ;Set up BC to integer XY
+    DEC HL
+    LD C,(HL)
+    PUSH HL
+      CALL GetColAtBC
+    POP HL
+  POP DE
+  JR nc,+   ;Don't perform movement if there is collision
   INC HL
   LD A,(HL)
   ADD E
   LDI (HL),A
   LD A,(HL)
   ADC D
-  LDD (HL),A
+  LDI (HL),A
 +
   RET
+
+;Test deltas
+;  INC HL
+;  INC HL
+;  PUSH HL
+;    LD A,C
+;    OR B
+;    JR z,++ ;No X delta; don't check
+;    ;Test X delta
+;    LD A,B  ;Round up and away from 0
+;    CP 1
+;    INC HL
+;    LDI A,(HL)    ;Master X
+;    ADC B ;X delta
+;    INC HL
+;    LD H,(HL)     ;Master Y
+;    RRCA  ;Get bit address
+;    RRCA
+;    RRCA
+;    DEC A   ;X positions are 8 pixels greater than collision map positions
+;    PUSH AF
+;      RRCA    ;Get byte address
+;      RRCA
+;      RRCA
+;      AND $03
+;      LD L,A
+;      LD A,$F8
+;      AND H
+;      SUB 16  ;Y position is 16 pixels greater than collision map position
+;      RRCA
+;      OR L
+;      ADD <ColArea    ;Guarantee no carry. In fact, no bit overlap; ADD is easier to read
+;      LD L,A
+;      LD H,>ColArea
+;    POP AF    ;Bit portion
+;    AND $07
+;    ;"BIT A,(HL)" here
+;    LD H,(HL)
+;    LD L,A
+;    LD A,H
+;    INC L
+;-
+;    RLA
+;    DEC L
+;    JR nz,-
+;  POP HL
+;  PUSH HL
+;    JR nc,++  ;If 0 (collidable block), don't do X movement
+;    ;Perform X movement
+;    LD A,(HL)
+;    ADD C
+;    LDI (HL),A
+;    LD A,(HL)
+;    ADC B
+;    LDD (HL),A
+;++
+;    LD A,E
+;    OR D
+;    SCF ;Do not move!
+;    JR z,++ ;No Y delta
+;    ;Test Y delta
+;    LD A,D
+;    CP 1    ;Round up to 1 from numbers less than 0
+;    INC HL
+;    LD C,(HL)     ;Master X
+;    INC HL
+;    INC HL
+;    LD A,(HL)     ;Master Y
+;    ADC D   ;Y delta, rounded away from 0
+;    SUB 16  ;Y position is 16 pixels greater than collision map position
+;    LD B,A
+;    LD A,C
+;    RRCA  ;Get bit address
+;    RRCA
+;    RRCA
+;    DEC A   ;X positions are 8 pixels greater than collision map positions
+;    LD C,A
+;    RRCA    ;Get byte address
+;    RRCA
+;    RRCA
+;    AND $03
+;    LD L,A
+;    LD A,$F8
+;    AND B
+;    RRCA
+;    OR L
+;    ADD <ColArea    ;Guarantee no carry. In fact, no bit overlap; ADD is easier to read
+;    LD L,A
+;    LD H,>ColArea
+;    LD A,C    ;Bit portion
+;    AND $07
+;    ;"BIT A,(HL)"
+;    LD C,A
+;    LD A,(HL)
+;    INC C
+;-
+;    RLA
+;    DEC C
+;    JR nz,-
+;++
+;  POP HL
+;  JR nc,+   ;If 0 (collidable block), don't do Y movement
+;  ;Perform Y movement
+;  INC HL
+;  INC HL
+;  LD A,(HL)
+;  ADD E
+;  LDI (HL),A
+;  LD A,(HL)
+;  ADC D
+;  LDD (HL),A
+;+
+;  RET
 
 ;Remove from sprite viewing order
 Actor_Hide:

@@ -185,8 +185,8 @@ CharaFrame:
   LD HL,_ControlState
   ADD HL,DE
   LD A,(HL)
-  DEC A
-  RET nz
+  OR A
+  RET z
 ;Check for movement
   LD HL,_ButtonState
   ADD HL,DE
