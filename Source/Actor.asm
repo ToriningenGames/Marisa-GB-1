@@ -32,6 +32,20 @@
 
 .SECTION "ActorBase" FREE
 
+Access_ActorDE:
+;A= Task ID
+;Returns task's DE in HL
+  LD H,>taskpointer
+  RLA
+  RLA
+  RLA
+  ADD <taskpointer + 4
+  LD L,A
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  RET
+
 ;Creates and returns an initialized base actor, ready for characterization
 Actor_New:
 ;D = X start

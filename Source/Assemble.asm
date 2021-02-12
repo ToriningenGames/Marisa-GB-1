@@ -34,7 +34,7 @@
 ;$C080 - $C08F
     ;Button data area
 ;$C090 - $C09E
-    ;Unused
+    ;Map State
 ;$C09E - $C09F
     ;Hat data pointer
 ;$C0A0 - $C0BF
@@ -583,6 +583,9 @@ LoadTitle:
 ;  CALL NewTask
 ;Now pausable
   LD BC,PauseTask
+  CALL NewTask
+;Camera Setup
+  LD BC,Camera_Task
   CALL NewTask
   JP EndTask
 .ENDS

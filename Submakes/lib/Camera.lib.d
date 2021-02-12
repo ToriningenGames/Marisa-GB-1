@@ -1,1 +1,2 @@
-Camera.lib: Source\Camera.asm
+Camera.lib: Source\Camera.asm \
+	Source\ActorData.asm

@@ -116,20 +116,6 @@ CharaTypes:
 .include "ActorData.asm"
 
 
-Access_ActorDE:
-;A= Task ID
-;Returns task's DE in HL
-  LD H,>taskpointer
-  RLA
-  RLA
-  RLA
-  ADD <taskpointer + 4
-  LD L,A
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
-  RET
-
 ;Cutscene loop
 Cutscene_Task:
 ;DE->Cutscene data
@@ -548,7 +534,6 @@ Cutscene_SongPan:
 Cutscene_InputChange:       ;TEST
 ;Send message to actor that control state is now X?
   LD A,D
-  RLA
   ADD <Cutscene_Actors
   LD C,A
   LD B,>Cutscene_Actors
@@ -745,7 +730,7 @@ Cs_LoadDebug:
   CsPanSong $FF,$FF
   CsLoadSong SongNull
   CsWait 130
-  CsLoadMap MapForest02
+  CsLoadMap MapForest41
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
   CsWait 1
@@ -753,6 +738,7 @@ Cs_LoadDebug:
   CsSetActor 1,76,117
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
+  CsInputChange 1,1     ;Playable Marisa
   CsEnd
 
 .ENDS

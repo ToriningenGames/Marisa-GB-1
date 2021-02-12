@@ -65,9 +65,11 @@
 .DEFINE PriArea $D400
 .DEFINE ColArea $D480
 .DEFINE VisArea $D500
-.ENUM $D500 ;MapInfo
-    hotMap      DB  ;Zero if LoadMap is running
-    mapExtract  DS 6;ExtractSaveSize
+.ENUM $C090 ;MapInfo    (14 bytes max)
+    hotMap      DB      ;Zero if LoadMap is running
+    mapExtract  DS 6    ;ExtractSaveSize
+    mapWidth    DB      ;Width in pixels
+    mapHeight   DB      ;Height in pixels
 .ENDE
 
 .DEFINE LoadMapMagicVal $D098
@@ -78,6 +80,8 @@
 .EXPORT ColArea
 .EXPORT VisArea
 .EXPORT hotMap
+.EXPORT mapWidth
+.EXPORT mapHeight
 .EXPORT LoadMapMagicVal
 .EXPORT LoadWinMagicVal
 
@@ -91,8 +95,15 @@
 LoadMap_Task:
   LD HL,hotMap
   LD (HL),0
-  LD HL,mapExtract
-  PUSH HL
+  INC HL
+  PUSH HL   ;mapExtract
+  LD HL,mapWidth
+  LD A,(DE)
+  INC DE
+  LDI (HL),A
+  LD A,(DE)
+  INC DE
+  LD (HL),A
   LD H,D
   LD L,E
   LD DE,MapArea
@@ -201,14 +212,18 @@ ClearMap_Task:
 .SECTION "Maps" FREE
 
 MapForest02:
+.db 160,255     ;Width, height
 .incbin "rsc/Forest_20200414_(0~2).gbm"
 
 MapForest12:
+.db 240,144     ;Width, height
 .incbin "rsc/Forest_20210129_(1~2).gbm"
 
 MapForest30:
+.db 160,144     ;Width, height
 .incbin "rsc/Forest_20210130_(3~0).gbm"
 
 MapForest41:
+.db 240,240     ;Width, height
 .incbin "rsc/Forest_20200414_(4~1).gbm"
 .ENDS
