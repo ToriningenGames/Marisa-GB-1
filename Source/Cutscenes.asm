@@ -531,7 +531,7 @@ Cutscene_SongPan:
   LDH ($25),A
   JP EndTask
 
-Cutscene_InputChange:       ;TEST
+Cutscene_InputChange:
 ;Send message to actor that control state is now X?
   LD A,D
   ADD <Cutscene_Actors
@@ -730,15 +730,17 @@ Cs_LoadDebug:
   CsPanSong $FF,$FF
   CsLoadSong SongNull
   CsWait 130
-  CsLoadMap MapForest41
+  CsLoadMap MapForestBKG
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
   CsWait 1
   CsAssignHat 0,1
-  CsSetActor 1,76,117
+  CsSetActor 1,30,20
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
   CsInputChange 1,1     ;Playable Marisa
+  CsWait 5
+  CsLoadMap MapForestN13
   CsEnd
 
 .ENDS

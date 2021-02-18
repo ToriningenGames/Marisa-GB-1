@@ -39,14 +39,18 @@ Camera_Task:
   INC HL
   INC HL
   LD A,(mapWidth)
+  OR A
+  JR z,+    ;Giant maps (width 0) do scroll
   CP 161        ;Screen width, in pixels, plus one, to catch an exact match
   JR c,_SmallMapX
++
 ;Map is big
   LD B,A
 ;Get X of Marisa
   LD A,(HL)
-;Center Marisa
-  SUB 88    ;20 horizontal tiles / 2 (half of screen) * 8 pixels per tile + 8 pixels slide edge
+  SUB 8     ;Sprite offsets
+;Center Marisa on camera
+  SUB 80    ;20 horizontal tiles / 2 (half of screen) * 8 pixels per tile + 8 pixels slide edge
 ;Clamp left to map
   JR nc,++
   LD A,0
@@ -84,16 +88,20 @@ _LoadPosX:
 
 ;Is screen tall enough for scrolling?
   LD A,(mapHeight)
+  OR A
+  JR z,+    ;Giant maps (height 0) do scroll
   CP 145        ;Screen height, in pixels, plus one to catch exact match
   JR c,_SmallMapY
++
 ;Map is big
   LD B,A
 ;Get Y of Marisa
   INC HL
   INC HL
   LD A,(HL)
+  SUB 16    ;Sprite offsets
 ;Center Marisa
-  SUB 88    ;18 horizontal tiles / 2 (half of screen) * 8 pixels per tile + 16 pixels slide edge
+  SUB 72    ;18 horizontal tiles / 2 (half of screen) * 8 pixels per tile + 16 pixels slide edge
 ;Clamp top to map
   JR nc,++
   LD A,0

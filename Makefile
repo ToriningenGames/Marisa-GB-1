@@ -54,25 +54,29 @@ $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(QUIET)$(RM) $(SYM)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
-%.obj.d : ..\..\%.asm | Submakes Submakes\obj
+%.obj.d : $(WLADIR)\wla-gb.exe ..\..\%.asm | Submakes Submakes\obj
 	$(WLADIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\obj\$(@F)
-%.lib.d : ..\..\%.asm | Submakes Submakes\lib
+%.lib.d : $(WLADIR)\wla-gb.exe ..\..\%.asm | Submakes Submakes\lib
 	$(WLADIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\lib\$(@F)
 include $(addprefix Submakes\lib\,$(addsuffix .d,$(LIB0)))
 include $(addprefix Submakes\lib\,$(addsuffix .d,$(LIB1)))
 include $(addprefix Submakes\obj\,$(addsuffix .d,$(OBJ)))
 
-%.obj : %.asm %.obj.d | obj
+%.obj : %.asm %.obj.d $(WLADIR)\wla-gb.exe | obj
 	$(WLADIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<
-%.lib : %.asm %.lib.d | lib
+%.lib : %.asm %.lib.d $(WLADIR)\wla-gb.exe | lib
 	$(WLADIR)\wla-gb -v -x -I $(<D) -l lib\$@ $<
-%.raw : ..\%.tmx | rsc
-	$(TOOLDIR)\Raw-MapConv.exe $< $@
-%.gbm : $(SPECFILE) %.raw | rsc
-	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
-%.lzc : $(SPECFILE) ..\%.gb | rsc
-	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
-%.mcs : ..\%.mml | rsc
+%.gbm : ..\%.tmx $(TOOLDIR)\LZ-MapConv.exe | rsc
+	$(TOOLDIR)\LZ-MapConv.exe $< $@
+# Alt way to compile maps, using raw+lzifier
+# Does not support tile transparency
+#%.raw : ..\%.tmx | rsc
+#	$(TOOLDIR)\Raw-MapConv.exe $< $@
+#%.gbm : $(SPECFILE) %.raw | rsc
+#	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
+%.lzc : ..\%.gb $(SPECFILE) $(TOOLDIR)\LZifier.exe | rsc
+	$(TOOLDIR)\LZifier.exe LZ77 $(word 2,$^) $< $@
+%.mcs : ..\%.mml $(TOOLDIR)\MML6.exe | rsc
 	$(TOOLDIR)\MML6.exe -i=$< -o=$@ -t=gb
 $(LINK) : Makefile
 	$(file > $(LINK),[objects])

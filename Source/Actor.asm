@@ -1292,39 +1292,20 @@ ObjectPriority_Task:
   LD A,(DE)
   INC E
   ADD (HL)      ;Y portion
-  ADD 4-16
   INC L
-  AND $F8   ;Chop off the lower 3 bits (bit to tile)
-  RRCA
+  ADD 3
   LD B,A
   LD A,(DE)
   ADD (HL)      ;X portion
-  ADD 4-8   ;Coordinates are center of tile
   DEC L
-  RRCA      ;Convert from bit coordinates to tile coordinates
-  RRCA
-  RRCA
-  LD C,A
-  LD A,$18  ;Each tile is a bit in collision array
-  AND C
-  RRCA
-  RRCA
-  RRCA
-  OR B
-  LD B,A    ;Byte address
-  LD A,$07
-  AND C     ;Bit address
+  ADD 3
   LD C,A
 ;Get map tile bit
-  LD D,>PriArea
-  LD E,B
-  LD A,(DE)
-  INC C ;One based rotation
---
-  RLA
-  DEC C
-  JR nz,--
-  JR c,-    ;Due to a bu-...feature in the map generator, activate on clear bits
+;Checking 4x4 square
+  PUSH HL
+    CALL GetPriAtBC
+  POP HL
+  JR c,-
 ;Set it
   INC L
   INC L

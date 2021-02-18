@@ -176,54 +176,25 @@ _GetItmAtBC:
   DEC C
   JR nz,-
   RET
-
-;Sets entire map to tile specified in A
-;Sets Priority, Collision, and Visibility to bits 0, 1, and 2 set in B
-;Sets hotMap upon finishing
-ClearMap_Task:
-  LD HL,MapArea
-  LD C,0    ;No. of bytes, divided by 4
--
-  LDI (HL),A    ;Tiles
-  LDI (HL),A
-  LDI (HL),A
-  LDI (HL),A
-  DEC C
-  JR nz,-
-  LD D,3
---
-  XOR A
-  RR B
-  JR nc,+
-  CPL
-+   ;Each bitfield, in order
-  LD C,$80
--
-  LDI (HL),A
-  DEC C
-  JR nz,-
-  DEC D
-  JR nz,--
-  LD HL,hotMap
-  LD (HL),$FF
-  JP EndTask
 .ENDS
 
 .SECTION "Maps" FREE
 
+MapForestBKG:
+.incbin "rsc/Forest_20210218_(BKG).gbm"
+
+MapForestN13:
+.incbin "rsc/Forest_20210217_(-1~3).gbm"
+
 MapForest02:
-.db 160,255     ;Width, height
 .incbin "rsc/Forest_20200414_(0~2).gbm"
 
 MapForest12:
-.db 240,144     ;Width, height
 .incbin "rsc/Forest_20210129_(1~2).gbm"
 
 MapForest30:
-.db 160,144     ;Width, height
 .incbin "rsc/Forest_20210130_(3~0).gbm"
 
 MapForest41:
-.db 240,240     ;Width, height
 .incbin "rsc/Forest_20200414_(4~1).gbm"
 .ENDS
