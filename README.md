@@ -30,6 +30,8 @@ Folder for storing the built libraries during assembly. Safe to delete.
 
 ### Maps
 Stores the Tiled maps that comprise all screens, alongside concept art.
+- `Tiledata.tsx`: Copy of Tiledata.gb for Tiled, so game maps look right
+- `System.tsx`: A few colored tiles, so Collsions, Priority, and Visibility bits can be visualized (and drawn)
 
 ### obj
 Stores the compiled versions of the non-library files during assembly. Safe to delete.
@@ -54,12 +56,10 @@ Man, I suck at Make.
 ### Tools
 Helper programs needed to make the game, writtem by me.
 - `MML6`: Music Macro Language compiler used for all the songs
-- `Raw-MapConv`: Converts Tiled formatted maps into an uncompressed compiled format
-- `LZifier`: LZ compresses data, used for maps and tiledata
+- `LZ-MapConv`: Converts Tiled formatted maps into a compressed compiled format
+- `LZifier`: LZ compresses data, used for faces and tiledata
 There's also some miscy files here
 - `specfile_marisa.cfg`: Tells LZifier the exact format of packets to output
-- `Tiledata.tsx`: Copy of Tiledata.gb for Tiled, so game maps look right
-- `System.tsx`: A few colored tiles, so Collsions, Priority, and Visibility bits can be visualized (and drawn)
 
 
 ### Root folder
@@ -77,13 +77,12 @@ There is no workaround, no alternative, and the provided advice is to wait.
 
 ## Tips When Editiing
 - The Makefile autogenerates the WLA linkfile as Link.link, adds all the pieces where they need to be, and throws it together.
-- The two Make variables LIB0 and LIB1 place the libraries in banks 0 and 1. I tried to organize approximately on what would and would not be bankswitched, though it doesn't matter.
+- The two Make variables LIB0 and LIB1 place the libraries in banks 0 and 1. I tried to organize approximately on what would and would not be bankswitched, though it doesn't matter, because the project is 32k.
 - The symbol file is stripped of section information automatically. This is done in the Makefile.
 - It is encouraged, though not necessary, to ensure every resource has a compiled variant, so everything included is in Source or rsc.
 - The tools are not very well documented here (left the documentation in the source). This will get fixed when the folder gets cleaned up.
 - The Makefile is written on and for a Windows machine (line endings, commands, etc.). The executables are win64 binaries. The data of the project is fully portable.
 - The Makefile should rebuild submakes when the source file changes, which, while costly, ensures they don't fall out of date. Additionally, it _should_ make Make build most the file's dependencies first.
-    - Should something go wrong, or you add a new dependency, it is highly likely building will fail, because the Submake won't have it, but WLA refuses to output Make rules if it can't find all the file includes- which it won't, because they don't exist. The only recouse I know is to create dummy files, so the submakes can be remade, then delete the dummies so the files can be actually built. If anybody has a better solution to this chicken-egg problem, I'm all ears.
     - `make clean` does not delete the submake files
 
 # TODO
@@ -114,5 +113,7 @@ Inside game:
 <li />[ ] Write some title music
 <li />[ ] Pare down unused utility functions
 <li />[ ] Write all the cutscenes
-<li />[ ] Add camera behavior to follow player movement
+<li />[x] Add camera behavior to follow player movement
+<li />[ ] Fix hat being unable to act after leaving camera view
+<li />[ ] Add conditionals to cutscenes
 </ul>

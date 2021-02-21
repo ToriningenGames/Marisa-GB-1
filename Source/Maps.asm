@@ -1,39 +1,3 @@
-;Exit Format:
-;To be decided...
-;Will contain cutscenes, which will contain actor lists
-
-
-;Map format inspiration:
-    ;For a given object, the tiles will be in close proximity to each other
-    ;This permits a smaller number encoding the tile, with a base+offset format
-    ;Now, if we could get overlays to work, that'd be great.
-;Map Design Workflow:
-    ;We can use Tiled as our map editor, regardless of the format, as long as we take care of a couple sticking points:
-        ;We need a program to take raw tiledata and convert it into an image.
-        ;Windows snippet can do this, if we organize the three banks correctly
-        ;We need a program to convert from Tiled's XML format to our Gameboy format
-        ;There is a convenient looking tiny XML parser on Github (/ooxi/xml.c)
-        ;We also need to decide on the format (obviously)
-
-;We use the same compressor for tiledata and map data.
-;The reduction in code size makes up for the minor increase in data size
-;Because the converter still expects transparent maps, map design has to be thorough
-
-;Header
-    ;Data wanted:
-        ;Width
-        ;Height
-        ;Backfill?
-        ;Object list
-        ;Exit list
-    ;Can be added separately from converter
-    ;Order?
-        ;Exit list
-        ;Height
-        ;Width  (Only thing required by map loader)
-    ;Object list in exits
-    ;Pointer is to start of data (after Exit list, Height, and Width)
-
 ;Implementation notes
     ;Priority is hard to support on DMG, but easy on GBC
     ;The most viable way is frame by frame sprite priority assignment
@@ -42,48 +6,7 @@
     ;A 3:4 division is what comes to mind at first.
     ;But that isn't here
 
-;Memory requirements:
-    ;1024 bytes for tilemap (persistent)
-        ;Persistence waiverable for many frames' time
-    ;128 bytes for visibility (persistent)
-    ;128 bytes for collsion (persistent)
-    ;128 bytes for priority (persistent)
-    ;1024 bytes for new map (transient)
-    ;128 bytes for affected visibility (transient)
-    ;128 bytes for affected collsion (transient)
-    ;128 bytes for affected priority (transient)
-;2.75kB, 1.375kB persistent
-
-;Reducing RAM requirements:
-    ;Text! Textboxes won't be open during a map transition!
-    ;If we run over the map twice, we can display $FF tiles.
-    ;With this, we can also split VCP data over time, saving space
-    ;Ideally, we could split the map in threes
-
-
-.DEFINE MapArea $D000
-.DEFINE PriArea $D400
-.DEFINE ColArea $D480
-.DEFINE VisArea $D500
-.ENUM $C090 ;MapInfo    (14 bytes max)
-    hotMap      DB      ;Zero if LoadMap is running
-    mapExtract  DS 6    ;ExtractSaveSize
-    mapWidth    DB      ;Width in pixels
-    mapHeight   DB      ;Height in pixels
-.ENDE
-
-.DEFINE LoadMapMagicVal $D098
-.DEFINE LoadWinMagicVal $D09C
-
-.EXPORT MapArea
-.EXPORT PriArea
-.EXPORT ColArea
-.EXPORT VisArea
-.EXPORT hotMap
-.EXPORT mapWidth
-.EXPORT mapHeight
-.EXPORT LoadMapMagicVal
-.EXPORT LoadWinMagicVal
+.include "mapDef.asm"   ;<--- LOOK HERE FOR DATA EXPLANATIONS!!
 
 .include "macros.asm"
 
@@ -182,19 +105,60 @@ _GetItmAtBC:
 
 MapForestBKG:
 .incbin "rsc/Forest_20210218_(BKG).gbm"
+.db $81,$00,$00,$01,$7F ;Magic string for map decompressor to wipe rest of data
 
 MapForestN13:
 .incbin "rsc/Forest_20210217_(-1~3).gbm"
+.db $8C             ;Magic constant for decompressor to copy this literal string
+.db   0             ;Distance from top of background to activate at
+.dw Cs_Reset        ;Cutscene to play upon activation
+.db 144             ;Distance to bottom of background to activate at
+.dw Cs_Reset        ;Cutscene to play upon activation
+.db   0             ;Distance from left of background to activate at
+.dw Cs_Reset        ;Cutscene to play upon activation
+.db 160             ;Distance to right of background to activate at
+.dw Cs_Reset        ;Cutscene to play upon activation
+.db $00,$00,$74     ;Magic string for map decompressor to ignore rest of data
 
 MapForest02:
 .incbin "rsc/Forest_20200414_(0~2).gbm"
+.db $8C
+.db 18                  ;up
+.dw Cs_Reset
+.db 250                 ;down
+.dw Cs_Load02to12_1
+.db 0                   ;left
+.dw Cs_Reset
+.db 0                   ;right
+.dw Cs_Reset
+.db $00,$00,$74
 
 MapForest12:
 .incbin "rsc/Forest_20210129_(1~2).gbm"
+.db $8C
+.db 24                  ;up
+.dw Cs_Load12to02_1
+.db 0                   ;down
+.dw Cs_Reset
+.db 16                  ;left
+.dw Cs_Reset
+.db 232                 ;right
+.dw Cs_Load12to13_1
+.db $00,$00,$74
+
+MapForest13:
+.incbin "rsc/Forest_20200414_(1~3).gbm"
+.db $8C
+.db 0                   ;up
+.dw Cs_Reset
+.db 0                   ;down
+.dw Cs_Reset
+.db 80                  ;left
+.dw Cs_Load13to12_1
+.db 176                 ;right
+.dw Cs_Reset
+.db $00,$00,$74
 
 MapForest30:
 .incbin "rsc/Forest_20210130_(3~0).gbm"
-
-MapForest41:
-.incbin "rsc/Forest_20200414_(4~1).gbm"
 .ENDS

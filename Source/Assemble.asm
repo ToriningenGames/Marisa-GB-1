@@ -574,19 +574,28 @@ LoadTitle:
   DEC C
   JR nz,-
 ;Play opening cutscene
-  LD DE,Cs_LoadDebug
+  LD DE,Cs_LoadInit
   LD BC,Cutscene_Task
   CALL NewTask
-;Sprites
-;Collision
-;  LD BC,HitboxUpdate_Task
-;  CALL NewTask
 ;Now pausable
   LD BC,PauseTask
   CALL NewTask
 ;Camera Setup
   LD BC,Camera_Task
   CALL NewTask
+;Wait a reasonable time period
+  LD C,140      ;After map loads, Marisa is created, initializing her memory.
+-
+  CALL HaltTask
+  DEC C
+  JR nz,-
+;Exits
+  LD BC,ExitCheck_Task
+  CALL NewTask
+;Sprites
+;Collision
+;  LD BC,HitboxUpdate_Task
+;  CALL NewTask
   JP EndTask
 .ENDS
 

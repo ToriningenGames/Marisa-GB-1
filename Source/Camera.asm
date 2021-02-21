@@ -3,6 +3,8 @@
 
 .include "ActorData.asm"
 
+.include "mapDef.asm"
+
 .SECTION "Camera" FREE
 
 ;Keep the camera within map boundaries,

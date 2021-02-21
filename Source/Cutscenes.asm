@@ -30,6 +30,10 @@
        ;Actor 1 is assumed to be playable,
        ;and Actor 0 is assumed to be assignable.
 
+.include "ActorData.asm"
+
+.include "mapDef.asm"
+
 .SECTION "Cutscene Code" ALIGN 256 FREE
 
 ;Cutscene function signature:
@@ -112,9 +116,6 @@ CharaTypes:
 
 .DEFINE Cutscene_Actors $C0A0
 .EXPORT Cutscene_Actors
-
-.include "ActorData.asm"
-
 
 ;Cutscene loop
 Cutscene_Task:
@@ -677,8 +678,8 @@ Cutscene_DanmakuInit
  .db 7,0,ID
 .ENDM
 .MACRO CsSetActor ARGS ID, X, Y
- .db 9,X+8, ID | ((0)*32)
- .db 9,Y+16,ID | ((1)*32)
+ .db 9,(X+8)  & $FF,ID | ((0)*32)
+ .db 9,(Y+16) & $FF,ID | ((1)*32)
 .ENDM
 .MACRO CsAnimateActor ARGS ID, anim
  .db 8,anim,ID | ((1)*32)
@@ -725,22 +726,72 @@ Cutscene_DanmakuInit
 
 .SECTION "Cutscene Data" FREE
 
-Cs_LoadDebug:
+Cs_LoadInit:
   CsLoadBkgColor $FF
-  CsPanSong $FF,$FF
   CsLoadSong SongNull
-  CsWait 130
+  CsPanSong $FF,$FF
+  CsWait 132
   CsLoadMap MapForestBKG
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  CsWait 1
+  CsWait 10
+  CsLoadMap MapForest13
   CsAssignHat 0,1
-  CsSetActor 1,30,20
+  CsSetActor 1,125,110
+  CsInputChange 1,0     ;Nonplayable Marisa
+  CsWait 1
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
   CsInputChange 1,1     ;Playable Marisa
-  CsWait 5
-  CsLoadMap MapForestN13
   CsEnd
 
+Cs_Load13to12_1:
+  CsInputChange 1,0
+  CsLoadMap MapForestBKG
+  CsWait 10
+  CsLoadMap MapForest12
+  CsSetActor 1,218,68
+  CsWait 1
+  CsInputChange 1,1
+  CsEnd
+
+Cs_Load12to13_1:
+  CsInputChange 1,0
+  CsLoadMap MapForestBKG
+  CsWait 10
+  CsLoadMap MapForest13
+  CsSetActor 1,82,99
+  CsWait 1
+  CsInputChange 1,1
+  CsEnd
+
+Cs_Load12to02_1:
+  CsInputChange 1,0
+  CsLoadMap MapForestBKG
+  CsWait 10
+  CsLoadMap MapForest02
+  CsSetActor 1,68,241
+  CsWait 1
+  CsInputChange 1,1
+  CsEnd
+
+Cs_Load02to12_1:
+  CsInputChange 1,0
+  CsLoadMap MapForestBKG
+  CsWait 10
+  CsLoadMap MapForest12
+  CsSetActor 1,118,30
+  CsWait 1
+  CsInputChange 1,1
+  CsEnd
+
+Cs_Reset:
+  CsInputChange 1,0
+  CsLoadMap MapForestBKG
+  CsWait 10
+  CsLoadMap MapForest13
+  CsSetActor 1,128,128
+  CsWait 1
+  CsInputChange 1,1
+  CsEnd
 .ENDS
