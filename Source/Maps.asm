@@ -136,7 +136,7 @@ MapForest02:
 MapForest12:
 .incbin "rsc/Forest_20210129_(1~2).gbm"
 .db $8C
-.db 24                  ;up
+.db 15                  ;up
 .dw Cs_Load12to02_1
 .db 0                   ;down
 .dw Cs_Reset
@@ -149,15 +149,18 @@ MapForest12:
 MapForest13:
 .incbin "rsc/Forest_20200414_(1~3).gbm"
 .db $8C
-.db 0                   ;up
+.db 8                   ;up
 .dw Cs_Reset
-.db 0                   ;down
+.db 230                 ;down
 .dw Cs_Reset
-.db 80                  ;left
+.db 8                   ;left
 .dw Cs_Load13to12_1
-.db 176                 ;right
+.db 230                 ;right
 .dw Cs_Reset
 .db $00,$00,$74
+
+MapForest23:
+.incbin "rsc/Forest_20210224_(2~3).gbm"
 
 MapForest30:
 .incbin "rsc/Forest_20210130_(3~0).gbm"

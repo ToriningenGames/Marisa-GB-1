@@ -10,19 +10,6 @@
 ;Keep the camera within map boundaries,
 ;and centered on Marisa otherwise.
 
-;WORKING BITS:
-;Center
-;Upper left corner
-;Upper edge
-;Left edge
-
-;BROKEN BITS:
-;Upper right corner (Camera keeps moving right)
-;Right edge (ditto)
-;Lower right corner (ditto, and down)
-;Lower edge (too far down)
-;Lower left corner (ditto)
-
 Camera_Task:
 ;Get Marisa
   LD A,(Cutscene_Actors+1)

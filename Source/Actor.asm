@@ -93,6 +93,16 @@ Actor_New:
   LD (HL),D
   LD D,B
   LD E,C
+  ;Set up control values
+  LD HL,_ControlState
+  ADD HL,DE
+  LD (HL),0     ;Actors start out in cutscenes
+  LD HL,_AnimChange
+  ADD HL,DE
+  LD (HL),0     ;Forces initialization of animation
+  LD HL,_Visible
+  ADD HL,DE
+  LD (HL),0     ;Invisible by default
   RET
 
 ;Not a function; JP to here
@@ -489,119 +499,6 @@ Actor_Move:
   LDI (HL),A
 +
   RET
-
-;Test deltas
-;  INC HL
-;  INC HL
-;  PUSH HL
-;    LD A,C
-;    OR B
-;    JR z,++ ;No X delta; don't check
-;    ;Test X delta
-;    LD A,B  ;Round up and away from 0
-;    CP 1
-;    INC HL
-;    LDI A,(HL)    ;Master X
-;    ADC B ;X delta
-;    INC HL
-;    LD H,(HL)     ;Master Y
-;    RRCA  ;Get bit address
-;    RRCA
-;    RRCA
-;    DEC A   ;X positions are 8 pixels greater than collision map positions
-;    PUSH AF
-;      RRCA    ;Get byte address
-;      RRCA
-;      RRCA
-;      AND $03
-;      LD L,A
-;      LD A,$F8
-;      AND H
-;      SUB 16  ;Y position is 16 pixels greater than collision map position
-;      RRCA
-;      OR L
-;      ADD <ColArea    ;Guarantee no carry. In fact, no bit overlap; ADD is easier to read
-;      LD L,A
-;      LD H,>ColArea
-;    POP AF    ;Bit portion
-;    AND $07
-;    ;"BIT A,(HL)" here
-;    LD H,(HL)
-;    LD L,A
-;    LD A,H
-;    INC L
-;-
-;    RLA
-;    DEC L
-;    JR nz,-
-;  POP HL
-;  PUSH HL
-;    JR nc,++  ;If 0 (collidable block), don't do X movement
-;    ;Perform X movement
-;    LD A,(HL)
-;    ADD C
-;    LDI (HL),A
-;    LD A,(HL)
-;    ADC B
-;    LDD (HL),A
-;++
-;    LD A,E
-;    OR D
-;    SCF ;Do not move!
-;    JR z,++ ;No Y delta
-;    ;Test Y delta
-;    LD A,D
-;    CP 1    ;Round up to 1 from numbers less than 0
-;    INC HL
-;    LD C,(HL)     ;Master X
-;    INC HL
-;    INC HL
-;    LD A,(HL)     ;Master Y
-;    ADC D   ;Y delta, rounded away from 0
-;    SUB 16  ;Y position is 16 pixels greater than collision map position
-;    LD B,A
-;    LD A,C
-;    RRCA  ;Get bit address
-;    RRCA
-;    RRCA
-;    DEC A   ;X positions are 8 pixels greater than collision map positions
-;    LD C,A
-;    RRCA    ;Get byte address
-;    RRCA
-;    RRCA
-;    AND $03
-;    LD L,A
-;    LD A,$F8
-;    AND B
-;    RRCA
-;    OR L
-;    ADD <ColArea    ;Guarantee no carry. In fact, no bit overlap; ADD is easier to read
-;    LD L,A
-;    LD H,>ColArea
-;    LD A,C    ;Bit portion
-;    AND $07
-;    ;"BIT A,(HL)"
-;    LD C,A
-;    LD A,(HL)
-;    INC C
-;-
-;    RLA
-;    DEC C
-;    JR nz,-
-;++
-;  POP HL
-;  JR nc,+   ;If 0 (collidable block), don't do Y movement
-;  ;Perform Y movement
-;  INC HL
-;  INC HL
-;  LD A,(HL)
-;  ADD E
-;  LDI (HL),A
-;  LD A,(HL)
-;  ADC D
-;  LDD (HL),A
-;+
-;  RET
 
 ;Remove from sprite viewing order
 Actor_Hide:
@@ -1144,6 +1041,7 @@ ObjManage_Task:
   LDD (HL),A
   CP L
   JR nz,-
+  LD (HL),A
   LD A,(BC)
   OR A
   RET z ;No sprites -> no work

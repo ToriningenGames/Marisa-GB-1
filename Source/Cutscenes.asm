@@ -70,7 +70,7 @@
 Cutscene_LUT:
  .dw Cutscene_End
  .dw Cutscene_InputChange
- .dw Cutscene_End
+ .dw Cutscene_CallCutscene
  .dw TextStart
  .dw Cutscene_CameraSet
  .dw Cutscene_CameraMove
@@ -190,6 +190,21 @@ Cutscene_ObjPaletteLoad:
   LD (HL),D
   INC L
   LD (HL),E
+  JR _Cutscene_ItemReturn
+
+Cutscene_CallCutscene:
+;DE=Cutscene to run
+-
+  PUSH BC
+    LD BC,Cutscene_Task
+    CALL NewTask
+    LD A,B
+  POP BC
+  JR nc,+
+  CALL HaltTask
+  JR -
++
+  CALL WaitOnTask
   JR _Cutscene_ItemReturn
 
 
@@ -722,76 +737,121 @@ Cutscene_DanmakuInit
 .MACRO CsShootDanmaku ARGS ID, type
  .db 17,type,ID
 .ENDM
+.MACRO CsCall ARGS Cs
+ .db $83
+ .dw Cs
+.ENDM
 
 
 .SECTION "Cutscene Data" FREE
 
+Cs_Fadeout:
+  CsLoadBkgColor %11111001
+  CsLoadObjColor %11100101,%11111001
+  CsWait 7
+  CsLoadBkgColor %11111110
+  CsLoadObjColor %11111010,%11111110
+  CsWait 7
+  CsLoadBkgColor %11111111
+  CsLoadObjColor %11111111,%11111111
+  CsEnd
+
+Cs_Fadein:
+  CsLoadBkgColor %11111110
+  CsLoadObjColor %11111010,%11111110
+  CsWait 7
+  CsLoadBkgColor %11111001
+  CsLoadObjColor %11100101,%11111001
+  CsWait 7
+  CsLoadBkgColor %11100100
+  CsLoadObjColor %11010000,%11100100
+  CsEnd
+
 Cs_LoadInit:
+  CsLoadSong SongRetrib
+  CsPanSong $FF,$AA
+  CsWait 45
+  CsLoadBkgColor $FE
+  CsWait 45
   CsLoadBkgColor $FF
-  CsLoadSong SongNull
-  CsPanSong $FF,$FF
-  CsWait 132
+  CsWait 45
   CsLoadMap MapForestBKG
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  CsWait 10
-  CsLoadMap MapForest13
+  CsWait 2
+  CsAnimSpeed 1,10
+  CsInputChange 1,0     ;Cutscene control of Marisa
+  CsWait 8
+  CsAnimateActor 1,CsAnFaceDown
   CsAssignHat 0,1
+  CsLoadMap MapForest13
   CsSetActor 1,125,110
-  CsInputChange 1,0     ;Nonplayable Marisa
-  CsWait 1
-  CsLoadBkgColor %11100100
-  CsLoadObjColor %11010000,%11100100
-  CsInputChange 1,1     ;Playable Marisa
+  CsWait 10
+  CsInputChange 1,1     ;Playable before fade-in to allow camera to set
+  CsCall Cs_Fadein
   CsEnd
 
 Cs_Load13to12_1:
   CsInputChange 1,0
-  CsLoadMap MapForestBKG
-  CsWait 10
+  CsCall Cs_Fadeout
   CsLoadMap MapForest12
   CsSetActor 1,218,68
-  CsWait 1
+  CsWait 10
   CsInputChange 1,1
+  CsCall Cs_Fadein
   CsEnd
 
 Cs_Load12to13_1:
   CsInputChange 1,0
-  CsLoadMap MapForestBKG
-  CsWait 10
+  CsCall Cs_Fadeout
   CsLoadMap MapForest13
-  CsSetActor 1,82,99
-  CsWait 1
+  CsSetActor 1,12,99
+  CsWait 10
   CsInputChange 1,1
+  CsCall Cs_Fadein
   CsEnd
 
 Cs_Load12to02_1:
   CsInputChange 1,0
-  CsLoadMap MapForestBKG
-  CsWait 10
+  CsCall Cs_Fadeout
   CsLoadMap MapForest02
   CsSetActor 1,68,241
-  CsWait 1
+  CsWait 10
   CsInputChange 1,1
+  CsCall Cs_Fadein
   CsEnd
 
 Cs_Load02to12_1:
   CsInputChange 1,0
-  CsLoadMap MapForestBKG
-  CsWait 10
+  CsCall Cs_Fadeout
   CsLoadMap MapForest12
   CsSetActor 1,118,30
-  CsWait 1
+  CsWait 10
   CsInputChange 1,1
+  CsCall Cs_Fadein
   CsEnd
 
 Cs_Reset:
   CsInputChange 1,0
-  CsLoadMap MapForestBKG
-  CsWait 10
+  CsLoadBkgColor %10010000
+  CsLoadObjColor %10000000,%10010000
+  CsWait 7
+  CsLoadBkgColor %01000000
+  CsLoadObjColor %01000000,%01000000
+  CsWait 7
+  CsLoadBkgColor %00000000
+  CsLoadObjColor %00000000,%00000000
   CsLoadMap MapForest13
   CsSetActor 1,128,128
-  CsWait 1
   CsInputChange 1,1
+  CsWait 15
+  CsLoadBkgColor %01000000
+  CsLoadObjColor %01000000,%01000000
+  CsWait 7
+  CsLoadBkgColor %10010000
+  CsLoadObjColor %10000000,%10010000
+  CsWait 7
+  CsLoadBkgColor %11100100
+  CsLoadObjColor %11010000,%11100100
   CsEnd
 .ENDS

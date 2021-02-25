@@ -577,18 +577,16 @@ LoadTitle:
   LD DE,Cs_LoadInit
   LD BC,Cutscene_Task
   CALL NewTask
+  PUSH BC
 ;Now pausable
-  LD BC,PauseTask
-  CALL NewTask
+    LD BC,PauseTask
+    CALL NewTask
 ;Camera Setup
-  LD BC,Camera_Task
-  CALL NewTask
-;Wait a reasonable time period
-  LD C,140      ;After map loads, Marisa is created, initializing her memory.
--
-  CALL HaltTask
-  DEC C
-  JR nz,-
+    LD BC,Camera_Task
+    CALL NewTask
+;Wait for cutscene to finish, so Marisa is initialized
+  POP AF
+  CALL WaitOnTask
 ;Exits
   LD BC,ExitCheck_Task
   CALL NewTask

@@ -36,34 +36,7 @@
 
 .DEFINE Speed 100
 CharaFrame:
-;A = initial facing
-    ;0 = right
-    ;1 = left
-    ;2 = up
-    ;3 = down
-;Convert from numerical direction to boolean direction
-  RLCA
-  RLCA
-  AND $03
-  JR z,+    ;Right
-  DEC A
-  JR z,++   ;Left
-  DEC A
-  JR z,+++  ;Up
-;Down
-  ADD %00111111
-+++
-  ADD %00100000
-++
-  ADD %00010000
-+
-  ADD %00010000
-  PUSH AF
-    CALL Actor_New
-    LD HL,_ButtonState
-    ADD HL,DE
-  POP AF
-  LD (HL),A
+  CALL Actor_New
   LD HL,_HatVal
   ADD HL,DE
   LD (HL),1     ;Must make it nonzero
@@ -561,25 +534,30 @@ HatFrame:
   LD (HL),<DefaultHitboxes
   INC HL
   LD (HL),>DefaultHitboxes
-  ;Spriting setup
-  XOR A
+  ;Hat is global
+  LD HL,HatSig
+  LD A,E
+  LDI (HL),A
+  LD (HL),D
+  ;Self-parenting
+  LD HL,_ParentChar
+  ADD HL,DE
+  LD (HL),E
+  INC HL
+  LD (HL),D
+  LD HL,_HatVal
+  ADD HL,DE
+  LD (HL),0
+  CALL HaltTask
+  ;Enforce drawing at top sprites (the Hat Hack)
+  LD A,0
   LD (DE),A
   INC DE
   LD A,$CF
   LD (DE),A
   DEC DE
-  LD HL,HatSig
-  LD A,E
-  LDI (HL),A
-  LD (HL),D
-  ;Animation values
-  LD HL,_AnimChange
-  ADD HL,DE
-  LD (HL),1 ;Face down
-  CALL HaltTask
   ;Check for doing AI stuffs here
 ;Hat specific messages
-    ;x: Parent detect
     ;v: Destruct
   ;Destruct detect
   LD HL,_ControlState
