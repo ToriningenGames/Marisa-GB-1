@@ -777,6 +777,7 @@ Cs_LoadInit:
   CsLoadBkgColor $FE
   CsWait 45
   CsLoadBkgColor $FF
+  CsLoadObjColor $FF,$FF
   CsWait 45
   CsLoadMap MapForestBKG
   CsNewActor 0,CsChHat,0
