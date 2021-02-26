@@ -8,7 +8,11 @@
 .SECTION "Exits" FREE
 
 ExitCheck_Task:
-  LD BC,Cutscene_Task   ;For starting the transition cutscenes
+  LD BC,Cutscene_Task   ;Fade in from the last exit
+  PUSH BC
+    LD DE,Cs_MapFadein
+    CALL NewTask
+  POP BC    ;Set BC to Cutscene task for starting the transition cutscenes
   CALL HaltTask     ;Make this the return point
   LD A,(Cutscene_Actors+1)
   OR A
@@ -21,6 +25,15 @@ ExitCheck_Task:
   CP 7      ;Marisa Y < trigger?
   JR nc,+
 ;Do top cutscene
+  LD HL,exitUpCutscene+1
+  XOR A
+  CP (HL)
+  RET z     ;No load if no link here
+  LD DE,Cs_MapFadeout
+  CALL NewTask
+  LD A,B
+  CALL WaitOnTask
+  LD BC,Cutscene_Task
   LD HL,exitUpCutscene
   LD E,(HL)
   INC L
@@ -42,6 +55,15 @@ ExitCheck_Task:
   JR z,+
 ++
 ;Do bottom cutscene
+  LD HL,exitDownCutscene+1
+  XOR A
+  CP (HL)
+  RET z     ;No load if no link here
+  LD DE,Cs_MapFadeout
+  CALL NewTask
+  LD A,B
+  CALL WaitOnTask
+  LD BC,Cutscene_Task
   LD HL,exitDownCutscene
   LD E,(HL)
   INC L
@@ -58,6 +80,15 @@ ExitCheck_Task:
   CP 7      ;Marisa X < trigger?
   JR nc,+
 ;Do leftern cutscene
+  LD HL,exitLeftCutscene+1
+  XOR A
+  CP (HL)
+  RET z     ;No load if no link here
+  LD DE,Cs_MapFadeout
+  CALL NewTask
+  LD A,B
+  CALL WaitOnTask
+  LD BC,Cutscene_Task
   LD HL,exitLeftCutscene
   LD E,(HL)
   INC L
@@ -65,7 +96,7 @@ ExitCheck_Task:
   CALL NewTask
   LD A,B
   CALL WaitOnTask   ;Wait for cutscene to finish
-  JR ExitCheck_Task
+  JP ExitCheck_Task
 +
   LD HL,mapWidth
   ADD 7
@@ -77,6 +108,15 @@ ExitCheck_Task:
   RET z
 +
 ;Do rightern cutscene
+  LD HL,exitRightCutscene+1
+  XOR A
+  CP (HL)
+  RET z     ;No load if no link here
+  LD DE,Cs_MapFadeout
+  CALL NewTask
+  LD A,B
+  CALL WaitOnTask
+  LD BC,Cutscene_Task
   LD HL,exitRightCutscene
   LD E,(HL)
   INC L
@@ -84,6 +124,6 @@ ExitCheck_Task:
   CALL NewTask
   LD A,B
   CALL WaitOnTask   ;Wait for cutscene to finish
-  JR ExitCheck_Task
+  JP ExitCheck_Task
 
 .ENDS

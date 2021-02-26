@@ -789,351 +789,252 @@ Cs_LoadInit:
   CsAssignHat 0,1
   CsLoadMap MapForest13
   CsSetActor 1,125,110
-  CsCall Cs_MapFadein
 Cs_None:
   CsEnd
 
 Cs_Load13to12_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest12
   CsSetActor 1,218,68
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load12to13_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest13
   CsSetActor 1,12,99
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load12to02_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest02
   CsSetActor 1,68,239
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load02to12_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest12
   CsSetActor 1,118,30
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_LoadN23toN13_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForestN13
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_LoadN13toN23_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForestN23
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_LoadN13to03_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest03
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load03toN13_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForestN13
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load00to01_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest01
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load01to00_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest00
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load01to11_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest11
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load11to01_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest01
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load10to00_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest00
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load20to10_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest10
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load30to20_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest20
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load34to00_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest00
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load04to31_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest31
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load22to30_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest30
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load30to22_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest22
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load02to24_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest24
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load24to02_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest02
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load11to12_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest12
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load12to11_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest11
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load11to21_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest21
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load21to11_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest11
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load21to22_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest22
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load22to21_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest21
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load22to23_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest23
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load23to22_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest22
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load22to32_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest32
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load31to32_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest32
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load32to31_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest31
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load32to33_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest33
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load33to32_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest32
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load33to34_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest34
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load34to33_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest33
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load33to23_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest23
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load23to33_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest33
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load24to14_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest14
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load14to24_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest24
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load14to04_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest04
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load04to14_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest14
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load14to13_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest13
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load04to03_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest03
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load03to04_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest04
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load03to13_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest13
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load13to03_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest03
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load13to23_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest23
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 Cs_Load23to13_1:
-  CsCall Cs_MapFadeout
   CsLoadMap MapForest13
   CsSetActor 1,16,24
-  CsCall Cs_MapFadein
   CsEnd
 
 .ENDS

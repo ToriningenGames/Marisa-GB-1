@@ -110,10 +110,10 @@ MapForestBKG:
 MapForestN23:
 .incbin "rsc/Forest_(-2~3).gbm"
 .db $88
-.dw Cs_None             ;up
+.dw 0                   ;up
 .dw Cs_LoadN23toN13_1   ;down
-.dw Cs_None             ;left
-.dw Cs_None             ;right
+.dw 0                   ;left
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForestN13:
@@ -121,26 +121,26 @@ MapForestN13:
 .db $88                 ;Magic constant for decompressor to copy this literal string
 .dw Cs_LoadN13toN23_1   ;up
 .dw Cs_LoadN13to03_1    ;down
-.dw Cs_None             ;left
-.dw Cs_None             ;right
+.dw 0                   ;left
+.dw 0                   ;right
 .db $00,$00,$78         ;Magic string for map decompressor to ignore rest of data
 
 MapForest00:
 .incbin "rsc/Forest_(0~0).gbm"
 .db $88
-.dw Cs_None             ;up
-.dw Cs_None             ;down
-.dw Cs_None             ;left
+.dw 0                   ;up
+.dw 0                   ;down
+.dw 0                   ;left
 .dw Cs_Load00to01_1     ;right
 .db $00,$00,$78
 
 MapForest01:
 .incbin "rsc/Forest_(0~1).gbm"
 .db $88
-.dw Cs_None             ;up
+.dw 0                   ;up
 .dw Cs_Load01to11_1     ;down
 .dw Cs_Load01to00_1     ;left
-.dw Cs_None             ;right
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest02:
@@ -148,8 +148,8 @@ MapForest02:
 .db $88
 .dw Cs_Load02to24_1     ;up
 .dw Cs_Load02to12_1     ;down
-.dw Cs_None             ;left
-.dw Cs_None             ;right
+.dw 0                   ;left
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest03:
@@ -157,7 +157,7 @@ MapForest03:
 .db $88
 .dw Cs_Load03toN13_1    ;up
 .dw Cs_Load03to13_1     ;down
-.dw Cs_None             ;left
+.dw 0                   ;left
 .dw Cs_Load03to04_1     ;right
 .db $00,$00,$78
 
@@ -167,16 +167,16 @@ MapForest04:
 .dw Cs_Load04to31_1     ;up
 .dw Cs_Load04to14_1     ;down
 .dw Cs_Load04to03_1     ;left
-.dw Cs_None             ;right
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest10:
 .incbin "rsc/Forest_(1~0).gbm"
 .db $88
 .dw Cs_Load10to00_1     ;up
-.dw Cs_None             ;down
-.dw Cs_None             ;left
-.dw Cs_None             ;right
+.dw 0                   ;down
+.dw 0                   ;left
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest11:
@@ -184,7 +184,7 @@ MapForest11:
 .db $88
 .dw Cs_Load11to01_1     ;up
 .dw Cs_Load11to21_1     ;down
-.dw Cs_None             ;left
+.dw 0                   ;left
 .dw Cs_Load11to12_1     ;right
 .db $00,$00,$78
 
@@ -192,7 +192,7 @@ MapForest12:
 .incbin "rsc/Forest_(1~2).gbm"
 .db $88
 .dw Cs_Load12to02_1     ;up
-.dw Cs_None             ;down
+.dw 0                   ;down
 .dw Cs_Load12to11_1     ;left
 .dw Cs_Load12to13_1     ;right
 .db $00,$00,$78
@@ -203,7 +203,7 @@ MapForest13:
 .dw Cs_Load13to03_1     ;up
 .dw Cs_Load13to23_1     ;down
 .dw Cs_Load13to12_1     ;left
-.dw Cs_None             ;right
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest14:
@@ -212,24 +212,24 @@ MapForest14:
 .dw Cs_Load14to04_1     ;up
 .dw Cs_Load14to24_1     ;down
 .dw Cs_Load14to13_1     ;left
-.dw Cs_None             ;right
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest20:
 .incbin "rsc/Forest_(2~0).gbm"
 .db $88
 .dw Cs_Load20to10_1     ;up
-.dw Cs_None             ;down
-.dw Cs_None             ;left
-.dw Cs_None             ;right
+.dw 0                   ;down
+.dw 0                   ;left
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest21:
 .incbin "rsc/Forest_(2~1).gbm"
 .db $88
 .dw Cs_Load21to11_1     ;up
-.dw Cs_None             ;down
-.dw Cs_None             ;left
+.dw 0                   ;down
+.dw 0                   ;left
 .dw Cs_Load21to22_1     ;right
 .db $00,$00,$78
 
@@ -248,16 +248,16 @@ MapForest23:
 .dw Cs_Load23to13_1     ;up
 .dw Cs_Load23to33_1     ;down
 .dw Cs_Load23to22_1     ;left
-.dw Cs_None             ;right
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest24:
 .incbin "rsc/Forest_(2~4).gbm"
 .db $88
 .dw Cs_Load24to14_1     ;up
-.dw Cs_None             ;down
+.dw 0                   ;down
 .dw Cs_Load24to02_1     ;left
-.dw Cs_None             ;right
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest30:
@@ -265,24 +265,24 @@ MapForest30:
 .db $88
 .dw Cs_Load30to20_1     ;up
 .dw Cs_Load30to22_1     ;down
-.dw Cs_None             ;left
-.dw Cs_None             ;right
+.dw 0                   ;left
+.dw 0                   ;right
 .db $00,$00,$78
 
 MapForest31:
 .incbin "rsc/Forest_(3~1).gbm"
 .db $88
-.dw Cs_None             ;up
-.dw Cs_None             ;down
-.dw Cs_None             ;left
+.dw 0                   ;up
+.dw 0                   ;down
+.dw 0                   ;left
 .dw Cs_Load31to32_1     ;right
 .db $00,$00,$78
 
 MapForest32:
 .incbin "rsc/Forest_(3~2).gbm"
 .db $88
-.dw Cs_None             ;up
-.dw Cs_None             ;down
+.dw 0                   ;up
+.dw 0                   ;down
 .dw Cs_Load32to31_1     ;left
 .dw Cs_Load32to33_1     ;right
 .db $00,$00,$78
@@ -291,7 +291,7 @@ MapForest33:
 .incbin "rsc/Forest_(3~3).gbm"
 .db $88
 .dw Cs_Load33to23_1     ;up
-.dw Cs_None             ;down
+.dw 0                   ;down
 .dw Cs_Load33to32_1     ;left
 .dw Cs_Load33to34_1     ;right
 .db $00,$00,$78
@@ -299,8 +299,8 @@ MapForest33:
 MapForest34:
 .incbin "rsc/Forest_(3~4).gbm"
 .db $88
-.dw Cs_None             ;up
-.dw Cs_None             ;down
+.dw 0                   ;up
+.dw 0                   ;down
 .dw Cs_Load34to33_1     ;left
 .dw Cs_Load34to00_1     ;right
 .db $00,$00,$78
