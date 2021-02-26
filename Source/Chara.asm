@@ -34,7 +34,7 @@
 ;Memory format:
 .INCLUDE "ActorData.asm"
 
-.DEFINE Speed 100
+.DEFINE Speed 300
 CharaFrame:
   CALL Actor_New
   LD HL,_HatVal

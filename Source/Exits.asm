@@ -8,43 +8,44 @@
 .SECTION "Exits" FREE
 
 ExitCheck_Task:
+  LD BC,Cutscene_Task   ;For starting the transition cutscenes
+  CALL HaltTask     ;Make this the return point
   LD A,(Cutscene_Actors+1)
   OR A
   RET z     ;No go if no Marisa
   CALL Access_ActorDE
   LD DE,_MasterY+1
   ADD HL,DE
-  LD D,H
-  LD E,L
-  LD HL,ObjArea
-  LD A,(DE)
+  LD A,(HL)
   SUB 16
-  CP (HL)   ;Marisa Y < trigger?
-  INC HL
+  CP 7      ;Marisa Y < trigger?
   JR nc,+
 ;Do top cutscene
+  LD HL,exitUpCutscene
   LD E,(HL)
-  INC HL
+  INC L
   LD D,(HL)
-  LD BC,Cutscene_Task
   CALL NewTask
   LD A,B
   CALL WaitOnTask   ;Wait for cutscene to finish
   JR ExitCheck_Task
 +
-  INC HL
-  INC HL
+  LD D,H
+  LD E,L
+  LD HL,mapHeight
+  ADD 7
+  JR c,++   ;Always trigger if at bottom of background
   CP (HL)   ;Marisa Y >= trigger?
   JR c,+
-  LD A,(HL)
-  OR A      ;Except if trigger == 0
+  XOR A
+  CP (HL)   ;If map is 256 pixels tall, don't use trigger (bottom of screen instead)
   JR z,+
-  INC HL
+++
 ;Do bottom cutscene
+  LD HL,exitDownCutscene
   LD E,(HL)
-  INC HL
+  INC L
   LD D,(HL)
-  LD BC,Cutscene_Task
   CALL NewTask
   LD A,B
   CALL WaitOnTask   ;Wait for cutscene to finish
@@ -52,36 +53,34 @@ ExitCheck_Task:
 +
   DEC DE
   DEC DE
-  INC HL
-  INC HL
-  INC HL
   LD A,(DE)
-  SUB 8
-  CP (HL)   ;Marisa X < trigger?
-  INC HL
+  SUB 8 ;Rollunder important here
+  CP 7      ;Marisa X < trigger?
   JR nc,+
 ;Do leftern cutscene
+  LD HL,exitLeftCutscene
   LD E,(HL)
-  INC HL
+  INC L
   LD D,(HL)
-  LD BC,Cutscene_Task
   CALL NewTask
   LD A,B
   CALL WaitOnTask   ;Wait for cutscene to finish
   JR ExitCheck_Task
 +
-  INC HL
-  INC HL
+  LD HL,mapWidth
+  ADD 7
+  JR c,+    ;Always trigger if at right edge of background
   CP (HL)   ;Marisa X >= trigger?
   RET c     ;No cutscenes to initiate; go to next frame
-  LDI A,(HL)
-  OR A      ;Except if trigger == 0
+  XOR A
+  CP (HL)   ;No trigger if fully wide map
   RET z
++
 ;Do rightern cutscene
+  LD HL,exitRightCutscene
   LD E,(HL)
-  INC HL
+  INC L
   LD D,(HL)
-  LD BC,Cutscene_Task
   CALL NewTask
   LD A,B
   CALL WaitOnTask   ;Wait for cutscene to finish

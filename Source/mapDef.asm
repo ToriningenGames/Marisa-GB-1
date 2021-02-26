@@ -60,13 +60,9 @@
 .DEFINE VisArea $D500
 .DEFINE ObjArea $D580
 .ENUM ObjArea
-    exitUpBuffer        DB
     exitUpCutscene      DW
-    exitDownBuffer      DB
     exitDownCutscene    DW
-    exitLeftBuffer      DB
     exitLeftCutscene    DW
-    exitRightBuffer     DB
     exitRightCutscene   DW
 .ENDE
 .ENUM $C090 ;MapInfo    (14 bytes max)
