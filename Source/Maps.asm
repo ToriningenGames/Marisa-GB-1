@@ -247,8 +247,8 @@ MapForest23:
 .db $88
 .dw Cs_Load23to13_1     ;up
 .dw Cs_Load23to33_1     ;down
-.dw Cs_None             ;left
-.dw Cs_Load23to22_1     ;right
+.dw Cs_Load23to22_1     ;left
+.dw Cs_None             ;right
 .db $00,$00,$78
 
 MapForest24:
