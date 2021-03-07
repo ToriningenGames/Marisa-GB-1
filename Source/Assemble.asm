@@ -234,6 +234,13 @@ __fullMove:
   RET
 
 .ORG $18
+;Random byte into A; preserve others
+  PUSH BC
+  PUSH DE
+  CALL LFSR     ;A contains value of B, incidentally
+  POP DE
+  POP BC
+  RET
 
 .ORG $20
 
@@ -622,7 +629,7 @@ LoadTitle:
 .SECTION "LFSR" FREE
 ;Current state located in BC
 ;When done,
-    ;AF = Destroyed
+    ;A  = B
     ;BC = New state
     ;DE = ???
     ;HL = Unchanged
@@ -656,12 +663,12 @@ LFSR:
   LD B,A
 ;BC contains the current state of the LFSR.
   LDH A,($04)   ;Timer divider register as additional entropy
-  XOR B
-  LD B,A
-  LDH A,($04)
-  CPL
   XOR C
   LD C,A
+  LDH A,($04)
+  CPL
+  XOR B
+  LD B,A
   RET
 .ENDS
 
