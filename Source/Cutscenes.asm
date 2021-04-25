@@ -79,7 +79,7 @@ Cutscene_LUT:
  .dw Cutscene_ActorAnimate
  .dw Cutscene_ActorMovement
  .dw Cutscene_End
- .dw Cutscene_End
+ .dw Cutscene_ObjectsLoad
  .dw Cutscene_MapLoad
  .dw Cutscene_SongLoad
  .dw Cutscene_SongPan
@@ -100,7 +100,7 @@ Cutscene_LUT:
  .dw Cutscene_End
  .dw Cutscene_End
  .dw Cutscene_End
- .dw Cutscene_End
+ .dw Cutscene_MapWait
  .dw Cutscene_Wait
  .dw Cutscene_TextWait
  .dw Cutscene_ObjPaletteLoad
@@ -167,6 +167,15 @@ Cutscene_Wait:
 
 Cutscene_End:
   JP EndTask
+
+Cutscene_MapWait:
+  LD DE,hotMap
+-
+  CALL HaltTask
+  LD A,(DE)
+  OR A
+  JR z,-
+  JR _Cutscene_ItemReturn
 
 Cutscene_TextWait
   LD DE,TextStatus
@@ -528,6 +537,19 @@ Cutscene_MapLoad:
   LD A,4
   JP LoadToVRAM_Task
 
+Cutscene_ObjectsLoad:
+;DE->Objects data
+;Load in the boundaries
+  LD C,8
+  LD HL,ObjArea
+-
+  LD A,(DE)
+  INC DE
+  LDI (HL),A
+  DEC C
+  JR nz,-
+  JP EndTask
+
 Cutscene_SongLoad:
 ;DE->Song Data
   LD B,D
@@ -716,9 +738,17 @@ Cutscene_DanmakuInit
 .MACRO CsLoadBkgColor ARGS color
  .db $A4,0,color
 .ENDM
+.MACRO CsLoadObjects ARGS Objs
+ .db 11
+ .dw Objs
+.ENDM
 .MACRO CsLoadMap ARGS Map
  .db 12
  .dw Map
+.ENDM
+.MACRO CsWaitMap
+ .db $A0
+ .dw 0      ;Dummy
 .ENDM
 .MACRO CsLoadSong ARGS Song
  .db 13
@@ -798,242 +828,246 @@ Cs_Load13to12_1:
   CsSetActor 1,218,68
   CsEnd
 
-Cs_Load12to13_1:
+Cs_Load12to13_1:            ;test
   CsLoadMap MapForest13
   CsSetActor 1,12,99
   CsEnd
 
-Cs_Load12to02_1:
+Cs_Load12to02_1:            ;test
   CsLoadMap MapForest02
   CsSetActor 1,68,239
   CsEnd
 
-Cs_Load02to12_1:
+Cs_Load02to12_1:            ;test
   CsLoadMap MapForest12
   CsSetActor 1,118,30
   CsEnd
 
-Cs_LoadN23toN13_1:
+Cs_LoadN23toN13_1:          ;test
   CsLoadMap MapForestN13
-  CsSetActor 1,16,24
+  CsSetActor 1,48,30
   CsEnd
 
-Cs_LoadN13toN23_1:
+Cs_LoadN13toN23_1:          ;test
   CsLoadMap MapForestN23
-  CsSetActor 1,16,24
+  CsSetActor 1,56,94
   CsEnd
 
-Cs_LoadN13to03_1:
+Cs_LoadN13to03_1:           ;test
   CsLoadMap MapForest03
-  CsSetActor 1,16,24
+  CsSetActor 1,104,16
   CsEnd
 
-Cs_Load03toN13_1:
+Cs_Load03toN13_1:           ;test
   CsLoadMap MapForestN13
-  CsSetActor 1,16,24
+  CsSetActor 1,48,86
   CsEnd
 
-Cs_Load00to01_1:
-  CsLoadMap MapForest01
-  CsSetActor 1,16,24
+Cs_Load00to01_1:            ;fix
+  CsLoadMap MapForest04
+  CsWaitMap
+  CsLoadObjects MapForest01Obj
+  CsSetActor 1,128,255
   CsEnd
 
-Cs_Load01to00_1:
+Cs_Load01to00_1:            ;fix
   CsLoadMap MapForest00
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load01to11_1:
+Cs_Load01to11_1:            ;fix
   CsLoadMap MapForest11
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load11to01_1:
-  CsLoadMap MapForest01
-  CsSetActor 1,16,24
+Cs_Load11to01_1:            ;test
+  CsLoadMap MapForest04
+  CsWaitMap
+  CsLoadObjects MapForest01Obj
+  CsSetActor 1,205,101
   CsEnd
 
-Cs_Load10to00_1:
+Cs_Load10to00_1:            ;fix
   CsLoadMap MapForest00
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load20to10_1:
+Cs_Load20to10_1:            ;fix
   CsLoadMap MapForest10
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load30to20_1:
+Cs_Load30to20_1:            ;fix
   CsLoadMap MapForest20
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load34to00_1:
+Cs_Load34to00_1:            ;fix
   CsLoadMap MapForest00
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load04to31_1:
+Cs_Load04to31_1:            ;fix
   CsLoadMap MapForest31
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load22to30_1:
+Cs_Load22to30_1:            ;fix
   CsLoadMap MapForest30
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load30to22_1:
+Cs_Load30to22_1:            ;fix
   CsLoadMap MapForest22
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load02to24_1:
+Cs_Load02to24_1:            ;fix
   CsLoadMap MapForest24
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load24to02_1:
+Cs_Load24to02_1:            ;fix
   CsLoadMap MapForest02
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load11to12_1:
+Cs_Load11to12_1:            ;fix
   CsLoadMap MapForest12
   CsSetActor 1,16,24
   CsEnd
 
 Cs_Load12to11_1:
   CsLoadMap MapForest11
-  CsSetActor 1,16,24
+  CsSetActor 1,93,115
   CsEnd
 
-Cs_Load11to21_1:
+Cs_Load11to21_1:            ;fix
   CsLoadMap MapForest21
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load21to11_1:
+Cs_Load21to11_1:            ;fix
   CsLoadMap MapForest11
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load21to22_1:
+Cs_Load21to22_1:            ;fix
   CsLoadMap MapForest22
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load22to21_1:
+Cs_Load22to21_1:            ;fix
   CsLoadMap MapForest21
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load22to23_1:
+Cs_Load22to23_1:            ;fix
   CsLoadMap MapForest23
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load23to22_1:
+Cs_Load23to22_1:            ;fix
   CsLoadMap MapForest22
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load22to32_1:
+Cs_Load22to32_1:            ;fix
   CsLoadMap MapForest32
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load31to32_1:
+Cs_Load31to32_1:            ;fix
   CsLoadMap MapForest32
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load32to31_1:
+Cs_Load32to31_1:            ;fix
   CsLoadMap MapForest31
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load32to33_1:
+Cs_Load32to33_1:            ;fix
   CsLoadMap MapForest33
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load33to32_1:
+Cs_Load33to32_1:            ;fix
   CsLoadMap MapForest32
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load33to34_1:
+Cs_Load33to34_1:            ;fix
   CsLoadMap MapForest34
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load34to33_1:
+Cs_Load34to33_1:            ;fix
   CsLoadMap MapForest33
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load33to23_1:
+Cs_Load33to23_1:            ;fix
   CsLoadMap MapForest23
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load23to33_1:
+Cs_Load23to33_1:            ;fix
   CsLoadMap MapForest33
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load24to14_1:
+Cs_Load24to14_1:            ;fix
   CsLoadMap MapForest14
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load14to24_1:
+Cs_Load14to24_1:            ;fix
   CsLoadMap MapForest24
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load14to04_1:
+Cs_Load14to04_1:            ;fix
   CsLoadMap MapForest04
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load04to14_1:
+Cs_Load04to14_1:            ;fix
   CsLoadMap MapForest14
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load14to13_1:
+Cs_Load14to13_1:            ;fix
   CsLoadMap MapForest13
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load04to03_1:
+Cs_Load04to03_1:            ;fix
   CsLoadMap MapForest03
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load03to04_1:
+Cs_Load03to04_1:            ;fix
   CsLoadMap MapForest04
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load03to13_1:
+Cs_Load03to13_1:            ;fix
   CsLoadMap MapForest13
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load13to03_1:
+Cs_Load13to03_1:            ;fix
   CsLoadMap MapForest03
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load13to23_1:
+Cs_Load13to23_1:            ;fix
   CsLoadMap MapForest23
   CsSetActor 1,16,24
   CsEnd
 
-Cs_Load23to13_1:
+Cs_Load23to13_1:            ;fix
   CsLoadMap MapForest13
   CsSetActor 1,16,24
   CsEnd

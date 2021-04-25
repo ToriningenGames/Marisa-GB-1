@@ -158,7 +158,7 @@ TextControlFunctions:
  .dw Text_Backspace,    Text_Tab,            Text_Newline,      Text_Pause
  .dw Text_Clear,        Text_CarriageReturn, Text_Error,        Text_Error
  .dw Text_SetSpeed,     Text_LoadFace,       Text_ShowFace,     Text_Error
- .dw Text_LoadBorder,   Text_Shake,          Text_Wait,         Text_Error
+ .dw Text_LoadBorder,   Text_Shake,          Text_Wait;,         Text_Error
 
 ;Table for window Y positions during raising and lowering
 WindowLUT:

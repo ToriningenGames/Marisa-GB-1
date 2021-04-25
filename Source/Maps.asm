@@ -53,7 +53,7 @@ LoadMap_Task:
   CALL ExtractRestoreSP ;Attribute data
   POP BC
   CALL HaltTask
-  ;Fix grass
+;Place random grass in the designated areas
   LD HL,MapArea
   LD BC,1024+$100   ;Map size
   LD A,$EF      ;Sentinel value for grass
@@ -157,12 +157,21 @@ MapForest00:
 .db $00,$00,$78
 
 MapForest01:
-.incbin "rsc/Forest_(0~1).gbm"
+;This map is shared with 04, so the cutscene loads that one.
+;We want to keep its data, but overwrite its exits.
+.db $00,$00,$FF         ;Skip all map data (1024+384 bytes, 255 bytes at a time)
+.db $00,$00,$FF
+.db $00,$00,$FF
+.db $00,$00,$FF
+.db $00,$00,$FF
+.db $00,$00,$80
+;.incbin "rsc/Forest_(0~1).gbm"
 .db $88
+MapForest01Obj:
 .dw 0                   ;up
-.dw Cs_Load01to11_1     ;down
-.dw Cs_Load01to00_1     ;left
-.dw 0                   ;right
+.dw Cs_Load01to00_1     ;down
+.dw 0                   ;left
+.dw Cs_Load01to11_1     ;right
 .db $00,$00,$78
 
 MapForest02:

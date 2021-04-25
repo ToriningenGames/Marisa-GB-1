@@ -179,8 +179,8 @@
 .include "macros.asm"
 
 .BANK 1 SLOT 1
-.ORG $3000
-.SECTION "Voice data" SIZE $FF8 FORCE
+.ORG $0000
+.SECTION "Voice data" ALIGN 256 SEMIFREE
 Wave:
 .include "Voicelist.asm"
 .ENDS

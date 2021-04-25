@@ -31,10 +31,11 @@ vpath %.d .\Submakes\obj .\Submakes\lib
 TOOLDIR = Tools
 WLADIR = 
 
-LIB0 = Task.lib OAM2.lib Actor.lib Memory.lib Fairy.lib Face.lib Pause.lib \
-	Sound.lib SndEffect.lib Text.lib LCD_IRQ_Assist.lib Extract.lib Chara.lib \
-	Cutscenes.lib Reimu.lib Narumi.lib Alice.lib SinCos.lib Maps.lib
-LIB1 = Graphics.lib Effects.lib TextStrings.lib Songs.lib Camera.lib Exits.lib
+LIB0 = Task.lib OAM2.lib Actor.lib Face.lib SndEffect.lib Sound.lib Memory.lib \
+	LCD_IRQ_Assist.lib Extract.lib Chara.lib Exits.lib Camera.lib Graphics.lib \
+	Reimu.lib Narumi.lib Alice.lib Fairy.lib Pause.lib Effects.lib SinCos.lib \
+	TextStrings.lib Text.lib
+LIB1 = Maps.lib Songs.lib Cutscenes.lib
 LINK = Link.link
 OBJ = Assemble.obj vBlank2.obj
 SUPP = TileData.lzc
