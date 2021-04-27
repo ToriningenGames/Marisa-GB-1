@@ -876,6 +876,8 @@ Cs_Load01to00_1:            ;fix
   CsEnd
 
 Cs_Load01to11_1:            ;fix
+  CsLoadMap MapForestBKG
+  CsWaitMap
   CsLoadMap MapForest11
   CsSetActor 1,16,24
   CsEnd
@@ -938,6 +940,8 @@ Cs_Load11to12_1:            ;fix
   CsEnd
 
 Cs_Load12to11_1:
+  CsLoadMap MapForestBKG
+  CsWaitMap
   CsLoadMap MapForest11
   CsSetActor 1,93,115
   CsEnd
@@ -948,6 +952,8 @@ Cs_Load11to21_1:            ;fix
   CsEnd
 
 Cs_Load21to11_1:            ;fix
+  CsLoadMap MapForestBKG
+  CsWaitMap
   CsLoadMap MapForest11
   CsSetActor 1,16,24
   CsEnd
