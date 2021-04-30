@@ -53,6 +53,13 @@
     ;With this, we can also split VCP data over time, saving space
     ;Ideally, we could split the map in threes
 
+;Final layout:
+;Position   Size    Description
+;+$00:      1       Map Width, pixels
+;+$01:      1       Map Height, pixels
+;+$02:      n       LZ compressed tiledata, attributes, and objects, in a 32 x 32 field
+;                   Tile $EF creates random grass
+
 
 .DEFINE MapArea $D000
 .DEFINE PriArea $D400

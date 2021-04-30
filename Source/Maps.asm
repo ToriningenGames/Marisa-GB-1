@@ -125,9 +125,49 @@ _GetItmAtBC:
 
 .SECTION "Maps" FREE
 
-MapForestBKG:
-.incbin "rsc/Forest_(BKG).gbm"
-.db $81,$00,$00,$01,$7F ;Magic string for map decompressor to wipe rest of data
+MapForestBKG01:
+.db 32,32
+.db $82,$97,$98     ;Upper left corner is Tile $97 (the solid dark tree part)
+.db $00,$02,$1E
+.db $82,$AA,$AD
+.db $00,$02,$1E
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
+
+MapForestBKG02:
+.db 32,32
+.db $82,$98,$97     ;Upper left corner is Tile $98 (side border b/w two dark trees)
+.db $00,$02,$1E
+.db $82,$AD,$AA
+.db $00,$02,$1E
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
+
+MapForestBKG03:
+.db 32,32
+.db $82,$AA,$AD     ;Upper left corner is Tile $AA (top border b/w two dark trees)
+.db $00,$02,$1E
+.db $82,$97,$98
+.db $00,$02,$1E
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
+
+MapForestBKG04:
+.db 32,32
+.db $82,$AD,$AA     ;Upper left corner is Tile $AD (dark tree four corner)
+.db $00,$02,$1E
+.db $82,$98,$97
+.db $00,$02,$1E
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
+.db $00,$40,$00
 
 MapForestN23:
 .incbin "rsc/Forest_(-2~3).gbm"
@@ -158,13 +198,6 @@ MapForest00:
 
 MapForest01:
 ;This map is shared with 04, so the cutscene loads that one.
-;We want to keep its data, but overwrite its exits.
-.db $00,$00,$FF         ;Skip all map data (1024+384 bytes, 255 bytes at a time)
-.db $00,$00,$FF
-.db $00,$00,$FF
-.db $00,$00,$FF
-.db $00,$00,$FF
-.db $00,$00,$80
 ;.incbin "rsc/Forest_(0~1).gbm"
 .db $88
 MapForest01Obj:
@@ -247,7 +280,8 @@ MapForest14:
 .db $00,$00,$78
 
 MapForest20:
-.incbin "rsc/Forest_(2~0).gbm"
+;.incbin "rsc/Forest_(2~0).gbm"
+MapForest20Obj:
 .db $88
 .dw Cs_Load20to10_1     ;up
 .dw 0                   ;down
@@ -322,7 +356,7 @@ MapForest33:
 .incbin "rsc/Forest_(3~3).gbm"
 .db $88
 .dw Cs_Load33to23_1     ;up
-.dw 0                   ;down
+.dw Cs_Load33to34_2     ;down
 .dw Cs_Load33to32_1     ;left
 .dw Cs_Load33to34_1     ;right
 .db $00,$00,$78
@@ -330,7 +364,7 @@ MapForest33:
 MapForest34:
 .incbin "rsc/Forest_(3~4).gbm"
 .db $88
-.dw 0                   ;up
+.dw Cs_Load34to33_2     ;up
 .dw 0                   ;down
 .dw Cs_Load34to33_1     ;left
 .dw Cs_Load34to00_1     ;right

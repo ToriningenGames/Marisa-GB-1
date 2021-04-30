@@ -1,7 +1,6 @@
 Maps.lib: Source\Maps.asm \
 	Source\mapDef.asm \
 	Source\macros.asm \
-	rsc/Forest_(BKG).gbm \
 	rsc/Forest_(-2~3).gbm \
 	rsc/Forest_(-1~3).gbm \
 	rsc/Forest_(0~0).gbm \
@@ -13,7 +12,6 @@ Maps.lib: Source\Maps.asm \
 	rsc/Forest_(1~2).gbm \
 	rsc/Forest_(1~3).gbm \
 	rsc/Forest_(1~4).gbm \
-	rsc/Forest_(2~0).gbm \
 	rsc/Forest_(2~1).gbm \
 	rsc/Forest_(2~2).gbm \
 	rsc/Forest_(2~3).gbm \
