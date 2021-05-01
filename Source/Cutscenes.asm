@@ -839,479 +839,372 @@ Cs_MakePlayable:
 Cs_None:
   CsEnd
 
-Cs_LoadN13toN23_1:          ;fix
+Cs_TransitionOutUp:
   CsAnimateActor 1,CsAnWalkUp
   CsMoveActorTime 1,CsDirUp,14,12
   CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG04
-  CsWaitMap
-  CsLoadMap MapForestN23
-  CsWaitMap
-  CsSetActor 1,56,94
-  CsMoveActorTime 1,CsDirUp,45,30
-  CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
   CsEnd
 
-Cs_LoadN23toN13_1:          ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForestN13
-  CsWaitMap
-  CsSetActor 1,48,30
-  CsMoveActorTime 1,CsDirDown,45,30
-  CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
-  CsEnd
-
-Cs_Load03toN13_1:           ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForestN13
-  CsWaitMap
-  CsSetActor 1,48,86
-  CsMoveActorTime 1,CsDirUp,45,30
-  CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
-  CsEnd
-
-Cs_Load01to00_1:            ;fix
+Cs_TransitionOutLeft:
   CsAnimateActor 1,CsAnWalkLeft
   CsMoveActorTime 1,CsDirLeft,14,12
   CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest00
-  CsWaitMap
-  CsSetActor 1,16,24
+  CsEnd
+
+Cs_TransitionOutDown:
+  CsAnimateActor 1,CsAnWalkDown
+  CsMoveActorTime 1,CsDirDown,14,12
+  CsCall Cs_MapFadeout
+  CsEnd
+
+Cs_TransitionOutRight:
+  CsAnimateActor 1,CsAnWalkRight
+  CsMoveActorTime 1,CsDirRight,14,12
+  CsCall Cs_MapFadeout
+  CsEnd
+
+Cs_TransitionInUp:
+  CsAnimateActor 1,CsAnWalkUp
+  CsMoveActorTime 1,CsDirUp,45,30
+  CsCall Cs_MapFadein
+  CsWait 30
+  CsAnimateActor 1,CsAnFaceUp
+  CsCall Cs_MakePlayable
+  CsEnd
+
+Cs_TransitionInLeft:
+  CsAnimateActor 1,CsAnWalkLeft
   CsMoveActorTime 1,CsDirLeft,45,30
-  CsSetCamera 80,0
   CsCall Cs_MapFadein
   CsWait 30
   CsAnimateActor 1,CsAnFaceLeft
   CsCall Cs_MakePlayable
   CsEnd
 
-Cs_Load10to00_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest00
-  CsWaitMap
-  CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
-  CsSetCamera 80,0
+Cs_TransitionInDown:
+  CsAnimateActor 1,CsAnWalkDown
+  CsMoveActorTime 1,CsDirDown,45,30
   CsCall Cs_MapFadein
   CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
+  CsAnimateActor 1,CsAnFaceDown
   CsCall Cs_MakePlayable
   CsEnd
 
-Cs_Load34to00_1:            ;fix
+Cs_TransitionInRight:
   CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest00
-  CsWaitMap
-  CsSetActor 1,16,24
   CsMoveActorTime 1,CsDirRight,45,30
-  CsSetCamera 80,0
   CsCall Cs_MapFadein
   CsWait 30
   CsAnimateActor 1,CsAnFaceRight
   CsCall Cs_MakePlayable
   CsEnd
 
+;Room to room transitions, for exits
+
+Cs_LoadN13toN23_1:          ;fix
+  CsCall Cs_TransitionOutUp
+  CsLoadMap MapForestBKG04
+  CsWaitMap
+  CsLoadMap MapForestN23
+  CsWaitMap
+  CsSetActor 1,56,94
+  CsSetCamera 80,0
+  CsCall Cs_TransitionInUp
+  CsEnd
+
+Cs_LoadN23toN13_1:          ;fix
+  CsCall Cs_TransitionOutDown
+  CsLoadMap MapForestBKG01
+  CsWaitMap
+  CsLoadMap MapForestN13
+  CsWaitMap
+  CsSetActor 1,48,30
+  CsSetCamera 80,0
+  CsCall Cs_TransitionInDown
+  CsEnd
+
+Cs_Load03toN13_1:           ;fix
+  CsCall Cs_TransitionOutUp
+  CsLoadMap MapForestBKG01
+  CsWaitMap
+  CsLoadMap MapForestN13
+  CsWaitMap
+  CsSetActor 1,48,86
+  CsSetCamera 80,0
+  CsCall Cs_TransitionInUp
+  CsEnd
+
+Cs_Load01to00_1:            ;fix
+  CsCall Cs_TransitionOutDown
+  CsLoadMap MapForestBKG03
+  CsWaitMap
+  CsLoadMap MapForest00
+  CsWaitMap
+  CsSetActor 1,16,24
+  CsSetCamera 80,0
+  CsCall Cs_TransitionInLeft
+  CsEnd
+
+Cs_Load10to00_1:            ;fix
+  CsCall Cs_TransitionOutUp
+  CsLoadMap MapForestBKG03
+  CsWaitMap
+  CsLoadMap MapForest00
+  CsWaitMap
+  CsSetActor 1,16,24
+  CsSetCamera 80,0
+  CsCall Cs_TransitionInUp
+  CsEnd
+
+Cs_Load34to00_1:            ;fix
+  CsCall Cs_TransitionOutRight
+  CsLoadMap MapForestBKG03
+  CsWaitMap
+  CsLoadMap MapForest00
+  CsWaitMap
+  CsSetActor 1,16,24
+  CsSetCamera 80,0
+  CsCall Cs_TransitionInRight
+  CsEnd
+
 Cs_Load00to01_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG04
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
   CsLoadObjects MapForest01Obj
   CsSetActor 1,128,255
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load11to01_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG04
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
   CsLoadObjects MapForest01Obj
   CsSetActor 1,205,101
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load12to02_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForest02
   CsWaitMap
   CsSetActor 1,68,239
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load24to02_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForest02
   CsWaitMap
   CsSetActor 1,16,24
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_LoadN13to03_1:           ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest03
   CsWaitMap
   CsSetActor 1,104,16
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load04to03_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest03
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load13to03_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest03
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load03to04_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG04
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load14to04_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG04
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load20to10_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest10
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load01to11_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest11
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load12to11_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest11
   CsWaitMap
   CsSetActor 1,93,115
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load21to11_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest11
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load02to12_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest12
   CsWaitMap
   CsSetActor 1,118,30
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load11to12_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest12
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load13to12_1:
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest12
   CsWaitMap
   CsSetActor 1,250,68
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load03to13_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest13
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load12to13_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest13
   CsWaitMap
   CsSetActor 1,12,99
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load14to13_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest13
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load23to13_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest13
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load04to14_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG03
   CsWaitMap
   CsLoadMap MapForest14
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load24to14_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG03
   CsWaitMap
   CsLoadMap MapForest14
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load30to20_1:
@@ -1320,365 +1213,232 @@ Cs_Load30to20_1:
   CsEnd
 
 Cs_Load11to21_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest21
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load22to21_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest21
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load21to22_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest22
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load23to22_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest22
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load30to22_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest22
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load13to23_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG03
   CsWaitMap
   CsLoadMap MapForest23
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load22to23_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG03
   CsWaitMap
   CsLoadMap MapForest23
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load33to23_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG03
   CsWaitMap
   CsLoadMap MapForest23
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load02to24_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG03
   CsWaitMap
   CsLoadMap MapForest24
   CsWaitMap
   CsSetActor 1,16,24
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load14to24_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG03
   CsWaitMap
   CsLoadMap MapForest24
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load22to30_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest30
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load04to31_1:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest31
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load32to31_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest31
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load22to32_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest32
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load31to32_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest32
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load33to32_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest32
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
 
 Cs_Load23to33_1:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForest33
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 Cs_Load32to33_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForest33
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load34to33_1:            ;fix
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutLeft
   CsLoadMap MapForest33
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirLeft,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInLeft
   CsEnd
   
 Cs_Load34to33_2:            ;fix
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutUp
   CsLoadMap MapForest33
   CsWaitMap
   CsSetActor 1,135,200
-  CsMoveActorTime 1,CsDirUp,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load33to34_1:            ;fix
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutRight
   CsLoadMap MapForest34
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirRight,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInRight
   CsEnd
   
 Cs_Load33to34_2:            ;fix
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
+  CsCall Cs_TransitionOutDown
   CsLoadMap MapForest34
   CsWaitMap
   CsSetActor 1,16,24
-  CsMoveActorTime 1,CsDirDown,45,30
   CsSetCamera 80,0
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
+  CsCall Cs_TransitionInDown
   CsEnd
 
 .ENDS
