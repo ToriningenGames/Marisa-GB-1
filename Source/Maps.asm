@@ -281,8 +281,8 @@ MapForest14:
 
 MapForest20:
 ;.incbin "rsc/Forest_(2~0).gbm"
-MapForest20Obj:
 .db $88
+MapForest20Obj:
 .dw Cs_Load20to10_1     ;up
 .dw 0                   ;down
 .dw 0                   ;left
