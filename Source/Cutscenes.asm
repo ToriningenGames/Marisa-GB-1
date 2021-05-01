@@ -587,6 +587,14 @@ Cutscene_InputChange:
   LD BC,_ControlState
   ADD HL,BC
   LD (HL),E
+;Clear out button state, if player character
+  LD A,1
+  CP D
+  JR nz,+
+  LD BC,_ButtonState-_ControlState
+  ADD HL,BC
+  LD (HL),0
++
   JP EndTask
 
 Cutscene_HatAssign:
@@ -724,6 +732,9 @@ Cutscene_DanmakuInit
 .MACRO CsAnimSpeed ARGS ID, animspeed
  .db 8,animspeed,ID | ((0)*32)
 .ENDM
+.MACRO CsSetActorSpeed ARGS ID, speed
+ .db 9,speed*16,ID | ((2)*32)
+.ENDM
 .MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
  .db 9,speed*16,ID | ((2)*32)
  .db 9,dist, ID | ((dir + 3)*32)
@@ -788,14 +799,13 @@ Cs_MapFadeout:
   CsEnd
 
 Cs_MapFadein:
-  CsWait 10
-  CsInputChange 1,1     ;Playable before fade-in to allow camera to set
+  CsWait 5
   CsLoadBkgColor %11111110
   CsLoadObjColor %11111010,%11111110
-  CsWait 7
+  CsWait 5
   CsLoadBkgColor %11111001
   CsLoadObjColor %11100101,%11111001
-  CsWait 7
+  CsWait 5
   CsLoadBkgColor %11100100
   CsLoadObjColor %11010000,%11100100
   CsEnd
@@ -812,22 +822,38 @@ Cs_LoadInit:
   CsLoadMap MapForestBKG03
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  CsWait 2
-  CsAnimSpeed 1,10
   CsInputChange 1,0     ;Cutscene control of Marisa
+  CsWait 2
   CsAnimateActor 1,CsAnFaceDown
   CsAssignHat 0,1
   CsWaitMap
   CsLoadMap MapForest23
   CsSetActor 1,130,70
+  CsWaitMap
+  CsCall Cs_MapFadein
+Cs_MakePlayable:
+  CsWait 1
+  CsSetActorSpeed 1,0.9
+  CsAnimSpeed 1,10
+  CsInputChange 1,1     ;Playable
 Cs_None:
   CsEnd
 
-Cs_Load13to12_1:            ;test
+Cs_Load13to12_1:
+  CsMoveActorTime 1,CsDirLeft,14,12
+  CsCall Cs_MapFadeout
   CsLoadMap MapForestBKG02
   CsWaitMap
   CsLoadMap MapForest12
-  CsSetActor 1,218,68
+  CsWaitMap
+  CsSetActor 1,250,68
+  CsAnimateActor 1,CsAnWalkLeft
+  CsMoveActorTime 1,CsDirLeft,45,30
+  CsSetCamera 80,0
+  CsCall Cs_MapFadein
+  CsWait 30
+  CsAnimateActor 1,CsAnFaceLeft
+  CsCall Cs_MakePlayable
   CsEnd
 
 Cs_Load12to13_1:            ;test

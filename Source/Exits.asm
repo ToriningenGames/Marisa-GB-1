@@ -8,12 +8,6 @@
 .SECTION "Exits" FREE
 
 ExitCheck_Task:
-  LD BC,Cutscene_Task   ;Fade in from the last exit
-  PUSH BC
-    LD DE,Cs_MapFadein
-    CALL NewTask
-  POP BC    ;Set BC to Cutscene task for starting the transition cutscenes
-  CALL HaltTask     ;Make this the return point
   LD A,(Cutscene_Actors+1)
   OR A
   RET z     ;No go if no Marisa
@@ -29,10 +23,6 @@ ExitCheck_Task:
   XOR A
   CP (HL)
   RET z     ;No load if no link here
-  LD DE,Cs_MapFadeout
-  CALL NewTask
-  LD A,B
-  CALL WaitOnTask
   LD BC,Cutscene_Task
   LD HL,exitUpCutscene
   LD E,(HL)
@@ -59,10 +49,6 @@ ExitCheck_Task:
   XOR A
   CP (HL)
   RET z     ;No load if no link here
-  LD DE,Cs_MapFadeout
-  CALL NewTask
-  LD A,B
-  CALL WaitOnTask
   LD BC,Cutscene_Task
   LD HL,exitDownCutscene
   LD E,(HL)
@@ -84,10 +70,6 @@ ExitCheck_Task:
   XOR A
   CP (HL)
   RET z     ;No load if no link here
-  LD DE,Cs_MapFadeout
-  CALL NewTask
-  LD A,B
-  CALL WaitOnTask
   LD BC,Cutscene_Task
   LD HL,exitLeftCutscene
   LD E,(HL)
@@ -112,10 +94,6 @@ ExitCheck_Task:
   XOR A
   CP (HL)
   RET z     ;No load if no link here
-  LD DE,Cs_MapFadeout
-  CALL NewTask
-  LD A,B
-  CALL WaitOnTask
   LD BC,Cutscene_Task
   LD HL,exitRightCutscene
   LD E,(HL)
