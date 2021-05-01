@@ -45,13 +45,6 @@ CharaFrame:
   LD (HL),<CollisionHitbox
   INC HL
   LD (HL),>CollisionHitbox
-  LD HL,_AnimSpeed
-  ADD HL,DE
-  LD (HL),$10
-  INC HL
-  LD (HL),<Speed
-  INC HL
-  LD (HL),>Speed
 ;TODO:
     ;Destructor
     ;Hat play
