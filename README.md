@@ -109,7 +109,7 @@ Inside game:
 <li />[x] Add Fairy floaing animations
 <li />[ ] Add text option to wait for button press
 <li />[ ] Add some sort of character talk interation
-<li />[ ] Create most more maps
+<li />[x] Create most more maps
 <li />[ ] Write some title music
 <li />[ ] Pare down unused utility functions
 <li />[ ] Write all the cutscenes
