@@ -75,6 +75,21 @@ LoadMap_Task:
   JR nz,-
 ++
   LD HL,hotMap
+  LD (HL),$80
+  JP EndTask
+
+;Loads map in RAM to screen
+ShowMap_Task:
+  LD DE,LoadMapMagicVal
+  LD A,4
+  LD BC,LoadToVRAM_Task
+-
+  CALL HaltTask
+  CALL NewTask
+  JR c,-
+  LD A,B
+  CALL WaitOnTask
+  LD HL,hotMap
   LD (HL),$FF
   JP EndTask
 

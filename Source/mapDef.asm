@@ -73,7 +73,9 @@
     exitRightCutscene   DW
 .ENDE
 .ENUM $C090 ;MapInfo    (14 bytes max)
-    hotMap          DB      ;Zero if LoadMap is running
+    hotMap          DB      ;Zero if LoadMap is running.
+                                ;$80 if LoadMap done, but not mirrored to vRAM
+                                ;$FF if fully synched up
     mapExtract      DS 6    ;ExtractSaveSize
     mapWidth        DB      ;Width in pixels
     mapHeight       DB      ;Height in pixels
