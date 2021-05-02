@@ -1,12 +1,11 @@
 # Build files
-*.sym
-*.link
-*.lib
-*.obj
 bin/*
+obj/*
+lib/*
 
 # Intermediate files
-*.mcs
-*.lzc
-*.gbm
-*.raw
+rsc/*
+*.link
+
+# Accessory files
+Local/*
