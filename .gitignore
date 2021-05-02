@@ -3,6 +3,7 @@
 *.link
 *.lib
 *.obj
+bin/*
 
 # Intermediate files
 *.mcs
