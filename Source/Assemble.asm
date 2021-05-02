@@ -428,15 +428,12 @@ HRAMRoutineLoadLoop:
 ;Set up Title Screen Loader as a separate task
   LD BC,LoadTitle
   CALL NewTask
-;Hack up Object Priority task
+;Set up Object Priority task
   LD BC,ObjectPriority_Task
-  LD HL,taskpointer + 256 - 8
-  LD DE,DoTaskLoop  ;We have to fake the stack for this one
-  PUSH DE
-  PUSH AF
-  JP OpenTask
+  CALL NewTaskLo
 ;Go to the task handler
 ;Forever
+  JP DoTaskLoop
 
 SoundInit:
 ;Turn on music
@@ -590,7 +587,7 @@ LoadTitle:
     CALL NewTask
 ;Camera Setup
     LD BC,Camera_Task
-    CALL NewTask
+    CALL NewTaskLo
 ;Wait for cutscene to finish, so Marisa is initialized
   POP AF
   CALL WaitOnTask

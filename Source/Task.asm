@@ -144,6 +144,35 @@ WaitOnTask:
   LD L,E
   JP HL     ;RET
 
+NewTaskLo:
+;Find LAST free task slot
+;Use when a task should be run after all actors+normal tasks
+;A = Value of A on Task Start
+;BC = Start
+;DE = Data
+;Carry set if all tasks in use
+;Returns Child Task ID in B
+;Returns Parent Task ID in C
+;Tasks start with value of BC as above
+  PUSH AF
+  LD HL,taskptrsize-_sizeof_taskdata
+-
+  BIT 7,(HL)
+  JR nz,OpenTask
+  LD A,L
+  SUB _sizeof_taskdata
+  LD L,A
+  LD A,H
+  SBC 0
+  LD H,A
+;Past beginning?
+  CP >taskpointer
+  JR nc,-
+;No available tasks
+  POP AF
+  SCF
+  RET
+
 NewTask:
 ;Find first free task slot
 ;Fill it
