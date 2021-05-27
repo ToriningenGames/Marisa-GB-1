@@ -19,7 +19,7 @@
 ;Charcters are ASCII except
     ;There are no lowercase
     ;The following characters are missing:
-        ;$*+<=>@[\]`{|}
+        ;$*+<=>@[\]`{|}^_
     ;Single and double quotes are both closing quotes specifically.
         ;` is a single opening quote
         ;< is a double opening quote
@@ -28,24 +28,13 @@
         ;There is a textual smiley. Use "="
         ;There is a heart.          Use "+"
         ;There is a yen sign.       Use "$"
-    ;Additional pretties that aren't in Unicode are also available:
-        ;Playstation-style start:   Use "s"
-        ;Playstation-style select:  Use "e"
-        ;A button:                  Use "a"
-        ;B button:                  Use "b"
-        ;Up button:                 Use "u"
-        ;Down button:               Use "d"
-        ;Left button:               Use "l"
-        ;Right button:              Use "r"
-        ;"SELECT" text:             Use "zx"
-        ;"START" text:              Use "cv"
-        ;2x2 Marisa face:           Use "tygh" over 2 lines
     ;Base text is mostly monochrome, but there are exceptions:
         ;The four palette colors can be acessed as letter squares:
             ;" " is palette 0 (BKG color)
-            ;"m" is palette 1
-            ;"k" is palette 2
-            ;"o" is palette 3 (Text color)
+            ;"@" is palette 1
+            ;"[" is palette 2
+            ;"]" is palette 3 (Text color)
+    ;Two down arrows are accessable at '^' and '_'
 ;Characters below $30 and above $80 are treated as control, not printing.
     ;These do not have a byte following:
         ;$00 (NUL): End of text block
@@ -96,6 +85,8 @@
 .define _vRAMBuf    4   ;+$04: Buffer for vRAM copy function
 ;+$0A
 ;+$20: OOB
+
+.DEFINE BlinkerSpot TextData+4*32+19
 
 .ENUMID 0 EXPORT
 .ENUMID textStatus_done
@@ -584,13 +575,66 @@ Text_Newline:
   CALL Text_CarriageReturn
   JP Text_MoveDown
 
-Text_Pause:             ;!!!!
-;Remember the animation!
-;To do so, we want to take C.
-;This is okay because we clear afterwards.
-  ;
+Text_Pause:             ;test
+  POP HL    ;Return
+;Status
+  LD A,textStatus_waiting
+  LD (TextStatus),A
+;Place icon
+  LD HL,BlinkerSpot
+  LD (HL),$6E
+  LD HL,_vRAMBuf
+  ADD HL,DE
+  PUSH DE
+    LD D,H
+    LD E,L
+    LD A,1
+    LDI (HL),A    ;Width
+    LDI (HL),A    ;Height
+    LD (HL),<BlinkerSpot  ;Source
+    INC HL
+    LD (HL),>BlinkerSpot
+    INC HL
+    LD (HL),<BlinkerSpot  ;Destination
+    INC HL
+    LD (HL),$9C   ;Window page
+    PUSH BC
+      LD BC,LoadRectToVRAM_Task
+      CALL NewTask
+    POP BC
+  POP DE
+--
+  LD A,32
+-
+  CALL HaltTask
+;Check for button, other than pause
+  LD L,A
+  LDH A,($FE)
+  AND %11110111 ;All buttons save Start
+  JR nz,+
+  LD A,L
+  DEC A
+  JR nz,-
+;Animate icon
+  LD HL,BlinkerSpot
+  LD A,1    ;Toggle b/w the two tiles
+  XOR (HL)
+  LD (HL),A
+  PUSH DE       ;Buffer correct from setup
+    PUSH BC
+      LD HL,_vRAMBuf
+      ADD HL,DE
+      LD D,H
+      LD E,L
+      LD BC,LoadRectToVRAM_Task
+      CALL NewTask
+    POP BC
+  POP DE
+  JR --
++
 ;  JR TextProcessLoop
 ;Calling pause resets the cursor to the upper left. Which is what clear does.
+  PUSH HL   ;Dummy return
 Text_Clear:
 ;Return cursor to the upper-left corner
   CALL Text_ReturnToCorner
