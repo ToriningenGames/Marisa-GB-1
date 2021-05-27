@@ -15,7 +15,7 @@
 .ENUMID CtrlDel         ;None
 .ENUMID CtrlTab         ;None
 .ENUMID CtrlLine        ;None
-.ENUMID CtrlInput       ;None
+.ENUMID CtrlPause       ;None
 .ENUMID CtrlClear       ;None
 .ENUMID CtrlRet         ;None
 .ENUMID Ctrl_Invalid1   ;Do not use
@@ -64,12 +64,12 @@ MAP "h" = $7F
         ;Tedious. Write a conversion program.
         ;And speed. And shake.
         ;And face control
-StringTestMessage:  ;missing input, up, right, corner; right and corner are done incidentally
+StringTestMessage:  ;missing up, right, corner; right and corner are done incidentally
 .DB CtrlSpeed,3, CtrlClear, CtrlRaise, CtrlFaceLoad,1,$10, CtrlFaceLoad,2,$05
 .ASC "WELCOME TO GAME!!",CtrlLine
 .ASC "*THERE'S NO SPACE",CtrlLine
 .ASC "FOR THE <THE\".",CtrlLine
-.DB CtrlWait,30, CtrlClear, CtrlTab
+.DB CtrlPause, CtrlTab
 .ASC     "- SORRY."
 .DB CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel
 .DB CtrlWait,15
@@ -85,7 +85,7 @@ StringTestMessage:  ;missing input, up, right, corner; right and corner are done
 .ASC "THIS WORLD HAS NO",CtrlLine
 .ASC "COLOR.",CtrlLine, CtrlBorder,1, CtrlWait,5
 .ASC "WHAT DOES THAT MEAN?"
-.DB CtrlWait,15, CtrlClear
+.DB CtrlPause
 .ASC "ty",CtrlLeft,CtrlLeft,CtrlDown,"gh"
 .ASC   "  I HAVE A FACE."
 .DB CtrlWait,15, CtrlFaceShow,1, CtrlWait,15, CtrlClear, CtrlLine
@@ -93,13 +93,13 @@ StringTestMessage:  ;missing input, up, right, corner; right and corner are done
 .DB CtrlWait,30, CtrlClear, CtrlFaceShow,2, CtrlShake,$0F
 .DB CtrlLine,CtrlLine
 .ASC "BUT SHE DOESN'T!"
-.DB CtrlWait,10, CtrlFaceShow,0, CtrlClear
+.DB CtrlPause, CtrlFaceShow,0
 .ASC "JK LOL"
 .DB CtrlWait,5, CtrlClear
 .ASC "SERIOUSLY, THOUGH,", CtrlLine
 .ASC "WHAT KIND OF GAME", CtrlLine
 .ASC "ARE WE IN FOR?"
-.DB CtrlWait,60, CtrlLower
+.DB CtrlPause, CtrlLower
 .DB CtrlEnd
 
 ;Alice: "..."

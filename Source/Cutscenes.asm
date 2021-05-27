@@ -830,6 +830,7 @@ Cs_LoadInit:
   CsSetActor 1,130,70
   CsWaitMap
   CsCall Cs_MapFadein
+  CsRunText StringTestMessage   ;Testing text run with input
 Cs_MakePlayable:
   CsWait 1
   CsSetActorSpeed 1,0.9
