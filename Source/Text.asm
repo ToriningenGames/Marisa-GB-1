@@ -575,7 +575,7 @@ Text_Newline:
   CALL Text_CarriageReturn
   JP Text_MoveDown
 
-Text_Pause:             ;test
+Text_Pause:
   POP HL    ;Return
 ;Status
   LD A,textStatus_waiting
