@@ -105,7 +105,7 @@ Inside game:
 <li />[ ] Add Alice's other walking animations
 <li />[ ] Add Fairy character behaviors
 <li />[x] Add Fairy floaing animations
-<li />[ ] Add text option to wait for button press
+<li />[x] Add text option to wait for button press
 <li />[ ] Add some sort of character talk interation
 <li />[x] Create most more maps
 <li />[ ] Write some title music
