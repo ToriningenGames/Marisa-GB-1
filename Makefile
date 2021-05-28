@@ -1,3 +1,10 @@
+TOOLDIR = Tools
+WLAGB = $(if $(WLADIR),$(WLADIR)\\,)wla-gb.exe
+WLALINK = $(if $(WLADIR),$(WLADIR)\\,)wlalink.exe
+MML = $(if $(TOOLDIR),$(TOOLDIR)\\,)MML6.exe
+MAPCONV = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZ-MapConv.exe
+LZ = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZifier.exe
+SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\\,)specfile_marisa.cfg
 
 RM = del /Q 2>NUL
 QUIET = @
@@ -10,8 +17,6 @@ vpath %.asm .\Source
 vpath %.gb .\Faces .\Art
 #MML music files
 vpath %.mml .\Sound
-#Config files for tools
-vpath %.cfg .\Tools
 #Map files
 vpath %.tmx .\Maps
 #Hypothetical sound effects here
@@ -27,14 +32,6 @@ vpath %.gbm .\rsc
 
 #Submakes
 vpath %.d .\Submakes\obj .\Submakes\lib
-
-TOOLDIR = Tools
-WLAGB = $(if $(WLADIR),$(WLADIR)\\,)wla-gb.exe
-WLALINK = $(if $(WLADIR),$(WLADIR)\\,)wlalink.exe
-MML = $(if $(TOOLDIR),$(TOOLDIR)\\,)MML6.exe
-MAPCONV = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZ-MapConv.exe
-LZ = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZifier.exe
-SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\\,)specfile_marisa.cfg
 
 LIB0 = Task.lib OAM2.lib Actor.lib Face.lib SndEffect.lib Sound.lib Memory.lib \
 	LCD_IRQ_Assist.lib Extract.lib Chara.lib Exits.lib Camera.lib Graphics.lib \
