@@ -32,6 +32,8 @@ AliceFrame:
   JR z,+
   INC A
   JP z,Actor_Delete
+;AI behavior here
++
   ;Animation check
   LD A,$FF
   LD HL,_AnimChange

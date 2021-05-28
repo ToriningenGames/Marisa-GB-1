@@ -76,7 +76,6 @@ FairyFrame:
   ADD HL,DE
   LD (HL),1 ;Face down
   CALL HaltTask
-  ;Check for doing AI stuffs here
 ;Fairy specific messages
     ;v: Cutscene control
     ;v: Play animation
@@ -86,9 +85,11 @@ FairyFrame:
   ADD HL,DE
   LD A,(HL)
   OR A
-  JR z,+
+  JR z,+    ;Cutscene control
   INC A
   JP z,Actor_Delete
+;AI behavior here
++
   ;Animations
   LD A,$FF
   LD HL,_AnimChange
