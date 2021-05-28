@@ -9,3 +9,6 @@ rsc/*
 
 # Accessory files
 Local/*
+
+# WLA files
+ctags.tmp
