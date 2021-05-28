@@ -386,6 +386,9 @@ Actor_Move:
     ;checked for vertical movement, and vice-versa
     ;A fix would involve a total of 4 more point checks written,
     ;and two to run each movement.
+    ;We can't only test the diagonal, because then Marisa would be able to pass
+    ;through cattycorners while moving diagonally, which is worse, and it makes
+    ;sense to slide along a surface linearly while moving diagonally
 
   PUSH DE
     PUSH BC
@@ -714,7 +717,7 @@ HitboxUpdate_Task:
   CALL HaltTask
   ;Back to front for ease of end checking
   LD A,(ObjUse)
-  RLC A ;affect zero flag
+  ADD A ;Double. affecting zero flag
   RET z ;No actors; nothing to do
   ADD <ActiveActorArray
   LD C,A
@@ -819,8 +822,6 @@ HitboxUpdate_Task:
 ;DoPush_Task:
 ;Checks all actors and hits them as necessary
 ;For each actor
-    ;Check against background
-        ;Do this in move
     ;Check against subsequent actors
     ;For pushing:
         ;Get line between our hitbox and theirs
@@ -830,7 +831,7 @@ HitboxUpdate_Task:
             ;Scale(?) to their radius plus our radius minus our distance
   LD E,L
   LD D,H
-  CALL HaltTask     ;Test for alt-frame collision detection. Remove if in-game circumstances make no situations with very large actor counts
+  CALL HaltTask     ;Test for collisions every other frame; collisions are CPU expensive
   LD L,E
   LD H,D
   ;Back to front for ease of end checking
