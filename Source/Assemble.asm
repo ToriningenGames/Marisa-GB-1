@@ -10,7 +10,7 @@
 
 ;WRAM:
 ;$C000 - $C008
-    ;Fatal error handler saves registers here
+    ;Unused
 ;$C010 - $C020?
     ;CORDIC, if I can ever grasp its true form
 ;$C020?- $C02F
@@ -243,20 +243,30 @@ __fullMove:
   RET
 
 .ORG $20
-
-.ORG $28
+;Start over with a whitened screen
+;A = 0
+;HL = LCDControl
+  LD (HL),%10000000         ;Make sure screen is enabled - and nothing else
+  LD L,<BkgPal
+  LD (HL),A                 ;White out the screen
+  LDH ($0F),A               ;Interrupts may be waiting
+  INC A
+  LDH ($FF),A               ;vBlank only
+  EI
+  HALT                      ;Allow vBlank to do its thing
+  JP $0100
 
 .ORG $30
   JP HL
 
 .ORG $38
-;Panic vector
-  DI
-  LD B,B
-  STOP
-  NOP
-  HALT
-  HALT
+;Panic vector. Everything is on fire!.
+  DI        ;Stack is likely unsafe
+  XOR A
+  LD HL,OpControl
+  LD SP,HL                  ;RAM that can be safely overwritten (OAM buffer)
+  LDI (HL),A                ;Prevent vBlank from using a corrupted transfer action
+  RST $20
 
 ;vBlank
 .ORG $40
@@ -348,7 +358,7 @@ BlankSpriteIRQ:
 Start:
 ;Disable interrupts, initialize registers, set up stack (for saftey reasons)
   XOR A
-  LD BC,$D142       ;Values these registers are initialized to are used later.
+  LD C,$42          ;Values these registers are initialized to are used later.
   LD DE,$CFA0
   LD H,A
   LD L,A
@@ -363,9 +373,10 @@ Start:
   LD H,D
   LD L,E
   LDI (HL),A
-  LD (HL),B         ;No window or sprites, background on, Window at $9C00, Bacground at $9800, Background and window tile data at $8000. 8x8 sprites.
+  LDH A,($40)
+  LDI (HL),A        ;Copy over current LCD status
+  LD (HL),0         ;No extraneous screen related interrupts.
   INC L
-  LDI (HL),A        ;No extraneous screen related interrupts.
   LD A,($FF00+C)
   INC C
   LDI (HL),A        ;Copy the X and Y scrolls
@@ -596,8 +607,8 @@ LoadTitle:
   CALL NewTask
 ;Sprites
 ;Collision
-;  LD BC,HitboxUpdate_Task
-;  CALL NewTask
+  LD BC,HitboxUpdate_Task
+  CALL NewTask
   JP EndTask
 .ENDS
 
