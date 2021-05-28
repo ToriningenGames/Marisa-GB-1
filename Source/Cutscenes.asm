@@ -821,13 +821,16 @@ Cs_LoadInit:
   CsLoadMap MapForestBKG03
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  CsInputChange 1,0     ;Cutscene control of Marisa
+  CsNewActor 2,CsChFairy,0
   CsWait 2
+  CsInputChange 1,0     ;Cutscene control of Marisa
   CsAnimateActor 1,CsAnFaceDown
+  CsAnimateActor 2,CsAnFaceDown
   CsAssignHat 0,1
   CsWaitMap
   CsLoadMap MapForest23
   CsSetActor 1,130,70
+  CsSetActor 2,80,55
   CsWaitMap
   CsCall Cs_MapFadein
   CsRunText StringTestMessage   ;Testing text run with input
