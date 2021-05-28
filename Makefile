@@ -29,12 +29,17 @@ vpath %.gbm .\rsc
 vpath %.d .\Submakes\obj .\Submakes\lib
 
 TOOLDIR = Tools
-WLADIR = 
+WLAGB = $(if $(WLADIR),$(WLADIR)\\,)wla-gb.exe
+WLALINK = $(if $(WLADIR),$(WLADIR)\\,)wlalink.exe
+MML = $(if $(TOOLDIR),$(TOOLDIR)\\,)MML6.exe
+MAPCONV = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZ-MapConv.exe
+LZ = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZifier.exe
+SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\\,)specfile_marisa.cfg
 
 LIB0 = Task.lib OAM2.lib Actor.lib Face.lib SndEffect.lib Sound.lib Memory.lib \
 	LCD_IRQ_Assist.lib Extract.lib Chara.lib Exits.lib Camera.lib Graphics.lib \
 	Reimu.lib Narumi.lib Alice.lib Fairy.lib Pause.lib Effects.lib SinCos.lib \
-	TextStrings.lib Text.lib
+	TextStrings.lib Text.lib Hitboxes.lib
 LIB1 = Maps.lib Songs.lib Cutscenes.lib
 LINK = Link.link
 OBJ = Assemble.obj vBlank2.obj
@@ -43,42 +48,35 @@ SONGS = Spark2.mcs NULL.mcs
 MAPS = Test.gbm Debug.gbm Hall.gbm
 OUT = bin\Assemble.gb
 SYM = $(subst /,\,$(addsuffix .sym,$(basename $(OUT))))
-SPECFILE = Tools/specfile_marisa.cfg
 
-.PHONY : all
-all : $(OUT)
+.PHONY : all clean check
+all : check $(OUT)
 
 $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
-	$(WLADIR)\wlalink -v -S -r $(LINK) $(OUT)
+	$(WLALINK) -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
 	$(QUIET)$(RM) $(SYM)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
-%.obj.d : $(WLADIR)\wla-gb.exe ..\..\%.asm | Submakes Submakes\obj
-	$(WLADIR)\wla-gb -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\obj\$(@F)
-%.lib.d : $(WLADIR)\wla-gb.exe ..\..\%.asm | Submakes Submakes\lib
-	$(WLADIR)\wla-gb -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\lib\$(@F)
+%.obj.d : $(WLAGB) ..\..\%.asm | Submakes Submakes\obj
+	$(WLAGB) -M -I Source -o $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\obj\$(@F)
+%.lib.d : $(WLAGB) ..\..\%.asm | Submakes Submakes\lib
+	$(WLAGB) -M -I Source -l $(notdir $(basename $@)) $(addprefix Source\,$(notdir $(addsuffix .asm,$(basename $(basename $@))))) > Submakes\lib\$(@F)
 include $(addprefix Submakes\lib\,$(addsuffix .d,$(LIB0)))
 include $(addprefix Submakes\lib\,$(addsuffix .d,$(LIB1)))
 include $(addprefix Submakes\obj\,$(addsuffix .d,$(OBJ)))
 
-%.obj : %.asm %.obj.d $(WLADIR)\wla-gb.exe | obj
-	$(WLADIR)\wla-gb -v -x -I $(<D) -o obj\$@ $<
-%.lib : %.asm %.lib.d $(WLADIR)\wla-gb.exe | lib
-	$(WLADIR)\wla-gb -v -x -I $(<D) -l lib\$@ $<
-%.gbm : ..\%.tmx $(TOOLDIR)\LZ-MapConv.exe | rsc
-	$(TOOLDIR)\LZ-MapConv.exe $< $@
-# Alt way to compile maps, using raw+lzifier
-# Does not support tile transparency
-#%.raw : ..\%.tmx | rsc
-#	$(TOOLDIR)\Raw-MapConv.exe $< $@
-#%.gbm : $(SPECFILE) %.raw | rsc
-#	$(TOOLDIR)\LZifier.exe LZ77 $^ $@
-%.lzc : ..\%.gb $(SPECFILE) $(TOOLDIR)\LZifier.exe | rsc
-	$(TOOLDIR)\LZifier.exe LZ77 $(word 2,$^) $< $@
-%.mcs : ..\%.mml $(TOOLDIR)\MML6.exe | rsc
-	$(TOOLDIR)\MML6.exe -i=$< -o=$@ -t=gb
+%.obj : %.asm %.obj.d $(WLAGB) | obj
+	$(WLAGB) -v -x -I $(<D) -o obj\$@ $<
+%.lib : %.asm %.lib.d $(WLAGB) | lib
+	$(WLAGB) -v -x -I $(<D) -l lib\$@ $<
+%.gbm : ..\%.tmx $(MAPCONV) | rsc
+	$(MAPCONV) $< $@
+%.lzc : ..\%.gb $(SPECFILE) $(LZ) | rsc
+	$(LZ) LZ77 $(word 2,$^) $< $@
+%.mcs : ..\%.mml $(MML) | rsc
+	$(MML) -i=$< -o=$@ -t=gb
 $(LINK) : Makefile
 	$(file > $(LINK),[objects])
 	$(foreach I, $(OBJ),$(file >> $(LINK), obj/$(I)))
@@ -89,12 +87,23 @@ $(LINK) : Makefile
 bin obj lib rsc Submakes Submakes\obj Submakes\lib:
 	mkdir $@
 
-.PHONY : resources
-resources : 
-# Make a file for every resource. Needed for WLA to generate makefiles so make knows to build those resources
-# No stomping
+#Ensure the build environment is sane
+check :
+ifeq ("$(wildcard $(WLAGB))","")
+	$(error Missing GB-Z80 compiler)
+else ifeq ("$(wildcard $(WLALINK))","")
+	$(error Missing WLA linker)
+else ifeq ("$(wildcard $(MML))","")
+	$(error Missing MML compiler)
+else ifeq ("$(wildcard $(LZ))","")
+	$(error Missing LZ compresser)
+else ifeq ("$(wildcard $(MAPCONV))","")
+	$(error Missing map converter)
+else ifeq ("$(wildcard $(SPECFILE))","")
+	$(error Missing LZ specfile)
+endif
+	$(info Build environment OK)
 
-.PHONY : clean
 clean :
 	$(QUIET)$(RM) obj
 	$(QUIET)$(RM) lib
