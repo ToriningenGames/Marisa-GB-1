@@ -1,11 +1,13 @@
+#Programs we use to build
 TOOLDIR = Tools
-WLAGB = $(if $(WLADIR),$(WLADIR)\\,)wla-gb.exe
-WLALINK = $(if $(WLADIR),$(WLADIR)\\,)wlalink.exe
-MML = $(if $(TOOLDIR),$(TOOLDIR)\\,)MML6.exe
-MAPCONV = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZ-MapConv.exe
-LZ = $(if $(TOOLDIR),$(TOOLDIR)\\,)LZifier.exe
-SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\\,)specfile_marisa.cfg
+WLAGB = $(if $(WLADIR),$(WLADIR)\,)wla-gb.exe
+WLALINK = $(if $(WLADIR),$(WLADIR)\,)wlalink.exe
+MML = $(if $(TOOLDIR),$(TOOLDIR)\,)MML6.exe
+MAPCONV = $(if $(TOOLDIR),$(TOOLDIR)\,)LZ-MapConv.exe
+LZ = $(if $(TOOLDIR),$(TOOLDIR)\,)LZifier.exe
+SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\,)specfile_marisa.cfg
 
+#Commands we use to build
 RM = del /Q 2>NUL
 QUIET = @
 GREP = findstr /v " SECTION" $(SYM)
@@ -44,10 +46,11 @@ SUPP = TileData.lzc
 SONGS = Spark2.mcs NULL.mcs
 MAPS = Test.gbm Debug.gbm Hall.gbm
 OUT = bin\Assemble.gb
-SYM = $(subst /,\,$(addsuffix .sym,$(basename $(OUT))))
+SYM = $(addsuffix .sym,$(basename $(OUT)))
 
-.PHONY : all clean check
-all : check $(OUT)
+.PHONY : all clean check force
+all : check force
+force : $(OUT)
 
 $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(WLALINK) -v -S -r $(LINK) $(OUT)
@@ -102,10 +105,9 @@ endif
 	$(info Build environment OK)
 
 clean :
-	$(QUIET)$(RM) obj
-	$(QUIET)$(RM) lib
-	$(QUIET)$(RM) rsc
-	$(QUIET)$(RM) $(subst /,\,$(LINK))
-	$(QUIET)$(RM) bin
+	$(RM) obj
+	$(RM) lib
+	$(RM) rsc
+	$(RM) $(LINK)
+	$(RM) bin
 
-FORCE:

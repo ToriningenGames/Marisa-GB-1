@@ -67,10 +67,13 @@ Things I didn't know what to do with ended up here. Other than administrata, the
 The Storyline.txt is not engine, data, or art related, so it doesn't have a home
 
 ## Building
-- If you're not on Win64, build the tools in Tools (current impossible sry)
+- If you're not on Win64, build the tools in Tools (currently impossible sorry)
 - Run `make` in the root folder
     - WLA not in your path? Use `make WLADIR=path/to/wla/dir`
-    - Running Unix? Crack open the Makefile, do a find-replace from `\` to `/`, and replace the tooldefs in the first few Makefile lines
+    - Running Unix? Crack open the Makefile, do a find-replace from `\` to `/`. Also redefine the commands specified near line 10
+    - Dependent tools not in `Tools`? Use `make TOOLDIR=path/to/tools`
+    - Build environment won't check out, but you know it'll be OK anyways? Use `make force`
+    - `make clean` is available for you
 
 For right now, the Tools folder contains win64 versions of tools I writ. `make` and `wla` will have to be provided by you.
 
