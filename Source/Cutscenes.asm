@@ -323,43 +323,37 @@ Cutscene_ActorNew:
     ;3: Reimu
     ;4: Narumi
     ;5: Fairy
-  PUSH BC       ;Task info
-    LD H,>Cutscene_Actors
-    LD A,$1F
-    AND D
-    ADD <Cutscene_Actors
-    LD L,A
+  LD H,>Cutscene_Actors
+  LD A,$1F
+  AND D
+  ADD <Cutscene_Actors
+  LD L,A
 ;Should the slot already be filled, do we
     ;Delete the old one?
     ;Forgo the new one?     v
-    LD A,(HL)
-    OR A
-    JP nz,EndTask
-    LD A,$E0
-    AND D
-    SWAP A
-    ADD <CharaTypes
-    PUSH HL
-      LD L,A
-      LD H,>CharaTypes
-      LDI A,(HL)
-      LD B,(HL)
-      LD C,A
-    POP HL
-  POP AF    ;Task info
-  CALL HaltTask ;Become the new character
-  PUSH AF
-    LD H,>Cutscene_Actors
-    LD A,$1F
-    AND D
-    ADD <Cutscene_Actors
+  LD A,(HL)
+  OR A
+  JP nz,EndTask
+  LD A,$E0
+  AND D
+  SWAP A
+  ADD <CharaTypes
+  PUSH HL
     LD L,A
-  POP AF
-  LD (HL),A ;Place task
-  LD A,E    ;Character Type
-  LD H,B
-  LD L,C
-  JP HL
+    LD H,>CharaTypes
+    LD C,(HL)
+    INC HL
+    LD B,(HL)
+    CP <CharaTypes    ;Check for hats
+    JR z,+
+    CALL NewTask
+    JR ++
++
+    CALL NewTaskLo    ;Hats go last b/c they're dependent on their parent's position
+++
+  POP HL
+  LD (HL),B
+  JP EndTask
 
 Cutscene_ActorDelete:       ;TEST
 ;D= %000IIIII
@@ -824,6 +818,7 @@ Cs_LoadInit:
   CsNewActor 2,CsChAlice,0
   CsWait 2
   CsInputChange 1,0     ;Cutscene control of Marisa
+  CsInputChange 2,2     ;Alice, stay still
   CsAnimateActor 1,CsAnFaceDown
   CsAnimateActor 2,CsAnFaceDown
   CsAssignHat 0,1

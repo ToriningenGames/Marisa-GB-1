@@ -88,7 +88,6 @@ HitboxUpdate_Task:
       LDI (HL),A
       LD A,(BC)       ;Y offset
       INC BC
-      INC BC
       LD (HL),A
       LD A,(DE)
       ADD (HL)
@@ -99,6 +98,9 @@ HitboxUpdate_Task:
       DEC DE
       DEC DE
       LD A,(BC)       ;Radius
+      INC BC
+      LDI (HL),A
+      LD A,(BC)       ;type
       INC BC
       LDI (HL),A
       LD A,E
@@ -125,7 +127,6 @@ HitboxUpdate_Task:
     ;Check against subsequent actors
   LD E,L
   LD D,H
-  CALL HaltTask     ;Test for collisions every other frame; collisions are CPU expensive
   LD L,E
   LD H,D
   ;Back to front for ease of end checking
@@ -134,13 +135,13 @@ HitboxUpdate_Task:
   ;(This grows half as fast as O(n^2), best case if most hitboxes are moving)
 -
   LD A,L    ;Go to beginning of next hitboxes
-  SUB 7
+  SUB 8
   LD L,A
   LD A,H
   SBC 0
   LD H,A
   LD A,L    ;Don't compare hitboxes to themselves
-  SUB 7
+  SUB 8
   LD C,A
   LD A,H
   SBC 0
@@ -179,18 +180,24 @@ HitboxUpdate_Task:
   LD E,A
   LD A,(BC)     ;A = -(R2 + R1)
   INC BC
+  INC BC
   ADD (HL)
+  INC HL    ;Skip type
   INC HL
   CPL
   INC A
   PUSH AF
-    ADD D       ;R + X, R + Y staying negative indicates hit
+    ADD D       ;R + X, R + Y staying negative indicates hit (No carry, b/c R is negative)
     LD A,E
   POP DE    ;Rotate around D, A, E so we can clear the stack
-  JR nc,_nohit
-  ADC D
-  JR nc,_nohit
+  JR c,_nohit
+  ADD D
+  JR c,_nohit
 ;Hit. Call hit actions
+  LD A,D    ;Place collective radius back on stack... but positive
+  CPL
+  INC A
+  PUSH AF
   PUSH HL   ;The order of the next four push/pop pairs is important
   PUSH BC   ;The called-on hitbox is always top of the stack
     ;Call the actions on BC and HL if they are different actors
@@ -235,12 +242,14 @@ HitboxUpdate_Task:
     CALL nz,$0030
   POP HL
   POP BC
+  ADD SP,+2 ;Take the collective radius off the stack
 _nohit:     ;Result greater than zero? Didn't hit
-  DEC HL    ;Realign HL
+  DEC HL    ;Realign HL to this hitbox
+  DEC HL
   DEC HL
   DEC HL
   LD A,C
-  SUB 7+3   ;Next hitbox
+  SUB 8+4   ;Next hitbox
   LD C,A
   LD A,B
   SBC 0
@@ -254,23 +263,33 @@ _nohit:     ;Result greater than zero? Didn't hit
 
 .SECTION "Hitbox Definitions" FREE
 
+.ENUMID 0
+.ENUMID HitboxNone
+.ENUMID HitboxCollision
+.ENUMID HitboxTalk
+
 DefaultHitboxes:
  .db 1
- .dw $0000,$0000,$0300
+ .dw $0000,$0000
+ .db $03,HitboxNone
  .dw DefaultHitboxAction
 
 NPCHitboxes:
  .db 2
- .dw $0000,$FC00,$0301  ;Collision
+ .dw $0000,$0000
+ .db $03,HitboxCollision
  .dw DefaultHitboxAction
- .dw $0000,$FC00,$0502  ;Speaking
+ .dw $0000,$0000
+ .db $05,HitboxTalk
  .dw DefaultHitboxAction
 
 PlayerHitboxes:
  .db 2
- .dw $0000,$FC00,$0501  ;Lo byte radius type 1 is hitbox
+ .dw $0000,$0000
+ .db $05,HitboxCollision
  .dw PlayerHitboxAction
- .dw $0000,$0000,$0102  ;Speaking
+ .dw $0000,$0000
+ .db $01,HitboxTalk
  .dw DefaultHitboxAction
  
 .ENDS
@@ -297,147 +316,98 @@ PlayerHitboxAction:
   ;Call rot CORDIC on delta XY distance
 
   ;Check if our argument is also a collision hitbox
-  LD HL,SP+4    ;Their hitbox
+  LD HL,SP+4    ;Data frame
   LDI A,(HL)
   LD H,(HL)
   LD L,A
   DEC HL
-  DEC HL
-  LD A,(HL)
-  XOR $01   ;Hitbox type check
+  LDD A,(HL)
+  CP HitboxCollision    ;Hitbox type check
   RET nz
-
-;Squares instead of circles:
-  ;Push actors only on the most convenient axis (largest)
-  ;So, find the axis with the greatest separation
-  PUSH BC
-    LD HL,SP+4    ;DE-> Our hitbox
-    LDI A,(HL)
-    SUB 6 ;Get to the bottom of the hitbox data
-    LD E,A
-    LDI A,(HL)
-    SBC 0
-    LD D,A
-    LDI A,(HL)    ;HL-> Their hitbox
-    SUB 6
-    LD C,A
-    LD A,(HL)
-    LD L,C
-    SBC 0
-    LD H,A
-    LD A,(DE)     ;Get X delta
-    SUB (HL)
-    LD C,A
-    INC DE
-    INC HL
-    LD A,(DE)
-    SBC (HL)
-    LD B,A
-    INC DE
-    INC HL
-    PUSH BC
-      LD A,(DE)   ;Get Y delta
-      SUB (HL)
-      LD C,A
-      INC DE
-      INC HL
-      LD A,(DE)
-      SBC (HL)
-      LD B,A
-      INC DE
-      INC HL
-      PUSH BC
-        LD A,(DE)   ;Get hitbox delta
-        ADD (HL)
-        INC DE
-        INC HL
-        LD C,A
-        LD A,(DE)
-        ADC (HL)
-        LD D,A
-        LD E,C
-      POP HL
-      ;Our radius should be reduced by the absolute value of
-      ;our current delta, and take its sign
-      ;A way is to negate current delta, and add radius with opposite sign
-      ;Movement = DeltaSign * (Radius - |Delta|)
-      ;Movement = DeltaSign * Radius - Delta
-      ;Movement = DeltaSign * Radius + -1 * Delta
-    POP BC
-    ;HL = Delta Y
-    ;DE = Radius
-    ;BC = Delta X
-    PUSH DE
-      ;Find the greater axis
-      LD A,B
-      BIT 7,A
-      JR z,+
-      CPL
-      INC A
+;Push ourselves half distance away from the other
+    ;on the largest axis of separation from their hitbox
+  DEC HL
+  LD D,(HL)     ;Their hitbox Y
+  DEC HL
+  LD E,(HL)     ;Their hitbox X
+  INC BC
+  INC BC
+  INC BC
+  LD A,(BC)     ;Our X
+  SUB E
+  JR nc,+   ;Make sure it's positive
+  CPL
+  INC A
 +
-      LD D,A
-      LD A,H
-      BIT 7,A
-      JR z,+
-      CPL
-      INC A
+  LD E,A
+  INC BC
+  INC BC
+  LD A,(BC)     ;Our Y
+  SUB D
+  JR nc,+   ;Positive difference
+  CPL
+  INC A
 +
-      CP D
-      JR c,+    ;Jump for larger X movement
-      ;Y movement larger
-      LD D,H
-      LD E,L
-      ;Move, along the direction of DE, to half the distance to the radius size
-    POP HL
-    XOR A
-    LD B,A  ;Zero BC
-    LD C,A
-    BIT 7,D
-    JR z,++
-    ;Negate radius
-    SUB L
-    LD L,A
-    LD A,B
-    SBC H
-    LD H,A
-++
-    ;Subtract DE from radius
-    LD A,L
-    SUB E
-    LD E,A
-    LD A,H
-    SBC D
-    LD D,A
-    ;Move half distance, since other object will too
-    SRA D
-    RR E
-  POP HL
+  CP E
+  JR nc,+++
+  ;Horizontal separation
+  DEC BC
+  DEC BC
+  LD A,(BC)
+  SUB (HL)
+  DEC BC    ;Realign to our actor start
+  DEC BC
+  DEC BC
+  JR nc,++  ;Determine left/right based on sub above
+  ;Go left; movement along negative X
+  LD HL,SP+7    ;Collective radius (This op, though shared, affects carry)
+  ADD (HL)      ;Find difference between radius and current distance, via R + -D
+  CPL
+  INC A
+  JR +  ;Shared code path
+++  ;Go right; movement along positive X
+  LD HL,SP+7    ;Collective radius
+  CPL
+  INC A
+  ADD (HL)      ;Find difference between radius and current distance
++   ;Shared path for left/right movement
+  LD H,B    ;HL = Actor Data
+  LD L,C
+  LD B,A
+  XOR A     ;DE = Y delta
+  LD D,A
+  LD E,A
+  LD C,A
   JP Actor_Move
-+   ;X movement larger
-    POP HL
-    XOR A
-    LD D,A  ;Zero DE
-    LD E,A
-    BIT 7,B
-    JR z,++
-    ;Negate radius
-    SUB L
-    LD L,A
-    LD A,D
-    SBC H
-    LD H,A
-++
-    ;Subtract BC from radius
-    LD A,L
-    SUB C
-    LD C,A
-    LD A,H
-    SBC B
-    LD B,A
-    ;Move half distance
-    SRA B
-    RR C
-  POP HL
++++   ;Vertical separation
+  INC HL
+  LD A,(BC)
+  SUB (HL)
+  DEC BC    ;Realign to our actor start
+  DEC BC
+  DEC BC
+  DEC BC
+  DEC BC
+  JR nc,++  ;Determine up/down based on sub above
+  ;Go up; movement along negative Y
+  LD HL,SP+7    ;Collective radius (This op, though shared, affects carry)
+  ADD (HL)      ;Find difference between radius and current distance, via R + -D
+  CPL
+  INC A
+  JR +  ;Shared code path
+++  ;Go down; movement along positive Y
+  LD HL,SP+7    ;Collective radius
+  CPL
+  INC A
+  ADD (HL)      ;Find difference between radius and current distance
++   ;Shared path for up/down movement
+  LD D,A
+  LD H,B    ;HL = Actor Data
+  LD L,C
+  XOR A     ;BC = X delta
+  LD B,A
+  LD C,A
+  LD E,A
   JP Actor_Move
 
 DefaultHitboxAction:

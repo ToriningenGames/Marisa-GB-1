@@ -143,67 +143,74 @@ CharaFrame:
   LD B,A
   SCF
 +
-  ;Carry is set correctly, so draw this frame
-  PUSH DE
-    CALL Actor_Draw
-  POP DE
+  ;Carry is set correctly for drawing, so keep it accessible
+  PUSH AF
   ;Again; check for full control before moving in response to input
-  LD HL,_ControlState
-  ADD HL,DE
-  LD A,(HL)
-  OR A
-  RET z
+    LD HL,_ControlState
+    ADD HL,DE
+    LD A,(HL)
+    OR A
+    JR z,++
 ;Check for movement
-  LD HL,_ButtonState
-  ADD HL,DE
-  LDH A,($FE)
-  AND $F0
-  LD (HL),A
-  RET z
+    LD HL,_ButtonState
+    ADD HL,DE
+    LDH A,($FE)
+    AND $F0
+    LD (HL),A
+    JR z,++
+    PUSH BC
+    PUSH DE
 ;Direction is being pressed if not zero
 ;Move handles 0 just fine, though
 ;DE-> Actor data
 ;A  = Movement direction
     ;%DULR0000
-  LD HL,_MoveSpeed
-  ADD HL,DE
-  LD C,(HL)
-  INC HL
-  LD B,(HL)
-  LD H,D    ;Move Actor data pointer to HL
-  LD L,E
-  LD DE,0
-  PUSH AF
-    AND $C0
-    JR z,+
-    LD D,B
-    LD E,C
-    RLA
-    JR c,+
-    LD A,D    ;Negate for up (More accurately, "not down")
-    CPL
-    LD D,A
-    LD A,E
-    CPL
-    LD E,A
-    INC DE
+      LD HL,_MoveSpeed
+      ADD HL,DE
+      LD C,(HL)
+      INC HL
+      LD B,(HL)
+      LD H,D    ;Move Actor data pointer to HL
+      LD L,E
+      LD DE,0
+      PUSH AF
+        AND $C0
+        JR z,+
+        LD D,B
+        LD E,C
+        RLA
+        JR c,+
+        LD A,D    ;Negate for up (More accurately, "not down")
+        CPL
+        LD D,A
+        LD A,E
+        CPL
+        LD E,A
+        INC DE
 +
+      POP AF
+      AND $30
+      JR nz,+ ;Are any LR buttons pressed?
+      LD BC,0 ;No, don't move along X axis
++
+      AND $20
+      JR z,+  ;Is left pressed (necessitating a negate)?
+      LD A,B
+      CPL
+      LD B,A
+      LD A,C
+      CPL
+      LD C,A
+      INC BC
++
+      CALL Actor_Move
+    POP DE
+    POP BC
+++
   POP AF
-  AND $30
-  JR nz,+ ;Are any LR buttons pressed?
-  LD BC,0 ;No, don't move along X axis
-+
-  AND $20
-  JR z,+  ;Is left pressed (necessitating a negate)?
-  LD A,B
-  CPL
-  LD B,A
-  LD A,C
-  CPL
-  LD C,A
-  INC BC
-+
-  JP Actor_Move
+  JP Actor_Draw
+
+_charaMove
 
 
 ;Animation data
@@ -216,12 +223,12 @@ CharaFrame:
 ;See Actor.asm for change format
 _DownWalk:
  .db 6
- .db -10,-9,$69,%00100000  ;Head left
- .db -10,-1,$68,%00100000  ;Head right
- .db  -8,-7,$6B,%00000000  ;Shoulder left
- .db  -8, 0,$6B,%00100000  ;Shoulder right
- .db   0,-7,$6E,%00000000  ;Leg left
- .db   0, 0,$70,%00100000  ;Leg right
+ .db  -8,-9,$69,%00100000  ;Head left
+ .db  -8,-1,$68,%00100000  ;Head right
+ .db  -6,-7,$6B,%00000000  ;Shoulder left
+ .db  -6, 0,$6B,%00100000  ;Shoulder right
+ .db   2,-7,$6E,%00000000  ;Leg left
+ .db   2, 0,$70,%00100000  ;Leg right
 _VertLoop:
  .db $53
  .db %11100000,%01010110,%11011010
@@ -230,21 +237,21 @@ _VertLoop:
  .dw _VertLoop
 _UpWalk:
  .db 6
- .db -10,-7,$6A,%00100000  ;Head left
- .db -10, 1,$69,%00000000  ;Head right
- .db  -8,-7,$6C,%00100000  ;Shoulder left
- .db  -8, 0,$6C,%00000000  ;Shoulder right
- .db   0,-7,$6F,%00100000  ;Leg left
- .db   0, 0,$71,%00000000  ;Leg right
+ .db  -8,-7,$6A,%00100000  ;Head left
+ .db  -8, 1,$69,%00000000  ;Head right
+ .db  -6,-7,$6C,%00100000  ;Shoulder left
+ .db  -6, 0,$6C,%00000000  ;Shoulder right
+ .db   2,-7,$6F,%00100000  ;Leg left
+ .db   2, 0,$71,%00000000  ;Leg right
  .db $01
  .db $FF
  .dw _VertLoop
 _LeftWalk:
  .db 4
- .db -10, -4,$6D,%00100000  ;Head
- .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0, -8,$73,%00100000  ;Leg left
- .db   0,  0,$72,%00100000  ;Leg right
+ .db  -8, -4,$6D,%00100000  ;Head
+ .db  -6, -5,$79,%00000000  ;Shoulder
+ .db   2, -8,$73,%00100000  ;Leg left
+ .db   2,  0,$72,%00100000  ;Leg right
 _SideLoop:
  .db $63
  .db %00100000,%01001110,%01010010
@@ -257,51 +264,51 @@ _SideLoop:
  .dw _SideLoop
 _RightWalk:
  .db 4
- .db -10, -4,$78,%00100000  ;Head
- .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0, -8,$72,%00000000  ;Leg left
- .db   0,  0,$73,%00000000  ;Leg right
+ .db  -8, -4,$78,%00100000  ;Head
+ .db  -6, -5,$79,%00000000  ;Shoulder
+ .db   2, -8,$72,%00000000  ;Leg left
+ .db   2,  0,$73,%00000000  ;Leg right
  .db $01
  .db $FF
  .dw _SideLoop
 _DownFace:
  .db 6
- .db -10,-9,$69,%00100000  ;Head left
- .db -10,-1,$68,%00100000  ;Head right
- .db  -8,-7,$6B,%00000000  ;Shoulder left
- .db  -8, 0,$6B,%00100000  ;Shoulder right
- .db   0,-7,$6E,%00000000  ;Leg left
- .db   0, 0,$6E,%00100000  ;Leg right
+ .db  -8, -9,$69,%00100000  ;Head left
+ .db  -8, -1,$68,%00100000  ;Head right
+ .db  -6, -7,$6B,%00000000  ;Shoulder left
+ .db  -6,  0,$6B,%00100000  ;Shoulder right
+ .db   2, -7,$6E,%00000000  ;Leg left
+ .db   2,  0,$6E,%00100000  ;Leg right
 _IdleLoop:
  .db $F1
  .db $FF
  .dw _IdleLoop
 _UpFace:
  .db 6
- .db -10,-7,$6A,%00100000  ;Head left
- .db -10, 1,$69,%00000000  ;Head right
- .db  -8,-7,$6C,%00100000  ;Shoulder left
- .db  -8, 0,$6C,%00000000  ;Shoulder right
- .db   0,-7,$6F,%00100000  ;Leg left
- .db   0, 0,$6F,%00000000  ;Leg right
+ .db  -8, -7,$6A,%00100000  ;Head left
+ .db  -8,  1,$69,%00000000  ;Head right
+ .db  -6, -7,$6C,%00100000  ;Shoulder left
+ .db  -6,  0,$6C,%00000000  ;Shoulder right
+ .db   2, -7,$6F,%00100000  ;Leg left
+ .db   2,  0,$6F,%00000000  ;Leg right
  .db $F1
  .db $FF
  .dw _IdleLoop
 _LeftFace:
  .db 4
- .db -10, -4,$6D,%00100000  ;Head
- .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0, -8,$73,%00100000  ;Leg left
- .db   0,  0,$72,%00100000  ;Leg right
+ .db  -8, -4,$6D,%00100000  ;Head
+ .db  -6, -5,$79,%00000000  ;Shoulder
+ .db   2, -8,$73,%00100000  ;Leg left
+ .db   2,  0,$72,%00100000  ;Leg right
  .db $F1
  .db $FF
  .dw _IdleLoop
 _RightFace:
  .db 4
- .db -10, -4,$78,%00100000  ;Head
- .db  -8, -5,$79,%00000000  ;Shoulder
- .db   0, -8,$72,%00000000  ;Leg left
- .db   0,  0,$73,%00000000  ;Leg right
+ .db  -8, -4,$78,%00100000  ;Head
+ .db  -6, -5,$79,%00000000  ;Shoulder
+ .db   2, -8,$72,%00000000  ;Leg left
+ .db   2,  0,$73,%00000000  ;Leg right
  .db $F1
  .db $FF
  .dw _IdleLoop
@@ -383,7 +390,7 @@ HatFrame:
   LD A,(HL)
   INC A
   JP z,Actor_Delete
-  ;Move based on parent
+  ;Exist based on parent's location
   LD HL,_ParentChar
   ADD HL,DE
   LDI A,(HL)
@@ -391,14 +398,17 @@ HatFrame:
   LD C,A
   INC BC
   INC BC
-  INC BC
-  LD HL,_MasterX+1
+  LD HL,_MasterX
   ADD HL,DE
   LD A,(BC)
-  INC BC
-  INC BC
   LDI (HL),A
-  INC HL
+  INC BC
+  LD A,(BC)
+  LDI (HL),A
+  INC BC
+  LD A,(BC)
+  LDI (HL),A
+  INC BC
   LD A,(BC)
   LD (HL),A
   LD A,_HatVal-5
@@ -469,16 +479,16 @@ HatFrame:
 ;Universal order: Left/Down/Right/Up
 _Left:
  .db 4
- .db -6, 1,$01,%00000000    ;Tip
+ .db -1, 1,$01,%00000000    ;Tip
  .db  1,-4,$64,%00000000    ;Left
  .db  1, 4,$65,%00000000    ;Right
- .db -0,-6,$01,%00000000    ;Side
+ .db  5,-6,$01,%00000000    ;Side
  .db $F1
  .db $FF
  .dw DefaultIdleAnim
 _Down:
  .db 3
- .db  -7, 1,$01,%00000000
+ .db  -2, 1,$01,%00000000
  .db  -0,-9,$62,%00000000
  .db  -0,-1,$63,%00000000
  .db $F1
@@ -486,16 +496,16 @@ _Down:
  .dw DefaultIdleAnim
 _Right:
  .db 4
- .db -6, -4,$01,%00000000
+ .db -1, -4,$01,%00000000
  .db  1,-12,$65,%00100000
  .db  1, -4,$64,%00100000
- .db -1,  3,$01,%00000000
+ .db  4,  3,$01,%00000000
  .db $F1
  .db $FF
  .dw DefaultIdleAnim
 _Up:
  .db 3
- .db  -7,-3,$01,%00000000
+ .db  -2,-3,$01,%00000000
  .db  -0,-7,$66,%00000000
  .db  -0, 1,$67,%00000000
  .db $F1
@@ -512,7 +522,7 @@ _Animations:
 HeadPosTable:
 ;Y,X
  .db    0, 0    ;None
- .db  -14, 0    ;Marisa
+ .db  -12, 0    ;Marisa
  .db  -12, 0    ;Fairy
  .db  -10, 0    ;Narumi
  .db  -16, 0    ;Alice

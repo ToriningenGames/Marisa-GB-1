@@ -50,7 +50,8 @@
     ;1 byte: hitbox count
     ;2 bytes: X position (8.8)
     ;2 bytes: Y position (8.8)
-    ;2 bytes: radius (8.8)
+    ;1 byte:  radius (pixels)
+    ;1 byte:  type
     ;2 bytes: Action. Signature:
         ;BC->Owning actor
         ;DE->Touching actor

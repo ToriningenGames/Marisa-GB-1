@@ -588,19 +588,18 @@ LoadTitle:
   LDI (HL),A
   DEC C
   JR nz,-
+;Now pausable
+  LD BC,PauseTask
+  CALL NewTask
+;Camera Setup
+  LD BC,Camera_Task
+  CALL NewTaskLo
 ;Play opening cutscene
   LD DE,Cs_LoadInit
   LD BC,Cutscene_Task
   CALL NewTask
-  PUSH BC
-;Now pausable
-    LD BC,PauseTask
-    CALL NewTask
-;Camera Setup
-    LD BC,Camera_Task
-    CALL NewTaskLo
 ;Wait for cutscene to finish, so Marisa is initialized
-  POP AF
+  LD A,B
   CALL WaitOnTask
 ;Exits
   LD BC,ExitCheck_Task

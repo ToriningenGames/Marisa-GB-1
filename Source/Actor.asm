@@ -392,16 +392,16 @@ Actor_Move:
 
   PUSH DE
     PUSH BC
-;Maginify movements by 5 (x) and 3 (y) constant for hitboxing
+;Maginify movements by 4 (x) and 3 (y) constant for hitboxing
       BIT 7,B
       JR z,+
       LD A,B
-      SUB 5
+      SUB 4
       LD B,A
       JR ++
 +
       LD A,B
-      ADD 5
+      ADD 4
       LD B,A
 ++
       BIT 7,D
@@ -416,46 +416,10 @@ Actor_Move:
       LD D,A
 ++
 ;Test X+Y deltas simultaneously
-;      PUSH BC
-        INC HL
-        INC HL
-;        LDI A,(HL)
-;        ADD C
-;        LDI A,(HL)
-;        ADC B
-;        LD C,A
-;        LDI A,(HL)
-;        ADD E
-;        LDD A,(HL)
-;        ADC D
-;        LD B,A
-;        PUSH HL
-;          CALL GetColAtBC
-;        POP HL
-;      POP BC
-;      JR nc,+   ;Fully diagonal movement failed
-;;Move along diagonal
-;    POP BC
-;  POP DE
-;  LD A,(HL)
-;  ADD E
-;  LDI (HL),A
-;  LD A,(HL)
-;  ADC D
-;  LDD (HL),A
-;  DEC HL
-;  DEC HL
-;  LD A,(HL)
-;  ADD C
-;  LDI (HL),A
-;  LD A,(HL)
-;  ADC B
-;  LD (HL),A
-;  RET
+      INC HL
+      INC HL
 +
 ;Test X delta
-;      DEC HL
-;      DEC HL
       LDI A,(HL)
       ADD C
       LDI A,(HL)
@@ -477,8 +441,6 @@ Actor_Move:
     LD A,(HL)
     ADC B
     LDI (HL),A
-;  POP DE        ;Because diagonal movement was tested, and horizonal succeeded,
-;  RET           ;we know that vertical failed; no need to test it.
 +
 ;Test Y delta
     LDI A,(HL)
