@@ -821,7 +821,7 @@ Cs_LoadInit:
   CsLoadMap MapForestBKG03
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  CsNewActor 2,CsChFairy,0
+  CsNewActor 2,CsChAlice,0
   CsWait 2
   CsInputChange 1,0     ;Cutscene control of Marisa
   CsAnimateActor 1,CsAnFaceDown

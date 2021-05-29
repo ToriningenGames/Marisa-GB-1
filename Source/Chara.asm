@@ -42,9 +42,9 @@ CharaFrame:
   LD (HL),1     ;Must make it nonzero
   LD HL,_Hitbox
   ADD HL,DE
-  LD (HL),<DefaultHitboxes
+  LD (HL),<PlayerHitboxes
   INC HL
-  LD (HL),>DefaultHitboxes
+  LD (HL),>PlayerHitboxes
 ;TODO:
     ;Destructor
     ;Hat play

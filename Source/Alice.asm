@@ -9,9 +9,9 @@ AliceFrame:
   ;Hitbox setup
   LD HL,_Hitbox
   ADD HL,DE
-  LD (HL),<DefaultHitboxes
+  LD (HL),<NPCHitboxes
   INC HL
-  LD (HL),>DefaultHitboxes
+  LD (HL),>NPCHitboxes
   ;Animation values
   LD HL,_AnimChange
   ADD HL,DE
