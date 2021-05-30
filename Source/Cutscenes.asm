@@ -40,7 +40,7 @@
     ;Some are tasks
     ;DE->Data
 ;Cutscene abilities:
-;End
+;End (If D == E)
 ;Disable player input
 ;Enable player input
 ;Run Text
@@ -60,7 +60,6 @@
 ;Set actor speed
 ;Alter Map
 ;Shoot Danmaku
-;End
 ;Wait for time
 ;Wait on text
 
@@ -75,7 +74,7 @@
         ;clear calls the action with DE as-is
         ;set uses E as a var number.
             ;E is replaced with the value at $C000+var,
-            ;D is ORed with the value at $C001+var
+            ;D is added with the value at $C001+var
 Cutscene_LUT:
  .dw Cutscene_End
  .dw Cutscene_InputChange
@@ -134,7 +133,7 @@ _Cutscene_ItemReturn:
   LD A,(BC)
   INC BC
   LD H,>Cutscene_LUT
-  SLA A     ;Carry out here important
+  SLA A     ;Carry out here important (Same task cutscene item)
   LD L,A
   LD A,(BC)
   INC BC
@@ -143,6 +142,19 @@ _Cutscene_ItemReturn:
   INC BC
   LD D,A
   JR c,+    ;Same task cutscene item
+  BIT 7,L   ;Var indirection indicator
+  JR z,++
+  RES 7,L   ;Grab DE from vars
+  PUSH HL
+    LD H,varPage
+    LD L,E
+    LD E,(HL)
+    INC L
+    LD A,D
+    ADD (HL)
+    LD D,A
+  POP HL
+++
   PUSH BC
     LD C,(HL)
     INC HL
@@ -161,18 +173,6 @@ _Cutscene_ItemReturn:
   LD L,A
   JP HL
 
-_getVar:
-;E= Variable no.
-;D= Value to OR in
-  LD H,varPage
-  LD L,E
-  LD E,(HL)
-  INC L
-  LD A,D
-  OR (HL)
-  LD D,A
-  RET
-
 ;Cutscene functions
 ;These are not tasks
 Cutscene_Wait:
@@ -184,9 +184,6 @@ Cutscene_Wait:
   DEC D
   JR nz,--
   JR _Cutscene_ItemReturn
-
-Cutscene_End:
-  JP EndTask
 
 Cutscene_MapWait:
   LD DE,hotMap
@@ -236,14 +233,20 @@ Cutscene_CallCutscene:
   CALL WaitOnTask
   JR _Cutscene_ItemReturn
 
+Cutscene_End:
+  LD A,D
+  CP E
+  JR nz,_Cutscene_ItemReturn
+  JP EndTask
+
 
 ;These are tasks
 
 Cutscene_CameraMove:
-;D= Distance
-;E= %DDSSSSSS
+;D= %DDSSSSSS
     ;||++++++--- Speed (2.4)
     ;++--------- Movement direction
+;E= Distance
 ;Meanings:
 ;Direction:
     ;0, camera moves up
@@ -256,22 +259,22 @@ Cutscene_CameraMove:
     ;Pixels/frame
 ;Up down/Left right distinction
   LD C,<BkgVertScroll
-  BIT 6,E
+  BIT 6,D
   JR z,+
   INC C
 +
 ;Convert E to 4.4 format
-  LD B,E
+  LD B,D
   LD A,$3F
-  AND E
+  AND D
 ;  RLA  ;When speed is in 3.3
-  LD E,A
+  LD D,A
   XOR A
   BIT 7,B
   LD B,>BkgVertScroll
   JR z,+
 -   ;Down/Right
-  ADD E
+  ADD D
   LD L,A    ;Delta accumulator
   AND $F0
   SWAP A
@@ -279,10 +282,10 @@ Cutscene_CameraMove:
   LD A,(BC)
   ADD H
   LD (BC),A
-  LD A,D        ;Check if distance covered
+  LD A,E        ;Check if distance covered
   SUB H
   JR c,++
-  LD D,A
+  LD E,A
   LD A,L
   AND $0F       ;Integer applied; only accumulate fractional
   CALL HaltTask
@@ -290,14 +293,14 @@ Cutscene_CameraMove:
 ++
   CPL       ;Correct for overshoot
   INC A
-  LD D,A
+  LD E,A
   LD A,(BC)
-  SUB D
+  SUB E
   LD (BC),A
   JP EndTask
 +
 -   ;Up/Left
-  ADD E
+  ADD D
   LD L,A
   AND $F0
   SWAP A
@@ -305,10 +308,10 @@ Cutscene_CameraMove:
   LD A,(BC)
   SUB H
   LD (BC),A
-  LD A,D        ;Check if distance covered
+  LD A,E        ;Check if distance covered
   SUB H
   JR c,++
-  LD D,A
+  LD E,A
   LD A,L
   AND $0F
   CALL HaltTask
@@ -316,9 +319,9 @@ Cutscene_CameraMove:
 ++
   CPL       ;Correct for overshoot
   INC A
-  LD D,A
+  LD E,A
   LD A,(BC)
-  ADD D
+  ADD E
   LD (BC),A
   JP EndTask
 
@@ -331,13 +334,6 @@ Cutscene_CameraSet:
   LD (HL),D
   JP EndTask
 
-Cutscene_ActorNewFromVar:
-  LD B,D    ;Save ID; that's not variable'd
-  CALL _getVar
-  LD A,$1F
-  AND B
-  OR D
-  LD D,A
 Cutscene_ActorNew:
 ;D= %CCCIIIII
     ;   +++++--- Reference ID
@@ -712,8 +708,15 @@ Cutscene_DanmakuInit:
  .db $80+28
  .dw time+$100
 .ENDM
+.MACRO CsWaitVar ARGS var, timebase=$0100
+ .db $C0+28,var,>basetime
+.ENDM
 .MACRO CsEnd
  .db $80
+ .dw 0
+.ENDM
+.MACRO CsEndVar ARGS var, check=0
+ .db $C0,var,check
 .ENDM
 .MACRO CsWaitText
  .db $80+29
@@ -722,23 +725,38 @@ Cutscene_DanmakuInit:
 .MACRO CsInputChange ARGS ID, control
  .db 1,control,ID
 .ENDM
+.MACRO CsInputChangeVar ARGS var, ID
+ .db $40+1,var,ID
+.ENDM
 .MACRO CsRunText ARGS TextPtr
  .db 3
  .dw TextPtr
 .ENDM
+.MACRO CsRunTextVar ARGS var, textbase=0
+ .db $40+3,var,>textbase
+.ENDM
 .MACRO CsSetCamera ARGS X, Y
  .db 4,Y,X
 .ENDM
+.MACRO CsSetCameraVar ARGS var, morex=0
+ .db $40+4,var,basex
+.ENDM
 .MACRO CsMoveCameraSpeed ARGS dir, speed, dist
 ;I want to move in [dir], and go [dist] via [speed] pixels/frame
- .db 5,(dir<<6) | ((speed*16) & $3F),dist
+ .db 5,dist,(dir<<6) | ((speed*16) & $3F)
+.ENDM
+.MACRO CsMoveCameraSpeedVar ARGS var, dir=0, morespeed=0
+ .db $40+5,var,(dir<<6) | ((morespeed*16) & $3F)
 .ENDM
 .MACRO CsMoveCameraTime ARGS dir, time, dist
 ;I want to move in [dir], and go [dist] in exactly [time] frames
- .db 5,(dir<<6) | (((dist/time)*16) & $3F),dist
+ .db 5,dist,(dir<<6) | (((dist/time)*16) & $3F)
 .ENDM
 .MACRO CsNewActor ARGS ID, species, race
  .db 6,race,(species << 5) | ID
+.ENDM
+.MACRO CsNewActorVar ARGS var, ID, speciesmod=0
+ .db $40+6,var,(speciesmod << 5) | ID
 .ENDM
 .MACRO CsDeleteActor ARGS ID
  .db 7,0,ID
@@ -747,18 +765,41 @@ Cutscene_DanmakuInit:
  .db 9,(X+8)  & $FF,ID | ((0)*32)
  .db 9,(Y+16) & $FF,ID | ((1)*32)
 .ENDM
+.MACRO CsSetActorVar ARGS varx, vary, ID
+ .db $40+9,varx,ID | ((0)*32)
+ .db $40+9,vary,ID | ((1)*32)
+.ENDM
 .MACRO CsAnimateActor ARGS ID, anim
  .db 8,anim,ID | ((1)*32)
+.ENDM
+.MACRO CsAnimateActorVar ARGS var, ID
+ .db $40+8,var,ID | ((1)*32)
 .ENDM
 .MACRO CsAnimSpeed ARGS ID, animspeed
  .db 8,animspeed,ID | ((0)*32)
 .ENDM
+.MACRO CsAnimSpeedVar ARGS var, ID
+ .db $40+8,var,ID | ((0)*32)
+.ENDM
 .MACRO CsSetActorSpeed ARGS ID, speed
  .db 9,speed*16,ID | ((2)*32)
+.ENDM
+.MACRO CsSetActorSpeedVar ARGS var, ID
+ .db $40+9,var,ID | ((2)*32)
 .ENDM
 .MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
  .db 9,speed*16,ID | ((2)*32)
  .db 9,dist, ID | ((dir + 3)*32)
+.ENDM
+.MACRO CsMoveActorSpeedVar ARGS varspeed, vardist, ID, dir=0
+ .db $40+9,varspeed,ID | ((2)*32)
+ .db $40+9,vardist, ID | ((dir + 3)*32)
+.ENDM
+.MACRO CsMoveActorDist ARGS ID, dir, dist
+ .db 9,dist,ID | ((dir + 3)*32)
+.ENDM
+.MACRO CsMoveActorDistVar ARGS var, ID, dir=0
+ .db $40+9,vardist,ID | ((dir + 3)*32)
 .ENDM
 .MACRO CsMoveActorTime ARGS ID, dir, time, dist
  .db 9,dist/time*16,ID | ((2)*32)
@@ -767,27 +808,45 @@ Cutscene_DanmakuInit:
 .MACRO CsLoadObjColor ARGS color0, color1
  .db $80+30,color1,color0
 .ENDM
+.MACRO CsLoadObjColorVar ARGS var, morecolor0=0
+ .db $C0+30,var,color0mod
+.ENDM
 .MACRO CsLoadBkgColor ARGS color
  .db $80+31,0,color
 .ENDM
-.MACRO CsLoadObjects ARGS Objs
- .db 11
- .dw Objs
+.MACRO CsLoadBkgColorVar ARGS var, morecolor=0
+ .db $C0+31,var,addcolor
 .ENDM
-.MACRO CsLoadMap ARGS Map
+.MACRO CsLoadObjects ARGS objs
+ .db 11
+ .dw objs
+.ENDM
+.MACRO CsLoadObjectsVar ARGS var, objbase=0
+ .db $40+11,var,>objbase
+.ENDM
+.MACRO CsLoadMap ARGS map
  .db 12
- .dw Map
+ .dw map
+.ENDM
+.MACRO CsLoadMapVar ARGS var, mapbase=0
+ .db $40+12,var,>mapbase
 .ENDM
 .MACRO CsWaitMap
  .db $80+27
  .dw 0      ;Dummy
 .ENDM
-.MACRO CsLoadSong ARGS Song
+.MACRO CsLoadSong ARGS song
  .db 13
- .dw Song
+ .dw song
+.ENDM
+.MACRO CsLoadSongVar ARGS var, songbase=0
+ .db $40+13,var,>songbase
 .ENDM
 .MACRO CsPanSong ARGS channelSelect, stereoVolume
  .db 14,channelSelect,stereoVolume
+.ENDM
+.MACRO CsPanSongVar ARGS var, moreStereoVolume=0
+ .db $40+14,var,moreStereoVolume
 .ENDM
 .MACRO CsAssignHat ARGS hat, ID
  .db 10,hat,ID
@@ -796,12 +855,21 @@ Cutscene_DanmakuInit:
  .db 16
  .dw alteration
 .ENDM
+.MACRO CsAlterMapVar ARGS var, altbase=0
+ .db $40+16,var,>altbase
+.ENDM
 .MACRO CsShootDanmaku ARGS ID, type
  .db 17,type,ID
 .ENDM
-.MACRO CsCall ARGS Cs
+.MACRO CsShootDanmakuVar ARGS var, ID
+ .db $40+17,var,ID
+.ENDM
+.MACRO CsCall ARGS cs
  .db $80+2
- .dw Cs
+ .dw cs
+.ENDM
+.MACRO CsCallVar ARGS var, csbase=0
+ .db $C0+2,var,>csbase
 .ENDM
 
 
