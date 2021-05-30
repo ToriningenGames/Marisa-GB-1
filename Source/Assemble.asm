@@ -9,39 +9,25 @@
     ;Not available
 
 ;WRAM:
-;$C000 - $C008
-    ;Unused
-;$C010 - $C020?
-    ;CORDIC, if I can ever grasp its true form
-;$C020?- $C02F
-    ;Volatile memory
-;$C030 - $C031
-    ;LCD IRQ software support
-      ;Use:
-        ;Place an address here, stack order, to a function to fire on LCD IRQ
-        ;Function must begin with:
-            ;LD SP,HL
-        ;And end with:
-            ;POP HL
-            ;POP AF
-            ;RETI
-;$C032 - $C037
-    ;Init extraction state space
-;$C038
-    ;Text Face state
-;$C039 - $C07F
-    ;Free?
-;$C080 - $C08F
+;$C000 - $C07F:
+    ;Cutscene User variables
+;$C080 - $C08F:
     ;Button data area
-;$C090 - $C09E
+;$C090 - $C09E:
     ;Map State
-;$C09E - $C09F
+;$C09E - $C09F:
     ;Hat data pointer
-;$C0A0 - $C0BF
+;$C0A0 - $C0BF:
     ;Cutscene actor task pointers
-;$C0C0 - $C0E7
-    ;Unused. But still reserved.
-;$C0E8 - $C0E9
+;$C0C0 - $C0CF:
+    ;Reserved
+;$C0E0 - $C0E5:
+    ;Init and face extraction state space
+;$C0E6:
+    ;Reserved
+;$C0E7:
+    ;Text Face state
+;$C0E8 - $C0E9:
     ;Object manager state
 ;$C0EA:
     ;Text status (Text.asm)
@@ -51,12 +37,14 @@
     ;VRAM update buffer
         ;Contains, in order, an 8 bit counter, a 16 bit source, and a 16 bit destination
         ;If something else is in the way, you can wait a frame.
-;$C0FB - $C0FC
+;$C0FB - $C0FC:
     ;Memory ring starting point
 ;$C0FD,$C0FE,$C0FF
     ;Storage place for tea while working.
-;$C100 - $C19F: Text Data
-;$C1A0 - $C3FF: Free
+;$C100 - $C19F:
+    ;Text Data
+;$C1A0 - $C3FF:
+    ;Free
 ;$C400 - $CCFF: Initial decompression zone
 ;$C400 - $C8FF    |||    Overlaps    |||
     ;Hitbox data  |||                |||
@@ -292,8 +280,8 @@ BlankSpriteIRQ:
   DEC HL
   LD A,$76  ;Opcode for HALT
   CP (HL)
-  JR z,+
-  INC HL    ;Do not halt again
+  JR z,+    ;Do the halt again; HALTs are for frames
+  INC HL
 +
   PUSH HL   ;New return
   ADD SP,-4 ;Realign stack
@@ -508,7 +496,7 @@ GraphicsInit:
     ;We can't copy over the beginning -256- 512 bytes until the screen is black
 ;First 32 tiles
   LD HL,Tiledata
-  LD DE,$C032
+  LD DE,$C0E0
   PUSH DE
   LD DE,$C400
   CALL ExtractSpec
@@ -523,7 +511,7 @@ GraphicsInit:
   POP BC
 -
   PUSH DE
-  LD BC,$C032
+  LD BC,$C0E0
   PUSH BC
   CALL ExtractRestoreSP
 ;Copy from $C600 to vRAM
@@ -558,7 +546,7 @@ GraphicsInit:
   RST $10
   POP DE
 ;Edit stored state information
-  LD HL,$C037
+  LD HL,$C0E5
   LD A,(HL)
   SUB 5
   LD (HL),A

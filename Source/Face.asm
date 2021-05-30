@@ -32,9 +32,9 @@
 
 .INCLUDE "macros.asm"
 
-.DEFINE FaceExtractState    $C032
+.DEFINE FaceExtractState    $C0E0
 .DEFINE FaceExtractArea     $C900
-.DEFINE FaceState   $C038
+.DEFINE FaceState   $C0E7
     ; %E00000FF
     ;  ||||||++--- Which face is on screen (0: No face, 1: Showing 1, 2: Showing 2)
     ;  |+++++----- Unused. Keep 0

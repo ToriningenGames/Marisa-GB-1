@@ -67,6 +67,15 @@
 ;Attach hat to character
 ;Detach hat from characters
 
+;Action IDs are indexes into this table, with the following notes:
+    ;Bit 7:
+        ;clear calls the action as a task
+        ;set set calls it as a function
+    ;Bit 6:
+        ;clear calls the action with DE as-is
+        ;set uses E as a var number.
+            ;E is replaced with the value at $C000+var,
+            ;D is ORed with the value at $C001+var
 Cutscene_LUT:
  .dw Cutscene_End
  .dw Cutscene_InputChange
@@ -78,18 +87,13 @@ Cutscene_LUT:
  .dw Cutscene_ActorDelete
  .dw Cutscene_ActorAnimate
  .dw Cutscene_ActorMovement
- .dw Cutscene_End
+ .dw Cutscene_HatAssign
  .dw Cutscene_ObjectsLoad
  .dw Cutscene_MapLoad
  .dw Cutscene_SongLoad
  .dw Cutscene_SongPan
- .dw Cutscene_HatAssign
  .dw LoadRectToVRAM_Task
  .dw Cutscene_DanmakuInit
- .dw Cutscene_End
- .dw Cutscene_End
- .dw Cutscene_End
- .dw Cutscene_End
  .dw Cutscene_End
  .dw Cutscene_End
  .dw Cutscene_End
@@ -116,6 +120,9 @@ CharaTypes:
 
 .DEFINE Cutscene_Actors $C0A0
 .EXPORT Cutscene_Actors
+
+.DEFINE varPage $C0
+.EXPORT varPage Cutscene_VarPage
 
 ;Cutscene loop
 Cutscene_Task:
@@ -154,9 +161,22 @@ _Cutscene_ItemReturn:
   LD L,A
   JP HL
 
+_getVar:
+;E= Variable no.
+;D= Value to OR in
+  LD H,varPage
+  LD L,E
+  LD E,(HL)
+  INC L
+  LD A,D
+  OR (HL)
+  LD D,A
+  RET
+
 ;Cutscene functions
 ;These are not tasks
 Cutscene_Wait:
+;DE=Time
 --
   CALL HaltTask
   DEC E
@@ -311,6 +331,13 @@ Cutscene_CameraSet:
   LD (HL),D
   JP EndTask
 
+Cutscene_ActorNewFromVar:
+  LD B,D    ;Save ID; that's not variable'd
+  CALL _getVar
+  LD A,$1F
+  AND B
+  OR D
+  LD D,A
 Cutscene_ActorNew:
 ;D= %CCCIIIII
     ;   +++++--- Reference ID
@@ -562,6 +589,8 @@ Cutscene_SongPan:
   JP EndTask
 
 Cutscene_InputChange:
+;D= Actor ID
+;E= New control state
 ;Send message to actor that control state is now X?
   LD A,D
   ADD <Cutscene_Actors
@@ -627,7 +656,7 @@ Cutscene_HatAssign:
   LD (HL),D
   JP EndTask
 
-Cutscene_DanmakuInit
+Cutscene_DanmakuInit:
 ;D= Actor ID
 ;E= Danmaku type
   LD A,D
@@ -680,14 +709,14 @@ Cutscene_DanmakuInit
 .DEFINE CsDirRight  3
 
 .MACRO CsWait ARGS time
- .db $A1
+ .db $80+28
  .dw time+$100
 .ENDM
 .MACRO CsEnd
  .db $80
 .ENDM
 .MACRO CsWaitText
- .db $A2
+ .db $80+29
  .dw 0      ;Dummy
 .ENDM
 .MACRO CsInputChange ARGS ID, control
@@ -736,10 +765,10 @@ Cutscene_DanmakuInit
  .db 9,dist, ID | ((dir + 3)*32)
 .ENDM
 .MACRO CsLoadObjColor ARGS color0, color1
- .db $A3,color1,color0
+ .db $80+30,color1,color0
 .ENDM
 .MACRO CsLoadBkgColor ARGS color
- .db $A4,0,color
+ .db $80+31,0,color
 .ENDM
 .MACRO CsLoadObjects ARGS Objs
  .db 11
@@ -750,7 +779,7 @@ Cutscene_DanmakuInit
  .dw Map
 .ENDM
 .MACRO CsWaitMap
- .db $A0
+ .db $80+27
  .dw 0      ;Dummy
 .ENDM
 .MACRO CsLoadSong ARGS Song
@@ -761,7 +790,7 @@ Cutscene_DanmakuInit
  .db 14,channelSelect,stereoVolume
 .ENDM
 .MACRO CsAssignHat ARGS hat, ID
- .db 15,hat,ID
+ .db 10,hat,ID
 .ENDM
 .MACRO CsAlterMap ARGS alteration
  .db 16
@@ -771,7 +800,7 @@ Cutscene_DanmakuInit
  .db 17,type,ID
 .ENDM
 .MACRO CsCall ARGS Cs
- .db $82
+ .db $80+2
  .dw Cs
 .ENDM
 
