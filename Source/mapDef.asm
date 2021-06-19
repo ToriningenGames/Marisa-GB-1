@@ -60,7 +60,19 @@
 ;+$02:      n       LZ compressed tiledata, attributes, and objects, in a 32 x 32 field
 ;                   Tile $EF creates random grass
 
+;Map Def (Copied to vars)
+    ;1: Map backing type
+    ;2: Map data pointer
+    ;2: Object data pointer
+    ;2: entry pos from right
+    ;2: entry pos from up
+    ;2: entry pos from left
+    ;2: entry pos from down
+    ;2: setup cutscene pointer
 
+.DEFINE mapDefSize 15
+
+.DEFINE VarArea $C000
 .DEFINE MapArea $D000
 .DEFINE PriArea $D400
 .DEFINE ColArea $D480
@@ -71,6 +83,12 @@
     exitDownCutscene    DW
     exitLeftCutscene    DW
     exitRightCutscene   DW
+.ENDE
+.ENUM ObjArea
+    exitLeftMap    DW
+    exitDownMap    DW
+    exitRightMap   DW
+    exitUpMap      DW
 .ENDE
 .ENUM $C090 ;MapInfo    (14 bytes max)
     hotMap          DB      ;Zero if LoadMap is running.

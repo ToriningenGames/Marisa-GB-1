@@ -19,10 +19,9 @@ Camera_Task:
   PUSH HL
     LD BC,_ControlState
     ADD HL,BC
-    LD A,(HL)
-    DEC A
+    BIT 7,(HL)
   POP HL
-  RET nz    ;If player doesn't have control, don't follow player
+  RET z    ;If camera bit not set, don't follow
 ;Is screen wide enough for scrolling?
   INC HL    ;Move to Marisa X hi
   INC HL

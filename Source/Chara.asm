@@ -63,10 +63,11 @@ CharaFrame:
   LD HL,_ControlState
   ADD HL,DE
   LD A,(HL)
-  OR A
-  JR z,+
   INC A
   JP z,Actor_Delete
+  DEC A
+  AND $7F
+  JR z,+
 ;Button check
   LD HL,_ButtonState
   ADD HL,DE
@@ -149,7 +150,7 @@ CharaFrame:
     LD HL,_ControlState
     ADD HL,DE
     LD A,(HL)
-    OR A
+    AND $7F
     JR z,++
 ;Check for movement
     LD HL,_ButtonState

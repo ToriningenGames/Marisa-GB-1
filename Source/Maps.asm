@@ -184,205 +184,198 @@ MapForestBKG04:
 .db $00,$40,$00
 .db $00,$40,$00
 
+MapBackBase:
+.dw MapForestBKG01,MapForestBKG02,MapForestBKG03,MapForestBKG04
+
 MapForestN23:
-.incbin "rsc/Forest_(-2~3).gbm"
-.db $88
-.dw 0                   ;up
-.dw Cs_LoadN23toN13_1   ;down
-.dw 0                   ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
+.db 2
+.dw MapForestN23map
+.dw MapForestN23obj
+.db 0,  0       ;right side start
+.db 0,  0       ;up side start
+.db 0,  0       ;left side start
+.db 56, 152     ;down side start
+.dw Cs_StraightTransition
 MapForestN13:
-.incbin "rsc/Forest_(-1~3).gbm"
-.db $88                 ;Magic constant for decompressor to copy this literal string
-.dw Cs_LoadN13toN23_1   ;up
-.dw Cs_LoadN13to03_1    ;down
-.dw 0                   ;left
-.dw 0                   ;right
-.db $00,$00,$78         ;Magic string for map decompressor to ignore rest of data
-
+.db 0
+.dw MapForestN13map
+.dw MapForestN13obj
+.db 0,  0
+.db 48, 10
+.db 0,  0
+.db 48, 96
+.dw Cs_StraightTransition
 MapForest00:
+.db 0
+.dw MapForest00map
+.dw MapForest00obj
+.db 0,  0
+.db 0,  0
+.db 0,  0
+.db 0,  0
+.dw Cs_StraightTransition
+;MapForest__:
+;.db 0
+;.dw MapForest__map
+;.dw MapForest__obj
+;.db 0,  0
+;.db 0,  0
+;.db 0,  0
+;.db 0,  0
+;.dw Cs_StraightTransition
+
+MapForestN23map:
+.incbin "rsc/Forest_(-2~3).gbm"
+MapForestN13map:
+.incbin "rsc/Forest_(-1~3).gbm"
+MapForest00map:
 .incbin "rsc/Forest_(0~0).gbm"
-.db $88
-.dw 0                   ;up
-.dw 0                   ;down
-.dw 0                   ;left
-.dw Cs_Load00to01_1     ;right
-.db $00,$00,$78
-
-MapForest01:
-;This map is shared with 04, so the cutscene loads that one.
-;.incbin "rsc/Forest_(0~1).gbm"
-.db $88
-MapForest01Obj:
-.dw 0                   ;up
-.dw Cs_Load01to00_1     ;down
-.dw 0                   ;left
-.dw Cs_Load01to11_1     ;right
-.db $00,$00,$78
-
-MapForest02:
-.incbin "rsc/Forest_(0~2).gbm"
-.db $88
-.dw Cs_Load02to24_1     ;up
-.dw Cs_Load02to12_1     ;down
-.dw 0                   ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest03:
-.incbin "rsc/Forest_(0~3).gbm"
-.db $88
-.dw Cs_Load03toN13_1    ;up
-.dw Cs_Load03to13_1     ;down
-.dw 0                   ;left
-.dw Cs_Load03to04_1     ;right
-.db $00,$00,$78
-
-MapForest04:
+MapForest01map:
+MapForest04map:
 .incbin "rsc/Forest_(0~4).gbm"
-.db $88
-.dw Cs_Load04to31_1     ;up
-.dw Cs_Load04to14_1     ;down
-.dw Cs_Load04to03_1     ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest10:
+MapForest02map:
+.incbin "rsc/Forest_(0~2).gbm"
+MapForest03map:
+.incbin "rsc/Forest_(0~3).gbm"
+MapForest10map:
+MapForest20map:
 .incbin "rsc/Forest_(1~0).gbm"
-.db $88
-.dw Cs_Load10to00_1     ;up
-.dw 0                   ;down
-.dw 0                   ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest11:
+MapForest11map:
 .incbin "rsc/Forest_(1~1).gbm"
-.db $88
-.dw Cs_Load11to01_1     ;up
-.dw Cs_Load11to21_1     ;down
-.dw 0                   ;left
-.dw Cs_Load11to12_1     ;right
-.db $00,$00,$78
-
-MapForest12:
+MapForest12map:
 .incbin "rsc/Forest_(1~2).gbm"
-.db $88
-.dw Cs_Load12to02_1     ;up
-.dw 0                   ;down
-.dw Cs_Load12to11_1     ;left
-.dw Cs_Load12to13_1     ;right
-.db $00,$00,$78
-
-MapForest13:
+MapForest13map:
 .incbin "rsc/Forest_(1~3).gbm"
-.db $88
-.dw Cs_Load13to03_1     ;up
-.dw Cs_Load13to23_1     ;down
-.dw Cs_Load13to12_1     ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest14:
+MapForest14map:
 .incbin "rsc/Forest_(1~4).gbm"
-.db $88
-.dw Cs_Load14to04_1     ;up
-.dw Cs_Load14to24_1     ;down
-.dw Cs_Load14to13_1     ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest20:
-;.incbin "rsc/Forest_(2~0).gbm"
-.db $88
-MapForest20Obj:
-.dw Cs_Load20to10_1     ;up
-.dw 0                   ;down
-.dw 0                   ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest21:
+MapForest21map:
 .incbin "rsc/Forest_(2~1).gbm"
-.db $88
-.dw Cs_Load21to11_1     ;up
-.dw 0                   ;down
-.dw 0                   ;left
-.dw Cs_Load21to22_1     ;right
-.db $00,$00,$78
-
-MapForest22:
+MapForest22map:
 .incbin "rsc/Forest_(2~2).gbm"
-.db $88
-.dw Cs_Load22to30_1     ;up
-.dw Cs_Load22to32_1     ;down
-.dw Cs_Load22to21_1     ;left
-.dw Cs_Load22to23_1     ;right
-.db $00,$00,$78
-
-MapForest23:
+MapForest23map:
 .incbin "rsc/Forest_(2~3).gbm"
-.db $88
-.dw Cs_Load23to13_1     ;up
-.dw Cs_Load23to33_1     ;down
-.dw Cs_Load23to22_1     ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest24:
+MapForest24map:
 .incbin "rsc/Forest_(2~4).gbm"
-.db $88
-.dw Cs_Load24to14_1     ;up
-.dw 0                   ;down
-.dw Cs_Load24to02_1     ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest30:
+MapForest30map:
 .incbin "rsc/Forest_(3~0).gbm"
-.db $88
-.dw Cs_Load30to20_1     ;up
-.dw Cs_Load30to22_1     ;down
-.dw 0                   ;left
-.dw 0                   ;right
-.db $00,$00,$78
-
-MapForest31:
+MapForest31map:
 .incbin "rsc/Forest_(3~1).gbm"
-.db $88
-.dw 0                   ;up
-.dw 0                   ;down
-.dw 0                   ;left
-.dw Cs_Load31to32_1     ;right
-.db $00,$00,$78
-
-MapForest32:
+MapForest32map:
 .incbin "rsc/Forest_(3~2).gbm"
-.db $88
-.dw 0                   ;up
-.dw 0                   ;down
-.dw Cs_Load32to31_1     ;left
-.dw Cs_Load32to33_1     ;right
-.db $00,$00,$78
-
-MapForest33:
+MapForest33map:
 .incbin "rsc/Forest_(3~3).gbm"
-.db $88
-.dw Cs_Load33to23_1     ;up
-.dw Cs_Load33to34_2     ;down
-.dw Cs_Load33to32_1     ;left
-.dw Cs_Load33to34_1     ;right
-.db $00,$00,$78
-
-MapForest34:
+MapForest34map:
 .incbin "rsc/Forest_(3~4).gbm"
-.db $88
-.dw Cs_Load34to33_2     ;up
-.dw 0                   ;down
-.dw Cs_Load34to33_1     ;left
-.dw Cs_Load34to00_1     ;right
-.db $00,$00,$78
+
+MapForestN23obj:
+.dw 0               ;right
+.dw 0               ;up
+.dw 0               ;left
+.dw MapForestN13    ;down
+MapForestN13obj:
+.dw 0               ;right
+.dw MapForestN23    ;up
+.dw 0               ;left
+.dw MapForest03     ;down
+MapForest00obj:
+.dw MapForest01     ;right
+.dw 0               ;up
+.dw 0               ;left
+.dw 0               ;down
+MapForest01obj:
+.dw MapForest11     ;right
+.dw 0               ;up
+.dw 0               ;left
+.dw MapForest00     ;down
+MapForest02obj:
+.dw 0               ;right
+.dw MapForest24     ;up
+.dw 0               ;left
+.dw MapForest12     ;down
+MapForest03obj:
+.dw MapForest04     ;right
+.dw MapForestN13    ;up
+.dw 0               ;left
+.dw MapForest13     ;down
+MapForest04obj:
+.dw 0               ;right
+.dw MapForest31     ;up
+.dw MapForest03     ;left
+.dw MapForest14     ;down
+MapForest10obj:
+.dw 0               ;right
+.dw MapForest00     ;up
+.dw 0               ;left
+.dw 0               ;down
+MapForest11obj:
+.dw MapForest12     ;right
+.dw MapForest01     ;up
+.dw 0               ;left
+.dw MapForest21     ;down
+MapForest12obj:
+.dw MapForest13     ;right
+.dw MapForest02     ;up
+.dw MapForest11     ;left
+.dw 0               ;down
+MapForest13obj:
+.dw 0               ;right
+.dw MapForest03     ;up
+.dw MapForest12     ;left
+.dw MapForest23     ;down
+MapForest14obj:
+.dw 0               ;right
+.dw MapForest04     ;up
+.dw MapForest13     ;left
+.dw MapForest24     ;down
+MapForest20obj:
+.dw 0               ;right
+.dw MapForest10     ;up
+.dw 0               ;left
+.dw 0               ;down
+MapForest21obj:
+.dw MapForest22     ;right
+.dw MapForest11     ;up
+.dw 0               ;left
+.dw 0               ;down
+MapForest22obj:
+.dw MapForest23     ;right
+.dw MapForest30     ;up
+.dw MapForest21     ;left
+.dw MapForest32     ;down
+MapForest23obj:
+.dw 0               ;right
+.dw MapForest13     ;up
+.dw MapForest22     ;left
+.dw MapForest33     ;down
+MapForest24obj:
+.dw 0               ;right
+.dw MapForest14     ;up
+.dw MapForest02     ;left
+.dw 0               ;down
+MapForest30obj:
+.dw 0               ;right
+.dw MapForest20     ;up
+.dw 0               ;left
+.dw MapForest22     ;down
+MapForest31obj:
+.dw MapForest32     ;right
+.dw 0               ;up
+.dw 0               ;left
+.dw 0               ;down
+MapForest32obj:
+.dw MapForest33     ;right
+.dw 0               ;up
+.dw MapForest31     ;left
+.dw 0               ;down
+MapForest33obj:
+.dw MapForest34     ;right
+.dw MapForest23     ;up
+.dw MapForest32     ;left
+.dw MapForest34     ;down
+MapForest34obj:
+.dw MapForest00     ;right
+.dw MapForest33     ;up
+.dw MapForest33     ;left
+.dw 0               ;down
 
 .ENDS

@@ -78,7 +78,7 @@
 Cutscene_LUT:
  .dw Cutscene_End
  .dw Cutscene_InputChange
- .dw Cutscene_CallCutscene
+ .dw Cutscene_CutsceneCall
  .dw TextStart
  .dw Cutscene_CameraSet
  .dw Cutscene_CameraMove
@@ -93,9 +93,9 @@ Cutscene_LUT:
  .dw Cutscene_SongPan
  .dw LoadRectToVRAM_Task
  .dw Cutscene_DanmakuInit
- .dw Cutscene_End
- .dw Cutscene_End
- .dw Cutscene_End
+ .dw Cutscene_VarAdd
+ .dw Cutscene_Task      ;CsJump
+ .dw Cutscene_VarSet
  .dw Cutscene_End
  .dw Cutscene_End
  .dw Cutscene_End
@@ -218,7 +218,7 @@ Cutscene_ObjPaletteLoad:
   LD (HL),E
   JR _Cutscene_ItemReturn
 
-Cutscene_CallCutscene:
+Cutscene_CutsceneCall:
 ;DE=Cutscene to run
 -
   PUSH BC
@@ -238,6 +238,25 @@ Cutscene_End:
   CP E
   JR nz,_Cutscene_ItemReturn
   JP EndTask
+
+Cutscene_VarAdd:
+;D= variable to add to
+;E= value to add
+  LD H,varPage
+  LD L,D
+  LD A,(HL)
+  ADD E
+  LD (HL),A
+  JP _Cutscene_ItemReturn
+
+Cutscene_VarSet:
+;D= variable to set
+;E= value to set to
+  LD H,varPage
+  LD L,D
+  LD (HL),E
+  JP _Cutscene_ItemReturn
+  
 
 
 ;These are tasks
@@ -699,24 +718,32 @@ Cutscene_DanmakuInit:
 .DEFINE CsAnWalkRight   6
 .DEFINE CsAnWalkUp      7
 
-.DEFINE CsDirUp     0
-.DEFINE CsDirLeft   1
-.DEFINE CsDirDown   2
-.DEFINE CsDirRight  3
+.DEFINE CsDirLeft   0
+.DEFINE CsDirDown   1
+.DEFINE CsDirRight  2
+.DEFINE CsDirUp     4
 
 .MACRO CsWait ARGS time
  .db $80+28
  .dw time+$100
 .ENDM
-.MACRO CsWaitVar ARGS var, timebase=$0100
+.MACRO CsWaitVar ARGS var, timebase
+ .IF NARGS >= 3
  .db $C0+28,var,>basetime
+ .ELSE
+ .db $C0+28,var,$01     ;default +$100 to match CsWait
+ .ENDIF
 .ENDM
 .MACRO CsEnd
  .db $80
  .dw 0
 .ENDM
-.MACRO CsEndVar ARGS var, check=0
+.MACRO CsEndVar ARGS var, check
+ .IF NARGS >= 3
  .db $C0,var,check
+ .ELSE
+ .db $C0,var,0
+ .ENDIF
 .ENDM
 .MACRO CsWaitText
  .db $80+29
@@ -732,21 +759,33 @@ Cutscene_DanmakuInit:
  .db 3
  .dw TextPtr
 .ENDM
-.MACRO CsRunTextVar ARGS var, textbase=0
+.MACRO CsRunTextVar ARGS var, textbase
+ .IF NARGS >= 3
  .db $40+3,var,>textbase
+ .ELSE
+ .db $40+3,var,0
+ .ENDIF
 .ENDM
 .MACRO CsSetCamera ARGS X, Y
  .db 4,Y,X
 .ENDM
-.MACRO CsSetCameraVar ARGS var, morex=0
- .db $40+4,var,basex
+.MACRO CsSetCameraVar ARGS var, morex
+ .IF NARGS >= 3
+ .db $40+4,var,morex
+ .ELSE
+ .db $40+4,var,0
+ .ENDIF
 .ENDM
 .MACRO CsMoveCameraSpeed ARGS dir, speed, dist
 ;I want to move in [dir], and go [dist] via [speed] pixels/frame
  .db 5,dist,(dir<<6) | ((speed*16) & $3F)
 .ENDM
-.MACRO CsMoveCameraSpeedVar ARGS var, dir=0, morespeed=0
+.MACRO CsMoveCameraSpeedVar ARGS var, dir=0, morespeed
+ .IF NARGS >= 3
  .db $40+5,var,(dir<<6) | ((morespeed*16) & $3F)
+ .ELSE
+ .db $40+5,var,(dir<<6)
+ .ENDIF
 .ENDM
 .MACRO CsMoveCameraTime ARGS dir, time, dist
 ;I want to move in [dir], and go [dist] in exactly [time] frames
@@ -755,8 +794,12 @@ Cutscene_DanmakuInit:
 .MACRO CsNewActor ARGS ID, species, race
  .db 6,race,(species << 5) | ID
 .ENDM
-.MACRO CsNewActorVar ARGS var, ID, speciesmod=0
+.MACRO CsNewActorVar ARGS var, ID, speciesmod
+ .IF NARGS >= 3
  .db $40+6,var,(speciesmod << 5) | ID
+ .ELSE
+ .db $40+6,var,ID
+ .ENDIF
 .ENDM
 .MACRO CsDeleteActor ARGS ID
  .db 7,0,ID
@@ -787,19 +830,37 @@ Cutscene_DanmakuInit:
 .MACRO CsSetActorSpeedVar ARGS var, ID
  .db $40+9,var,ID | ((2)*32)
 .ENDM
+.MACRO CsMoveActor ARGS ID, dir, dist
+ .db 9,dist,ID | ((dir + 3)*32)
+.ENDM
+.MACRO CsMoveActorVar ARGS var, ID, dir
+ .IF NARGS >= 3
+ .db $40+9,var,ID | ((3)*32)
+ .ELSE
+ .db $40+9,var,ID | ((dir + 3)*32)
+ .ENDIF
+.ENDM
 .MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
  .db 9,speed*16,ID | ((2)*32)
  .db 9,dist, ID | ((dir + 3)*32)
 .ENDM
-.MACRO CsMoveActorSpeedVar ARGS varspeed, vardist, ID, dir=0
+.MACRO CsMoveActorSpeedVar ARGS varspeed, vardist, ID, dir
  .db $40+9,varspeed,ID | ((2)*32)
+ .IF NARGS >= 3
  .db $40+9,vardist, ID | ((dir + 3)*32)
+ .ELSE
+ .db $40+9,vardist, ID | ((3)*32)
+ .ENDIF
 .ENDM
 .MACRO CsMoveActorDist ARGS ID, dir, dist
  .db 9,dist,ID | ((dir + 3)*32)
 .ENDM
-.MACRO CsMoveActorDistVar ARGS var, ID, dir=0
+.MACRO CsMoveActorDistVar ARGS var, ID, dir
+ .IF NARGS >= 3
  .db $40+9,vardist,ID | ((dir + 3)*32)
+ .ELSE
+ .db $40+9,vardist,ID | ((3)*32)
+ .ENDIF
 .ENDM
 .MACRO CsMoveActorTime ARGS ID, dir, time, dist
  .db 9,dist/time*16,ID | ((2)*32)
@@ -808,28 +869,44 @@ Cutscene_DanmakuInit:
 .MACRO CsLoadObjColor ARGS color0, color1
  .db $80+30,color1,color0
 .ENDM
-.MACRO CsLoadObjColorVar ARGS var, morecolor0=0
- .db $C0+30,var,color0mod
+.MACRO CsLoadObjColorVar ARGS var, morecolor0
+ .IF NARGS >= 2
+ .db $C0+30,var,morecolor0
+ .ELSE
+ .db $C0+30,var,0
+ .ENDIF
 .ENDM
 .MACRO CsLoadBkgColor ARGS color
  .db $80+31,0,color
 .ENDM
-.MACRO CsLoadBkgColorVar ARGS var, morecolor=0
- .db $C0+31,var,addcolor
+.MACRO CsLoadBkgColorVar ARGS var, morecolor
+ .IF NARGS >= 2
+ .db $C0+31,var,morecolor
+ .ELSE
+ .db $C0+31,var,0
+ .ENDIF
 .ENDM
 .MACRO CsLoadObjects ARGS objs
  .db 11
  .dw objs
 .ENDM
-.MACRO CsLoadObjectsVar ARGS var, objbase=0
+.MACRO CsLoadObjVar ARGS var, objbase
+ .IF NARGS >= 2
  .db $40+11,var,>objbase
+ .ELSE
+ .db $40+11,var,0
+ .ENDIF
 .ENDM
 .MACRO CsLoadMap ARGS map
  .db 12
  .dw map
 .ENDM
-.MACRO CsLoadMapVar ARGS var, mapbase=0
+.MACRO CsLoadMapVar ARGS var, mapbase
+ .IF NARGS >= 2
  .db $40+12,var,>mapbase
+ .ELSE
+ .db $40+12,var,0
+ .ENDIF
 .ENDM
 .MACRO CsWaitMap
  .db $80+27
@@ -839,14 +916,22 @@ Cutscene_DanmakuInit:
  .db 13
  .dw song
 .ENDM
-.MACRO CsLoadSongVar ARGS var, songbase=0
+.MACRO CsLoadSongVar ARGS var, songbase
+ .IF NARGS >= 2
  .db $40+13,var,>songbase
+ .ELSE
+ .db $40+13,var,0
+ .ENDIF
 .ENDM
 .MACRO CsPanSong ARGS channelSelect, stereoVolume
  .db 14,channelSelect,stereoVolume
 .ENDM
-.MACRO CsPanSongVar ARGS var, moreStereoVolume=0
+.MACRO CsPanSongVar ARGS var, moreStereoVolume
+ .IF NARGS >= 2
  .db $40+14,var,moreStereoVolume
+ .ELSE
+ .db $40+14,var,0
+ .ENDIF
 .ENDM
 .MACRO CsAssignHat ARGS hat, ID
  .db 10,hat,ID
@@ -855,8 +940,11 @@ Cutscene_DanmakuInit:
  .db 16
  .dw alteration
 .ENDM
-.MACRO CsAlterMapVar ARGS var, altbase=0
+.MACRO CsAlterMapVar ARGS var, altbase
+ .IF NARGS >= 2
  .db $40+16,var,>altbase
+ .ELSE
+ .db $40+16,var,0
 .ENDM
 .MACRO CsShootDanmaku ARGS ID, type
  .db 17,type,ID
@@ -868,12 +956,49 @@ Cutscene_DanmakuInit:
  .db $80+2
  .dw cs
 .ENDM
-.MACRO CsCallVar ARGS var, csbase=0
+.MACRO CsCallVar ARGS var, csbase
+ .IF NARGS >= 2
  .db $C0+2,var,>csbase
+ .ELSE
+ .db $C0+2,var,0
+ .ENDIF
+.ENDM
+.MACRO CsAddVar ARGS var, value
+ .db $80+17,value,var
+.ENDM
+.MACRO CsAddVarVar ARGS var1, var2
+ .db $C0+17,var2,var1
+.ENDM
+.MACRO CsSetVar ARGS var, value
+ .db $80+19,value,var
+.ENDM
+.MACRO CsSetVarVar ARGS var1, var2
+ .db $C0+19,var2,var1
+.ENDM
+.MACRO CsJump ARGS cs
+ .db $80+18
+ .dw cs
+.ENDM
+.MACRO CsJumpVar ARGS var, csbase
+ .IF NARGS >= 2
+ .db $C0+18,var,>csbase
+ .ELSE
+ .db $C0+18,var,0
+ .ENDIF
 .ENDM
 
 
 .SECTION "Cutscene Data" FREE
+
+;Var definitions on map changes
+    ;1: Entry facing direction
+    ;3: Map backing type
+    ;4: Map data
+    ;6: Object data
+    ;8: entry pos from left
+    ;10: entry pos from down
+    ;12: entry pos from right
+    ;14: entry pos from up
 
 Cs_MapFadeout:
   CsInputChange 1,0
@@ -930,8 +1055,48 @@ Cs_MakePlayable:
   CsWait 1
   CsSetActorSpeed 1,0.9
   CsAnimSpeed 1,10
-  CsInputChange 1,1     ;Playable
+  CsInputChange 1,$81   ;Playable
 Cs_None:
+  CsEnd
+
+;Map to map transitions
+Cs_StraightTransition:
+  CsInputChange 1,0
+  CsAddVar 1,CsAnWalkLeft
+  CsAnimateActorVar 1,1
+  CsAddVar 1,-CsAnWalkLeft
+  CsMoveActorVar 0,1,45
+  CsCall Cs_MapFadeout
+  CsSetVarVar 2,3
+  CsSetVar 3,0
+  CsLoadMapVar 3,MapBackBase
+  CsWaitMap
+  CsLoadMapVar 4
+  CsWaitMap
+  CsLoadObjVar 6
+  CsSetVarVar 0,1
+  CsSetVar 1,0
+  CsAddVarVar 0,0
+  CsCall Cs_PositionFromOrigin
+  CsSetActorVar 16,18,1
+  CsInputChange 1,$80
+  CsCall Cs_MapFadein
+  CsWait 30
+  CsInputChange 1,$81
+  CsEnd
+
+Cs_PositionFromOrigin:
+  CsSetVarVar 16,8
+  CsSetVarVar 18,9
+  CsEndVar 0,CsDirLeft
+  CsSetVarVar 16,10
+  CsSetVarVar 18,11
+  CsEndVar 0,CsDirDown
+  CsSetVarVar 16,12
+  CsSetVarVar 18,13
+  CsEndVar 0,CsDirRight
+  CsSetVarVar 16,14
+  CsSetVarVar 18,15
   CsEnd
 
 Cs_TransitionOutUp:
@@ -995,39 +1160,6 @@ Cs_TransitionInRight:
   CsEnd
 
 ;Room to room transitions, for exits
-
-Cs_LoadN13toN23_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForestN23
-  CsWaitMap
-  CsSetActor 1,56,152
-  CsSetCamera -24,0
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_LoadN23toN13_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForestN13
-  CsWaitMap
-  CsSetActor 1,48,10
-  CsSetCamera -44,-24
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load03toN13_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForestN13
-  CsWaitMap
-  CsSetActor 1,48,96
-  CsSetCamera -44,-24
-  CsCall Cs_TransitionInUp
-  CsEnd
 
 Cs_Load01to00_1:
   CsCall Cs_TransitionOutDown

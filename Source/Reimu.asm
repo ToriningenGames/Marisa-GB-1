@@ -26,10 +26,11 @@ ReimuFrame:
   LD HL,_ControlState
   ADD HL,DE
   LD A,(HL)
-  OR A
-  JR z,+
   INC A
   JP z,Actor_Delete
+  DEC A
+  AND $7F
+  JR z,+    ;Cutscene control
 ;AI behavior here
 +
   ;Animation check
