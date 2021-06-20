@@ -1160,6 +1160,7 @@ Cs_TransitionInRight:
   CsEnd
 
 ;Room to room transitions, for exits
+.ENDASM
 
 Cs_Load01to00_1:
   CsCall Cs_TransitionOutDown
@@ -1669,5 +1670,7 @@ Cs_Load33to34_2:
   CsSetCamera 0,0
   CsCall Cs_TransitionInDown
   CsEnd
+  
+.ASM
 
 .ENDS
