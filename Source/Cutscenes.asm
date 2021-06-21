@@ -96,8 +96,8 @@ Cutscene_LUT:
  .dw Cutscene_VarAdd
  .dw Cutscene_Task      ;CsJump
  .dw Cutscene_VarSet
- .dw Cutscene_End
- .dw Cutscene_End
+ .dw Cutscene_CameraSnap
+ .dw Cutscene_RelJump
  .dw Cutscene_End
  .dw Cutscene_End
  .dw Cutscene_End
@@ -175,6 +175,40 @@ _Cutscene_ItemReturn:
 
 ;Cutscene functions
 ;These are not tasks
+
+Cutscene_CameraSnap:
+  CALL CameraSnap
+  JR _Cutscene_ItemReturn
+
+Cutscene_End:
+  LD A,D
+  CP E
+  JR nz,_Cutscene_ItemReturn
+  JP EndTask
+
+Cutscene_BkgPaletteLoad:
+;D= New background palette
+  LD HL,BkgPal
+  LD (HL),D
+  JR _Cutscene_ItemReturn
+
+Cutscene_VarSet:
+;D= variable to set
+;E= value to set to
+  LD H,varPage
+  LD L,D
+  LD (HL),E
+  JR _Cutscene_ItemReturn
+
+Cutscene_ObjPaletteLoad:
+;D= New OBJ0 palette
+;E= New OBJ1 palette
+  LD HL,SpritePal0
+  LD (HL),D
+  INC L
+  LD (HL),E
+  JR _Cutscene_ItemReturn
+
 Cutscene_Wait:
 ;DE=Time
 --
@@ -203,21 +237,6 @@ Cutscene_TextWait
   JR nz,-
   JR _Cutscene_ItemReturn
 
-Cutscene_BkgPaletteLoad:
-;D= New background palette
-  LD HL,BkgPal
-  LD (HL),D
-  JR _Cutscene_ItemReturn
-
-Cutscene_ObjPaletteLoad:
-;D= New OBJ0 palette
-;E= New OBJ1 palette
-  LD HL,SpritePal0
-  LD (HL),D
-  INC L
-  LD (HL),E
-  JR _Cutscene_ItemReturn
-
 Cutscene_CutsceneCall:
 ;DE=Cutscene to run
 -
@@ -231,13 +250,7 @@ Cutscene_CutsceneCall:
   JR -
 +
   CALL WaitOnTask
-  JR _Cutscene_ItemReturn
-
-Cutscene_End:
-  LD A,D
-  CP E
-  JR nz,_Cutscene_ItemReturn
-  JP EndTask
+  JP _Cutscene_ItemReturn
 
 Cutscene_VarAdd:
 ;D= variable to add to
@@ -248,15 +261,32 @@ Cutscene_VarAdd:
   ADD E
   LD (HL),A
   JP _Cutscene_ItemReturn
-
-Cutscene_VarSet:
-;D= variable to set
-;E= value to set to
-  LD H,varPage
-  LD L,D
-  LD (HL),E
-  JP _Cutscene_ItemReturn
   
+Cutscene_RelJump:
+;E= 0 to go
+;D= offset
+  LD A,E
+  OR A
+  JP z,_Cutscene_ItemReturn
+  LD A,D
+  RLCA
+  JR c,+
+  ;Positive offset
+  LD A,D
+  ADD C
+  LD C,A
+  LD A,0
+  ADC B
+  LD B,A
+  JP _Cutscene_ItemReturn
++ ;Negative offset
+  LD A,C
+  SUB D
+  LD C,A
+  LD A,B
+  SBC -1
+  LD B,A
+  JP _Cutscene_ItemReturn
 
 
 ;These are tasks
@@ -986,6 +1016,15 @@ Cutscene_DanmakuInit:
  .db $C0+18,var,0
  .ENDIF
 .ENDM
+.MACRO CsJumpRel ARGS offs
+ .db $80+21,0,offs
+.ENDM
+.MACRO CsJumpRelVar ARGS var, offs
+ .db $C0+21,var,offs
+.ENDM
+.MACRO CsSnapCamera
+ .db $80+20,0,0
+.ENDM
 
 
 .SECTION "Cutscene Data" FREE
@@ -1049,6 +1088,7 @@ Cs_LoadInit:
   CsSetActor 1,130,70
   CsSetActor 2,80,55
   CsWaitMap
+  CsInputChange 1,$80   ;Camera follow
   CsCall Cs_MapFadein
   CsRunText StringTestMessage   ;Testing text run with input
 Cs_MakePlayable:
@@ -1060,6 +1100,13 @@ Cs_None:
   CsEnd
 
 ;Map to map transitions
+;TODO: Something to accomodate potentially curved transistions
+    ;00-01
+    ;01-11
+    ;02-24
+    ;00-34
+    ;04-31
+;TODO: Affect camera by placing Marisa on perpendicular, preset on parallel, then snap
 Cs_StraightTransition:
   CsInputChange 1,0
   CsAddVar 1,CsAnWalkLeft
@@ -1079,7 +1126,7 @@ Cs_StraightTransition:
   CsAddVarVar 0,0
   CsCall Cs_PositionFromOrigin
   CsSetActorVar 16,18,1
-  CsInputChange 1,$80
+  CsSnapCamera
   CsCall Cs_MapFadein
   CsWait 30
   CsInputChange 1,$81
@@ -1160,7 +1207,7 @@ Cs_TransitionInRight:
   CsEnd
 
 ;Room to room transitions, for exits
-.ENDASM
+;.ENDASM
 
 Cs_Load01to00_1:
   CsCall Cs_TransitionOutDown
@@ -1201,7 +1248,7 @@ Cs_Load00to01_1:
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
-  CsLoadObjects MapForest01Obj
+  CsLoadObjects MapForest01obj
   CsSetActor 1,137,172
   CsSetCamera 56,24
   CsCall Cs_TransitionInUp
@@ -1213,7 +1260,7 @@ Cs_Load11to01_1:
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
-  CsLoadObjects MapForest01Obj
+  CsLoadObjects MapForest01obj
   CsSetActor 1,224,108
   CsSetCamera 56,24
   CsCall Cs_TransitionInLeft
@@ -1438,7 +1485,7 @@ Cs_Load24to14_1:
 
 Cs_Load30to20_1:
   CsCall Cs_Load20to10_1
-  CsLoadObjects MapForest20Obj
+  CsLoadObjects MapForest20obj
   CsEnd
 
 Cs_Load11to21_1:

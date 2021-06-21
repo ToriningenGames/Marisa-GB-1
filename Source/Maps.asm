@@ -188,7 +188,7 @@ MapBackBase:
 .dw MapForestBKG01,MapForestBKG02,MapForestBKG03,MapForestBKG04
 
 MapForestN23:
-.db 2
+.db 2           ;background type
 .dw MapForestN23map
 .dw MapForestN23obj
 .db 0,  0       ;right side start
@@ -206,31 +206,31 @@ MapForestN13:
 .db 48, 96
 .dw Cs_StraightTransition
 MapForest00:
-.db 0
+.db 4
 .dw MapForest00map
 .dw MapForest00obj
+.db 160,114
 .db 0,  0
-.db 0,  0
-.db 0,  0
-.db 0,  0
+.db 81, 115
+.db 116,144
 .dw Cs_StraightTransition
 MapForest01:
-.db 0
+.db 6
 .dw MapForest01map
 .dw MapForest01obj
+.db 224,108
 .db 0,  0
 .db 0,  0
-.db 0,  0
-.db 0,  0
-.dw Cs_StraightTransition
+.db 137,172
+.dw Cs_StraightTransition       ;Edit
 MapForest02:
 .db 0
 .dw MapForest02map
 .dw MapForest02obj
 .db 0,  0
+.db 74, 250
 .db 0,  0
-.db 0,  0
-.db 0,  0
+.db 68, 10
 .dw Cs_StraightTransition
 MapForest03:
 .db 0
