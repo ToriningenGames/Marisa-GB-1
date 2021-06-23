@@ -917,7 +917,7 @@ Cutscene_DanmakuInit:
  .db $C0+31,var,0
  .ENDIF
 .ENDM
-.MACRO CsLoadObjects ARGS objs
+.MACRO CsLoadObj ARGS objs
  .db 11
  .dw objs
 .ENDM
@@ -1085,10 +1085,11 @@ Cs_LoadInit:
   CsAnimateActor 2,CsAnFaceDown
   CsAssignHat 0,1
   CsWaitMap
-  CsLoadMap MapForest23
+  CsLoadMap MapForest23map
   CsSetActor 1,130,70
   CsSetActor 2,80,55
   CsWaitMap
+  CsLoadObj MapForest23obj
   CsInputChange 1,$80   ;Camera follow
   CsCall Cs_MapFadein
   CsRunText StringTestMessage   ;Testing text run with input
@@ -1226,7 +1227,7 @@ Cs_Load00to01_1:
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
-  CsLoadObjects MapForest01obj
+  CsLoadObj MapForest01obj
   CsSetActor 1,137,172
   CsSetCamera 56,24
   CsCall Cs_TransitionInUp
@@ -1238,7 +1239,7 @@ Cs_Load11to01_1:
   CsWaitMap
   CsLoadMap MapForest04
   CsWaitMap
-  CsLoadObjects MapForest01obj
+  CsLoadObj MapForest01obj
   CsSetActor 1,224,108
   CsSetCamera 56,24
   CsCall Cs_TransitionInLeft
