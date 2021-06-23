@@ -121,7 +121,8 @@ CharaTypes:
 .EXPORT Cutscene_Actors
 
 .DEFINE varPage $C0
-.EXPORT varPage Cutscene_VarPage
+.DEFINE Cutscene_VarPage varPage
+.EXPORT Cutscene_VarPage
 
 ;Cutscene loop
 Cutscene_Task:
@@ -1206,8 +1207,7 @@ Cs_TransitionInRight:
   CsCall Cs_MakePlayable
   CsEnd
 
-;Room to room transitions, for exits
-;.ENDASM
+;List of odd room to room transitions (not straight lines)
 
 Cs_Load01to00_1:
   CsCall Cs_TransitionOutDown
@@ -1218,28 +1218,6 @@ Cs_Load01to00_1:
   CsSetActor 1,160,114
   CsSetCamera 0,0
   CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load10to00_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest00
-  CsWaitMap
-  CsSetActor 1,116,144
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load34to00_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest00
-  CsWaitMap
-  CsSetActor 1,81,115
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInRight
   CsEnd
 
 Cs_Load00to01_1:
@@ -1266,15 +1244,6 @@ Cs_Load11to01_1:
   CsCall Cs_TransitionInLeft
   CsEnd
 
-Cs_Load12to02_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForest02
-  CsWaitMap
-  CsSetActor 1,68,10
-  CsSetCamera 0,112
-  CsCall Cs_TransitionInUp
-  CsEnd
-
 Cs_Load24to02_1:
   CsCall Cs_TransitionOutLeft
   CsLoadMap MapForest02
@@ -1282,73 +1251,6 @@ Cs_Load24to02_1:
   CsSetActor 1,74,250
   CsSetCamera 0,0
   CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_LoadN13to03_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest03
-  CsWaitMap
-  CsSetActor 1,104,250
-  CsSetCamera 24,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load04to03_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest03
-  CsWaitMap
-  CsSetActor 1,234,116
-  CsSetCamera 64,44
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load13to03_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest03
-  CsWaitMap
-  CsSetActor 1,131,234
-  CsSetCamera 41,80
-  CsMoveActorTime 1,CsDirLeft,45,9
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load03to04_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG04
-  CsWaitMap
-  CsLoadMap MapForest04
-  CsWaitMap
-  CsSetActor 1,245,70
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load14to04_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG04
-  CsWaitMap
-  CsLoadMap MapForest04
-  CsWaitMap
-  CsSetActor 1,64,178
-  CsSetCamera 0,24
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load20to10_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest10
-  CsWaitMap
-  CsSetActor 1,40,154
-  CsSetCamera -40,0
-  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load01to11_1:
@@ -1362,220 +1264,6 @@ Cs_Load01to11_1:
   CsCall Cs_TransitionInDown
   CsEnd
 
-Cs_Load12to11_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest11
-  CsWaitMap
-  CsSetActor 1,170,114
-  CsSetCamera 0,42
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load21to11_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest11
-  CsWaitMap
-  CsSetActor 1,125,218
-  CsSetCamera 0,64
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load02to12_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest12
-  CsWaitMap
-  CsSetActor 1,123,-10
-  CsSetCamera 43,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load11to12_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest12
-  CsWaitMap
-  CsSetActor 1,-10,74
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load13to12_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest12
-  CsWaitMap
-  CsSetActor 1,250,68
-  CsSetCamera 80,0
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load03to13_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest13
-  CsWaitMap
-  CsSetActor 1,124,-10
-  CsSetCamera 44,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load12to13_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest13
-  CsWaitMap
-  CsSetActor 1,-10,109
-  CsSetCamera 0,37
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load14to13_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest13
-  CsWaitMap
-  CsSetActor 1,250,99
-  CsSetCamera 80,27
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load23to13_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest13
-  CsWaitMap
-  CsSetActor 1,126,250
-  CsSetCamera 46,96
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load04to14_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest14
-  CsWaitMap
-  CsSetActor 1,96,-10
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load24to14_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest14
-  CsWaitMap
-  CsSetActor 1,69,162
-  CsSetCamera 0,8
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load30to20_1:
-  CsCall Cs_Load20to10_1
-  CsLoadObjects MapForest20obj
-  CsEnd
-
-Cs_Load11to21_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest21
-  CsWaitMap
-  CsSetActor 1,95,-10
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load22to21_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest21
-  CsWaitMap
-  CsSetActor 1,170,29
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load21to22_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest22
-  CsWaitMap
-  CsSetActor 1,-10,115
-  CsSetCamera 0,43
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load23to22_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest22
-  CsWaitMap
-  CsSetActor 1,202,116
-  CsSetCamera 32,44
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load30to22_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest22
-  CsWaitMap
-  CsSetActor 1,156,-10
-  CsSetCamera 32,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load13to23_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest23
-  CsWaitMap
-  CsSetActor 1,88,-10
-  CsSetCamera 8,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load22to23_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest23
-  CsWaitMap
-  CsSetActor 1,-10,105
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load33to23_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest23
-  CsWaitMap
-  CsSetActor 1,100,154
-  CsSetCamera 20,0
-  CsCall Cs_TransitionInUp
-  CsEnd
-
 Cs_Load02to24_1:
   CsCall Cs_TransitionOutUp
   CsLoadMap MapForestBKG03
@@ -1585,28 +1273,6 @@ Cs_Load02to24_1:
   CsSetActor 1,-10,125
   CsSetCamera 0,53
   CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load14to24_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest24
-  CsWaitMap
-  CsSetActor 1,204,-10
-  CsSetCamera 96,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load22to30_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest30
-  CsWaitMap
-  CsSetActor 1,70,154
-  CsSetCamera -4,0
-  CsCall Cs_TransitionInUp
   CsEnd
 
 Cs_Load04to31_1:
@@ -1619,105 +1285,5 @@ Cs_Load04to31_1:
   CsSetCamera 0,0
   CsCall Cs_TransitionInDown
   CsEnd
-
-Cs_Load32to31_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest31
-  CsWaitMap
-  CsSetActor 1,170,49
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load22to32_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest32
-  CsWaitMap
-  CsSetActor 1,84,-6
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load31to32_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest32
-  CsWaitMap
-  CsSetActor 1,-10,72
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load33to32_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest32
-  CsWaitMap
-  CsSetActor 1,170,72
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load23to33_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForest33
-  CsWaitMap
-  CsSetActor 1,104,-10
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load32to33_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForest33
-  CsWaitMap
-  CsSetActor 1,-10,111
-  CsSetCamera 0,39
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load34to33_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForest33
-  CsWaitMap
-  CsSetActor 1,170,63
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInLeft
-  CsEnd
-  
-Cs_Load34to33_2:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForest33
-  CsWaitMap
-  CsSetActor 1,135,218
-  CsSetCamera 0,64
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load33to34_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForest34
-  CsWaitMap
-  CsSetActor 1,-10,65
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInRight
-  CsEnd
-  
-Cs_Load33to34_2:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForest34
-  CsWaitMap
-  CsSetActor 1,128,-9
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-  
-.ASM
 
 .ENDS

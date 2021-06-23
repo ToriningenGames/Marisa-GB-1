@@ -79,12 +79,6 @@
 .DEFINE VisArea $D500
 .DEFINE ObjArea $D580
 .ENUM ObjArea
-    exitUpCutscene      DW
-    exitDownCutscene    DW
-    exitLeftCutscene    DW
-    exitRightCutscene   DW
-.ENDE
-.ENUM ObjArea
     exitLeftMap    DW
     exitDownMap    DW
     exitRightMap   DW
