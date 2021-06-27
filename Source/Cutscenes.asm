@@ -142,11 +142,11 @@ _Cutscene_ItemReturn:
   LD A,(BC)
   INC BC
   LD D,A
-  JR c,+    ;Same task cutscene item
   BIT 7,L   ;Var indirection indicator
   JR z,++
-  RES 7,L   ;Grab DE from vars
-  PUSH HL
+  RES 7,L
+  PUSH HL   ;Grab DE from vars
+  PUSH AF
     LD H,varPage
     LD L,E
     LD E,(HL)
@@ -154,8 +154,10 @@ _Cutscene_ItemReturn:
     LD A,D
     ADD (HL)
     LD D,A
+  POP AF
   POP HL
 ++
+  JR c,+    ;Same task cutscene item
   PUSH BC
     LD C,(HL)
     INC HL
@@ -1110,6 +1112,16 @@ Cs_None:
     ;04-31
 ;TODO: Affect camera by placing Marisa on perpendicular, preset on parallel, then snap
 Cs_StraightTransition:
+  CsSetVarVar 2,3
+  CsSetVar 3,0
+  CsLoadMapVar 3,MapBackBase
+  CsWaitMap
+  CsLoadMapVar 4
+  CsWaitMap
+  CsLoadObjVar 6
+  CsWaitMap
+  CsSetActor 1,32,32
+  CsEnd
   CsInputChange 1,0
   CsAddVar 1,CsAnWalkLeft
   CsAnimateActorVar 1,1
