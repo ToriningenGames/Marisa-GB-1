@@ -97,8 +97,8 @@ _LoadPosX:
   SUB 16    ;Sprite offsets
 ;Center Marisa
   SUB 72    ;18 horizontal tiles / 2 (half of screen) * 8 pixels per tile + 16 pixels slide edge
-;Clamp top to map
   JR nc,++
+;Clamp top to map
   LD E,0
   RET
 ++
@@ -116,7 +116,7 @@ _LoadPosX:
   ;Marisa in completely reasonable position; use her location as center
   LD A,(HL)
   SUB 88    ;Position offset
-  LD E,B
+  LD E,A
   RET
 _SmallMapY:
 ;Map fits within screen; find center
