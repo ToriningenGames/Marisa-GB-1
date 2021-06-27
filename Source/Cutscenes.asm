@@ -180,7 +180,9 @@ _Cutscene_ItemReturn:
 ;These are not tasks
 
 Cutscene_CameraSnap:
-  CALL CameraSnap
+  PUSH BC
+    CALL CameraSnap
+  POP BC
   JR _Cutscene_ItemReturn
 
 Cutscene_End:
@@ -1112,16 +1114,6 @@ Cs_None:
     ;04-31
 ;TODO: Affect camera by placing Marisa on perpendicular, preset on parallel, then snap
 Cs_StraightTransition:
-  CsSetVarVar 2,3
-  CsSetVar 3,0
-  CsLoadMapVar 3,MapBackBase
-  CsWaitMap
-  CsLoadMapVar 4
-  CsWaitMap
-  CsLoadObjVar 6
-  CsWaitMap
-  CsSetActor 1,32,32
-  CsEnd
   CsInputChange 1,0
   CsAddVar 1,CsAnWalkLeft
   CsAnimateActorVar 1,1
