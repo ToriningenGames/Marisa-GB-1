@@ -138,8 +138,9 @@ _GetItmAtBC:
   RET
 .ENDS
 
-.SECTION "Maps" FREE
+.SECTION "Maps" ALIGN 256 FREE
 
+MapBackBase:
 MapForestBKG01:
 .db 32,32
 .db $82,$97,$98     ;Upper left corner is Tile $97 (the solid dark tree part)
@@ -184,11 +185,8 @@ MapForestBKG04:
 .db $00,$40,$00
 .db $00,$40,$00
 
-MapBackBase:
-.dw MapForestBKG01,MapForestBKG02,MapForestBKG03,MapForestBKG04
-
 MapForestN23:
-.db 2           ;background type
+.db 1           ;background type
 .dw MapForestN23map
 .dw MapForestN23obj
 .db 0,  0       ;right side start
@@ -206,7 +204,7 @@ MapForestN13:
 .db 48, 96
 .dw Cs_StraightTransition
 MapForest00:
-.db 4
+.db 2
 .dw MapForest00map
 .dw MapForest00obj
 .db 160,114
@@ -215,7 +213,7 @@ MapForest00:
 .db 116,144
 .dw Cs_StraightTransition
 MapForest01:
-.db 6
+.db 3
 .dw MapForest01map
 .dw MapForest01obj
 .db 224,108
@@ -242,7 +240,7 @@ MapForest03:
 .db 131,234
 .dw Cs_StraightTransition
 MapForest04:
-.db 6
+.db 3
 .dw MapForest04map
 .dw MapForest04obj
 .db 0,  0
@@ -251,7 +249,7 @@ MapForest04:
 .db 64, 178
 .dw Cs_StraightTransition
 MapForest10:
-.db 2
+.db 1
 .dw MapForest10map
 .dw MapForest10obj
 .db 0,  0
@@ -260,7 +258,7 @@ MapForest10:
 .db 40, 154
 .dw Cs_StraightTransition
 MapForest11:
-.db 2
+.db 1
 .dw MapForest11map
 .dw MapForest11obj
 .db 170,114
@@ -269,7 +267,7 @@ MapForest11:
 .db 125,218
 .dw Cs_StraightTransition
 MapForest12:
-.db 2
+.db 1
 .dw MapForest12map
 .dw MapForest12obj
 .db 250,68
@@ -287,7 +285,7 @@ MapForest13:
 .db 126,250
 .dw Cs_StraightTransition
 MapForest14:
-.db 4
+.db 2
 .dw MapForest14map
 .dw MapForest14obj
 .db 0,  0
@@ -296,7 +294,7 @@ MapForest14:
 .db 69,162
 .dw Cs_StraightTransition
 MapForest20:
-.db 2
+.db 1
 .dw MapForest20map
 .dw MapForest20obj
 .db 0,  0
@@ -323,7 +321,7 @@ MapForest22:
 .db 0,  0
 .dw Cs_StraightTransition
 MapForest23:
-.db 4
+.db 2
 .dw MapForest23map
 .dw MapForest23obj
 .db 0,  0
@@ -332,7 +330,7 @@ MapForest23:
 .db 100,154
 .dw Cs_StraightTransition
 MapForest24:
-.db 4
+.db 2
 .dw MapForest24map
 .dw MapForest24obj
 .db 0,  0
@@ -341,7 +339,7 @@ MapForest24:
 .db -10,125
 .dw Cs_StraightTransition
 MapForest30:
-.db 2
+.db 1
 .dw MapForest30map
 .dw MapForest30obj
 .db 0,  0
@@ -359,7 +357,7 @@ MapForest31:
 .db 0,  0
 .dw Cs_StraightTransition
 MapForest32:
-.db 2
+.db 1
 .dw MapForest32map
 .dw MapForest32obj
 .db 170,72

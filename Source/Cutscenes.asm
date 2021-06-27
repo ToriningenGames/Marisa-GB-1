@@ -1212,15 +1212,15 @@ Cs_StraightTransition:
   CsAddVar 1,CsAnWalkLeft
   CsAnimateActorVar 1,1
   CsAddVar 1,-CsAnWalkLeft
-  CsSetVar 17,45    ;Distance
-  CsSetVarVar 18,1
-  CsMultVar 18,32   ;put the dir part in its place in the byte
-  CsMoveActorVar 17,1
+  CsSetVar 20,45    ;Distance
+  CsSetVarVar 21,1
+  CsMultVar 21,32   ;put the dir part in its place in the byte
+  CsMoveActorVar 20,1
   CsCall Cs_MapFadeout
-  CsSetVarVar 2,3   ;Convert backing to short and double it
+  CsSetVarVar 2,3   ;Convert backing to short and index into back maps (26 bytes per item)
   CsSetVar 3,0
-  CsAddVarVar 2,2
-  CsLoadMapVar 3,MapBackBase
+  CsMultVar 2,26
+  CsLoadMapVar 2,MapBackBase
   CsWaitMap
   CsLoadMapVar 4
   CsWaitMap
@@ -1232,6 +1232,7 @@ Cs_StraightTransition:
   CsSetVar 19,0
   CsCallVar 0,Cs_ComputePlayerAndCamera
   CsCall Cs_MapFadein
+  CsMoveActorVar 20,1
   CsWait 30
   CsInputChange 1,$81
   CsEnd

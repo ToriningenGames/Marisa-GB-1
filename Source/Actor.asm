@@ -605,8 +605,7 @@ Actor_DistMove:
   POP AF
   CALL HaltTask
   PUSH AF
-    AND 1   ;Set HL to MoveSpeed value, regarding of DE's location
-    RLCA
+    AND 2   ;Set HL to MoveSpeed value, regarding DE's location
     ADD <(_MoveSpeed-_MasterY)
     LD L,A
     LD A,>(_MoveSpeed-_MasterY)
