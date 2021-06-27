@@ -591,10 +591,9 @@ Actor_NormalPriority:
 Actor_DistMove:
 ;DE->Actor Data
 ;BC= Length of move, in pixels (8.8)
-;A= Direction U/L/D/R
+;A= Direction L/D/R/U
   PUSH AF
     AND 1   ;Move DE to MasterX/Y depending on direction
-    XOR 1
     RLCA
     ADD 2
     ADD E
@@ -619,7 +618,10 @@ Actor_DistMove:
     LD L,A
   POP AF
   PUSH AF
-    AND $02     ;Determine between addition/subtraction
+    AND $03     ;Determine between addition/subtraction
+    RRA
+    ADC 0
+    AND $03
     LD A,(DE)
     JR z,+
     ADD L           ;Add MoveSpeed to MasterX/Y

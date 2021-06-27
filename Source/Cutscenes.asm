@@ -98,8 +98,8 @@ Cutscene_LUT:
  .dw Cutscene_VarSet
  .dw Cutscene_CameraSnap
  .dw Cutscene_RelJump
- .dw Cutscene_End
- .dw Cutscene_End
+ .dw Cutscene_VarToVar  ;CsSetVarVar
+ .dw Cutscene_VarMultiply
  .dw Cutscene_End
  .dw Cutscene_End
  .dw Cutscene_End
@@ -224,6 +224,16 @@ Cutscene_Wait:
   JR nz,--
   JR _Cutscene_ItemReturn
 
+Cutscene_VarToVar:
+;D= dest
+;E= src
+  LD H,varPage
+  LD L,E
+  LD A,(HL)
+  LD L,D
+  LD (HL),A
+  JR _Cutscene_ItemReturn
+
 Cutscene_MapWait:
   LD DE,hotMap
 -
@@ -240,7 +250,7 @@ Cutscene_TextWait
   LD A,(DE)
   CP textStatus_done
   JR nz,-
-  JR _Cutscene_ItemReturn
+  JP _Cutscene_ItemReturn
 
 Cutscene_CutsceneCall:
 ;DE=Cutscene to run
@@ -265,6 +275,21 @@ Cutscene_VarAdd:
   LD A,(HL)
   ADD E
   LD (HL),A
+  JP _Cutscene_ItemReturn
+
+Cutscene_VarMultiply:
+;D= variable involved
+;E= multiplier
+  PUSH BC
+    LD H,varPage
+    LD L,D
+    LD B,(HL)
+    LD C,E
+    CALL Multiply
+    LD (HL),C
+    INC L
+    LD (HL),B
+  POP BC
   JP _Cutscene_ItemReturn
   
 Cutscene_RelJump:
@@ -456,10 +481,10 @@ Cutscene_ActorMovement:
     ;               0: Set X position
     ;               1: Set Y position
     ;               2: Set actor speed
-    ;               3: Move actor up
-    ;               4: Move actor left
-    ;               5: Move actor down
-    ;               6: Move actor right
+    ;               3: Move actor left
+    ;               4: Move actor down
+    ;               5: Move actor right
+    ;               6: Move actor up
 ;E= Value
     ;Set X, Y: Position (pixels)
     ;Actor speed: Pixels/frame (4.4)
@@ -756,7 +781,7 @@ Cutscene_DanmakuInit:
 .DEFINE CsDirLeft   0
 .DEFINE CsDirDown   1
 .DEFINE CsDirRight  2
-.DEFINE CsDirUp     4
+.DEFINE CsDirUp     3
 
 .MACRO CsWait ARGS time
  .db $80+28
@@ -839,13 +864,25 @@ Cutscene_DanmakuInit:
 .MACRO CsDeleteActor ARGS ID
  .db 7,0,ID
 .ENDM
+.MACRO CsSetActorX ARGS ID, X
+ .db 9,(X+8) & $FF,ID | ((0)*32)
+.ENDM
+.MACRO CsSetActorY ARGS ID, Y
+ .db 9,(Y+16) & $FF,ID | ((1)*32)
+.ENDM
 .MACRO CsSetActor ARGS ID, X, Y
  .db 9,(X+8)  & $FF,ID | ((0)*32)
  .db 9,(Y+16) & $FF,ID | ((1)*32)
 .ENDM
+.MACRO CsSetActorXVar ARGS var, ID
+ .db $40+9,var,ID | ((0)*32)
+.ENDM
+.MACRO CsSetActorYVar ARGS var, ID
+ .db $40+9,var,ID | ((1)*32)
+.ENDM
 .MACRO CsSetActorVar ARGS varx, vary, ID
- .db $40+9,varx,ID | ((0)*32)
- .db $40+9,vary,ID | ((1)*32)
+  CsSetActorXVar varx,ID
+  CsSetActorYVar vary,ID
 .ENDM
 .MACRO CsAnimateActor ARGS ID, anim
  .db 8,anim,ID | ((1)*32)
@@ -870,9 +907,9 @@ Cutscene_DanmakuInit:
 .ENDM
 .MACRO CsMoveActorVar ARGS var, ID, dir
  .IF NARGS >= 3
- .db $40+9,var,ID | ((3)*32)
- .ELSE
  .db $40+9,var,ID | ((dir + 3)*32)
+ .ELSE
+ .db $40+9,var,ID | ((3)*32)
  .ENDIF
 .ENDM
 .MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
@@ -1008,7 +1045,7 @@ Cutscene_DanmakuInit:
  .db $80+19,value,var
 .ENDM
 .MACRO CsSetVarVar ARGS var1, var2
- .db $C0+19,var2,var1
+ .db $80+22,var2,var1
 .ENDM
 .MACRO CsJump ARGS cs
  .db $80+18
@@ -1030,19 +1067,60 @@ Cutscene_DanmakuInit:
 .MACRO CsSnapCamera
  .db $80+20,0,0
 .ENDM
+.MACRO CsMultVar ARGS var, scale
+ .db $80+23,scale,var
+.ENDM
 
 
-.SECTION "Cutscene Data" FREE
+.SECTION "Cutscene Data" ALIGN 256 FREE
+
+Cs_ComputePlayerAndCamera:
+  ;Come in from right
+  CsSetVarVar 16,12     ;bytes to shorts
+  CsSetVarVar 18,13
+  CsSetActorYVar 18,1
+  CsSetActorX 1,255
+  CsWait 1
+  CsSnapCamera
+  CsSetActorXVar 16,1
+  CsEnd
+  ;Come in from top
+  CsSetVarVar 16,14     ;bytes to shorts
+  CsSetVarVar 18,15
+  CsSetActorXVar 16,1
+  CsSetActorY 1,1
+  CsWait 1
+  CsSnapCamera
+  CsSetActorYVar 18,1
+  CsEnd
+  ;Come in from left
+  CsSetVarVar 16,8      ;bytes to shorts
+  CsSetVarVar 18,9
+  CsSetActorYVar 18,1
+  CsSetActorX 1,1
+  CsWait 1
+  CsSnapCamera
+  CsSetActorXVar 16,1
+  CsEnd
+  ;Come in from bottom
+  CsSetVarVar 16,10     ;bytes to shorts
+  CsSetVarVar 18,11
+  CsSetActorXVar 16,1
+  CsSetActorY 1,255
+  CsWait 1
+  CsSnapCamera
+  CsSetActorYVar 18,1
+  CsEnd
 
 ;Var definitions on map changes
     ;1: Entry facing direction
     ;3: Map backing type
     ;4: Map data
     ;6: Object data
-    ;8: entry pos from left
-    ;10: entry pos from down
-    ;12: entry pos from right
-    ;14: entry pos from up
+    ;8: entry pos left side
+    ;10: entry pos down side
+    ;12: entry pos right side
+    ;14: entry pos up side
 
 Cs_MapFadeout:
   CsInputChange 1,0
@@ -1113,43 +1191,49 @@ Cs_None:
     ;00-34
     ;04-31
 ;TODO: Affect camera by placing Marisa on perpendicular, preset on parallel, then snap
+;Order:
+    ;Set Marisa trotting off in the right direction
+        ;Direction in var 1
+    ;Fade out
+    ;Load map data
+        ;Backing in var 3
+        ;Map in var 4-5
+        ;Obj in var 6-7
+    ;Snap camera
+    ;Place Marisa in the right spot
+        ;Spot indexed by var 1 into var 8-14
+    ;Set Marisa trotting off
+        ;Direction in var 1
+    ;Fade in
+    ;Control
 Cs_StraightTransition:
   CsInputChange 1,0
+  CsSetVar 2,0
   CsAddVar 1,CsAnWalkLeft
   CsAnimateActorVar 1,1
   CsAddVar 1,-CsAnWalkLeft
-  CsMoveActorVar 0,1,45
+  CsSetVar 17,45    ;Distance
+  CsSetVarVar 18,1
+  CsMultVar 18,32   ;put the dir part in its place in the byte
+  CsMoveActorVar 17,1
   CsCall Cs_MapFadeout
-  CsSetVarVar 2,3
+  CsSetVarVar 2,3   ;Convert backing to short and double it
   CsSetVar 3,0
+  CsAddVarVar 2,2
   CsLoadMapVar 3,MapBackBase
   CsWaitMap
   CsLoadMapVar 4
   CsWaitMap
   CsLoadObjVar 6
-  CsSetVarVar 0,1
+  CsSetVarVar 0,1   ;Index into ComputePlayerAndCamera list (24 bytes per item)
   CsSetVar 1,0
-  CsAddVarVar 0,0
-  CsCall Cs_PositionFromOrigin
-  CsSetActorVar 16,18,1
-  CsSnapCamera
+  CsMultVar 0,24
+  CsSetVar 17,0
+  CsSetVar 19,0
+  CsCallVar 0,Cs_ComputePlayerAndCamera
   CsCall Cs_MapFadein
   CsWait 30
   CsInputChange 1,$81
-  CsEnd
-
-Cs_PositionFromOrigin:
-  CsSetVarVar 16,8
-  CsSetVarVar 18,9
-  CsEndVar 0,CsDirLeft
-  CsSetVarVar 16,10
-  CsSetVarVar 18,11
-  CsEndVar 0,CsDirDown
-  CsSetVarVar 16,12
-  CsSetVarVar 18,13
-  CsEndVar 0,CsDirRight
-  CsSetVarVar 16,14
-  CsSetVarVar 18,15
   CsEnd
 
 Cs_TransitionOutUp:

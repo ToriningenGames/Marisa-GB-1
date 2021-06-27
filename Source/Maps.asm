@@ -430,114 +430,114 @@ MapForest34map:
 .incbin "rsc/Forest_(3~4).gbm"
 
 MapForestN23obj:
-.dw 0               ;right
-.dw 0               ;up
 .dw 0               ;left
 .dw MapForestN13    ;down
-MapForestN13obj:
 .dw 0               ;right
-.dw MapForestN23    ;up
+.dw 0               ;up
+MapForestN13obj:
 .dw 0               ;left
 .dw MapForest03     ;down
+.dw 0               ;right
+.dw MapForestN23    ;up
 MapForest00obj:
+.dw 0               ;left
+.dw 0               ;down
 .dw MapForest01     ;right
 .dw 0               ;up
-.dw 0               ;left
-.dw 0               ;down
 MapForest01obj:
-.dw MapForest11     ;right
-.dw 0               ;up
 .dw 0               ;left
 .dw MapForest00     ;down
+.dw MapForest11     ;right
+.dw 0               ;up
 MapForest02obj:
-.dw 0               ;right
-.dw MapForest24     ;up
 .dw 0               ;left
 .dw MapForest12     ;down
+.dw 0               ;right
+.dw MapForest24     ;up
 MapForest03obj:
-.dw MapForest04     ;right
-.dw MapForestN13    ;up
 .dw 0               ;left
 .dw MapForest13     ;down
+.dw MapForest04     ;right
+.dw MapForestN13    ;up
 MapForest04obj:
-.dw 0               ;right
-.dw MapForest31     ;up
 .dw MapForest03     ;left
 .dw MapForest14     ;down
+.dw 0               ;right
+.dw MapForest31     ;up
 MapForest10obj:
+.dw 0               ;left
+.dw 0               ;down
 .dw 0               ;right
 .dw MapForest00     ;up
-.dw 0               ;left
-.dw 0               ;down
 MapForest11obj:
-.dw MapForest12     ;right
-.dw MapForest01     ;up
 .dw 0               ;left
 .dw MapForest21     ;down
+.dw MapForest12     ;right
+.dw MapForest01     ;up
 MapForest12obj:
-.dw MapForest13     ;right
-.dw MapForest02     ;up
 .dw MapForest11     ;left
 .dw 0               ;down
+.dw MapForest13     ;right
+.dw MapForest02     ;up
 MapForest13obj:
-.dw 0               ;right
-.dw MapForest03     ;up
 .dw MapForest12     ;left
 .dw MapForest23     ;down
-MapForest14obj:
 .dw 0               ;right
-.dw MapForest04     ;up
+.dw MapForest03     ;up
+MapForest14obj:
 .dw MapForest13     ;left
 .dw MapForest24     ;down
+.dw 0               ;right
+.dw MapForest04     ;up
 MapForest20obj:
+.dw 0               ;left
+.dw 0               ;down
 .dw 0               ;right
 .dw MapForest10     ;up
+MapForest21obj:
 .dw 0               ;left
 .dw 0               ;down
-MapForest21obj:
 .dw MapForest22     ;right
 .dw MapForest11     ;up
-.dw 0               ;left
-.dw 0               ;down
 MapForest22obj:
-.dw MapForest23     ;right
-.dw MapForest30     ;up
 .dw MapForest21     ;left
 .dw MapForest32     ;down
+.dw MapForest23     ;right
+.dw MapForest30     ;up
 MapForest23obj:
-.dw 0               ;right
-.dw MapForest13     ;up
 .dw MapForest22     ;left
 .dw MapForest33     ;down
-MapForest24obj:
 .dw 0               ;right
-.dw MapForest14     ;up
+.dw MapForest13     ;up
+MapForest24obj:
 .dw MapForest02     ;left
 .dw 0               ;down
-MapForest30obj:
 .dw 0               ;right
-.dw MapForest20     ;up
+.dw MapForest14     ;up
+MapForest30obj:
 .dw 0               ;left
 .dw MapForest22     ;down
+.dw 0               ;right
+.dw MapForest20     ;up
 MapForest31obj:
-.dw MapForest32     ;right
-.dw 0               ;up
 .dw 0               ;left
 .dw 0               ;down
-MapForest32obj:
-.dw MapForest33     ;right
+.dw MapForest32     ;right
 .dw 0               ;up
+MapForest32obj:
 .dw MapForest31     ;left
 .dw 0               ;down
+.dw MapForest33     ;right
+.dw 0               ;up
 MapForest33obj:
-.dw MapForest34     ;right
-.dw MapForest23     ;up
 .dw MapForest32     ;left
 .dw MapForest34     ;down
+.dw MapForest34     ;right
+.dw MapForest23     ;up
 MapForest34obj:
-.dw MapForest00     ;right
-.dw MapForest33     ;up
 .dw MapForest33     ;left
 .dw 0               ;down
+.dw MapForest00     ;right
+.dw MapForest33     ;up
 
 .ENDS
