@@ -50,6 +50,10 @@ ExitCheck_Task:
   CP (HL)   ;Do not always trigger on full size maps
   JR z,+
 ++  ;Bottom
+  LD HL,exitDownMap+1
+  XOR A
+  CP (HL)
+  RET z     ;No load if no map
   LD A,Down
   JR +++
 +
@@ -60,6 +64,10 @@ ExitCheck_Task:
   CP 7      ;Marisa X < trigger?
   JR nc,+
 ;Left
+  LD HL,exitLeftMap+1
+  XOR A
+  CP (HL)
+  RET z     ;No load if no map
   LD A,Left
   JR +++
 +
@@ -72,6 +80,10 @@ ExitCheck_Task:
   CP (HL)   ;No trigger if fully wide map
   RET z
 ++  ;Right
+  LD HL,exitRightMap+1
+  XOR A
+  CP (HL)
+  RET z     ;No load if no map
   LD A,Right
 +++
   LD DE,VarArea+1

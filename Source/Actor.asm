@@ -605,7 +605,9 @@ Actor_DistMove:
   POP AF
   CALL HaltTask
   PUSH AF
-    AND 2   ;Set HL to MoveSpeed value, regarding DE's location
+    AND 1   ;Set HL to MoveSpeed value, regarding DE's location
+    XOR 1
+    RLCA
     ADD <(_MoveSpeed-_MasterY)
     LD L,A
     LD A,>(_MoveSpeed-_MasterY)
@@ -619,8 +621,8 @@ Actor_DistMove:
   PUSH AF
     AND $03     ;Determine between addition/subtraction
     RRA
-    ADC 0
-    AND $03
+    ADC 0       ;Values of 0 and 3 are subtract
+    AND $01     ;Values of 1 and 2 are add
     LD A,(DE)
     JR z,+
     ADD L           ;Add MoveSpeed to MasterX/Y

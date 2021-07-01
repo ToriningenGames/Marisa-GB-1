@@ -189,199 +189,199 @@ MapForestN23:
 .db 1           ;background type
 .dw MapForestN23map
 .dw MapForestN23obj
-.db 0,  0       ;right side start
-.db 0,  0       ;up side start
-.db 0,  0       ;left side start
-.db 56, 152     ;down side start
+.db   0 +8,   0 +16     ;right side start
+.db   0 +8,   0 +16     ;up side start
+.db   0 +8,   0 +16     ;left side start
+.db  56 +8, 152 +16     ;down side start
 .dw Cs_StraightTransition
 MapForestN13:
 .db 0
 .dw MapForestN13map
 .dw MapForestN13obj
-.db 0,  0
-.db 48, 10
-.db 0,  0
-.db 48, 96
+.db   0 +8,   0 +16
+.db  48 +8,  10 +16
+.db   0 +8,   0 +16
+.db  48 +8,  96 +16
 .dw Cs_StraightTransition
 MapForest00:
 .db 2
 .dw MapForest00map
 .dw MapForest00obj
-.db 160,114
-.db 0,  0
-.db 81, 115
-.db 116,144
+.db 160 +8, 114 +16
+.db   0 +8,   0 +16
+.db  81 +8, 115 +16
+.db 116 +8, 144 +16
 .dw Cs_StraightTransition
 MapForest01:
 .db 3
 .dw MapForest01map
 .dw MapForest01obj
-.db 224,108
-.db 0,  0
-.db 0,  0
-.db 137,172
+.db 224 +8, 108 +16
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db 137 +8, 172 +16
 .dw Cs_StraightTransition       ;Edit
 MapForest02:
 .db 0
 .dw MapForest02map
 .dw MapForest02obj
-.db 0,  0
-.db 74, 250
-.db 0,  0
-.db 68, 10
+.db   0 +8,   0 +16
+.db  74 +8,  -6 +16
+.db   0 +8,   0 +16
+.db  68 +8,  10 +16
 .dw Cs_StraightTransition
 MapForest03:
 .db 0
 .dw MapForest03map
 .dw MapForest03obj
-.db 234,116
-.db 104,250
-.db 0,  0
-.db 131,234
+.db 234 +8, 116 +16
+.db 104 +8,  -6 +16
+.db   0 +8,   0 +16
+.db 131 +8, 234 +16
 .dw Cs_StraightTransition
 MapForest04:
 .db 3
 .dw MapForest04map
 .dw MapForest04obj
-.db 0,  0
-.db 0,  0
-.db 245,70
-.db 64, 178
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db -10 +8,  70 +16
+.db  64 +8, 178 +16
 .dw Cs_StraightTransition
 MapForest10:
 .db 1
 .dw MapForest10map
 .dw MapForest10obj
-.db 0,  0
-.db 0,  0
-.db 0,  0
-.db 40, 154
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db  40 +8, 154 +16
 .dw Cs_StraightTransition
 MapForest11:
 .db 1
 .dw MapForest11map
 .dw MapForest11obj
-.db 170,114
-.db 114,-10
-.db 0,  0
-.db 125,218
+.db 170 +8, 114 +16
+.db 114 +8, -10 +16
+.db   0 +8,   0 +16
+.db 125 +8, 218 +16
 .dw Cs_StraightTransition
 MapForest12:
 .db 1
 .dw MapForest12map
 .dw MapForest12obj
-.db 250,68
-.db 123,-10
-.db -10,74
-.db 0,  0
+.db  -6 +8,  68 +16
+.db 123 +8, -10 +16
+.db -10 +8,  74 +16
+.db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest13:
 .db 0
 .dw MapForest13map
 .dw MapForest13obj
-.db 250,99
-.db 124,-10
-.db -10,109
-.db 126,250
+.db  -6 +8,  99 +16
+.db 124 +8, -10 +16
+.db -10 +8, 109 +16
+.db 126 +8,  -6 +16
 .dw Cs_StraightTransition
 MapForest14:
 .db 2
 .dw MapForest14map
 .dw MapForest14obj
-.db 0,  0
-.db 96,-10
-.db 0,  0
-.db 69,162
+.db   0 +8,   0 +16
+.db  96 +8, -10 +16
+.db   0 +8,   0 +16
+.db  69 +8, 162 +16
 .dw Cs_StraightTransition
 MapForest20:
 .db 1
 .dw MapForest20map
 .dw MapForest20obj
-.db 0,  0
-.db 0,  0
-.db 0,  0
-.db 40, 154
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db  40 +8, 154 +16
 .dw Cs_StraightTransition
 MapForest21:
 .db 0
 .dw MapForest21map
 .dw MapForest21obj
-.db 170,29
-.db 95, -10
-.db 0,  0
-.db 0,  0
+.db 170 +8,  29 +16
+.db  95 +8, -10 +16
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest22:
 .db 0
 .dw MapForest22map
 .dw MapForest22obj
-.db 202,116
-.db 156,-10
-.db -10,115
-.db 0,  0
+.db 202 +8, 116 +16
+.db 156 +8, -10 +16
+.db -10 +8, 115 +16
+.db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest23:
 .db 2
 .dw MapForest23map
 .dw MapForest23obj
-.db 0,  0
-.db 88, -10
-.db -10,105
-.db 100,154
+.db   0 +8,   0 +16
+.db  88 +8, -10 +16
+.db -10 +8, 105 +16
+.db 100 +8, 154 +16
 .dw Cs_StraightTransition
 MapForest24:
 .db 2
 .dw MapForest24map
 .dw MapForest24obj
-.db 0,  0
-.db 204,-10
-.db 0,  0
-.db -10,125
+.db   0 +8,   0 +16
+.db 204 +8, -10 +16
+.db   0 +8,   0 +16
+.db -10 +8, 125 +16
 .dw Cs_StraightTransition
 MapForest30:
 .db 1
 .dw MapForest30map
 .dw MapForest30obj
-.db 0,  0
-.db 0,  0
-.db 0,  0
-.db 70, 154
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
+.db  70 +8, 154 +16
 .dw Cs_StraightTransition
 MapForest31:
 .db 0
 .dw MapForest31map
 .dw MapForest31obj
-.db 170,49
-.db 83, 0
-.db 0,  0
-.db 0,  0
+.db 170 +8,  49 +16
+.db  83 +8,   0 +16
+.db   0 +8,   0 +16
+.db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest32:
 .db 1
 .dw MapForest32map
 .dw MapForest32obj
-.db 170,72
-.db 84, -6
-.db -10,72
-.db 0,  0
+.db 170 +8,  72 +16
+.db  84 +8,  -6 +16
+.db -10 +8,  72 +16
+.db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest33:
 .db 0
 .dw MapForest33map
 .dw MapForest33obj
-.db 170,63
-.db 104,-10
-.db -10,111
-.db 135,218
+.db 170 +8,  63 +16
+.db 104 +8, -10 +16
+.db -10 +8, 111 +16
+.db 135 +8, 218 +16
 .dw Cs_StraightTransition
 MapForest34:
 .db 0
 .dw MapForest34map
 .dw MapForest34obj
-.db 0,  0
-.db 128,-9
-.db -10,65
-.db 0,  0
+.db   0 +8,   0 +16
+.db 128 +8,  -9 +16
+.db -10 +8,  65 +16
+.db   0 +8,   0 +16
 .dw Cs_StraightTransition
 
 MapForestN23map:

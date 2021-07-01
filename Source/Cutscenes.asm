@@ -1076,8 +1076,8 @@ Cutscene_DanmakuInit:
 
 Cs_ComputePlayerAndCamera:
   ;Come in from right
-  CsSetVarVar 16,12     ;bytes to shorts
-  CsSetVarVar 18,13
+  CsSetVarVar 16,8      ;bytes to shorts
+  CsSetVarVar 18,9
   CsSetActorYVar 18,1
   CsSetActorX 1,255
   CsWait 1
@@ -1085,8 +1085,8 @@ Cs_ComputePlayerAndCamera:
   CsSetActorXVar 16,1
   CsEnd
   ;Come in from top
-  CsSetVarVar 16,14     ;bytes to shorts
-  CsSetVarVar 18,15
+  CsSetVarVar 16,10     ;bytes to shorts
+  CsSetVarVar 18,11
   CsSetActorXVar 16,1
   CsSetActorY 1,1
   CsWait 1
@@ -1094,8 +1094,8 @@ Cs_ComputePlayerAndCamera:
   CsSetActorYVar 18,1
   CsEnd
   ;Come in from left
-  CsSetVarVar 16,8      ;bytes to shorts
-  CsSetVarVar 18,9
+  CsSetVarVar 16,12     ;bytes to shorts
+  CsSetVarVar 18,13
   CsSetActorYVar 18,1
   CsSetActorX 1,1
   CsWait 1
@@ -1103,8 +1103,8 @@ Cs_ComputePlayerAndCamera:
   CsSetActorXVar 16,1
   CsEnd
   ;Come in from bottom
-  CsSetVarVar 16,10     ;bytes to shorts
-  CsSetVarVar 18,11
+  CsSetVarVar 16,14     ;bytes to shorts
+  CsSetVarVar 18,15
   CsSetActorXVar 16,1
   CsSetActorY 1,255
   CsWait 1
@@ -1212,7 +1212,7 @@ Cs_StraightTransition:
   CsAddVar 1,CsAnWalkLeft
   CsAnimateActorVar 1,1
   CsAddVar 1,-CsAnWalkLeft
-  CsSetVar 20,45    ;Distance
+  CsSetVar 20,24    ;Distance
   CsSetVarVar 21,1
   CsMultVar 21,32   ;put the dir part in its place in the byte
   CsMoveActorVar 20,1
@@ -1233,7 +1233,7 @@ Cs_StraightTransition:
   CsCallVar 0,Cs_ComputePlayerAndCamera
   CsCall Cs_MapFadein
   CsMoveActorVar 20,1
-  CsWait 30
+  CsWait 20
   CsInputChange 1,$81
   CsEnd
 
