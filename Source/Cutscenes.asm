@@ -1212,7 +1212,7 @@ Cs_TransitionOut:
   CsAddVar 1,CsAnWalkLeft
   CsAnimateActorVar 1,1
   CsAddVar 1,-CsAnWalkLeft
-  CsSetVar 20,24    ;Distance
+  CsSetVar 20,30    ;Distance
   CsSetVarVar 21,1
   CsMultVar 21,32   ;put the dir part in its place in the byte
   CsMoveActorVar 20,1
@@ -1236,7 +1236,7 @@ Cs_TransitionIn:
   CsCallVar 6,Cs_ComputePlayerAndCamera
   CsCall Cs_MapFadein
   CsMoveActorVar 20,1
-  CsWait 30
+  CsWait 37
   CsSetVar 2,0
   CsAnimateActorVar 1,1     ;Marisa, stand still
   CsInputChange 1,$81
