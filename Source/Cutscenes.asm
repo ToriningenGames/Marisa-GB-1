@@ -1185,11 +1185,11 @@ Cs_None:
 
 ;Map to map transitions
 ;TODO: Something to accomodate potentially curved transistions
-    ;00-01  Left turn
-    ;01-11  Right turn
-    ;02-24  Right turn
-    ;04-31  U Turn
-;TODO: Affect camera by placing Marisa on perpendicular, preset on parallel, then snap
+    ;00-01  Right - Bottom
+    ;01-11  Right - Top
+    ;02-24  Left - Top
+    ;04-31  Top - Top
+
 ;Order:
     ;Set Marisa trotting off in the right direction
         ;Direction in var 1
@@ -1251,144 +1251,5 @@ Cs_FullTurnTransition:
   CsAddVar 1,2      ;U turn happens here
   CsAddVar 21,2*32
   CsJump Cs_TransitionIn
-
-Cs_TransitionOutUp:
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,14,12
-  CsCall Cs_MapFadeout
-  CsEnd
-
-Cs_TransitionOutLeft:
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,14,12
-  CsCall Cs_MapFadeout
-  CsEnd
-
-Cs_TransitionOutDown:
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,14,12
-  CsCall Cs_MapFadeout
-  CsEnd
-
-Cs_TransitionOutRight:
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,14,12
-  CsCall Cs_MapFadeout
-  CsEnd
-
-Cs_TransitionInUp:
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,45,30
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceUp
-  CsCall Cs_MakePlayable
-  CsEnd
-
-Cs_TransitionInLeft:
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,45,30
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceLeft
-  CsCall Cs_MakePlayable
-  CsEnd
-
-Cs_TransitionInDown:
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorTime 1,CsDirDown,45,30
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceDown
-  CsCall Cs_MakePlayable
-  CsEnd
-
-Cs_TransitionInRight:
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,45,30
-  CsCall Cs_MapFadein
-  CsWait 30
-  CsAnimateActor 1,CsAnFaceRight
-  CsCall Cs_MakePlayable
-  CsEnd
-
-;List of odd room to room transitions (not straight lines)
-
-Cs_Load01to00_1:
-  CsCall Cs_TransitionOutDown
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest00
-  CsWaitMap
-  CsSetActor 1,160,114
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load00to01_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG04
-  CsWaitMap
-  CsLoadMap MapForest04
-  CsWaitMap
-  CsLoadObj MapForest01obj
-  CsSetActor 1,137,172
-  CsSetCamera 56,24
-  CsCall Cs_TransitionInUp
-  CsEnd
-
-Cs_Load11to01_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG04
-  CsWaitMap
-  CsLoadMap MapForest04
-  CsWaitMap
-  CsLoadObj MapForest01obj
-  CsSetActor 1,224,108
-  CsSetCamera 56,24
-  CsCall Cs_TransitionInLeft
-  CsEnd
-
-Cs_Load24to02_1:
-  CsCall Cs_TransitionOutLeft
-  CsLoadMap MapForest02
-  CsWaitMap
-  CsSetActor 1,74,250
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load01to11_1:
-  CsCall Cs_TransitionOutRight
-  CsLoadMap MapForestBKG02
-  CsWaitMap
-  CsLoadMap MapForest11
-  CsWaitMap
-  CsSetActor 1,114,-10
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
-
-Cs_Load02to24_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG03
-  CsWaitMap
-  CsLoadMap MapForest24
-  CsWaitMap
-  CsSetActor 1,-10,125
-  CsSetCamera 0,53
-  CsCall Cs_TransitionInRight
-  CsEnd
-
-Cs_Load04to31_1:
-  CsCall Cs_TransitionOutUp
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest31
-  CsWaitMap
-  CsSetActor 1,83,0
-  CsSetCamera 0,0
-  CsCall Cs_TransitionInDown
-  CsEnd
 
 .ENDS
