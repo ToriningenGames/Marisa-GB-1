@@ -1185,11 +1185,10 @@ Cs_None:
 
 ;Map to map transitions
 ;TODO: Something to accomodate potentially curved transistions
-    ;00-01
-    ;01-11
-    ;02-24
-    ;00-34
-    ;04-31
+    ;00-01  Left turn
+    ;01-11  Right turn
+    ;02-24  Right turn
+    ;04-31  U Turn
 ;TODO: Affect camera by placing Marisa on perpendicular, preset on parallel, then snap
 ;Order:
     ;Set Marisa trotting off in the right direction
@@ -1206,7 +1205,8 @@ Cs_None:
         ;Direction in var 1
     ;Fade in
     ;Control
-Cs_StraightTransition:
+
+Cs_TransitionOut:
   CsInputChange 1,0
   CsSetVar 2,0
   CsAddVar 1,CsAnWalkLeft
@@ -1225,17 +1225,32 @@ Cs_StraightTransition:
   CsLoadMapVar 4
   CsWaitMap
   CsLoadObjVar 6
-  CsSetVarVar 0,1   ;Index into ComputePlayerAndCamera list (24 bytes per item)
-  CsSetVar 1,0
-  CsMultVar 0,24
+  CsEnd
+
+Cs_TransitionIn:
+  CsSetVarVar 6,1   ;Index into ComputePlayerAndCamera list (24 bytes per item)
+  CsSetVar 7,0
+  CsMultVar 6,24
   CsSetVar 17,0
   CsSetVar 19,0
-  CsCallVar 0,Cs_ComputePlayerAndCamera
+  CsCallVar 6,Cs_ComputePlayerAndCamera
   CsCall Cs_MapFadein
   CsMoveActorVar 20,1
-  CsWait 20
+  CsWait 30
+  CsSetVar 2,0
+  CsAnimateActorVar 1,1     ;Marisa, stand still
   CsInputChange 1,$81
   CsEnd
+
+Cs_StraightTransition:
+  CsCall Cs_TransitionOut
+  CsJump Cs_TransitionIn
+
+Cs_FullTurnTransition:
+  CsCall Cs_TransitionOut
+  CsAddVar 1,2      ;U turn happens here
+  CsAddVar 21,2*32
+  CsJump Cs_TransitionIn
 
 Cs_TransitionOutUp:
   CsAnimateActor 1,CsAnWalkUp
