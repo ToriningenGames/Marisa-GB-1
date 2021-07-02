@@ -211,7 +211,7 @@ MapForest00:
 .db   0 +8,   0 +16
 .db  81 +8, 115 +16
 .db 116 +8, 144 +16
-.dw Cs_StraightTransition
+.dw Cs_CurvedTransitionA
 MapForest01:
 .db 3
 .dw MapForest01map
@@ -220,7 +220,7 @@ MapForest01:
 .db   0 +8,   0 +16
 .db   0 +8,   0 +16
 .db 137 +8, 172 +16
-.dw Cs_StraightTransition       ;Edit
+.dw Cs_CurvedTransitionA
 MapForest02:
 .db 0
 .dw MapForest02map
@@ -229,7 +229,7 @@ MapForest02:
 .db  74 +8,  -6 +16
 .db   0 +8,   0 +16
 .db  68 +8,  10 +16
-.dw Cs_StraightTransition
+.dw Cs_CurvedTransitionA
 MapForest03:
 .db 0
 .dw MapForest03map
@@ -265,7 +265,7 @@ MapForest11:
 .db 114 +8, -10 +16
 .db   0 +8,   0 +16
 .db 125 +8, 218 +16
-.dw Cs_StraightTransition
+.dw Cs_CurvedTransitionB
 MapForest12:
 .db 1
 .dw MapForest12map
@@ -337,7 +337,7 @@ MapForest24:
 .db 204 +8, -10 +16
 .db   0 +8,   0 +16
 .db -10 +8, 125 +16
-.dw Cs_StraightTransition
+.dw Cs_CurvedTransitionA
 MapForest30:
 .db 1
 .dw MapForest30map
@@ -355,7 +355,7 @@ MapForest31:
 .db  83 +8,   0 +16
 .db   0 +8,   0 +16
 .db   0 +8,   0 +16
-.dw Cs_StraightTransition
+.dw Cs_CurvedTransitionA
 MapForest32:
 .db 1
 .dw MapForest32map

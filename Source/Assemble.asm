@@ -11,6 +11,11 @@
 ;WRAM:
 ;$C000 - $C07F:
     ;Cutscene User variables
+    ;Generally used short layout
+      ;0-30: Cutscene local
+        ;Use for weird parameter passing, locals, temporaries, what have you
+      ;32: Current map data pointer
+        ;Used in unusual transitions to check Marisa's origin (since one could enter the map from another angle)
 ;$C080 - $C08F:
     ;Button data area
 ;$C090 - $C09E:

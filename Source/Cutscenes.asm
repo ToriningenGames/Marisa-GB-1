@@ -1146,6 +1146,103 @@ Cs_MapFadein:
   CsLoadObjColor %11010000,%11100100
   CsEnd
 
+;Complete Cutscenes
+;These cutscenes are meant to be used in Map definitions etc.
+
+;Used for when entrance direction aligns with exit direction
+;Order:
+    ;Set Marisa trotting off in the right direction
+        ;Direction in var 1
+    ;Fade out
+    ;Load map data
+        ;Backing in var 3
+        ;Map in var 4-5
+        ;Obj in var 6-7
+    ;Snap camera
+    ;Place Marisa in the right spot
+        ;Spot indexed by var 1 into var 8-14
+    ;Set Marisa trotting off
+        ;Direction in var 1
+    ;Fade in
+    ;Control
+Cs_StraightTransition:
+  CsCall Cs_TransitionOut
+  CsJump Cs_TransitionIn
+
+;Some of the non straight transitions
+Cs_CurvedTransitionA:
+  CsCall Cs_TransitionOut
+  ;Separate the map bytes for analysis
+  CsSetVar 23,0
+  CsSetVar 25,0
+  CsSetVarVar 22,32
+  CsSetVarVar 24,33
+  ;Check for exit from map 00
+  CsAddVar 22,$DC
+  CsAddVar 24,$BC
+  CsJumpRelVar 22,4*3
+  CsJumpRelVar 24,3*3
+  CsSetVar 1,CsDirUp        ;Go Up
+  CsSetVar 21,CsDirUp*32
+  CsJump Cs_TransitionIn
+  ;Check for exit from map 01 (to map 00)
+  CsAddVar 22,<(MapForest00map-MapForest01map)
+  CsAddVar 24,>(MapForest00map-MapForest01map)
+  CsJumpRelVar 22,4*3
+  CsJumpRelVar 24,3*3
+  CsSetVar 1,CsDirLeft      ;Go Left
+  CsSetVar 21,CsDirLeft*32
+  CsJump Cs_TransitionIn
+  ;Check for exit from map 02
+  CsAddVar 22,<(MapForest01map-MapForest02map)
+  CsAddVar 24,>(MapForest01map-MapForest02map)
+  CsJumpRelVar 22,4*3
+  CsJumpRelVar 24,3*3
+  CsSetVar 1,CsDirRight     ;Go Right
+  CsSetVar 21,CsDirRight*32
+  CsJump Cs_TransitionIn
+  ;Check for exit from map 04
+  CsAddVar 22,<(MapForest02map-MapForest04map)
+  CsAddVar 24,>(MapForest02map-MapForest04map)
+  CsJumpRelVar 22,4*3
+  CsJumpRelVar 24,3*3
+  CsSetVar 1,CsDirDown      ;Go Down
+  CsSetVar 21,CsDirDown*32
+  CsJump Cs_TransitionIn
+  ;Check for exit from map 11
+  CsAddVar 22,<(MapForest04map-MapForest11map)
+  CsAddVar 24,>(MapForest04map-MapForest11map)
+  CsJumpRelVar 22,4*3
+  CsJumpRelVar 24,3*3
+  CsSetVar 1,CsDirLeft      ;Go Left
+  CsSetVar 21,CsDirLeft*32
+  CsJump Cs_TransitionIn
+  ;Check for exit from map 24
+  CsAddVar 22,<(MapForest11map-MapForest24map)
+  CsAddVar 24,>(MapForest11map-MapForest24map)
+  CsJumpRelVar 22,3*3   ;Last check, always transition
+  CsJumpRelVar 24,2*3
+  CsSetVar 1,CsDirDown      ;Go Down
+  CsSetVar 21,CsDirDown*32
+  CsJump Cs_TransitionIn
+
+Cs_CurvedTransitionB:
+  CsCall Cs_TransitionOut
+  ;Separate the map bytes for analysis
+  CsSetVar 23,0
+  CsSetVar 25,0
+  CsSetVarVar 22,32
+  CsSetVarVar 24,33
+  ;Check for exit from map 01 (to 11)
+  CsAddVar 22,<(-MapForest01map)
+  CsAddVar 24,>(-MapForest01map)
+  CsJumpRelVar 22,3*3   ;Last check, always transition
+  CsJumpRelVar 24,2*3
+  CsSetVar 1,CsDirDown      ;Go Down
+  CsSetVar 21,CsDirDown*32
+  CsJump Cs_TransitionIn
+
+;Used for setting up the game
 Cs_LoadInit:
   CsLoadSong SongRetrib
   CsPanSong $FF,$AA
@@ -1175,7 +1272,6 @@ Cs_LoadInit:
   CsInputChange 1,$80   ;Camera follow
   CsCall Cs_MapFadein
   CsRunText StringTestMessage   ;Testing text run with input
-Cs_MakePlayable:
   CsWait 1
   CsSetActorSpeed 1,0.9
   CsAnimSpeed 1,10
@@ -1183,28 +1279,14 @@ Cs_MakePlayable:
 Cs_None:
   CsEnd
 
-;Map to map transitions
+;Component Transitions
+;These are just called by the above. Not to be used alone.
+
 ;TODO: Something to accomodate potentially curved transistions
     ;00-01  Right - Bottom
     ;01-11  Right - Top
     ;02-24  Left - Top
-    ;04-31  Top - Top
-
-;Order:
-    ;Set Marisa trotting off in the right direction
-        ;Direction in var 1
-    ;Fade out
-    ;Load map data
-        ;Backing in var 3
-        ;Map in var 4-5
-        ;Obj in var 6-7
-    ;Snap camera
-    ;Place Marisa in the right spot
-        ;Spot indexed by var 1 into var 8-14
-    ;Set Marisa trotting off
-        ;Direction in var 1
-    ;Fade in
-    ;Control
+    ;04>31  Top > Top
 
 Cs_TransitionOut:
   CsInputChange 1,0
@@ -1228,6 +1310,9 @@ Cs_TransitionOut:
   CsEnd
 
 Cs_TransitionIn:
+  CsAddVar 1,CsAnWalkLeft   ;In case fancing changed
+  CsAnimateActorVar 1,1
+  CsAddVar 1,-CsAnWalkLeft
   CsSetVarVar 6,1   ;Index into ComputePlayerAndCamera list (24 bytes per item)
   CsSetVar 7,0
   CsMultVar 6,24
@@ -1240,16 +1325,44 @@ Cs_TransitionIn:
   CsSetVar 2,0
   CsAnimateActorVar 1,1     ;Marisa, stand still
   CsInputChange 1,$81
+  CsSetVarVar 32,4
+  CsSetVarVar 33,5
   CsEnd
 
-Cs_StraightTransition:
-  CsCall Cs_TransitionOut
-  CsJump Cs_TransitionIn
-
-Cs_FullTurnTransition:
+;Used for transitions where Marisa turns offscreen.
+;Organized by source map
+Cs_TransitionLD:
   CsCall Cs_TransitionOut
   CsAddVar 1,2      ;U turn happens here
   CsAddVar 21,2*32
+  CsJump Cs_TransitionIn
+
+;Used for exits where Marisa turns right offscreen - except top exits!
+Cs_RightTurnTransitionLDR:
+  CsCall Cs_TransitionOut
+  CsAddVar 1,1      ;Right turn happens here
+  CsAddVar 21,32
+  CsJump Cs_TransitionIn
+
+;Used for exits where Marisa exits top and turns right to enter from left
+Cs_RightTurnTransitionU:
+  CsCall Cs_TransitionOut
+  CsSetVar 1,0      ;Right turn happens here
+  CsSetVar 21,0
+  CsJump Cs_TransitionIn
+
+;Used for exits where Marisa turns left offscreen - except left exits!
+Cs_LeftTurnTransitionDRU:
+  CsCall Cs_TransitionOut
+  CsAddVar 1,-1     ;Left turn happens here
+  CsAddVar 21,-32
+  CsJump Cs_TransitionIn
+
+;Used for exits where Marisa exits left and turns left to enter from top
+Cs_LeftTurnTransitionL:
+  CsCall Cs_TransitionOut
+  CsSetVar 1,3      ;Left turn happens here
+  CsSetVar 21,3*32
   CsJump Cs_TransitionIn
 
 .ENDS
