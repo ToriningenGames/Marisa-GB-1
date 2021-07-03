@@ -311,10 +311,10 @@ Cutscene_RelJump:
   JP _Cutscene_ItemReturn
 + ;Negative offset
   LD A,C
-  SUB D
+  ADD D
   LD C,A
   LD A,B
-  SBC -1
+  ADC -1
   LD B,A
   JP _Cutscene_ItemReturn
 
@@ -468,6 +468,8 @@ Cutscene_ActorDelete:       ;TEST
   ;Send deletion message
   LD A,(HL)
   LD (HL),0
+  OR A
+  JP z,EndTask
   CALL Access_ActorDE
   LD DE,_ControlState
   ADD HL,DE
@@ -864,6 +866,9 @@ Cutscene_DanmakuInit:
 .MACRO CsDeleteActor ARGS ID
  .db 7,0,ID
 .ENDM
+.MACRO CsDeleteActorVar ARGS var, ID
+ .db $40+7,var,ID
+.ENDM
 .MACRO CsSetActorX ARGS ID, X
  .db 9,(X+8) & $FF,ID | ((0)*32)
 .ENDM
@@ -1167,11 +1172,13 @@ Cs_MapFadein:
     ;Control
 Cs_StraightTransition:
   CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
   CsJump Cs_TransitionIn
 
 ;Some of the non straight transitions
 Cs_CurvedTransitionA:
   CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
   ;Separate the map bytes for analysis
   CsSetVar 23,0
   CsSetVar 25,0
@@ -1232,6 +1239,7 @@ Cs_CurvedTransitionA:
 
 Cs_CurvedTransitionB:
   CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
   ;Separate the map bytes for analysis
   CsSetVar 23,0
   CsSetVar 25,0
@@ -1335,4 +1343,11 @@ Cs_TransitionIn:
   CsSetVarVar 33,5
   CsEnd
 
+Cs_ClearActorList:
+  CsSetVar 24,0
+  CsSetVar 23,30
+  CsDeleteActorVar 22,1
+  CsAddVar 23,-1
+  CsEndVar 23
+  CsJumpRel -4
 .ENDS
