@@ -116,5 +116,5 @@ Inside game:
 <li />[ ] Write all the cutscenes
 <li />[x] Add camera behavior to follow player movement
 <li />[x] Fix hat being unable to act after leaving camera view
-<li />[ ] Add conditionals to cutscenes
+<li />[x] Add conditionals to cutscenes
 </ul>
