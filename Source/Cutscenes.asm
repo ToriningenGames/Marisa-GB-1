@@ -297,7 +297,7 @@ Cutscene_RelJump:
 ;D= offset
   LD A,E
   OR A
-  JP z,_Cutscene_ItemReturn
+  JP nz,_Cutscene_ItemReturn
   LD A,D
   RLCA
   JR c,+
@@ -1059,10 +1059,10 @@ Cutscene_DanmakuInit:
  .ENDIF
 .ENDM
 .MACRO CsJumpRel ARGS offs
- .db $80+21,0,offs
+ .db $80+21,0,offs*3
 .ENDM
 .MACRO CsJumpRelVar ARGS var, offs
- .db $C0+21,var,offs
+ .db $C0+21,var,offs*3
 .ENDM
 .MACRO CsSnapCamera
  .db $80+20,0,0
@@ -1177,53 +1177,57 @@ Cs_CurvedTransitionA:
   CsSetVar 25,0
   CsSetVarVar 22,32
   CsSetVarVar 24,33
-  ;Check for exit from map 00
-  CsAddVar 22,$DC
-  CsAddVar 24,$BC
-  CsJumpRelVar 22,4*3
-  CsJumpRelVar 24,3*3
-  CsSetVar 1,CsDirUp        ;Go Up
-  CsSetVar 21,CsDirUp*32
-  CsJump Cs_TransitionIn
   ;Check for exit from map 01 (to map 00)
-  CsAddVar 22,<(MapForest00map-MapForest01map)
-  CsAddVar 24,>(MapForest00map-MapForest01map)
-  CsJumpRelVar 22,4*3
-  CsJumpRelVar 24,3*3
+  CsAddVar 22,(0 - <MapForest01map) & $FF
+  CsAddVar 24,(0 - >MapForest01map) & $FF
+  CsJumpRelVar 22,1
+  CsJumpRel 1
+  CsJumpRelVar 24,6
+  ;Check for exit from map 11
+  CsAddVar 22,((<MapForest01map) - (<MapForest11map)) & $FF
+  CsAddVar 24,((>MapForest01map) - (>MapForest11map)) & $FF
+  CsJumpRelVar 22,1
+  CsJumpRel 5
+  CsJumpRelVar 24,1
+  CsJumpRel 3
   CsSetVar 1,CsDirLeft      ;Go Left
   CsSetVar 21,CsDirLeft*32
   CsJump Cs_TransitionIn
+  ;Check for exit from map 04   fix
+  CsAddVar 22,((<MapForest11map) - (<MapForest04map)) & $FF
+  CsAddVar 24,((>MapForest11map) - (>MapForest04map)) & $FF
+  CsJumpRelVar 22,1
+  CsJumpRel 1
+  CsJumpRelVar 24,6
+  ;Check for exit from map 24
+  CsAddVar 22,((<MapForest04map) - (<MapForest24map)) & $FF
+  CsAddVar 24,((>MapForest04map) - (>MapForest24map)) & $FF
+  CsJumpRelVar 22,1
+  CsJumpRel 5
+  CsJumpRelVar 24,1
+  CsJumpRel 3
+  CsSetVar 1,CsDirDown      ;Go Down
+  CsSetVar 21,CsDirDown*32
+  CsJump Cs_TransitionIn
   ;Check for exit from map 02
-  CsAddVar 22,<(MapForest01map-MapForest02map)
-  CsAddVar 24,>(MapForest01map-MapForest02map)
-  CsJumpRelVar 22,4*3
-  CsJumpRelVar 24,3*3
+  CsAddVar 22,((<MapForest24map) - (<MapForest02map)) & $FF
+  CsAddVar 24,((>MapForest24map) - (>MapForest02map)) & $FF
+  CsJumpRelVar 22,1
+  CsJumpRel 5
+  CsJumpRelVar 24,1
+  CsJumpRel 3
   CsSetVar 1,CsDirRight     ;Go Right
   CsSetVar 21,CsDirRight*32
   CsJump Cs_TransitionIn
-  ;Check for exit from map 04
-  CsAddVar 22,<(MapForest02map-MapForest04map)
-  CsAddVar 24,>(MapForest02map-MapForest04map)
-  CsJumpRelVar 22,4*3
-  CsJumpRelVar 24,3*3
-  CsSetVar 1,CsDirDown      ;Go Down
-  CsSetVar 21,CsDirDown*32
+  ;Check for exit from map 00
+  CsAddVar 22,((<MapForest02map) - (<MapForest00map)) & $FF
+  CsAddVar 24,((>MapForest02map) - (>MapForest00map)) & $FF
+  CsJumpRelVar 22,1
+  CsJump Cs_TransitionIn    ;Last check, always transition
+  CsJumpRelVar 24,1
   CsJump Cs_TransitionIn
-  ;Check for exit from map 11
-  CsAddVar 22,<(MapForest04map-MapForest11map)
-  CsAddVar 24,>(MapForest04map-MapForest11map)
-  CsJumpRelVar 22,4*3
-  CsJumpRelVar 24,3*3
-  CsSetVar 1,CsDirLeft      ;Go Left
-  CsSetVar 21,CsDirLeft*32
-  CsJump Cs_TransitionIn
-  ;Check for exit from map 24
-  CsAddVar 22,<(MapForest11map-MapForest24map)
-  CsAddVar 24,>(MapForest11map-MapForest24map)
-  CsJumpRelVar 22,3*3   ;Last check, always transition
-  CsJumpRelVar 24,2*3
-  CsSetVar 1,CsDirDown      ;Go Down
-  CsSetVar 21,CsDirDown*32
+  CsSetVar 1,CsDirUp        ;Go Up
+  CsSetVar 21,CsDirUp*32
   CsJump Cs_TransitionIn
 
 Cs_CurvedTransitionB:
@@ -1234,10 +1238,12 @@ Cs_CurvedTransitionB:
   CsSetVarVar 22,32
   CsSetVarVar 24,33
   ;Check for exit from map 01 (to 11)
-  CsAddVar 22,<(-MapForest01map)
-  CsAddVar 24,>(-MapForest01map)
-  CsJumpRelVar 22,3*3   ;Last check, always transition
-  CsJumpRelVar 24,2*3
+  CsAddVar 22,(0-<MapForest01map) & $FF
+  CsAddVar 24,(0->MapForest01map) $ $FF
+  CsJumpRelVar 22,1
+  CsJump Cs_TransitionIn    ;Last check, always transition
+  CsJumpRelVar 24,1
+  CsJump Cs_TransitionIn    ;Last check, always transition
   CsSetVar 1,CsDirDown      ;Go Down
   CsSetVar 21,CsDirDown*32
   CsJump Cs_TransitionIn
@@ -1310,6 +1316,7 @@ Cs_TransitionOut:
   CsEnd
 
 Cs_TransitionIn:
+  CsSetVar 2,0
   CsAddVar 1,CsAnWalkLeft   ;In case fancing changed
   CsAnimateActorVar 1,1
   CsAddVar 1,-CsAnWalkLeft
@@ -1322,47 +1329,10 @@ Cs_TransitionIn:
   CsCall Cs_MapFadein
   CsMoveActorVar 20,1
   CsWait 37
-  CsSetVar 2,0
   CsAnimateActorVar 1,1     ;Marisa, stand still
   CsInputChange 1,$81
   CsSetVarVar 32,4
   CsSetVarVar 33,5
   CsEnd
-
-;Used for transitions where Marisa turns offscreen.
-;Organized by source map
-Cs_TransitionLD:
-  CsCall Cs_TransitionOut
-  CsAddVar 1,2      ;U turn happens here
-  CsAddVar 21,2*32
-  CsJump Cs_TransitionIn
-
-;Used for exits where Marisa turns right offscreen - except top exits!
-Cs_RightTurnTransitionLDR:
-  CsCall Cs_TransitionOut
-  CsAddVar 1,1      ;Right turn happens here
-  CsAddVar 21,32
-  CsJump Cs_TransitionIn
-
-;Used for exits where Marisa exits top and turns right to enter from left
-Cs_RightTurnTransitionU:
-  CsCall Cs_TransitionOut
-  CsSetVar 1,0      ;Right turn happens here
-  CsSetVar 21,0
-  CsJump Cs_TransitionIn
-
-;Used for exits where Marisa turns left offscreen - except left exits!
-Cs_LeftTurnTransitionDRU:
-  CsCall Cs_TransitionOut
-  CsAddVar 1,-1     ;Left turn happens here
-  CsAddVar 21,-32
-  CsJump Cs_TransitionIn
-
-;Used for exits where Marisa exits left and turns left to enter from top
-Cs_LeftTurnTransitionL:
-  CsCall Cs_TransitionOut
-  CsSetVar 1,3      ;Left turn happens here
-  CsSetVar 21,3*32
-  CsJump Cs_TransitionIn
 
 .ENDS
