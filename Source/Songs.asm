@@ -18,6 +18,11 @@ SongRetrib:
  .incbin "rsc\EasternStory.mcs"
 .ENDS
 
+.SECTION "song_magus" FREE
+SongMagus:
+ .incbin "rsc\Magus.mcs"
+.ENDS
+
 .SECTION "notepitches" ALIGN $100 FREE
 ;Channel pitches
 Channel1Pitch:

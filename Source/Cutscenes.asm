@@ -1293,14 +1293,49 @@ Cs_LoadInit:
 Cs_None:
   CsEnd
 
+;New setup
+Cs_Intro:
+  CsLoadSong SongRetrib
+  CsPanSong $FF,$AA
+  CsWait 45
+  CsLoadBkgColor $FE
+  CsWait 45
+  CsLoadBkgColor $FF
+  CsLoadObjColor $FF,$FF
+  CsWait 45
+  CsLoadMap MapForestBKG03
+  CsNewActor 0,CsChHat,0
+  CsNewActor 1,CsChMarisa,0
+  CsWait 2
+  CsInputChange 1,0     ;Cutscene control of Marisa
+  CsAnimateActor 1,CsAnFaceDown
+  CsAssignHat 0,1
+  CsWaitMap
+  CsLoadMap MapForest23map
+  CsSetActor 1,130,70
+  CsWaitMap
+  CsLoadObj MapForest23obj
+  CsInputChange 1,$80   ;Camera follow
+  ;Marisa walk into scene here
+  CsCall Cs_MapFadein
+  CsRunText StringOpeningMessage1
+  CsWait 1
+  CsWaitText
+  ;Marisa does a shuffle here
+  CsRunText StringOpeningMessage2
+  CsWait 1
+  CsWaitText
+  CsLoadSong SongMagus  ;Load main actioney song
+  CsRunText StringOpeningMessage3
+  CsWait 1
+  CsWaitText
+  CsSetActorSpeed 1,0.9
+  CsAnimSpeed 1,10
+  CsInputChange 1,$81   ;Playable
+  CsEnd
+
 ;Component Transitions
 ;These are just called by the above. Not to be used alone.
-
-;TODO: Something to accomodate potentially curved transistions
-    ;00-01  Right - Bottom
-    ;01-11  Right - Top
-    ;02-24  Left - Top
-    ;04>31  Top > Top
 
 Cs_TransitionOut:
   CsInputChange 1,0
@@ -1350,4 +1385,12 @@ Cs_ClearActorList:
   CsAddVar 23,-1
   CsEndVar 23
   CsJumpRel -4
+
+;Interations
+;Things people say and do when you talk to them
+;All must begin with a RET to prevent being called
+CsInt_Debug:
+  CsRunText StringTestInteraction
+  CsEnd
+
 .ENDS

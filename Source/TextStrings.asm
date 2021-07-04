@@ -58,12 +58,55 @@ MAP "h" = $7F
 .ENDA
 
 .SECTION "Strings" FREE
-;TODO: Reconsider text method...
-    ;Maybe out of band control?
-    ;All doable with only text and cursor movement.
-        ;Tedious. Write a conversion program.
-        ;And speed. And shake.
-        ;And face control
+
+;Welcome message:
+    ;Marisa needs to go to Alice's house,
+    ;but she realizes she doesn't know how to get there.
+    ;She becomes resolved to find Alice's house.
+    
+    ;Marisa walks on set from an impossible angle
+    ;M: "All that ruckus over a few little books!"
+    ;M: "At least I got the one Alice asked for."
+    ;M: "Better go pay her a visit, then"
+    ;Marisa kinda shuffles to and fro
+    ;M: "...I have no idea where she lives."
+    ;Pause
+    ;M: "There's only one thing I can do..."
+    ;M: "Find Alice's house!"
+    
+    ;"0123456789ABCD"
+StringOpeningMessage1:
+.DB CtrlFaceLoad,1,$19, CtrlFaceLoad,2,$17, CtrlBorder,1, CtrlSpeed,2, CtrlClear, CtrlFaceShow,1, CtrlRaise
+.ASC "ALL THAT", CtrlLine
+.ASC "RUCKUS OVER A", CtrlLine
+.ASC "FEW LITTLE", CtrlLine
+.ASC "BOOKS!", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$11
+.ASC "AT LEAST I GOT", CtrlLine
+.ASC "THE ONE ALICE", CtrlLine
+.ASC "ASKED FOR.", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2
+.ASC "BETTER GO PAY", CtrlLine
+.ASC "HER A VISIT,", CtrlLine
+.ASC "THEN.", CtrlPause
+.DB CtrlLower, CtrlEnd
+StringOpeningMessage2:
+.DB CtrlFaceLoad,1,$12, CtrlFaceLoad,2,$18, CtrlClear, CtrlFaceShow,1, CtrlRaise
+.ASC "...I HAVE NO", CtrlLine
+.ASC "IDEA WHERE", CtrlLine
+.ASC "SHE LIVES.", CtrlPause
+.DB CtrlLower, CtrlWait,90, CtrlFaceShow,2, CtrlClear, CtrlFaceLoad,1,$1A, CtrlRaise
+.ASC "THERE'S ONLY", CtrlLine
+.ASC "ONE THING", CtrlLine
+.ASC "I CAN DO...", CtrlPause, CtrlClear
+.DB CtrlEnd
+StringOpeningMessage3:
+.DB CtrlFaceShow,1
+.ASC "FIND", CtrlLine
+.ASC "ALICE'S", CtrlLine
+.ASC "HOUSE!", CtrlPause, CtrlClear
+.DB CtrlLower, CtrlEnd
+
 StringTestMessage:  ;missing up, right, corner; right and corner are done incidentally
 .DB CtrlSpeed,3, CtrlClear, CtrlRaise, CtrlFaceLoad,1,$10, CtrlFaceLoad,2,$05
 .ASC "WELCOME TO GAME!!",CtrlLine
@@ -102,82 +145,10 @@ StringTestMessage:  ;missing up, right, corner; right and corner are done incide
 .DB CtrlPause, CtrlLower
 .DB CtrlEnd
 
-;Alice: "..."
-;Alice: "What are you all doing at my house?"
-;Maris: "Partying."
-;Reimu: "Alcohol."
-;Alice: "And WHY at my house?"
-;Maris: "Convenience."
-;Reimu: "All the alcohol landed here after the explosion."
-;Alice: "!!!"
-;Alice: "...???"
-;Maris: "Master spark. Previous owners weren't too keen on giving it up."
-;Alice closes door behind her, steps off porch
-;Alice: "Now would be a good time to relocate."
-;Reimu: "Why?"
-;Maris: "How about a drink?"
-;Alice: "How about no, and how about..."
-;Alice: "Getting away from my house!"
-    ;Wide format
-    ;| 0123456789ABCDEF01 |
-    ;Narrow format
-    ;|FFFF 0123456789ABCD |
-StringDemoMessage1:
-.DB CtrlBorder,1, CtrlFaceLoad,1,$02, CtrlFaceLoad,2,$17, CtrlSpeed,6
-  .DB CtrlFaceShow,1, CtrlClear, CtrlRaise, CtrlWait,5
-  .ASC    "WHAT ARE YOU", CtrlLine
-  .ASC    "ALL DOING AT", CtrlLine
-  .ASC    "MY HOUSE?"
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$22
-  .ASC    "PARTYING."
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$04
-  .ASC    "ALCOHOL."
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$11
-  .ASC    "AND "
-  .DB CtrlWait,10, CtrlSpeed,2
-  .ASC        "WHY "
-  .DB CtrlLine, CtrlWait,15, CtrlSpeed,6
-  .ASC    "AT MY HOUSE?"
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$22
-  .ASC    "CONVENIENCE."
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$00
-  .ASC    "ALL THE", CtrlLine
-  .ASC    "ALCOHOL LANDED", CtrlLine
-  .ASC    "HERE AFTER THE", CtrlLine
-  .ASC    "EXPLOSION."
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$01
-  .ASC    "!!!"
-  .DB CtrlWait,25, CtrlLine
-  .DB CtrlSpeed,16, CtrlFaceShow,2, CtrlFaceLoad,1,$11
-  .ASC    "..."
-  .DB CtrlWait,25, CtrlSpeed,6
-  .ASC       "???"
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,1
-  .ASC    "MASTER SPARK.", CtrlLine
-  .ASC    "PRIOR OWNERS", CtrlLine
-  .ASC    "WEREN'T TOO", CtrlLine
-  .ASC    "KEEN ON", CtrlSpeed,20, "...", CtrlWait,45, CtrlSpeed,6, CtrlClear
-  .ASC    "<DONATING\" IT.", CtrlLine
-.DB CtrlWait,35, CtrlLower, CtrlEnd
-
-StringDemoMessage2:
-.DB CtrlBorder,1, CtrlFaceLoad,1,$01, CtrlFaceLoad,2,$12, CtrlSpeed,6
-  .DB CtrlFaceShow,1, CtrlClear, CtrlRaise, CtrlWait,15
-  .ASC    "NOW WOULD BE A", CtrlLine
-  .ASC    "GOOD TIME TO", CtrlLine
-  .ASC    "RELOCATE."
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$22
-  .ASC    "WHY?"
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,1, CtrlFaceLoad,2,$00
-  .ASC    "HOW ABOUT A", CtrlLine
-  .ASC    "DRINK?"
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$04
-  .ASC    "HOW ABOUT NO,", CtrlLine, CtrlFaceShow,1, CtrlFaceLoad,2,$02
-  .ASC    "AND HOW ABOUT..."
-.DB CtrlWait,35, CtrlClear, CtrlFaceShow,2
-.DB CtrlShake,$20
-  .ASC    "GETTING AWAY", CtrlLine
-  .ASC    "FROM MY HOUSE!"
-.DB CtrlWait,45, CtrlLower, CtrlEnd
-
+;Conversations:
+;Things people say
+StringTestInteraction:
+.DB CtrlSpeed,3, CtrlClear, CtrlRaise, CtrlFaceShow,0, CtrlBorder,0
+.ASC "HI!", CtrlPause
+.DB CtrlLower, CtrlEnd
 .ENDS

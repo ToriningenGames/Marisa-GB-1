@@ -43,8 +43,6 @@ LIB1 = Maps.lib Songs.lib Cutscenes.lib
 LINK = Link.link
 OBJ = Assemble.obj vBlank2.obj
 SUPP = TileData.lzc
-SONGS = Spark2.mcs NULL.mcs
-MAPS = Test.gbm Debug.gbm Hall.gbm
 OUT = bin\Assemble.gb
 SYM = $(addsuffix .sym,$(basename $(OUT)))
 

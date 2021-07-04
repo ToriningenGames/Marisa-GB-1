@@ -153,14 +153,11 @@ CharaFrame:
     AND $7F
     JR z,++
 ;Check for movement
-    LD HL,_ButtonState
-    ADD HL,DE
     LDH A,($FE)
     AND $F0
-    LD (HL),A
-    JR z,++
     PUSH BC
     PUSH DE
+      JR z,+++
 ;Direction is being pressed if not zero
 ;Move handles 0 just fine, though
 ;DE-> Actor data
@@ -205,9 +202,16 @@ CharaFrame:
       INC BC
 +
       CALL Actor_Move
++++
+;Other button checks
     POP DE
     POP BC
 ++
+;Update buttonage
+    LD HL,_ButtonState
+    ADD HL,DE
+    LDH A,($FE)
+    LD (HL),A
   POP AF
   JP Actor_Draw
 

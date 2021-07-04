@@ -290,7 +290,7 @@ PlayerHitboxes:
  .dw PlayerHitboxAction
  .dw $0000,$0000
  .db $01,HitboxTalk
- .dw DefaultHitboxAction
+ .dw PlayerTalkAction
  
 .ENDS
 
@@ -411,6 +411,10 @@ PlayerHitboxAction:
   JP Actor_Move
 
 DefaultHitboxAction:
+  RET
+
+PlayerTalkAction:
+;If player has talking control, run the cutscene on the other hitbox
   RET
 
 .ENDS
