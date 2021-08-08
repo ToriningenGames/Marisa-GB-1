@@ -69,11 +69,11 @@ include $(addprefix Submakes\obj\,$(addsuffix .d,$(OBJ)))
 	$(WLAGB) -v -x -I $(<D) -o obj\$@ $<
 %.lib : %.asm %.lib.d $(WLAGB) | lib
 	$(WLAGB) -v -x -I $(<D) -l lib\$@ $<
-%.gbm : ..\%.tmx $(MAPCONV) | rsc
+rsc\\%.gbm : %.tmx | rsc
 	$(MAPCONV) $< $@
-%.lzc : ..\%.gb $(SPECFILE) $(LZ) | rsc
+rsc\\%.lzc : %.gb $(SPECFILE) | rsc
 	$(LZ) LZ77 $(word 2,$^) $< $@
-%.mcs : ..\%.mml $(MML) | rsc
+rsc\\%.mcs : %.mml | rsc
 	$(MML) -i=$< -o=$@ -t=gb
 $(LINK) : Makefile
 	$(file > $(LINK),[objects])

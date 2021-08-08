@@ -107,12 +107,13 @@ ExtractSpec:
   PUSH HL
   LD H,(HL)     ;Negate for backreference
   CPL
-  LD L,A
-  LD A,C
+  ADD 1         ;We add 1 to HL like this, as opposed to an increment afterwards
+  LD L,A        ;because backreferences between $100 and $1FF increment $FExx
+  LD A,C        ;values, and doing that trashes OAM... sometimes
   LD C,H
   CPL
+  ADC 0
   LD H,A
-  INC HL
   ADD HL,DE
   JR __loop
 +
