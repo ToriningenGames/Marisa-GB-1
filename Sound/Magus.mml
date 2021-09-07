@@ -44,12 +44,13 @@ X0 ^0 @ #H%11011110
 [:R1]0
 
 X2 ^0 @ @55
-O4 ^8    #Witches' Ball melody (Cm)
+[: O4 ^8    #Witches' Ball melody (Cm)
   #Help Night
-    R1.6
+    C2 E-2 R B.3 C2
+    C2 E-2 C16.3 B16.3 B-8 <G2>
+    C2 E-2 R B.3 C2
   #Opening
     E-2 F2 >C2 D16.3 E-16.3 F
-[: O5
   #Melody Part A
  ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
     G4 G4 A- G ^16 F E- D B- B.3 D.3 F8 C2
@@ -60,10 +61,12 @@ O4 ^8    #Witches' Ball melody (Cm)
     G4 G4 A- G ^16 F E- D B- B.3 D.3 F8 C2
  ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
     G4 G4 A- G ^16 F E- D B- B.3 C.3 D8 C D E- G < G C D G
+  #Break
+  #Finale
 ]0
 
 X1 ^0 @ @55
- O5         #Magus Night melody (Cm?)
+[: O5         #Magus Night melody (Cm?)
 #C D E- F G- G A  B-
 #  W h  W h  h W  h
   #Opening
@@ -72,7 +75,6 @@ X1 ^0 @ @55
     G.2   R.2   G-.2  R.2   G-16 R F16 R E-16 R16 C4 R.3
        G.3 R G-.3 R F.3 R E-.3
 ^16 R8 G8.3 R8 G-8.3 G-.3 F.3 E-8 C2
-[:
   #Melody Part A
  O6 C.3 E-.3 G8 G-.3 D.3 E-8 F.3 B.3 C E- D8 C8 <G4>
     C.3 E-.3 G >A B-8 A8< G8 F8 D2 G8.3 >B8
@@ -83,19 +85,22 @@ X1 ^0 @ @55
     C.3 E-.3 G >A B-8 A8< G8 F8 D4 <G8> C D G8.3 >B8
     C.3 <G.3> C8 D.3 <F.3> D8 ^8 C B <D G <G> F E- D
     ^16 C.3 E-.3 G8 F.3 D.3 B-8 <G2> C2
+  #Break
+  #Finale
 ]0
 
 X3 ^0 @ I1 V$FF
- O3         #Tying harmony
+[: O4         #Tying harmony
   #Help drums
     R1.4
-  #Introduce Ball
-    R1.4
+  #Introduce BalL
+    C8  G8  E-8 G8  B-8 G-8 E-8 C4     F8  D8  F8  A8  G8  E-8 G8
+    C8  G8  E-8 G8  B-8 G-8 E-8 G-8 D8 G8  E-8 G8  A8  G8  D8  G8
   #Separate harmonies
     #Ball:  I         VII            VI        I            I         IV           I         I          | I         VII          VI        I            IV        V            I         I
     #       C         B-             A         C            C         F            C         C          | C         B-           A         C            F         G            C         C
     #Night: Cm Cm#5 | Bdim Csus2/4 | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm
-[: O3
+O3
 ^16 [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
     [: C E- G E- ]1       [: C E- A- E- ]1    B D F>A C A D F E-C A<F E-C A<F> [: C E- G E- ]1[: C E- A- E- ]1 [: C D F D ]1       [: C F G D ]1
     [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
