@@ -34,7 +34,7 @@
 
 .include "mapDef.asm"
 
-.SECTION "Cutscene Code" ALIGN 256 FREE
+.SECTION "Cutscene Data" ALIGN 256 FREE
 
 ;Cutscene function signature:
     ;Some are tasks
@@ -124,10 +124,13 @@ CharaTypes:
 .DEFINE Cutscene_VarPage varPage
 .EXPORT Cutscene_VarPage
 
+.ENDS
+
+.SECTION "Cutscene Code" FREE
 ;Cutscene loop
 Cutscene_Task:
 ;DE->Cutscene data
-  LD B,D    ;Do not control player; cutscenes can have player movement
+  LD B,D
   LD C,E
 _Cutscene_ItemReturn:
 -
@@ -1077,7 +1080,7 @@ Cutscene_DanmakuInit:
 .ENDM
 
 
-.SECTION "Cutscene Data" ALIGN 256 FREE
+.SECTION "Cutscenes" FREE
 
 Cs_ComputePlayerAndCamera:
   ;Come in from right

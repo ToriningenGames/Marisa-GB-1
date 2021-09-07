@@ -23,7 +23,7 @@ SongMagus:
  .incbin "rsc\Magus.mcs"
 .ENDS
 
-.SECTION "notepitches" ALIGN $100 FREE
+.SECTION "notepitcheslo" BITWINDOW 8 FREE
 ;Channel pitches
 Channel1Pitch:
 Channel2Pitch:
@@ -40,6 +40,9 @@ Channel3Pitch:
  .dw 2011,2013,2015,2017,2018,2020,2022,2023,2025,2026,2027,2028
 ;Channel 3 octave 8 (do not use)
  .dw 2029,2030,2031,2032,2033,2034,2035,2036,2036,2037,2038,2038
+.ENDS
+
+.SECTION "notepitcheshi" BITWINDOW 8 FREE
 Channel4Pitch:
 ;Octaves 2 - 6, following special format
 ;The high-order byte is the associated envelope
@@ -78,7 +81,4 @@ Channel4Stacatto:
     ;E
     ;F
     ;G
-;Channel 3 voices
-;Wave:
-; .include "Voicelist.asm"
 .ENDS

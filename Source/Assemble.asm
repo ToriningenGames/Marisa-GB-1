@@ -204,6 +204,7 @@ __MultLoop:
   JR nz,__MultLoop  ;12,8
 Return:
   RET               ;16
+  RST $38
 
 .ORG $08
 ;Block memory move - up to 256 bytes
@@ -214,6 +215,7 @@ __move:
   DEC C
   JR nz,__move
   RET
+  RST $38
 
 .ORG $10
 ;Block memory move - up to 65,536 bytes
@@ -237,8 +239,8 @@ __fullMove:
 
 .ORG $20
 ;Start over with a whitened screen
-;A = 0
 ;HL = LCDControl
+  XOR A
   LD (HL),%10000000         ;Make sure screen is enabled - and nothing else
   LD L,<BkgPal
   LD (HL),A                 ;White out the screen
@@ -251,6 +253,13 @@ __fullMove:
 
 .ORG $30
   JP HL
+  RST $38
+  RST $38
+  RST $38
+  RST $38
+  RST $38
+  RST $38
+  RST $38
 
 .ORG $38
 ;Panic vector. Everything is on fire!.
@@ -268,6 +277,7 @@ __fullMove:
   PUSH DE
   PUSH HL
   JP vBlank
+  RST $38
 
 ;LCD IRQ
 .ORG $48
@@ -294,14 +304,6 @@ BlankSpriteIRQ:
   POP AF    ;Actually AF
   RETI
 .ENDS
-
-;Timer
-.ORG $50
-  RETI
-
-;Serial cable
-.ORG $58
-  RETI
 
 ;Joypad
 .ORG $60

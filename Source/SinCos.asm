@@ -5,7 +5,7 @@
 ;Results are in 2.6 format
 ;Defined using for [0, 1) for sin
 
-.SECTION "SinCos" ALIGN 256 FREE
+.SECTION "SinCosLUT" ALIGN 256 FREE
 ;sin going forwards from 0..1
 SinCosTable:
  .db $00,$02,$03,$05,$06,$08,$09,$0B,$0C,$0E,$10,$11,$13,$14,$16,$17,$18,$1A,$1B
@@ -22,8 +22,14 @@ SinCosTable:
  .db $C5,$C6,$C7,$C8,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$CF,$D0,$D1,$D2,$D3,$D4,$D5,$D6
  .db $D7,$D9,$DA,$DB,$DC,$DE,$DF,$E0,$E2,$E3,$E5,$E6,$E8,$E9,$EA,$EC,$ED,$EF,$F0
  .db $F2,$F4,$F5,$F7,$F8,$FA,$FB,$FD,$FE
+.ENDS
 
-;Example of getting cosine:
+.SECTION "SinCos" FREE
+;Call both as follows:
+;A=0
+;Return
+;H=integer component
+;L=fractional component
 Cos:
   ADD $40   ;One quarter turn off
 ;Example of getting sine:
@@ -33,20 +39,17 @@ Sin:
   LD A,(HL)
 TwoSixToEightEight:
   ;Convert from 2.6 to 8.8
-  LD H,A
-  AND $3F
-  RLCA
-  RLCA
-  LD L,A
-  LD A,$C0
-  AND H
-  BIT 7,A
-  JR z,+
-  OR $3F
+  LD H,0
+  ADD A
+  JR nc,+
+  DEC H
+  DEC H         ;Make H negative, yet accomodate next carry
 +
-  RLCA
-  RLCA
-  LD H,A
+  ADD A
+  JR nc,+
+  INC H         ;Carry out to H
++
+  LD L,A
   RET
 
 .ENDS
