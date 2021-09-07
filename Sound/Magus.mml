@@ -1,7 +1,7 @@
-# Magus Night ~ Witches Ball
-# Original: Magus Night
+# Magus Ball ~ ウィッチズ ナイト
+# Originals: Magus Night, Witches' Ball ~ Magus
 # Composed by: ZUN
-# Arrangement by: Toriningen
+# Arrangement by: U2 Akiyama, Toriningen
 # Transcription to MML by: Toriningen
 
 # Arrange notes:
@@ -10,11 +10,96 @@
     # That might make it annoying after a while. Oh dear.
     # I was trying for the sort of song you put on to get pumped, but still do nothing.
 
-X1 ^1
-[R]
-X2 ^1
-[R]
-X3 ^1
-[R]
-X4 ^1
-[R]
+
+#Use the power of stereo to allow one melody to be subservient to the other-
+#then have them swap roles with a stereo volume sweep
+#Cool effect throwing the drums from one speaker to the other also good
+
+#Order?
+#Drumroll open, break the roll with Night's opening chords
+#Play both melodies, lighter drums
+#Shift dominance to one, other melody operates as subservient
+#Drums fling over to the other side, melodies swap roles
+#Snap into break, keep it peppy
+#Finish with a triumphant duet
+#Loop interrupts with its drumroll
+
+#TODO:
+#Write break
+#Write finale
+#Set instruments
+#All drums
+#All panning effects
+
+@0      #Tempo
+    T160
+@10     #Expected Magus Night Melody
+    V$F2 I0
+@20     #Expected Witches' Ball Melody
+    V$F7 I2
+@55     #Expected combined
+    V$F5 I1
+
+X0 ^0 @ #H%11011110
+[:R1]0
+
+X2 ^0 @ @55
+O4 ^8    #Witches' Ball melody (Cm)
+  #Help Night
+    R1.6
+  #Opening
+    E-2 F2 >C2 D16.3 E-16.3 F
+[: O5
+  #Melody Part A
+ ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
+    G4 G4 A- G ^16 F E- D B- B.3 D.3 F8 C2
+ ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
+    G4 G4 A- G ^16 F E- D B- B.3 C.3 D8 C D E- G > G C D G
+  #Melody Part B
+ ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
+    G4 G4 A- G ^16 F E- D B- B.3 D.3 F8 C2
+ ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
+    G4 G4 A- G ^16 F E- D B- B.3 C.3 D8 C D E- G < G C D G
+]0
+
+X1 ^0 @ @55
+ O5         #Magus Night melody (Cm?)
+#C D E- F G- G A  B-
+#  W h  W h  h W  h
+  #Opening
+  # 1  +  2  +  3  +  4  +  1  +  2  +  3  +  4  +
+ ^8 R  G.2   R.2   G-.2  R.2   F.2   R.2   E-.2  R
+    G.2   R.2   G-.2  R.2   G-16 R F16 R E-16 R16 C4 R.3
+       G.3 R G-.3 R F.3 R E-.3
+^16 R8 G8.3 R8 G-8.3 G-.3 F.3 E-8 C2
+[:
+  #Melody Part A
+ O6 C.3 E-.3 G8 G-.3 D.3 E-8 F.3 B.3 C E- D8 C8 <G4>
+    C.3 E-.3 G >A B-8 A8< G8 F8 D2 G8.3 >B8
+    C.3 <G.3> C8 D.3 <F.3> D8 ^8 C B <D G <G> F E- D
+    ^16 C.3 E-.3 G8 F.3 D.3 B-8 <G E- C E- G E- G >B- C2
+  #Melody Part B
+ O5 C.3 E-.3 G8 G-.3 D.3 E-8 F.3 B.3 C E- D8 C8 <G4>
+    C.3 E-.3 G >A B-8 A8< G8 F8 D4 <G8> C D G8.3 >B8
+    C.3 <G.3> C8 D.3 <F.3> D8 ^8 C B <D G <G> F E- D
+    ^16 C.3 E-.3 G8 F.3 D.3 B-8 <G2> C2
+]0
+
+X3 ^0 @ I1 V$FF
+ O3         #Tying harmony
+  #Help drums
+    R1.4
+  #Introduce Ball
+    R1.4
+  #Separate harmonies
+    #Ball:  I         VII            VI        I            I         IV           I         I          | I         VII          VI        I            IV        V            I         I
+    #       C         B-             A         C            C         F            C         C          | C         B-           A         C            F         G            C         C
+    #Night: Cm Cm#5 | Bdim Csus2/4 | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm
+[: O3
+^16 [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
+    [: C E- G E- ]1       [: C E- A- E- ]1    B D F>A C A D F E-C A<F E-C A<F> [: C E- G E- ]1[: C E- A- E- ]1 [: C D F D ]1       [: C F G D ]1
+    [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
+       F>A  C E- F E- G F A- E- C E- A->C A<F D G B G D B<G>G D F G C G F E D  [: C E-G E-]1  [: C E-G E-]1       C B D F D B<G E- [: C F D G ]1
+]0
+X4 ^0 @
+[:R1]0
