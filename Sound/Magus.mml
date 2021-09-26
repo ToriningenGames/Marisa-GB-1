@@ -49,10 +49,13 @@ X0 ^0 @ #H%11011110
   #Melody Part B
     R1.8
   #Break
-  #Ball's Harpsichord has a fun flanged(?) stereo ear jumping
+  #Ball's Harpsichord has a fun panned stereo ear jumping
+  #The ratio is 11:6. The linearity of volume levels differ depending on
+    #platform (e.g. the original gameboy has a different scale than the GBC)
+    #so we just kinda wing it.
   #Right ear first
  ^8 [:
-        V$4F R V$F4 R
+        V$6B R V$B6 R
     ]31 V$FF
   #Finale
     R1.16
@@ -150,9 +153,20 @@ O3
     [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
        F>A  C E- F E- G F A- E- C E- A->C A<F D G B G D B<G>G D F G C G F E D  [: C E-G E-]1  [: C E-G E-]1       C B D F D B<G E- [: C F D G ]1
     #Break
-    R1.8
+    [:
+     ^2 E- G- D E
+    ]3
     #Finale
-    R1.16
+    O2
+    A-> B- C8.7 <G8
+    A-> B-8.3 C1 <G8
+    A-> B- C8.7 <G8
+    A-> D8.3 E8.5 G2>
+    ^4
+    C B- <A- F G F E- D
+    C E- D B- <A-> B- C D
+    E-2 F D C D E- B-
+    C8.3 B-8 F8.3 E-16.3 R8 E-16 R8 G16 R16 > C8 R8.3
 ]0
 X4 ^0 @
 [:R1]0
