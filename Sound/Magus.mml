@@ -25,11 +25,9 @@
 #Loop interrupts with its drumroll
 
 #TODO:
-#Write break
-#Write bass finale?
 #Set instruments
 #All drums
-#All panning effects
+#Most panning effects
 
 @0      #Tempo
     T160
@@ -42,6 +40,7 @@
 
 X0 ^0 @ #H%11011110
 [:
+    R1.4
   #Intro
     R1.8
   #Melody Part A
@@ -63,6 +62,7 @@ X0 ^0 @ #H%11011110
 
 X2 ^0 @ @55
 [: O4 ^8    #Witches' Ball melody (Cm)
+    R1.4
   #Help Night
     C2 E-2 R B.3 C2
     C2 E-2 C16.3 B16.3 B-8 <G2>
@@ -100,8 +100,15 @@ X2 ^0 @ @55
     E-.3 E-.3 D8 C.3 C.3 B-8 G R8 G R8 F R > E-8 R8.3
 ]0
 
-X1 ^0 @ @55
-[: O5         #Magus Night melody (Cm?)
+X1 ^0 @
+[: O3         #Magus Night melody (Cm?)
+    S%0111011 V$6B
+^16 E- E  E  R   E  R  E  E   R  E  E  R   R  R  E  E 
+    E- E  E  R   E  R  E  R   E  R  E  R   E  E  E  E 
+    E- E  R  R   E  E  R  E   R  R  E  E   E  R  E  E 
+    E  R  E  E   E  R  R  R
+    V$8B E  E  E  E  V$AB E  V$BB E  v$BB E  V$FB G 
+    O5 @55 S0
 #C D E- F G- G A  B-
 #  W h  W h  h W  h
   #Opening
@@ -136,10 +143,19 @@ X1 ^0 @ @55
     A- G F E- G16 R8 G16 R8 F16 R16 >2 E-8 R8.3
 ]0
 
-X3 ^0 @ I1 V$FF
-[: O4         #Tying harmony
-  #Help drums
-    R1.4
+X3 ^0 @ V$8F I.24
+[: O2         #Tying harmony
+    #Help drums
+^16 E R8  E  R E R.3    E8  R8   E.5
+        R8   E R E R8   E R E8   R E R
+    E8  R4       E R4       E8   R E.3
+      R8  E8   R8  E  R4  V$EE E4 V$8F
+    #Opening
+    R E R E  R8  E R8   E R E  R8  E R8
+      E R8   E R.3    E8  R8   E R4
+      E R E  R8  E R8   E R E  R8  E R
+    E8  R8   E R.3    E8.3      V$FF E8 
+    I1 O4
   #Introduce Ball
     C8  G8  E-8 G8  B-8 G-8 E-8 C4     F8  D8  F8 A8 G8  E-8 G8
     C8  G8  E-8 G8  B-8 G-8 E-8 G-8 D8 G8  E-8 G8 A8 G8  D8  G8
@@ -168,5 +184,49 @@ O3
     E-2 F D C D E- B-
     C8.3 B-8 F8.3 E-16.3 R8 E-16 R8 G16 R16 > C8 R8.3
 ]0
+
 X4 ^0 @
-[:R1]0
+[: O2 ^16
+    D B B D  B D B B  D B B D  D G+ G+ G+
+    E8  B D  C D B D  B F B F  G B  G  B
+    E8  D D  B B D B  D D B B  C D  C  C+
+    E D B C+8  D D G+ D+2
+  #Opening
+    D+ C B A  B D A  D  D+ C  B  A   B  D A D
+    B- A D B  A D B  B  G+ C+ D  B   A  D B D
+    D+ C B A  B D A  D  D+ C  B  A   B  D A D
+    G+ A B G+ B D G+ B  G+ C+ G+ A   G+ B D G+
+    E8   B B  B D B  D  D+ C  B  C+  B  D B D
+    B- A D B  A D B  B  G+ C+ D  B   C+ D B D
+    D+ C B A  B D A  D  D+ C  B  A   B  D A D
+    G+ A B G+ B D G+ B  G+ C+ G+ B   G+ [: G+32 ]5
+  #Melody Part A
+    E8  C+ B  A C D A  C+ B A C  D A C+ A
+    D A C+ B  A C D A  C+ B A C  D C+ B B
+    E8  C+ B  A C D A  C+ B A C  D A C+ A
+    D A C+ B  A C D A  B  C B C  B B C  B
+    E8  C+ B  A C D A  C+ B A C  D A C+ A
+    D A C+ B  A C D A  C+ B A C  D C+ B B
+    E8  C+ B  A C D A  C+ B A C  D A C+ A
+    D B D  D  D D D+.6           G+ G+ G+ G+
+  #Melody Part B
+    E8   C+ B  C+ C D B  A  B C+ C  D B G+ A
+    G  B C+ B  C+ C D B  A  B C+ B  D B D  F
+    E8   C+ B  C+ C D B  G+ B C+ C  D B G+ A
+    G  B C+ B  C+ C D B  A  B B  D  G+ D G+ G+
+    E8   C+ B  C+ C D B  A  B C+ C  D B G+ A
+    G  B C+ B  C+ C D B  A  B C+ B  D B D  F
+    E8   C+ B  C+ C D B  G+ B C+ C  D B F A
+    G  D B  D  B  D B-.5         [: G+32 ]9
+  #Break
+    E8   C8   C+8 C8   C+8 C8    C+8  C  A
+    B8   A8   C+8 C8   A8  C+8   C  B A  A
+    E8   C8   C+8 C8   C+8 C A   C+8  C  A
+    B8   A8   C+8 C A  A8  C+A   C  B A  A
+    E8   C  A C+A C A  B C+C C   C+ A B  A
+    E8   C C+ C+A C A  E8  C+A   C  A B  C+
+    E8   A B  C+A D B  C+C A B   A  A D  D
+    C+ B A B  B A D B  B D C+B   D  D G+ G+
+  #Finale
+    E1.16
+]0
