@@ -24,28 +24,61 @@
 #Finish with a triumphant duet
 #Loop interrupts with its drumroll
 
-#TODO:
-#Set instruments
-#Most panning effects
-
 @0      #Tempo
     T160
+
 @10     #Expected Magus Night Melody
-    V$F2 I0
-@20     #Expected Witches' Ball Melody
-    V$F7 I2
-@55     #Expected combined
-    V$F5 I1
+    V$A3 I0 S0
+@11     #Supporting bass drum
+    S%0111011 V$6B I1
+@12     #Melody hi
+    V$86 I1
+@13     #Melody lo
+    V$A6 I0
+@14     #Duet finish
+    V$B7 I3
+
+@20     #Melody hi
+    V$77 I2
+@21     #Intro bass
+    V$87 I1
+@22     #Melody lo
+    V$96 I3
+@23     #Break
+    V$A3 I0
+@24     #Duet finish
+    V$D5 I2
+
+@30     #Drum help
+    V$80 I2.24
+@31     #Ball bass opening
+    V$80 I
+@32     #Harmonizing bass
+    V$80 I
+@33     #Piano alongside harpsichord
+    V$F0 I
+@34     #Finale
+    V$F0 I
+@3      #
+    S0
 
 X0 ^0 @ #H%11011110
-[:
+[: V$55 H$FF
     R1.4
   #Intro
-    R1.8
+   V$47 H%11110011
+    R1.4
+    H%11110111
+    R1.3
+    H%11110101
+    R1
   #Melody Part A
-    R1.8
+    H%11100101
+    R1.7
+    R2 V$57 R8 V$66 R8 H%01101101 V$65 R8 V$75 R8
   #Melody Part B
-    R1.8
+    R1.7
+    R2 V$76 R8 V$66 R8 H$FF R4
   #Break
   #Ball's Harpsichord has a fun panned stereo ear jumping
   #The ratio is 11:6. The linearity of volume levels differ depending on
@@ -53,26 +86,33 @@ X0 ^0 @ #H%11011110
     #so we just kinda wing it.
   #Right ear first
  ^8 [:
-        V$6B R V$B6 R
-    ]31 V$FF
+        V$36 R V$63 R
+    ]29
+    V$64 R V$65 R V$76 R V$77 R
   #Finale
-    R1.16
+    V$66
+    R1.10
+    R2
+    V$77
+    R2
+    R1.5
 ]0
 
-X2 ^0 @ @55
+X2 ^0 @ @20
 [: O4 ^8    #Witches' Ball melody (Cm)
     R1.4
   #Help Night
+  @21   #Less square, full sustain
     C2 E-2 R B.3 C2
     C2 E-2 C16.3 B16.3 B-8 <G2>
     C2 E-2 R B.3 C2
   #Opening
-    E-2 F2 >C2 D16.3 E-16.3 F
+    E-2 F2 @22 >C2 D16.3 E-16.3 F
   #Melody Part A
  ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
     G4 G4 A- G ^16 F E- D B- B.3 D.3 F8 C2
  ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
-    G4 G4 A- G ^16 F E- D B- B.3 C.3 D8 C D E- G > G C D G
+    G4 G4 A- G ^16 F E- D B- B.3 C.3 D8 C D E- G >@20 G C D G
   #Melody Part B
  ^8 G4 G4 A- G F E- D A- ^16 G F E- D ^8 E- F G4
     G4 G4 A- G ^16 F E- D B- B.3 D.3 F8 C2
@@ -80,12 +120,13 @@ X2 ^0 @ @55
     G4 G4 A- G ^16 F E- D B- B.3 C.3 D8 C D E- G < G C D G
   #Break (Ball Harpsichord, Magus progression)
   #Lower portion
+  @23   #Much less square
  O4 ^8 [:
         E- >C< G >C< E- >B-< G- >B-< D >B< F >B< B- A- E A-
        #C   G  E- G  C   G-  E-  G-  B  F  D  F <G> E- C E-
     ]3
   #Finale (Did you know Witches' Ball has an outro?)
- O3
+ O3 @24 #Square is fine, but check sustain
  ^8 A- >2 C <2 A- >2 C < B- F > B-4 < A-2 A-2 <
     A- >2 C <2 A- >2 C < B- D > B- C.5 C2 <2
     A- >2 C <2 A- >2 C < B- F > B-4 < G2 G2 <
@@ -101,37 +142,41 @@ X2 ^0 @ @55
 
 X1 ^0 @
 [: O3         #Magus Night melody (Cm?)
-    S%0111011 V$6B
+    @11
 ^16 E- E  E  R   E  R  E  E   R  E  E  R   R  R  E  E 
     E- E  E  R   E  R  E  R   E  R  E  R   E  E  E  E 
     E- E  R  R   E  E  R  E   R  R  E  E   E  R  E  E 
     E  R  E  E   E  R  R  R
-    V$8B E  E  E  E  V$AB E  V$BB E  v$BB E  V$FB G 
-    O5 @55 S0
+    V$8B E  E  E  E  V$AB E  V$BB E  v$BB E  V$FB G
 #C D E- F G- G A  B-
 #  W h  W h  h W  h
   #Opening
   # 1  +  2  +  3  +  4  +  1  +  2  +  3  +  4  +
+    O5 @10
  ^8 R  G.2   R.2   G-.2  R.2   F.2   R.2   E-.2  R
     G.2   R.2   G-.2  R.2   G-16 R F16 R E-16 R16 C4 R.3
        G.3 R G-.3 R F.3 R E-.3
 ^16 R8 G8.3 R8 G-8.3 G-.3 F.3 E-8 C2
   #Melody Part A
+  @12   #Something more suitable for high octave
  O6 C.3 E-.3 G8 G-.3 D.3 E-8 F.3 B.3 C E- D8 C8 <G4>
     C.3 E-.3 G >A B-8 A8< G8 F8 D2 G8.3 >B8
     C.3 <G.3> C8 D.3 <F.3> D8 ^8 C B <D G <G> F E- D
     ^16 C.3 E-.3 G8 F.3 D.3 B-8 <G E- C E- G E- G >B- C2
   #Melody Part B
+  @13   #As 10 but longer sustain
  O5 C.3 E-.3 G8 G-.3 D.3 E-8 F.3 B.3 C E- D8 C8 <G4>
     C.3 E-.3 G >A B-8 A8< G8 F8 D4 <G8> C D G8.3 >B8
     C.3 <G.3> C8 D.3 <F.3> D8 ^8 C B <D G <G> F E- D
     ^16 C.3 E-.3 G8 F.3 D.3 B-8 <G2> C2
   #Break (Ball Harpsichord, Magus progression)
   #Upper portion
+  @10
  O5 ^8 [:
         C G E- G C G- E- G- B F D F <G> E- C E-
     ]3
   #Finale (Night interlude, close out with drum fill)
+  @14   #Not quite full sustain, more square
  O5 C2 B-2 <A-8.5 A-8> B-8 C8
     ^4 E- C E- A- G8.3 F8.3 F8 G8
     A-2 R8 A-8 G8 F8 E- F8 F8.3 F8 G8
@@ -142,9 +187,10 @@ X1 ^0 @
     A- G F E- G16 R8 G16 R8 F16 R16 >2 E-8 R8.3
 ]0
 
-X3 ^0 @ V$8F I.24
+X3 ^0 @
 [: O2         #Tying harmony
     #Help drums
+    @30
 ^16 E R8  E  R E R.3    E8  R8   E.5
         R8   E R E R8   E R E8   R E R
     E8  R4       E R4       E8   R E.3
@@ -154,7 +200,8 @@ X3 ^0 @ V$8F I.24
       E R8   E R.3    E8  R8   E R4
       E R E  R8  E R8   E R E  R8  E R
     E8  R8   E R.3    E8.3      V$FF E8 
-    I1 O4
+    I1 O4 V$8F
+    @3
   #Introduce Ball
     C8  G8  E-8 G8  B-8 G-8 E-8 C4     F8  D8  F8 A8 G8  E-8 G8
     C8  G8  E-8 G8  B-8 G-8 E-8 G-8 D8 G8  E-8 G8 A8 G8  D8  G8
@@ -162,17 +209,18 @@ X3 ^0 @ V$8F I.24
     #Ball:  I         VII            VI        I            I         IV           I         I          | I         VII          VI        I            IV        V            I         I
     #       C         B-             A         C            C         F            C         C          | C         B-           A         C            F         G            C         C
     #Night: Cm Cm#5 | Bdim Csus2/4 | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm
-O3
+O3 @3
 ^16 [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
     [: C E- G E- ]1       [: C E- A- E- ]1    B D F>A C A D F E-C A<F E-C A<F> [: C E- G E- ]1[: C E- A- E- ]1 [: C D F D ]1       [: C F G D ]1
     [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
        F>A  C E- F E- G F A- E- C E- A->C A<F D G B G D B<G>G D F G C G F E D  [: C E-G E-]1  [: C E-G E-]1       C B D F D B<G E- [: C F D G ]1
     #Break
+    @3
     [:
      ^2 E- G- D E
     ]3
     #Finale
-    O2
+    O2 V$FF @3
     A-> B- C8.7 <G8
     A-> B-8.3 C1 <G8
     A-> B- C8.7 <G8
