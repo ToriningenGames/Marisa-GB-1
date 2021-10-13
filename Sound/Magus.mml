@@ -39,7 +39,7 @@
     V$B7 I3
 
 @20     #Melody hi
-    V$77 I2
+    V$67 I2
 @21     #Intro bass
     V$87 I1
 @22     #Melody lo
@@ -52,15 +52,15 @@
 @30     #Drum help
     V$80 I2.24
 @31     #Ball bass opening
-    V$80 I
+    V$80 I1.1
 @32     #Harmonizing bass
-    V$80 I
+    V$F0 I2.30
 @33     #Piano alongside harpsichord
-    V$F0 I
+    V$F0 I2.27
 @34     #Finale
-    V$F0 I
-@3      #
-    S0
+    V$F0 I2.26
+@35     #Harmonizing bass quieter
+    V$80 I1.21
 
 X0 ^0 @ #H%11011110
 [: V$55 H$FF
@@ -91,18 +91,17 @@ X0 ^0 @ #H%11011110
     V$64 R V$65 R V$76 R V$77 R
   #Finale
     V$66
-    R1.10
+    R1.14
     R2
     V$77
-    R2
-    R1.5
+    R2.3
 ]0
 
 X2 ^0 @ @20
 [: O4 ^8    #Witches' Ball melody (Cm)
     R1.4
   #Help Night
-  @21   #Less square, full sustain
+  @21
     C2 E-2 R B.3 C2
     C2 E-2 C16.3 B16.3 B-8 <G2>
     C2 E-2 R B.3 C2
@@ -120,13 +119,13 @@ X2 ^0 @ @20
     G4 G4 A- G ^16 F E- D B- B.3 C.3 D8 C D E- G < G C D G
   #Break (Ball Harpsichord, Magus progression)
   #Lower portion
-  @23   #Much less square
+  @23
  O4 ^8 [:
         E- >C< G >C< E- >B-< G- >B-< D >B< F >B< B- A- E A-
        #C   G  E- G  C   G-  E-  G-  B  F  D  F <G> E- C E-
     ]3
   #Finale (Did you know Witches' Ball has an outro?)
- O3 @24 #Square is fine, but check sustain
+ O3 @24
  ^8 A- >2 C <2 A- >2 C < B- F > B-4 < A-2 A-2 <
     A- >2 C <2 A- >2 C < B- D > B- C.5 C2 <2
     A- >2 C <2 A- >2 C < B- F > B-4 < G2 G2 <
@@ -142,10 +141,8 @@ X2 ^0 @ @20
 
 X1 ^0 @
 [: O3         #Magus Night melody (Cm?)
-    @11
-^16 E- E  E  R   E  R  E  E   R  E  E  R   R  R  E  E 
-    E- E  E  R   E  R  E  R   E  R  E  R   E  E  E  E 
-    E- E  R  R   E  E  R  E   R  R  E  E   E  R  E  E 
+    @11 ^16
+ [: E  R  R  E-  E  R  E  R   R  E  R  E-  E  R  R  R ]2 
     E  R  E  E   E  R  R  R
     V$8B E  E  E  E  V$AB E  V$BB E  v$BB E  V$FB G
 #C D E- F G- G A  B-
@@ -158,13 +155,13 @@ X1 ^0 @
        G.3 R G-.3 R F.3 R E-.3
 ^16 R8 G8.3 R8 G-8.3 G-.3 F.3 E-8 C2
   #Melody Part A
-  @12   #Something more suitable for high octave
+  @12
  O6 C.3 E-.3 G8 G-.3 D.3 E-8 F.3 B.3 C E- D8 C8 <G4>
     C.3 E-.3 G >A B-8 A8< G8 F8 D2 G8.3 >B8
     C.3 <G.3> C8 D.3 <F.3> D8 ^8 C B <D G <G> F E- D
     ^16 C.3 E-.3 G8 F.3 D.3 B-8 <G E- C E- G E- G >B- C2
   #Melody Part B
-  @13   #As 10 but longer sustain
+  @13
  O5 C.3 E-.3 G8 G-.3 D.3 E-8 F.3 B.3 C E- D8 C8 <G4>
     C.3 E-.3 G >A B-8 A8< G8 F8 D4 <G8> C D G8.3 >B8
     C.3 <G.3> C8 D.3 <F.3> D8 ^8 C B <D G <G> F E- D
@@ -176,7 +173,7 @@ X1 ^0 @
         C G E- G C G- E- G- B F D F <G> E- C E-
     ]3
   #Finale (Night interlude, close out with drum fill)
-  @14   #Not quite full sustain, more square
+  @14
  O5 C2 B-2 <A-8.5 A-8> B-8 C8
     ^4 E- C E- A- G8.3 F8.3 F8 G8
     A-2 R8 A-8 G8 F8 E- F8 F8.3 F8 G8
@@ -191,17 +188,19 @@ X3 ^0 @
 [: O2         #Tying harmony
     #Help drums
     @30
-^16 E R8  E  R E R.3    E8  R8   E.5
-        R8   E R E R8   E R E8   R E R
-    E8  R4       E R4       E8   R E.3
-      R8  E8   R8  E  R4  V$EE E4 V$8F
+^16 [: R R E R  R R E R  R E R R  E R E R ]2
+#^16 E R8  E  R E R.3    E8  R8   E.5
+#        R8   E R E R8   E R E8   R E R
+#    E8  R4       E R4       E8   R E.3
+     E R E R  E4  R4  V$EE E4 V$8F
     #Opening
-    R E R E  R8  E R8   E R E  R8  E R8
-      E R8   E R.3    E8  R8   E R4
-      E R E  R8  E R8   E R E  R8  E R
+^16 [: F R E R  F R E R  R E R R  F R E R ]2
+#    R E R E  R8  E R8   E R E  R8  E R8
+#      E R8   E R.3    E8  R8   E R4
+#      E R E  R8  E R8   E R E  R8  E R
     E8  R8   E R.3    E8.3      V$FF E8 
     I1 O4 V$8F
-    @3
+    @31
   #Introduce Ball
     C8  G8  E-8 G8  B-8 G-8 E-8 C4     F8  D8  F8 A8 G8  E-8 G8
     C8  G8  E-8 G8  B-8 G-8 E-8 G-8 D8 G8  E-8 G8 A8 G8  D8  G8
@@ -209,18 +208,19 @@ X3 ^0 @
     #Ball:  I         VII            VI        I            I         IV           I         I          | I         VII          VI        I            IV        V            I         I
     #       C         B-             A         C            C         F            C         C          | C         B-           A         C            F         G            C         C
     #Night: Cm Cm#5 | Bdim Csus2/4 | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#5 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm | Cm Cm#7 | Bdim Cm/Dm
-O3 @3
+O3 @32
 ^16 [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
     [: C E- G E- ]1       [: C E- A- E- ]1    B D F>A C A D F E-C A<F E-C A<F> [: C E- G E- ]1[: C E- A- E- ]1 [: C D F D ]1       [: C F G D ]1
+    @35
     [: C E- G E- ]1       [: C E- A- E- ]1 [: B D F D ]1        [: C D G D ]1  [: A C F D ]1  [: A C F D ]1    [: B D F D ]1       [: C F G F ]1
        F>A  C E- F E- G F A- E- C E- A->C A<F D G B G D B<G>G D F G C G F E D  [: C E-G E-]1  [: C E-G E-]1       C B D F D B<G E- [: C F D G ]1
     #Break
-    @3
+    @33
     [:
      ^2 E- G- D E
     ]3
     #Finale
-    O2 V$FF @3
+    O2 @34
     A-> B- C8.7 <G8
     A-> B-8.3 C1 <G8
     A-> B- C8.7 <G8
@@ -264,7 +264,7 @@ X4 ^0 @
     E8   C+ B  C+ C D B  A  B C+ C  D B G+ A
     G  B C+ B  C+ C D B  A  B C+ B  D B D  F
     E8   C+ B  C+ C D B  G+ B C+ C  D B F A
-    G  D B  D  B  D B-.5         [: G+32 ]9
+    G  D B  D  B  D B-.5         [: D32 ]9
   #Break
     E8   C8   C+8 C8   C+8 C8    C+8  C  A
     B8   A8   C+8 C8   A8  C+8   C  A B8
