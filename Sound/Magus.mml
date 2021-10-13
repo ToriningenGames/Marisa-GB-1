@@ -26,7 +26,6 @@
 
 #TODO:
 #Set instruments
-#All drums
 #Most panning effects
 
 @0      #Tempo
@@ -192,13 +191,13 @@ X4 ^0 @
     E8  D D  B B D B  D D B B  C D  C  C+
     E D B C+8  D D G+ D+2
   #Opening
-    D+ C B A  B D A  D  D+ C  B  A   B  D A D
-    B- A D B  A D B  B  G+ C+ D  B   A  D B D
-    D+ C B A  B D A  D  D+ C  B  A   B  D A D
-    G+ A B G+ B D G+ B  G+ C+ G+ A   G+ B D G+
-    E8   B B  B D B  D  D+ C  B  C+  B  D B D
-    B- A D B  A D B  B  G+ C+ D  B   C+ D B D
-    D+ C B A  B D A  D  D+ C  B  A   B  D A D
+    D+ C B A  B D A  D  D+ C  B  A   B  D  A D
+    B- A D B  A D B  B  G+ C+ D  B   A  D  B D
+    D+ C B A  B D A  D  D+ C  B  A   B  D  A D
+    G+ A B G+ B D G+ B  G+ C+ G+ A   G+ B  D G+
+    E8   B C  D C D  C+ D+ C  B  C+  B  C+ B8
+    A  A D C  D A B  C  G+ C+ D  C+  D  C+ B A
+    D+ C B A  B C B  C+ D+ C  B  A   B  A  D D
     G+ A B G+ B D G+ B  G+ C+ G+ B   G+ [: G+32 ]5
   #Melody Part A
     E8  C+ B  A C D A  C+ B A C  D A C+ A
@@ -220,13 +219,29 @@ X4 ^0 @
     G  D B  D  B  D B-.5         [: G+32 ]9
   #Break
     E8   C8   C+8 C8   C+8 C8    C+8  C  A
-    B8   A8   C+8 C8   A8  C+8   C  B A  A
+    B8   A8   C+8 C8   A8  C+8   C  A B8
     E8   C8   C+8 C8   C+8 C A   C+8  C  A
-    B8   A8   C+8 C A  A8  C+A   C  B A  A
-    E8   C  A C+A C A  B C+C C   C+ A B  A
+    B8   A8   C+8 C A  A8  C+A   C  A B8
+    E8   C  A C+A C A  B C+C C   C+ A B8
     E8   C C+ C+A C A  E8  C+A   C  A B  C+
     E8   A B  C+A D B  C+C A B   A  A D  D
     C+ B A B  B A D B  B D C+B   D  D G+ G+
   #Finale
-    E1.16
+    E8  C+8  B8  A C  D8  C+8  B8  A C8
+      A B8   C+8 C B8   A B8   C B B C+
+    E8  C+8  B8  A C  D8  C+8  A B B A
+    C+8 C A  B8  A C  D8  C+8  B B B B
+    E8  C+8  B8  A C  D8  C+8  B8  A C8
+      A B8   C+8 C B8   A B8   C B B C+
+    E8  C+8  B8  A C  D8  C+8  A B B A
+^32 A A B.2  F.2 F.2  A A D.2 G.2 G.2  A A A A B B B B  D D D D G+ G+ G+ G+
+    #Switch support focus to Magus Night
+    E8       C+16 B.2    B.2  A A B.2  C+ A   B.2  C A C+ A B  A   D.2  A A B.2 A A
+    D.2  C A C+16 B.2    D.2  A A C+ A B  A   D8       B  A C+ A   B.2  A A B.2 A A
+    B.2  C A C+16 B.2    B.2  A A B  A C+ A   B  A C A C+ A B  A   D.2  A A B.2 A A
+    E.2  C A C+16 B.2    D.2  A A C+ A B  A   D  A C A C+ A B  A   B.2  A A B.2 A A
+    B.2  C A C+16 B.2    B.2  A A B  A C+ A   B  A C A B  A C+ A   D.2  A A B.2 A A
+    E.2  C A C+16 B.2    D.2  A A C+ A B  A   D  A C A C+ A B  A   B.2  A A B.2 A A
+    D.2  C A C+16 B.2    G+.2 A A B  A C+ A   G+.2 C A C+ A B  A   G+.2 A A B.2 A A
+^16 G+ C C+ G+  A C+ G+ D   G+4  B-4
 ]0
