@@ -50,17 +50,17 @@
     V$D5 I2
 
 @30     #Drum help
-    V$80 I2.24
+    V$80 I2.9
 @31     #Ball bass opening
     V$80 I1.1
 @32     #Harmonizing bass
-    V$F0 I2.30
+    V$F0 I2.12
 @33     #Piano alongside harpsichord
-    V$F0 I2.27
+    V$F0 I2.11
 @34     #Finale
-    V$F0 I2.26
+    V$F0 I2.10
 @35     #Harmonizing bass quieter
-    V$80 I1.21
+    V$80 I1.7
 
 X0 ^0 @ #H%11011110
 [: V$55 H$FF

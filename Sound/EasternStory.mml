@@ -13,25 +13,25 @@
 
 #Instruments
 @1  #Bass Long
-    V$9.%0000 I1.1 H0
+    V$9.%0000 I1
 @2  #Bass Short
-    V$6.%1101 I1.1 H0
+    V$6.%1101 I1
 @3  #Bass Crescendo
-    V$6.%1110 I1.1 H0
+    V$6.%1110 I1
 @4  #Melody Arpeggio
-    V$7.%0000 I2.2 H0
+    V$7.%0000 I2
 @5  #Melody Main
-    V$9.%0101 I2.2 H0
+    V$9.%0101 I2
 @6  #Melody Verse
-    V$D.%0101 I2.2 H0
+    V$D.%0101 I2
 @7  #Support Melody
-    V$F.%0000 I2.6 H0
+    V$F.%0000 I2
 @8  #Support Countermelody
-    V$F.%0000 I0.9 H0
+    V$F.%0000 I0.4
 @9  #Support Bass
-    V$8.%0000 I0.19 H0
+    V$8.%0000 I0.5
 @10 #Melody Main Final
-    V$E.%0100 I2.2 H0
+    V$E.%0100 I2
 @80 #Tempo Opening
     T110
 @81 #Tempo Main
@@ -44,7 +44,7 @@ T1 V$FF H$FF
 [0:0 R1 ]0
 
 X1  #Melody
-@80
+@80 H0
 [0 :0 ^8 @4 S0
     [2 :2
         [1 :1 O5 F > B- C E- C B- ]2
@@ -76,7 +76,7 @@ X1  #Melody
 ]0
 
 X2  #Bassline
-@80
+@80 H0
 [0 :0 @1
     O4  F4.9  E-2 F4.9  E-2
         D-4.9 E-2 D-4.9 @2 E-2
@@ -93,7 +93,7 @@ X2  #Bassline
 ]0
 
 X3  #Support
-@80
+@80 H0
 [0 :0 @9
     #       1      2      3      4      5      6
     #       1      +      2      +
@@ -122,7 +122,7 @@ X3  #Support
             A4.3             ^16 D- F > B- D- @8 E- F G A-.5
         ^4  G F E-16.3 B-16.3 < A-8 E- > A- G F E- G16.3 A-16.5 
             G F E-16.3 B-16.3 < A-8 F16.3 > A-16.5 G   F
-            E- @8  E
+            E- E
 @82 F4 ^16
     [2 [1 ]0
         :2  F4 E4 D4 C4 E.3 F.5

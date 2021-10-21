@@ -6,19 +6,19 @@
 
 #note: octaves span from A to A-
 @1  #Bass
-    I0.20   V$A.%0100
+    I0.6   V$A.%0100
 @2  #Piano
-    I3.6    V$A.%0011
+    I3    V$A.%0011
 @3  #Lead 1 (square)
-    I2.2    V$9.$0
+    I2    V$9.$0
 @4  #String
-    I2.2    V$2.%1111
+    I2    V$2.%1111
 @5  #Lead 2 (sawtooth)
-    I2.9    V%1110.0
+    I2.4    V%1110.0
 @6  #Trumpet
-    I3.19   V$D.8
+    I3.5   V$D.8
 @7  #Super Trumpet
-    I3.20   V$F.8
+    I3.6   V$F.8
 
 @80 #Global Tempo
     T169
