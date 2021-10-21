@@ -1,1 +1,1 @@
-SinCos.lib: Source\SinCos.asm
+lib\SinCos.lib: .\Source/SinCos.asm

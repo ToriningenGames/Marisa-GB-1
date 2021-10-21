@@ -49,11 +49,21 @@ A B A C A D A E
 A B A C A B A
 
 # Transform:
-[3 :3
+[3 [4 ]0 :3
     C
-    [2 [1 ]0
+:4  [2 [1 ]0
     :2  B
     :1  A
     ]1
 ]1
 
+# Phrase:
+A B C D A E C
+
+# Transform:
+[4 [3 [2 [1 ]0 :4
+   D
+:1 A ]1
+   E ]1
+:2 B
+:3 C ]1

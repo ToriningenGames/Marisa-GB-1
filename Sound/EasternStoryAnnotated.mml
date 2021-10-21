@@ -29,6 +29,10 @@
 @80 #Tempo
     T120
 
+X0  #Control
+T1 V$FF H$FF
+[0 :0 R1 ]0
+
 X1  #Melody
 @80
 [0 :0 ^8 @4 S0

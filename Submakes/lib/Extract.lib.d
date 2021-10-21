@@ -1,1 +1,1 @@
-Extract.lib: Source\Extract.asm
+lib\Extract.lib: .\Source/Extract.asm

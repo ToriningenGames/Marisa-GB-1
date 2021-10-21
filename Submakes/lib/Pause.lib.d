@@ -1,1 +1,1 @@
-Pause.lib: Source\Pause.asm
+lib\Pause.lib: .\Source/Pause.asm

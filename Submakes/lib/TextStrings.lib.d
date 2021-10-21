@@ -1,1 +1,1 @@
-TextStrings.lib: Source\TextStrings.asm
+lib\TextStrings.lib: .\Source/TextStrings.asm

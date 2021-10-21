@@ -1,4 +1,4 @@
-Graphics.lib: Source\Graphics.asm \
+lib\Graphics.lib: .\Source/Graphics.asm \
 	rsc\TileData.lzc \
 	rsc\Alice1.lzc \
 	rsc\Alice2.lzc \

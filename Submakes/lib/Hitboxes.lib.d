@@ -1,2 +1,2 @@
-Hitboxes.lib: Source\Hitboxes.asm \
+lib\Hitboxes.lib: .\Source/Hitboxes.asm \
 	Source\actorData.asm

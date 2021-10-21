@@ -1,1 +1,1 @@
-Memory.lib: Source\Memory.asm
+lib\Memory.lib: .\Source/Memory.asm

@@ -1,2 +1,2 @@
-Text.lib: Source\Text.asm \
+lib\Text.lib: .\Source/Text.asm \
 	Source\macros.asm

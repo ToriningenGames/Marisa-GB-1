@@ -1,4 +1,4 @@
-Maps.lib: Source\Maps.asm \
+lib\Maps.lib: .\Source/Maps.asm \
 	Source\mapDef.asm \
 	Source\macros.asm \
 	rsc\Forest_(-2~3).gbm \

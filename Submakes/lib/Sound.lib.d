@@ -1,1 +1,1 @@
-Sound.lib: Source\Sound.asm
+lib\Sound.lib: .\Source/Sound.asm

@@ -8,7 +8,7 @@ LZ = $(if $(TOOLDIR),$(TOOLDIR)\,)LZifier.exe
 SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\,)specfile_marisa.cfg
 
 #Shell commands we use to build
-RM = del /Q 2>NUL
+RM = del /S /Q 2>NUL
 QUIET = @
 GREP = findstr /v " SECTION" $(SYM)
 MV = move >NUL
@@ -41,7 +41,7 @@ LIB0 = $(addprefix lib\,\
 	Task.lib OAM2.lib Actor.lib Face.lib SndEffect.lib Sound.lib Memory.lib \
 	LCD_IRQ_Assist.lib Extract.lib Chara.lib Exits.lib Camera.lib Graphics.lib \
 	Reimu.lib Narumi.lib Alice.lib Fairy.lib Pause.lib Effects.lib SinCos.lib \
-	TextStrings.lib Text.lib Hitboxes.lib)
+	TextStrings.lib Text.lib Hitboxes.lib CutsceneCode.lib)
 LIB1 = $(addprefix lib\,\
 	Maps.lib Songs.lib Cutscenes.lib)
 LINK = Link.link
@@ -55,6 +55,10 @@ SYM = $(addsuffix .sym,$(basename $(OUT)))
 all : check force
 force : $(OUT)
 
+include $(addprefix Submakes\,$(addsuffix .d,$(LIB0)))
+include $(addprefix Submakes\,$(addsuffix .d,$(LIB1)))
+include $(addprefix Submakes\,$(addsuffix .d,$(OBJ)))
+
 $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(WLALINK) -v -S -r $(LINK) $(OUT)
 #Prettify the symbol output (No section boundry labels!)
@@ -63,12 +67,9 @@ $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
 Submakes\obj\\%.obj.d : %.asm | Submakes Submakes\obj
-	$(WLAGB) -M -I Source -o $(notdir $(addsuffix .obj,$(basename $<))) $< > $@
+	$(WLAGB) -M -I Source -o obj\$(notdir $(addsuffix .obj,$(basename $<))) $< > $@
 Submakes\lib\\%.lib.d : %.asm | Submakes Submakes\lib
-	$(WLAGB) -M -I Source -l $(notdir $(addsuffix .obj,$(basename $<))) $< > $@
-include $(addprefix Submakes\,$(addsuffix .d,$(LIB0)))
-include $(addprefix Submakes\,$(addsuffix .d,$(LIB1)))
-include $(addprefix Submakes\,$(addsuffix .d,$(OBJ)))
+	$(WLAGB) -M -I Source -l lib\$(notdir $(addsuffix .lib,$(basename $<))) $< > $@
 
 obj\\%.obj : %.asm %.obj.d | obj
 	$(WLAGB) -v -x -I $(<D) -o $@ $<
@@ -124,5 +125,6 @@ clean :
 	$(RM) lib
 	$(RM) rsc
 	$(RM) $(LINK)
+	$(RM) Submakes
 	$(RM) bin
 

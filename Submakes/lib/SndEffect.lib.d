@@ -1,1 +1,1 @@
-SndEffect.lib: Source\SndEffect.asm
+lib\SndEffect.lib: .\Source/SndEffect.asm

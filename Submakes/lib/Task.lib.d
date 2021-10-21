@@ -1,2 +1,2 @@
-Task.lib: Source\Task.asm \
+lib\Task.lib: .\Source/Task.asm \
 	Source\macros.asm

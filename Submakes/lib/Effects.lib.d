@@ -1,1 +1,1 @@
-Effects.lib: Source\Effects.asm
+lib\Effects.lib: .\Source/Effects.asm

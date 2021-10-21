@@ -1,3 +1,3 @@
-Exits.lib: Source\Exits.asm \
+lib\Exits.lib: .\Source/Exits.asm \
 	Source\mapDef.asm \
 	Source\actorData.asm

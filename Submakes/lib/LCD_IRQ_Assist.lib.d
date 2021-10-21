@@ -1,1 +1,1 @@
-LCD_IRQ_Assist.lib: Source\LCD_IRQ_Assist.asm
+lib\LCD_IRQ_Assist.lib: .\Source/LCD_IRQ_Assist.asm

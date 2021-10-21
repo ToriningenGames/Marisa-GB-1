@@ -1,2 +1,2 @@
-Reimu.lib: Source\Reimu.asm \
+lib\Reimu.lib: .\Source/Reimu.asm \
 	Source\ActorData.asm
