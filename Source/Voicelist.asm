@@ -1,8 +1,5 @@
 ;Voicelist
 
-.SECTION "Voices" ALIGN 16 FREE
-Wave:
-
 ;First four match the output of channels 1 and 2
 ;0 Duty 0
 .db $00,$00,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF
@@ -49,4 +46,3 @@ Wave:
 ;31 Other Master Spark. Same pitch
 ;.db $BE,$EA,$73,$39,$EF,$FF,$FE,$CA,$BD,$DB,$96,$32,$10,$13,$21,$24
 
-.ENDS
