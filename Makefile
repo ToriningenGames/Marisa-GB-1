@@ -38,7 +38,7 @@ vpath %.obj.d .\Submakes\obj
 vpath %.lib.d .\Submakes\lib
 
 LIB0 = $(addprefix lib\,\
-	Task.lib OAM2.lib Actor.lib Face.lib SndEffect.lib Sound.lib Memory.lib \
+	Task.lib OAM2.lib Actor.lib Face.lib Sound.lib Memory.lib \
 	LCD_IRQ_Assist.lib Extract.lib Chara.lib Exits.lib Camera.lib Graphics.lib \
 	Reimu.lib Narumi.lib Alice.lib Fairy.lib Pause.lib Effects.lib SinCos.lib \
 	TextStrings.lib Text.lib Hitboxes.lib CutsceneCode.lib)
