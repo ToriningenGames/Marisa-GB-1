@@ -224,7 +224,7 @@ O3 @32
 X4 ^0 @
 [: O2 ^16
     D B B D  B D B B  D B B D  D G+ G+ G+
-    E8  B D  C D B D  B F B F  G B  G  B
+    E8  B D  C D B D  B >C< B >C  C+< B  >C+<  B
     E8  D D  B B D B  D D B B  C D  C  C+
     E D B C+8  D D G+ D+2
   #Opening
@@ -249,12 +249,12 @@ X4 ^0 @
   #Melody Part B
     [2 [1 ]0
         :2                                      G+ A
-            G  B C+ B  C+ C D B  A  B B  D  G+ D G+ G+
-        :1  E8   C+ B  C+ C D B  A  B C+ C  D B G+ A
-            G  B C+ B  C+ C D B  A  B C+ B  D B D  F
-            E8   C+ B  C+ C D B  G+ B C+ C  D B
-    ]1                                          F A
-    G  D B  D  B  D B-.5         [: D32 ]9
+            >C+< B C+ B  C+ C D B  A  B B  D  G+ D G+ G+
+        :1  E8     C+ B  C+ C D B  A  B C+ C  D B G+ A
+            >C+< B C+ B  C+ C D B  A  B C+ B  D B D  >C<
+            E8     C+ B  C+ C D B  G+ B C+ C  D B
+    ]1                                          >C< A
+    >C+<  D B  D  B  D B-.5         [: D32 ]9
   #Break
     E8   C8   C+8 C8   C+8 C8    C+8  C  A
     B8   A8   C+8 C8   A8  C+8   C  A B8
@@ -271,7 +271,7 @@ X4 ^0 @
               A B8   C+8 C B8   A B8   C B B C+
             E8  C+8  B8  A C  D8  C+8  A B B A
     ]1
-^32 A A B.2  F.2 F.2  A A D.2 G.2 G.2  A A A A B B B B  D D D D G+ G+ G+ G+
+^32 A A B.2  >C.2 C.2<  A A D.2 >C+.2 C+.2<  A A A A B B B B  D D D D G+ G+ G+ G+
     #Switch support focus to Magus Night
     E8       C+16 B.2    B.2  A A B.2  C+ A   B.2  C A C+ A B  A   D.2  A A B.2 A A
     D.2  C A C+16 B.2    D.2  A A C+ A B  A   D8       B  A C+ A   B.2  A A B.2 A A

@@ -23,6 +23,11 @@ SongMagus:
  .incbin "rsc\Magus.mcs"
 .ENDS
 
+.SECTION "song_doll" FREE
+SongDoll:
+ .incbin "rsc\Doll.mcs"
+.ENDS
+
 .SECTION "notepitcheslo" BITWINDOW 8 FREE
 ;Channel pitches
 Channel1Pitch:
@@ -47,7 +52,7 @@ Channel4Pitch:
 ;Octaves 2 - 6, following special format
 ;The high-order byte is the associated envelope
  ;      A           B     C           D           E     F           G
- .dw $F173,$4934,$8134,$7101,$3511,$9351,$1E51,$7425,$8A25,$8124,$BA23,$F251
+ .dw $F173,$4934,$8134,$7101,$3511,$9351,$1E51,$7425,$8625,$8124,$B623,$F251
  .dw $00FF,$3C34,$4921,$B134,$E234,$D351,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
