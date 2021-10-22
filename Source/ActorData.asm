@@ -62,13 +62,16 @@
     ;+$02, size 2: Master X
     ;+$04, size 2: Master Y
     ;+$06, size 2: Subsprite relational data (to RAM)
-    ;+$08, size 2: animation pointer (to ROM)
+    ;+$08, size 2: current animation pointer (to ROM)
     ;+$0A, size 1: current animation wait (4.4)
     ;+$0B, size 1: current animation speed (per frame, 4.4)
     ;+$0C, size 2: Movement Speed (pixels, 8.8)
     ;+$0E, size 2: Hitbox data
     ;+$10, size 1: Visible on screen
     
+    ;+$16, size 2: AI Movement function
+    ;+$18, size 2: Hat value list
+    ;+$1A, size 2: Animation pointer list
     ;+$1C, size 1: Animation sprite count
     ;+$1D, size 1: Control state
     ;+$1E, size 1: Animation ID
@@ -83,8 +86,8 @@
 ;Danmaku
     ;+$11, size 2: Pointer to RAM holding animation data
     ;+$13, size 1: Tile animation direction setting
-    ;+$14, size 2: Function for moving danmaku
-    ;+$16, size 2: Pointer to data for moving danmaku
+    ;+$14, size 2: Pointer to data for moving danmaku
+    ;+$16, size 2: Function for moving danmaku
 
 ;Control states:
 ;0:   Cutscene control, locked camera
@@ -143,25 +146,29 @@
 .DEFINE _MoveSpeed $0C
 .DEFINE _Hitbox $0E
 .DEFINE _Visible $10
+.DEFINE _LastFacing $11
 
+.DEFINE _AIMovement $16
+.DEFINE _HatValList $18
+.DEFINE _AnimPtrList $1A
 .DEFINE _SprCount $1C
 .DEFINE _ControlState $1D
 .DEFINE _AnimChange $1E
 .DEFINE _HatVal $1F
 
 ;Marisa
-.DEFINE _ButtonState $11
+.DEFINE _ButtonState $12
 
 ;Hat
-.DEFINE _ParentChar $11
+.DEFINE _ParentChar $12
 
 ;Fairy
-.DEFINE _AnimRAM $11
-.DEFINE _Settings $13
+.DEFINE _AnimRAM $12
+.DEFINE _Settings $14
 
 ;Danmaku
 ;.DEFINE _AnimRAM $11
 .DEFINE _IsDirected $13         ;0 if undirected. Holds base tile if directed
-.DEFINE _MovementFunction $14   ;Function for moving danmaku
-.DEFINE _MovementData $16       ;Pointer to data for moving danmaku
+.DEFINE _MovementData $14       ;Pointer to data for moving danmaku
+.DEFINE _MovementFunction $16   ;Function for moving danmaku
 

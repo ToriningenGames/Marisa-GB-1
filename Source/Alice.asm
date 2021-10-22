@@ -4,6 +4,16 @@
 
 .SECTION "Alice" FREE
 
+AliceActorData:
+ .db $16
+ .db $20
+ .db $10
+ .dw $0100
+ .dw NPCHitboxes
+ .dw AliceFrame
+ .dw _HatValues
+ .dw _Animations
+
 AliceFrame:
   CALL Actor_New    ;Null actor (w/visibility)
   ;Hitbox setup

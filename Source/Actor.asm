@@ -32,6 +32,239 @@
 
 .SECTION "ActorBase" FREE
 
+;Given a pointer to an actor specification, sets up and runs said actor
+;DE->Actor specification data
+        ;1 byte:  Initial X
+        ;1 byte:  Initial Y
+        ;1 byte:  Anim speed
+        ;2 bytes: Move speed (8.8)
+        ;2 bytes: Hitboxes
+        ;2 bytes: AI movement function
+                ;Called with
+                    ;DE->actor data
+                ;Return with
+                    ;A=direction of movement
+                    ;%00UD00LR
+        ;2 bytes: Hatval list
+        ;2 bytes: Anim list
+;Run as task
+Actor_FrameInit:
+  LD H,D
+  LD L,E
+  LDI A,(HL)
+  LD D,A
+  LDI A,(HL)
+  LD E,A
+  PUSH HL
+    CALL Actor_New    ;Null actor (w/visibility)
+  POP BC
+  ;Initial data copy
+  LD HL,_AnimSpeed
+  ADD HL,DE
+  LD A,(BC)     ;Anim Speed
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Move Speed lo
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Move Speed hi
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Hitbox lo
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Hitbox hi
+  INC BC
+  LDI (HL),A
+  LD HL,_AIMovement
+  ADD HL,DE
+  LD A,(BC)     ;AI movement lo
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;AI movement hi
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Hatval list lo
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Hatval list hi
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Anim list lo
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Anim list hi
+  LDI (HL),A
+  ;Animation values
+  LD HL,_AnimChange
+  ADD HL,DE
+  LD (HL),1 ;Face down
+  LD HL,_LastFacing
+  ADD HL,DE
+  LD (HL),0     ;Face sanely
+  CALL HaltTask
+;Given an appropriate data set, runs the given actor
+Actor_Frame:
+  ;Check for doing AI stuffs here
+    ;v: Cutscene control
+    ;v: Play animation
+    ;v: Destruct
+  ;Cutscene detect
+  LD HL,_ControlState
+  ADD HL,DE
+  LD A,(HL)
+  INC A
+  JP z,Actor_Delete
+  DEC A
+  AND $7F
+  JR z,+    ;Cutscene control
+;AI behavior here
+  LD HL,++
+  PUSH HL
+  LD HL,_AIMovement
+  ADD HL,DE
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  JP HL
+++
+  ;Move actor
+  ;Transfer A into XY delta
+  PUSH AF
+  PUSH DE
+    LD HL,_MoveSpeed
+    ADD HL,DE
+    LD E,(HL)
+    INC HL
+    LD D,(HL)
+    ;Does BC get a value? (X movement)
+    LD BC,0
+    LD H,A
+    AND $0F
+    JR z,++
+    ;BC movement
+    LD B,D
+    LD C,E
+    ;This is positive X movement (rightwards), but are we going left?
+    LD A,%00000010
+    AND H
+    JR z,++
+    ;Going left
+    LD A,C
+    CPL
+    LD C,A
+    LD A,B
+    CPL
+    LD B,A
+    INC BC
+++
+    ;Does DE get a value? (Y movement)
+    LD A,$F0
+    AND H
+    JR z,++
+    ;DE movement
+    ;DE already has positive Y movement (downwards), but are we going up?
+    LD A,%00100000
+    AND H
+    JR z,+++
+    ;Going up
+    LD A,E
+    CPL
+    LD E,A
+    LD A,D
+    CPL
+    LD D,A
+    INC DE
+    JR +++
+++
+    LD DE,0
++++
+    POP HL        ;Actor data
+    PUSH HL
+    CALL Actor_Move
+  POP DE
+  POP AF
+  ;Correct animation data
+  ;Are we moving?
+  OR A
+  JR z,++
+  ;Am moving; use appropriate walking anim
+  ;L==4,D==5,R==6,U==7
+  ;A=%00UD00LR
+  LD C,4
+  AND %00110001
+  JR z,+++
+  INC C
+  AND %00100001
+  JR z,+++
+  INC C
+  AND %00100000
+  JR z,+++
+  INC C
++++
+  LD A,C
+  JR +++
+++
+  ;Did we just stop moving?
+  LD HL,_LastFacing
+  ADD HL,DE
+  OR (HL)
+  JR z,+
+  ;Just stopped; stand in same direction
+  SUB 4
+  LD HL,_AnimChange
+  ADD HL,DE
+  LD (HL),A
+  XOR A
++++
+  LD HL,_LastFacing
+  ADD HL,DE
+  LD (HL),A
++
+  ;Animation check
+  LD A,$FF
+  LD HL,_AnimChange
+  ADD HL,DE
+  CP (HL)
+  JR z,+
+  ;Change animation
+  LD C,(HL)
+  LD (HL),A
+  ;Change HatVal
+  LD HL,_HatValList
+  ADD HL,DE
+  LD A,C
+  AND $03
+  ADD (HL)
+  INC HL
+  LD H,(HL)
+  LD L,A
+  JR c,++
+  INC H
+++
+  LD A,(HL)
+  LD HL,_HatVal
+  ADD HL,DE
+  LD (HL),A
+  ;Send new anim pointer
+  LD HL,_AnimPtrList
+  ADD HL,DE
+  LDI A,(HL)
+  LD H,(HL)
+  ADD C
+  ADD C
+  LD L,A
+  JR c,++
+  INC H
+++
+  LDI A,(HL)
+  LD B,(HL)
+  LD C,A
+  SCF   ;New animation
++
+  ;Carry correct b/c CMP with $FF always yields no carry
+  JP Actor_Draw
+
 Access_ActorDE:
 ;A= Task ID
 ;Returns task's DE in HL
