@@ -25,7 +25,7 @@
 ;$C0A0 - $C0BF:
     ;Cutscene actor task pointers
 ;$C0C0 - $C0CF:
-    ;Reserved
+    ;Cutscene actor setup data staging area
 ;$C0E0 - $C0E5:
     ;Init and face extraction state space
 ;$C0E6:

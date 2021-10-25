@@ -68,7 +68,9 @@
     ;+$0C, size 2: Movement Speed (pixels, 8.8)
     ;+$0E, size 2: Hitbox data
     ;+$10, size 1: Visible on screen
+    ;+$11, size 1: Cardinal direction most recently moving/facing
     
+    ;+$15, size 1: Actor specific setting
     ;+$16, size 2: AI Movement function
     ;+$18, size 2: Hat value list
     ;+$1A, size 2: Animation pointer list
@@ -148,6 +150,7 @@
 .DEFINE _Visible $10
 .DEFINE _LastFacing $11
 
+.DEFINE _Settings $15
 .DEFINE _AIMovement $16
 .DEFINE _HatValList $18
 .DEFINE _AnimPtrList $1A
@@ -164,11 +167,10 @@
 
 ;Fairy
 .DEFINE _AnimRAM $12
-.DEFINE _Settings $14
 
 ;Danmaku
 ;.DEFINE _AnimRAM $11
-.DEFINE _IsDirected $13         ;0 if undirected. Holds base tile if directed
-.DEFINE _MovementData $14       ;Pointer to data for moving danmaku
+.DEFINE _IsDirected $12         ;0 if undirected. Holds base tile if directed
+.DEFINE _MovementData $13       ;Pointer to data for moving danmaku
 .DEFINE _MovementFunction $16   ;Function for moving danmaku
 

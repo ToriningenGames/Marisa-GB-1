@@ -46,9 +46,17 @@
     ;Attribute XOR (For correct flips)
 ;All UDLR designations are screen-based
 
+FairyActorData:
+ .db $10
+ .dw 100
+ .dw DefaultHitboxes
+ .dw FairyFrame
+ .dw _HatValues
+ .dw _Animations
+
 FairyFrame:
   PUSH AF
-    CALL Actor_New    ;Null actor (w/visibility)
+    ;CALL Actor_New    ;Null actor (w/visibility)
     ;Config data
   POP AF
   LD HL,_Settings
@@ -194,38 +202,6 @@ _IdleLoop:
  .db $FF
  .dw _IdleLoop
 
-_UpFace:
- .db 6
- .db -8, -4,$5F,%00000000  ;Head
- .db  0, -4,$56,%00000000  ;Body
- .db -8,-12,$5C,%00000000  ;Upper left wing
- .db -8,  4,$5C,%00100000  ;Upper right wing
- .db  0,-12,$59,%00000000  ;Lower left wing
- .db  0,  4,$59,%00100000  ;Lower right wing
- .db $F1
- .db $FF
- .dw _IdleLoop
-
-_LeftFace:
- .db 4
- .db -8, -4,$4A,%00000000  ;Head
- .db  0, -4,$4D,%00000000  ;Body
- .db -8,  4,$5C,%00100000  ;Upper wing
- .db  0,  4,$59,%00100000  ;Lower wing
- .db $F1
- .db $FF
- .dw _IdleLoop
-
-_RightFace:
- .db 4
- .db -8, -4,$4A,%00100000  ;Head
- .db  0, -4,$4D,%00100000  ;Body
- .db -8,-12,$5C,%00000000  ;Upper wing
- .db  0,-12,$59,%00000000  ;Lower wing
- .db $F1
- .db $FF
- .dw _IdleLoop
-
 _DownWalk:
  .db 6
  .db -8, -4,$50,%00000000  ;Head
@@ -238,6 +214,18 @@ _DownWalk:
  .db $FF
  .dw _VertWalkLoop
 
+_UpFace:
+ .db 6
+ .db -8, -4,$5F,%00000000  ;Head
+ .db  0, -4,$56,%00000000  ;Body
+ .db -8,-12,$5C,%00000000  ;Upper left wing
+ .db -8,  4,$5C,%00100000  ;Upper right wing
+ .db  0,-12,$59,%00000000  ;Lower left wing
+ .db  0,  4,$59,%00100000  ;Lower right wing
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
 _UpWalk:
  .db 6
  .db -8, -4,$5F,%00000000  ;Head
@@ -249,6 +237,46 @@ _UpWalk:
  .db $11
  .db $FF
  .dw _VertWalkLoop
+
+_LeftFace:
+ .db 4
+ .db -8, -4,$4A,%00000000  ;Head
+ .db  0, -4,$4D,%00000000  ;Body
+ .db -8,  4,$5C,%00100000  ;Upper wing
+ .db  0,  4,$59,%00100000  ;Lower wing
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
+_LeftWalk:
+ .db 4
+ .db -8, -4,$4A,%00000000  ;Head
+ .db  0, -4,$4D,%00000000  ;Body
+ .db  0,  4,$59,%00100000  ;Lower wing
+ .db -8,  4,$5C,%00100000  ;Upper wing
+ .db $11
+ .db $FF
+ .dw _HortWalkLoop
+
+_RightFace:
+ .db 4
+ .db -8, -4,$4A,%00100000  ;Head
+ .db  0, -4,$4D,%00100000  ;Body
+ .db -8,-12,$5C,%00000000  ;Upper wing
+ .db  0,-12,$59,%00000000  ;Lower wing
+ .db $F1
+ .db $FF
+ .dw _IdleLoop
+
+_RightWalk:
+ .db 4
+ .db -8, -4,$4A,%00100000  ;Head
+ .db  0, -4,$4D,%00100000  ;Body
+ .db  0,-11,$59,%00000000  ;Lower wing
+ .db -8,-11,$5C,%00000000  ;Upper wing
+ .db $11
+ .db $FF
+ .dw _HortWalkLoop
 
 _VertWalkLoop:
  .db $37
@@ -276,26 +304,6 @@ _VertWalkLoop:
  .db $11
  .db $FF
  .dw _VertWalkLoop
-
-_LeftWalk:
- .db 4
- .db -8, -4,$4A,%00000000  ;Head
- .db  0, -4,$4D,%00000000  ;Body
- .db  0,  4,$59,%00100000  ;Lower wing
- .db -8,  4,$5C,%00100000  ;Upper wing
- .db $11
- .db $FF
- .dw _HortWalkLoop
-
-_RightWalk:
- .db 4
- .db -8, -4,$4A,%00100000  ;Head
- .db  0, -4,$4D,%00100000  ;Body
- .db  0,-11,$59,%00000000  ;Lower wing
- .db -8,-11,$5C,%00000000  ;Upper wing
- .db $11
- .db $FF
- .dw _HortWalkLoop
 
 _HortWalkLoop
  .db $21

@@ -110,15 +110,16 @@ Cutscene_LUT:
  .dw Cutscene_BkgPaletteLoad
 
 CharaTypes:
- .dw HatFrame
- .dw CharaFrame
- .dw AliceFrame
- .dw ReimuFrame
- .dw NarumiFrame
- .dw FairyFrame
+ .dw HatActorData
+ .dw CharaActorData
+ .dw AliceActorData
+ .dw ReimuActorData
+ .dw NarumiActorData
+ .dw FairyActorData
 
 .DEFINE Cutscene_Actors $C0A0
 .EXPORT Cutscene_Actors
+.DEFINE Cutscene_ActorSetup $C0C0
 
 .DEFINE varPage $C0
 .DEFINE Cutscene_VarPage varPage
@@ -441,22 +442,38 @@ Cutscene_ActorNew:
   JP nz,EndTask
   LD A,$E0
   AND D
-  SWAP A
-  ADD <CharaTypes
   PUSH HL
-    LD L,A
-    LD H,>CharaTypes
-    LD C,(HL)
-    INC HL
-    LD B,(HL)
-    CP <CharaTypes    ;Check for hats
-    JR z,+
+    PUSH AF
+      SWAP A
+      ADD <CharaTypes
+      LD L,A
+      LD A,E
+      LD H,>CharaTypes
+      LD E,(HL)
+      INC HL
+      LD H,(HL)
+      LD L,E
+      LD DE,Cutscene_ActorSetup
+      LD (DE),A         ;Actor setting
+      INC E
+      LD C,$11          ;Actor specification size
+-
+      LDI A,(HL)
+      LD (DE),A
+      INC E
+      DEC C
+      JR nz,-
+      LD E,<Cutscene_ActorSetup
+      LD BC,Actor_FrameInit
+    POP AF
+    JR z,+            ;Check for hats
     CALL NewTask
     JR ++
 +
     CALL NewTaskLo    ;Hats go last b/c they're dependent on their parent's position
 ++
   POP HL
+  JP c,EndTask
   LD (HL),B
   JP EndTask
 

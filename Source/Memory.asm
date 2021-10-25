@@ -1,8 +1,7 @@
 ;Memory management
-    ;Fixed block of 10 bytes
-    ;Too small. 24 please, due to sprite data size
-    ;Does not divide evenly, because 24 has a factor of 3; 2560 doesn't
-    ;32 it is then
+    ;Fixed block of 32 bytes each
+    ;Free all allocated blocks
+    ;Do not free nonallocated blocks, unless you want them part of the pool!
 
 ;Memory for use:
     ;$D600-$DFFF: 2560 bytes

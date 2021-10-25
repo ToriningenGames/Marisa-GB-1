@@ -34,8 +34,7 @@
 
 ;Given a pointer to an actor specification, sets up and runs said actor
 ;DE->Actor specification data
-        ;1 byte:  Initial X
-        ;1 byte:  Initial Y
+        ;1 byte:  Actor specific setting
         ;1 byte:  Anim speed
         ;2 bytes: Move speed (8.8)
         ;2 bytes: Hitboxes
@@ -49,35 +48,78 @@
         ;2 bytes: Anim list
 ;Run as task
 Actor_FrameInit:
-  LD H,D
-  LD L,E
-  LDI A,(HL)
-  LD D,A
-  LDI A,(HL)
-  LD E,A
-  PUSH HL
-    CALL Actor_New    ;Null actor (w/visibility)
+  PUSH DE
+    ;Null actor (w/visibility)
+  ;D = X start
+  ;E = Y start
+  ;Returns
+  ;DE->Actor data
+  ;Destroys all else
+  ;Allocate and initialize memory
+    CALL MemAlloc
+    LD H,D
+    LD L,E
+    LD A,5
+    LDI (HL),A
+    LDI (HL),A
+    XOR A
+    LD C,$11
+  -
+    LDI (HL),A
+    DEC C
+    JR nz,-
+  ;Set up Actor Draw
+  ;DE=Actor Data
+    LD B,D    ;Save to BC due to next alloc
+    LD C,E
+    INC DE    ;Set up inital OAM dummy pointer
+    LD A,1
+    LD (DE),A
+    LD HL,_SprCount
+    ADD HL,BC
+    LD (HL),0
+  ;Allocate relational data memory
+    CALL MemAlloc ;Subsprite
+    LD HL,_RelData
+    ADD HL,BC
+    LD (HL),E
+    INC HL
+    LD (HL),D
+    LD D,B
+    LD E,C
+    ;Set up control values
+    LD HL,_ControlState
+    ADD HL,DE
+    LD (HL),1     ;Actors start out in control
+    INC HL
+    LD (HL),0     ;Initially never moved
   POP BC
   ;Initial data copy
-  LD HL,_AnimSpeed
-  ADD HL,DE
-  LD A,(BC)     ;Anim Speed
+  LD A,(BC)     ;Actor setting
   INC BC
-  LDI (HL),A
-  LD A,(BC)     ;Move Speed lo
-  INC BC
-  LDI (HL),A
-  LD A,(BC)     ;Move Speed hi
-  INC BC
-  LDI (HL),A
-  LD A,(BC)     ;Hitbox lo
-  INC BC
-  LDI (HL),A
-  LD A,(BC)     ;Hitbox hi
-  INC BC
-  LDI (HL),A
-  LD HL,_AIMovement
-  ADD HL,DE
+  PUSH AF
+    LD HL,_AnimSpeed
+    ADD HL,DE
+    LD A,(BC)     ;Anim Speed
+    INC BC
+    LDI (HL),A
+    LD A,(BC)     ;Move Speed lo
+    INC BC
+    LDI (HL),A
+    LD A,(BC)     ;Move Speed hi
+    INC BC
+    LDI (HL),A
+    LD A,(BC)     ;Hitbox lo
+    INC BC
+    LDI (HL),A
+    LD A,(BC)     ;Hitbox hi
+    INC BC
+    LDI (HL),A
+    LD (HL),0     ;Initially invisible
+    LD HL,_Settings
+    ADD HL,DE
+  POP AF
+  LDI (HL),A    ;Actor setting
   LD A,(BC)     ;AI movement lo
   INC BC
   LDI (HL),A
@@ -99,9 +141,6 @@ Actor_FrameInit:
   LD HL,_AnimChange
   ADD HL,DE
   LD (HL),1 ;Face down
-  LD HL,_LastFacing
-  ADD HL,DE
-  LD (HL),0     ;Face sanely
   CALL HaltTask
 ;Given an appropriate data set, runs the given actor
 Actor_Frame:
@@ -128,6 +167,8 @@ Actor_Frame:
   LD L,A
   JP HL
 ++
+  OR A
+  JR z,++++     ;Not moving
   ;Move actor
   ;Transfer A into XY delta
   PUSH AF
@@ -185,9 +226,6 @@ Actor_Frame:
   POP DE
   POP AF
   ;Correct animation data
-  ;Are we moving?
-  OR A
-  JR z,++
   ;Am moving; use appropriate walking anim
   ;L==4,D==5,R==6,U==7
   ;A=%00UD00LR
@@ -203,13 +241,21 @@ Actor_Frame:
   INC C
 +++
   LD A,C
+  ;Don't change anims if we were already moving
+  LD HL,_LastFacing
+  ADD HL,DE
+  CP (HL)
+  JR z,+
+  LD HL,_AnimChange
+  ADD HL,DE
+  LD (HL),A
   JR +++
-++
+++++
   ;Did we just stop moving?
   LD HL,_LastFacing
   ADD HL,DE
   OR (HL)
-  JR z,+
+  JR z,+++      ;No anim change; skip even the check
   ;Just stopped; stand in same direction
   SUB 4
   LD HL,_AnimChange
@@ -226,7 +272,7 @@ Actor_Frame:
   LD HL,_AnimChange
   ADD HL,DE
   CP (HL)
-  JR z,+
+  JR z,+++
   ;Change animation
   LD C,(HL)
   LD (HL),A
@@ -239,7 +285,7 @@ Actor_Frame:
   INC HL
   LD H,(HL)
   LD L,A
-  JR c,++
+  JR nc,++
   INC H
 ++
   LD A,(HL)
@@ -249,20 +295,21 @@ Actor_Frame:
   ;Send new anim pointer
   LD HL,_AnimPtrList
   ADD HL,DE
-  LDI A,(HL)
+  LD A,C
+  ADD A
+  ADD (HL)
+  INC HL
   LD H,(HL)
-  ADD C
-  ADD C
   LD L,A
-  JR c,++
+  JR nc,++
   INC H
 ++
   LDI A,(HL)
   LD B,(HL)
   LD C,A
   SCF   ;New animation
-+
-  ;Carry correct b/c CMP with $FF always yields no carry
++++
+  ;Carry correct b/c CMP with $FF always yields no carry (as do carries with a zero result)
   JP Actor_Draw
 
 Access_ActorDE:
@@ -279,65 +326,6 @@ Access_ActorDE:
   LD L,A
   RET
 
-;Creates and returns an initialized base actor, ready for characterization
-Actor_New:
-;D = X start
-;E = Y start
-;Returns
-;DE->Actor data
-;Destroys all else
-  PUSH DE   ;X, Y
-;Allocate and initialize memory
-    CALL MemAlloc
-    LD H,D
-    LD L,E
-    LD A,5
-    LDI (HL),A
-    LDI (HL),A
-    XOR A
-    LD C,$10
--
-    LDI (HL),A
-    DEC C
-    JR nz,-
-    LD HL,_MasterX+1
-    ADD HL,DE
-  POP BC
-  LD A,B    ;X
-  LDI (HL),A
-  INC HL
-  LD (HL),C ;Y
-;Set up Actor Draw
-;DE=Actor Data
-  LD B,D    ;Save to BC due to next alloc
-  LD C,E
-  INC DE    ;Set up inital OAM dummy pointer
-  LD A,1
-  LD (DE),A
-  LD HL,_SprCount
-  ADD HL,BC
-  LD (HL),0
-;Allocate relational data memory
-  CALL MemAlloc ;Subsprite
-  LD HL,_RelData
-  ADD HL,BC
-  LD (HL),E
-  INC HL
-  LD (HL),D
-  LD D,B
-  LD E,C
-  ;Set up control values
-  LD HL,_ControlState
-  ADD HL,DE
-  LD (HL),0     ;Actors start out in cutscenes
-  LD HL,_AnimChange
-  ADD HL,DE
-  LD (HL),0     ;Forces initialization of animation
-  LD HL,_Visible
-  ADD HL,DE
-  LD (HL),0     ;Invisible by default
-  RET
-
 ;Not a function; JP to here
 Actor_Delete:
 ;DE-> Actor data
@@ -348,10 +336,44 @@ Actor_Delete:
   LDI A,(HL)
   LD B,(HL)
   LD C,A
-  CALL MemFree
-  LD D,B
-  LD E,C
-  CALL MemFree
+  LD HL,_AnimPtrList
+  ADD HL,DE
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  PUSH HL
+    CALL MemFree        ;Free Sprite Relative Data
+    LD D,B
+    LD E,C
+    CALL MemFree        ;Free Actor Data
+  POP HL
+  LD A,$80      ;Test for RAM animations
+  CP H
+  JP nc,EndTask
+  ;Free the eight pointers in the RAM anim area
+  LD C,8
+  LD A,L
+  ADD 16
+  LD L,A
+  JR nc,+
+  INC H
++
+-
+  DEC HL
+  LDD A,(HL)
+  LD E,(HL)
+  CP $80
+  JR c,+        ;Don't free if it's a ROM pointer
+  LD D,A
+  PUSH HL
+    CALL MemFree
+  POP HL
++
+  DEC C
+  JR nz,-
+  LD D,H
+  LD E,L
+  CALL MemFree  ;Free the RAM anim area
   JP EndTask
 
 Actor_Draw:

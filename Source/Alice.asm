@@ -5,8 +5,6 @@
 .SECTION "Alice" FREE
 
 AliceActorData:
- .db $16
- .db $20
  .db $10
  .dw $0100
  .dw NPCHitboxes
@@ -15,72 +13,8 @@ AliceActorData:
  .dw _Animations
 
 AliceFrame:
-  CALL Actor_New    ;Null actor (w/visibility)
-  ;Hitbox setup
-  LD HL,_Hitbox
-  ADD HL,DE
-  LD (HL),<NPCHitboxes
-  INC HL
-  LD (HL),>NPCHitboxes
-  ;Animation values
-  LD HL,_AnimChange
-  ADD HL,DE
-  LD (HL),1 ;Face down
-  CALL HaltTask
-  LD HL,_ControlState
-  ADD HL,DE
-  ;Check for doing AI stuffs here
-;Alice specific messages
-    ;v: Cutscene control
-    ;v: Play animation
-    ;v: Destruct
-  ;Cutscene detect
-  LD HL,_ControlState
-  ADD HL,DE
-  LD A,(HL)
-  INC A
-  JP z,Actor_Delete
-  DEC A
-  AND $7F
-  JR z,+    ;Cutscene control
-;AI behavior here
-+
-  ;Animation check
-  LD A,$FF
-  LD HL,_AnimChange
-  ADD HL,DE
-  CP (HL)
-  JR z,+
-  ;Change animation
-  LD C,(HL)
-  LD (HL),A
-  ;Change HatVal
-  LD A,$03
-  AND C
-  ADD <_HatValues
-  LD L,A
-  LD A,<_HatValues
-  ADC 0
-  LD H,A
-  LD A,(HL)
-  LD HL,_HatVal
-  ADD HL,DE
-  LD (HL),A
-  ;Send new anim pointer
-  LD A,C
-  RLA
-  ADD <_Animations
-  LD L,A
-  LD A,>_Animations
-  ADC 0
-  LD H,A
-  LDI A,(HL)
-  LD B,(HL)
-  LD C,A
-  SCF   ;New animation
-+
-  ;Carry correct b/c CMP against $FF always yields no carry
-  JP Actor_Draw
+  XOR A
+  RET
 
 _DownFace:
  .db 6

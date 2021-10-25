@@ -4,71 +4,17 @@
 
 .SECTION "Reimu" FREE
 
+ReimuActorData:
+ .db $10
+ .dw $0100
+ .dw DefaultHitboxes
+ .dw ReimuFrame
+ .dw _HatValues
+ .dw _Animations
+
 ReimuFrame:
-  CALL Actor_New    ;Null actor (w/visibility)
-  ;Hitbox setup
-  LD HL,_Hitbox
-  ADD HL,DE
-  LD (HL),<DefaultHitboxes
-  INC HL
-  LD (HL),>DefaultHitboxes
-  ;Animation values
-  LD HL,_AnimChange
-  ADD HL,DE
-  LD (HL),1 ;Face down
-  CALL HaltTask
-  ;Check for doing AI stuffs here
-;Reimu specific messages
-    ;v: Cutscene control
-    ;v: Play animation
-    ;v: Destruct
-  ;Cutscene detect
-  LD HL,_ControlState
-  ADD HL,DE
-  LD A,(HL)
-  INC A
-  JP z,Actor_Delete
-  DEC A
-  AND $7F
-  JR z,+    ;Cutscene control
-;AI behavior here
-+
-  ;Animation check
-  LD A,$FF
-  LD HL,_AnimChange
-  ADD HL,DE
-  CP (HL)
-  JR z,+
-  ;Change animation
-  LD C,(HL)
-  LD (HL),A
-  ;Change HatVal
-  LD A,$03
-  AND C
-  ADD <_HatValues
-  LD L,A
-  LD A,<_HatValues
-  ADC 0
-  LD H,A
-  LD A,(HL)
-  LD HL,_HatVal
-  ADD HL,DE
-  LD (HL),A
-  ;Send new anim pointer
-  LD A,C
-  RLA
-  ADD <_Animations
-  LD L,A
-  LD A,>_Animations
-  ADC 0
-  LD H,A
-  LDI A,(HL)
-  LD B,(HL)
-  LD C,A
-  SCF   ;New animation
-+
-  ;Carry correct b/c CMP against $FF always yields no carry
-  JP Actor_Draw
+  XOR A
+  RET
 
 _DownFace:
  .db 4
@@ -112,6 +58,10 @@ _RightFace:
  .dw _IdleLoop
 
 _Animations:
+ .dw _LeftFace
+ .dw _DownFace
+ .dw _RightFace
+ .dw _UpFace
  .dw _LeftFace
  .dw _DownFace
  .dw _RightFace

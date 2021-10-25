@@ -34,188 +34,30 @@
 ;Memory format:
 .INCLUDE "ActorData.asm"
 
-.DEFINE Speed 300
-CharaFrame:
-  CALL Actor_New
-  LD HL,_HatVal
-  ADD HL,DE
-  LD (HL),1     ;Must make it nonzero
-  LD HL,_Hitbox
-  ADD HL,DE
-  LD (HL),<PlayerHitboxes
-  INC HL
-  LD (HL),>PlayerHitboxes
-;TODO:
-    ;Destructor
-    ;Hat play
-    ;Action buttons
--
-  CALL HaltTask
-;Frame loop
-;Handle messages
---
-;Marisa specifc message
-;Messages Marisa will care about:
-    ;v: Cutscene control
-    ;v: Play animation
-    ;v: Destruct
-  ;Cutscene detect
-  LD HL,_ControlState
-  ADD HL,DE
-  LD A,(HL)
-  INC A
-  JP z,Actor_Delete
-  DEC A
-  AND $7F
-  JR z,+
-;Button check
-  LD HL,_ButtonState
-  ADD HL,DE
-  LDH A,($FE)
-  XOR (HL)  ;Get direction button delta
-  AND $F0
-  JR z,+
-;New animation
-;Buttons still held mean walking animation
-  LDH A,($FE)
-  AND $F0
-;Otherwise, buttons previously held mean standing animation
-  JR z,++
-  LD HL,_AnimChange
-  ADD HL,DE
-  ;Walking animation
-  LD (HL),5
-  RLA
-  JR c,+++
-  LD (HL),7
-  RLA
-  JR c,+++
-  LD (HL),4
-  RLA
-  JR c,+++
-  LD (HL),6
-  JR +++
-++  ;Standing animation
-  LD A,(HL)
-  LD HL,_AnimChange
-  ADD HL,DE
-  LD (HL),1
-  RLA
-  JR c,+++
-  LD (HL),3
-  RLA
-  JR c,+++
-  LD (HL),0
-  RLA
-  JR c,+++
-  LD (HL),2
-+++
-+
-  ;Anim change
-  LD HL,_AnimChange
-  ADD HL,DE
-  LD A,$FF
-  CP (HL)
-  JR z,+
-  LD C,(HL)
-  LD (HL),A
-  LD A,C
-  ;Set Hatval
-  AND $03
-  ADD <_HatValues
-  LD L,A
-  LD A,0
-  ADC >_HatValues
-  LD H,A
-  LD A,(HL)
-  LD HL,_HatVal
-  ADD HL,DE
-  LD (HL),A
-  LD A,C
-  RLCA
-  ADD <_Animations
-  LD L,A
-  LD A,0
-  ADC >_Animations
-  LD H,A
-  LDI A,(HL)
-  LD C,A
-  LD A,(HL)
-  LD B,A
-  SCF
-+
-  ;Carry is set correctly for drawing, so keep it accessible
-  PUSH AF
-  ;Again; check for full control before moving in response to input
-    LD HL,_ControlState
-    ADD HL,DE
-    LD A,(HL)
-    AND $7F
-    JR z,++
-;Check for movement
-    LDH A,($FE)
-    AND $F0
-    PUSH BC
-    PUSH DE
-      JR z,+++
-;Direction is being pressed if not zero
-;Move handles 0 just fine, though
-;DE-> Actor data
-;A  = Movement direction
-    ;%DULR0000
-      LD HL,_MoveSpeed
-      ADD HL,DE
-      LD C,(HL)
-      INC HL
-      LD B,(HL)
-      LD H,D    ;Move Actor data pointer to HL
-      LD L,E
-      LD DE,0
-      PUSH AF
-        AND $C0
-        JR z,+
-        LD D,B
-        LD E,C
-        RLA
-        JR c,+
-        LD A,D    ;Negate for up (More accurately, "not down")
-        CPL
-        LD D,A
-        LD A,E
-        CPL
-        LD E,A
-        INC DE
-+
-      POP AF
-      AND $30
-      JR nz,+ ;Are any LR buttons pressed?
-      LD BC,0 ;No, don't move along X axis
-+
-      AND $20
-      JR z,+  ;Is left pressed (necessitating a negate)?
-      LD A,B
-      CPL
-      LD B,A
-      LD A,C
-      CPL
-      LD C,A
-      INC BC
-+
-      CALL Actor_Move
-+++
-;Other button checks
-    POP DE
-    POP BC
-++
-;Update buttonage
-    LD HL,_ButtonState
-    ADD HL,DE
-    LDH A,($FE)
-    LD (HL),A
-  POP AF
-  JP Actor_Draw
+CharaActorData:
+ .db $10
+ .dw 300
+ .dw PlayerHitboxes
+ .dw CharaFrame
+ .dw _HatValues
+ .dw _Animations
 
-_charaMove
+CharaFrame:
+  LDH A,($FE)
+  LD C,A
+  LD A,%00110000        ;L/R
+  AND C
+  SWAP A        ;put L/R in lo nibble
+  LD B,A
+  XOR A         ;Swap D/U and put in hi nibble
+  RL C
+  RRA
+  RL C
+  RRA
+  RRA
+  RRA
+  OR B  ;Compound
+  RET
 
 
 ;Animation data
@@ -346,6 +188,14 @@ DefaultIdleAnim:
 .DEFINE HatSig $C09E    ;To identify a data pointer as a hat
 .EXPORT HatSig
 
+HatActorData:
+ .db $10
+ .dw 0          ;Don't let Actor Control move the hat
+ .dw DefaultHitboxes
+ .dw HatFrame
+ .dw HeadPosTable
+ .dw _Animations
+
 HatFrame:
 ;Follow the character pointed to by DE
 ;If I collide with another character, follow them instead
@@ -357,28 +207,11 @@ HatFrame:
 ;TODO:
     ;Detect a change in parent
         ;Do via collision
-  CALL Actor_New
-  ;Hitbox setup
-  LD HL,_Hitbox
-  ADD HL,DE
-  LD (HL),<DefaultHitboxes
-  INC HL
-  LD (HL),>DefaultHitboxes
   ;Hat is global
   LD HL,HatSig
   LD A,E
   LDI (HL),A
   LD (HL),D
-  ;Self-parenting
-  LD HL,_ParentChar
-  ADD HL,DE
-  LD (HL),E
-  INC HL
-  LD (HL),D
-  LD HL,_HatVal
-  ADD HL,DE
-  LD (HL),0
-  CALL HaltTask
   ;Enforce drawing at top sprites (the Hat Hack)
   LD A,0
   LD (DE),A
@@ -386,15 +219,6 @@ HatFrame:
   LD A,$CF
   LD (DE),A
   DEC DE
-  ;Check for doing AI stuffs here
-;Hat specific messages
-    ;v: Destruct
-  ;Destruct detect
-  LD HL,_ControlState
-  ADD HL,DE
-  LD A,(HL)
-  INC A
-  JP z,Actor_Delete
   ;Exist based on parent's location
   LD HL,_ParentChar
   ADD HL,DE
@@ -416,67 +240,54 @@ HatFrame:
   INC BC
   LD A,(BC)
   LD (HL),A
-  LD A,_HatVal-5
+  LD A,_HatVal-_MasterY-1
   ADD C
   LD C,A
-  LD A,0
-  ADC B
-  LD B,A
+  JR nc,+
+  INC B
++
   LD A,(BC)
   LD HL,_HatVal
   ADD HL,DE
-  CP (HL)
-  JR z,+
-  ;New anim
+;HatVal adjustment and facing consideration
   LD (HL),A
   AND $F0
   SWAP A
-  LD HL,_AnimChange
-  ADD HL,DE
-  LD (HL),A
-+ ;Actor specific placement adjustment
-  LD HL,_MasterY+1
-  ADD HL,DE
-  LD A,(BC)
-  AND $0F
-  RLA
-  ADD <HeadPosTable
-  LD C,A
-  LD A,>HeadPosTable
-  ADC 0
-  LD B,A
-  LD A,(BC)
-  INC BC
-  ADD (HL)
-  LDD (HL),A
-  DEC HL
-  LD A,(BC)
-  ADD (HL)
-  LD (HL),A
-;Anim check
-  LD A,$FF
-  LD HL,_AnimChange
-  ADD HL,DE
-  CP (HL)
-  JR z,+
-  ;Change animation
-  LD C,(HL)
-  LD (HL),A
-  ;Send new anim pointer
-  LD A,C
-  RLA
-  ADD <_Animations
+  ;LDRU -> %00UD00LR
   LD L,A
-  LD A,>_Animations
-  ADC 0
-  LD H,A
-  LDI A,(HL)
-  LD B,(HL)
-  LD C,A
-  SCF   ;New animation
+  LD A,%00010000
+  DEC L
+  JR z,+
+  LD A,%00000001
+  DEC L
+  JR z,+
+  LD A,%00100000
+  DEC L
+  JR z,+
+  LD A,%00000010
 +
-  ;Carry correct b/c CMP against $FF
-  JP Actor_Draw
+  PUSH AF
+    ;Actor specific placement adjustment
+    LD HL,_MasterY+1
+    ADD HL,DE
+    LD A,(BC)
+    AND $0F
+    RLA
+    ADD <HeadPosTable
+    LD C,A
+    LD A,>HeadPosTable
+    ADC 0
+    LD B,A
+    LD A,(BC)
+    INC BC
+    ADD (HL)
+    LDD (HL),A
+    DEC HL
+    LD A,(BC)
+    ADD (HL)
+    LD (HL),A
+  POP AF
+  RET
 
 ;Table of positions and tile choices for the hat, when it finds a head tile
 
@@ -518,6 +329,10 @@ _Up:
  .dw DefaultIdleAnim
 
 _Animations:
+ .dw _Left
+ .dw _Down
+ .dw _Right
+ .dw _Up
  .dw _Left
  .dw _Down
  .dw _Right
