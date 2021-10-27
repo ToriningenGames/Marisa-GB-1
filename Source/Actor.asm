@@ -33,8 +33,8 @@
 .SECTION "ActorBase" FREE
 
 ;Given a pointer to an actor specification, sets up and runs said actor
+;A-> Actor specific setting
 ;DE->Actor specification data
-        ;1 byte:  Actor specific setting
         ;1 byte:  Anim speed
         ;2 bytes: Move speed (8.8)
         ;2 bytes: Hitboxes
@@ -48,56 +48,51 @@
         ;2 bytes: Anim list
 ;Run as task
 Actor_FrameInit:
-  PUSH DE
-    ;Null actor (w/visibility)
-  ;D = X start
-  ;E = Y start
-  ;Returns
-  ;DE->Actor data
-  ;Destroys all else
-  ;Allocate and initialize memory
-    CALL MemAlloc
-    LD H,D
-    LD L,E
-    LD A,5
-    LDI (HL),A
-    LDI (HL),A
-    XOR A
-    LD C,$11
-  -
-    LDI (HL),A
-    DEC C
-    JR nz,-
-  ;Set up Actor Draw
-  ;DE=Actor Data
-    LD B,D    ;Save to BC due to next alloc
-    LD C,E
-    INC DE    ;Set up inital OAM dummy pointer
-    LD A,1
-    LD (DE),A
-    LD HL,_SprCount
-    ADD HL,BC
-    LD (HL),0
-  ;Allocate relational data memory
-    CALL MemAlloc ;Subsprite
-    LD HL,_RelData
-    ADD HL,BC
-    LD (HL),E
-    INC HL
-    LD (HL),D
-    LD D,B
-    LD E,C
-    ;Set up control values
-    LD HL,_ControlState
-    ADD HL,DE
-    LD (HL),1     ;Actors start out in control
-    INC HL
-    LD (HL),0     ;Initially never moved
-  POP BC
-  ;Initial data copy
-  LD A,(BC)     ;Actor setting
-  INC BC
   PUSH AF
+    PUSH DE
+    ;Returns
+    ;DE->Actor data
+    ;Destroys all else
+    ;Allocate and initialize memory
+      CALL MemAlloc
+      LD H,D
+      LD L,E
+      LD A,5
+      LDI (HL),A
+      LDI (HL),A
+      XOR A
+      LD C,$11
+    -
+      LDI (HL),A
+      DEC C
+      JR nz,-
+    ;Set up Actor Draw
+    ;DE=Actor Data
+      LD B,D    ;Save to BC due to next alloc
+      LD C,E
+      INC DE    ;Set up inital OAM dummy pointer
+      LD A,1
+      LD (DE),A
+      LD HL,_SprCount
+      ADD HL,BC
+      LD (HL),0
+    ;Allocate relational data memory
+      CALL MemAlloc ;Subsprite
+      LD HL,_RelData
+      ADD HL,BC
+      LD (HL),E
+      INC HL
+      LD (HL),D
+      LD D,B
+      LD E,C
+      ;Set up control values
+      LD HL,_ControlState
+      ADD HL,DE
+      LD (HL),1     ;Actors start out in control
+      INC HL
+      LD (HL),0     ;Initially never moved
+    POP BC
+    ;Initial data copy
     LD HL,_AnimSpeed
     ADD HL,DE
     LD A,(BC)     ;Anim Speed

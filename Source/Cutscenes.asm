@@ -536,31 +536,31 @@ Cs_LoadInit:
   CsLoadBkgColor $FF
   CsLoadObjColor $FF,$FF
   CsWait 45
+  CsCall Cs_MapFadein
   CsSetCamera 24,0
   CsLoadMap MapForestBKG03
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
-  ;CsNewActor 2,CsChAlice,0
-  ;CsNewActor 3,CsChNarumi,0
-  ;CsNewActor 4,CsChReimu,0
+  CsNewActor 2,CsChAlice,0
+  CsNewActor 3,CsChNarumi,0
+  CsNewActor 4,CsChReimu,0
   CsWait 2
   CsInputChange 1,0     ;Cutscene control of Marisa
-  ;CsInputChange 2,2     ;Alice, stay still
-  ;CsInputChange 3,2
-  ;CsInputChange 4,2
+  CsInputChange 2,2     ;Alice, stay still
+  CsInputChange 3,2
+  CsInputChange 4,2
   CsAnimateActor 1,CsAnFaceDown
-  ;CsAnimateActor 2,CsAnFaceDown
+  CsAnimateActor 2,CsAnFaceDown
   CsAssignHat 0,1
   CsWaitMap
   CsLoadMap MapForest23map
   CsSetActor 1,130,70
-  ;CsSetActor 2,80,55
-  ;CsSetActor 3,90,55
-  ;CsSetActor 4,100,55
+  CsSetActor 2,80,55
+  CsSetActor 3,90,55
+  CsSetActor 4,100,55
   CsWaitMap
   CsLoadObj MapForest23obj
   CsInputChange 1,$80   ;Camera follow
-  CsCall Cs_MapFadein
   CsRunText StringTestMessage   ;Testing text run with input
   CsWait 1
   CsSetActorSpeed 1,0.9

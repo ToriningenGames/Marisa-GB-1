@@ -443,30 +443,20 @@ Cutscene_ActorNew:
   LD A,$E0
   AND D
   PUSH HL
-    PUSH AF
-      SWAP A
-      ADD <CharaTypes
-      LD L,A
-      LD A,E
-      LD H,>CharaTypes
-      LD E,(HL)
-      INC HL
-      LD H,(HL)
-      LD L,E
-      LD DE,Cutscene_ActorSetup
-      LD (DE),A         ;Actor setting
-      INC E
-      LD C,$11          ;Actor specification size
--
-      LDI A,(HL)
-      LD (DE),A
-      INC E
-      DEC C
-      JR nz,-
-      LD E,<Cutscene_ActorSetup
-      LD BC,Actor_FrameInit
-    POP AF
-    JR z,+            ;Check for hats
+    SWAP A
+    ADD <CharaTypes
+    LD L,A
+    LD H,>CharaTypes
+    LDI A,(HL)
+    LD H,(HL)
+    LD L,A
+    LD BC,Actor_FrameInit
+    LD A,$E0          ;Check for hats
+    AND D
+    LD A,E
+    LD D,H
+    LD E,L
+    JR z,+
     CALL NewTask
     JR ++
 +
