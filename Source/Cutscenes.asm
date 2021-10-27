@@ -347,8 +347,9 @@
 .ENDM
 
 
-.SECTION "Cutscenes" FREE
+.SECTION "Cutscenes" ALIGN 256 FREE
 
+;It is required that this pointer is page-aligned
 Cs_ComputePlayerAndCamera:
   ;Come in from right
   CsSetVarVar 16,8      ;bytes to shorts
@@ -536,7 +537,6 @@ Cs_LoadInit:
   CsLoadBkgColor $FF
   CsLoadObjColor $FF,$FF
   CsWait 45
-  CsCall Cs_MapFadein
   CsSetCamera 24,0
   CsLoadMap MapForestBKG03
   CsNewActor 0,CsChHat,0
@@ -556,12 +556,12 @@ Cs_LoadInit:
   CsLoadMap MapForest23map
   CsSetActor 1,130,70
   CsSetActor 2,80,55
-  CsSetActor 3,90,55
-  CsSetActor 4,100,55
+  CsSetActor 3,95,55
+  CsSetActor 4,110,55
   CsWaitMap
   CsLoadObj MapForest23obj
   CsInputChange 1,$80   ;Camera follow
-  CsRunText StringTestMessage   ;Testing text run with input
+  CsCall Cs_MapFadein
   CsWait 1
   CsSetActorSpeed 1,0.9
   CsAnimSpeed 1,10
