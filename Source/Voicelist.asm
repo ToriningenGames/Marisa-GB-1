@@ -40,6 +40,9 @@
 ;30.12 Square, triangle, loud saw (75%)
 .db $00,$01,$22,$23,$44,$45,$66,$67,$BA,$BA,$BA,$BA,$BA,$BA,$BA,$BA
 
+;6.13 Triangle (With octave up)
+.db $13,$57,$8A,$CD,$FE,$ED,$CC,$BA,$AA,$BC,$CD,$EE,$EC,$A8,$64,$20
+
 ;14 Master Spark (plays at 110 Hz. Set NR33/34 to $5AC)
 ;.db $01,$34,$42,$16,$64,$BF,$EE,$EB,$68,$99,$92,$16,$62,$6B,$66,$42
 
