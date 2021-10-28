@@ -442,8 +442,12 @@ Cs_MapFadein:
     ;Fade in
     ;Control
 Cs_StraightTransition:
+  CsEndVar 127,2        ;Can't leave if in Narumi fight
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
+  CsJumpRelVar 127,0    ;Music change check
+  CsLoadSong SongSpark
+  CsSetVar 127,1
   CsJump Cs_TransitionIn
 
 ;Some of the non straight transitions
@@ -527,9 +531,39 @@ Cs_CurvedTransitionB:
   CsSetVar 21,CsDirDown*32
   CsJump Cs_TransitionIn
 
+;Ending A (Found Alice's house from the front)
+Cs_EndingA:
+  CsLoadSong SongDoll
+  CsEnd
+
+;Ending B (Escorted by Alice)
+Cs_EndingB:
+  CsLoadSong SongDoll
+  CsLoadSong SongMagus
+  CsEnd
+
+;Ending C (Found Alice's house from the back)
+Cs_EndingC:
+  CsLoadSong SongRetrib
+  CsEnd
+
+;Narumi Fight intro
+Cs_NarumiFightStart:
+  CsEnd
+
+;Narumi Fight outro
+Cs_NarumiFightEnd:
+  CsEnd
+
+;Feeding Reimu Shrooms
+Cs_ReimuMeet:
+Cs_ReimuFeed:
+Cs_ReimuFull:
+  CsEnd
+
 ;Used for setting up the game
 Cs_LoadInit:
-  CsLoadSong SongNull ;SongRetrib
+  CsLoadSong SongRetrib
   CsPanSong $FF,$AA
   CsWait 45
   CsLoadBkgColor $FE

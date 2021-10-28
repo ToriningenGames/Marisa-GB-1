@@ -16,6 +16,20 @@
         ;Use for weird parameter passing, locals, temporaries, what have you
       ;32: Current map data pointer
         ;Used in unusual transitions to check Marisa's origin (since one could enter the map from another angle)
+      
+      ;122: Met Reimu (boolean)
+      ;123: Beat Narumi (boolean)
+      ;124: Shroom A
+        ;0: Ground
+        ;1: Collected
+        ;2: Fed
+      ;125: Shroom B (ditto)
+      ;126: Shroom C (ditto)
+      ;127: Present world state
+        ;0: Marisa hasn't switched maps (thus intro music still playing)
+        ;1: General play
+        ;2: Marisa is fighting Narumi
+        ;3: Marisa reached an ending
 ;$C080 - $C08F:
     ;Button data area
 ;$C090 - $C09E:
