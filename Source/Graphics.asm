@@ -7,24 +7,20 @@ Tiledata:
 
 .SECTION "Facedata" FREE
 FacesList:
- .dw Alice1,  Alice2,  Alice1,  Alice1
- .dw Marisa1, Marisa2, Marisa3, Marisa1
+ .dw Alice1,  Alice1,  Alice1,  Alice1
+ .dw Marisa1, Marisa2, Marisa1, Marisa2
  .dw Reimu1
 Alice1:
 .incbin "rsc/Alice1.lzc"
-Alice2:
-.incbin "rsc/Alice2.lzc"
 Marisa1:
 .incbin "rsc/Marisa1.lzc"
 Marisa2:
 .incbin "rsc/Marisa2.lzc"
-Marisa3:
-.incbin "rsc/Marisa3.lzc"
 Reimu1:
 .incbin "rsc/Reimu1.lzc"
 .ENDS
 
-;List
+;(Former) List
 ;Alice Smile
 ;Alice Concern
 ;Alice Angry
@@ -42,11 +38,35 @@ Reimu1:
 ;Marisa Catlike
 ;Marisa Tired
 ;Marisa Displeased
-;Marisa Agressive
+;Marisa Aggressive
 ;Null x5
-;Reimu Neutral
+;Reimu Pleased
 ;Reimu Interested
-;Reimu Unamused
+;Reimu Neutral
 ;Reimu Angry
 ;Null x12
 
+;New list:
+;Marisa Smug
+;Marisa Catlike
+;Marisa Displeased
+;Marisa Interested
+;Marisa Shocked
+;Marisa Tired
+;Marisa Aggressive
+;Marisa Worried
+
+;Narumi Normal
+;Narumi Inquisitive
+;Narumi Fired up
+;Narumi Dying
+
+;Reimu Pleased
+;Reimu Interested
+;Reimu Neutral
+;Reimu Sick
+
+;Alice Smile
+;Alice Concern
+;Alice Angry
+;Alice Shineless
