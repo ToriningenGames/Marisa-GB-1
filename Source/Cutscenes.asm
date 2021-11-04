@@ -533,26 +533,83 @@ Cs_CurvedTransitionB:
 
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
   CsLoadSong SongDoll
+  CsCall Cs_TransitionIn
+  ;Pan camera up to house
+  ;Pan down to Marisa
+  ;Text
+  ;Walk up to door
+  ;Door opens; Alice in doorway
+  ;Text
+  ;Marisa walks in, Alice leaves from doorway
+  ;Door close
+  ;Camera pans up, scene fades to white
+  ;Text?
   CsEnd
 
 ;Ending B (Escorted by Alice)
 Cs_EndingB:
   CsLoadSong SongDoll
+  ;Text
+  ;Marisa scoots to the side, Alice moves down
+  ;Marisa tails behind Alice
+  ;Alice moves right
+  ;Alice moves up
+  ;Fadeout
+  ;Map load (0,2), bottom entrance
+  ;Camera follows Alice
+  ;Fadein
+  ;Alice moves up
+  ;Camera stops at top of map (Alice stops at same time)
+  ;Text
+  ;Marisa moves around Alice to closer to house
+  ;Pause
+  ;Marisa faces Alice
+  ;Text
   CsLoadSong SongMagus
+  ;Text
+  ;Danmaku
+  ;Fade to black
+  ;Optional?
+  ;Map load (3,1), unique spot
+  ;Camera follows Marisa
+  ;Snap to color
+  ;Text
+  ;Play game
   CsEnd
 
 ;Ending C (Found Alice's house from the back)
 Cs_EndingC:
-  CsLoadSong SongRetrib
+  CsLoadSong SongDoll
   CsEnd
+;Bad insult lines:
+  ;I'm gonna hang you with your own apron!
+  ;Not if I garotte you with your own dollstrings first!
+  ;I'm gonna shove so much gunpowder down your throat, it explodes out your ass!
+  ;Not if I shove so many mushrooms down your throat, they sprout our your cro-
 
 ;Narumi Fight intro
 Cs_NarumiFightStart:
+  CsLoadSong SongSpark
   CsEnd
 
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
+  ;N: Ooohh... That fight... took most of my energy.
+  ;M: Noo! Don't die on me, damnit!
+  ;N: It's... It's OK... Marisa.
+  ;N: I'll just... revert to a... a statue for a while.
+  ;N: It's like... taking... a nap.
+  ;N: What was it... you were... looking for?
+  ;M: ...Alice! Where is Alice's house??
+  ;N: When... you leave... take... two...
+  ;N: ...
+  ;N: ...
+  ;M: ...Narumi... !
+  ;N: ...rights.
+  CsLoadSong SongNull
   CsEnd
 
 ;Feeding Reimu Shrooms
@@ -561,7 +618,7 @@ Cs_ReimuFeed:
 Cs_ReimuFull:
   CsEnd
 
-;Used for setting up the game
+;Debug loader
 Cs_LoadInit:
   CsLoadSong SongRetrib
   CsPanSong $FF,$AA

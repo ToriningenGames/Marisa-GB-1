@@ -107,43 +107,25 @@ StringOpeningMessage3:
 .ASC "HOUSE!", CtrlPause, CtrlClear
 .DB CtrlLower, CtrlEnd
 
-StringTestMessage:  ;missing up, right, corner; right and corner are done incidentally
-.DB CtrlSpeed,3, CtrlClear, CtrlRaise, CtrlFaceLoad,1,$10, CtrlFaceLoad,2,$05
-.ASC "WELCOME TO GAME!!",CtrlLine
-.ASC "*THERE'S NO SPACE",CtrlLine
-.ASC "FOR THE <THE\".",CtrlLine
-.DB CtrlPause, CtrlTab
-.ASC     "- SORRY."
-.DB CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel,CtrlDel
-.DB CtrlWait,15
-.DB CtrlSpeed,12
-.ASC "ANYWAYS..."
-.DB CtrlSpeed,3
-.ASC           " HI~+",CtrlLine
-.ASC "NOBODY KNOWS WHAT'S",CtrlLine
-.ASC "IN STORE."
-.DB CtrlWait,15, CtrlRet
-.ASC "GOING ON...="
-.DB CtrlWait,15, CtrlClear
-.ASC "THIS WORLD HAS NO",CtrlLine
-.ASC "COLOR.",CtrlLine, CtrlBorder,1, CtrlWait,5
-.ASC "WHAT DOES THAT MEAN?"
-.DB CtrlPause
-.ASC "ty",CtrlLeft,CtrlLeft,CtrlDown,"gh"
-.ASC   "  I HAVE A FACE."
-.DB CtrlWait,15, CtrlFaceShow,1, CtrlWait,15, CtrlClear, CtrlLine
-.ASC     "I CARE ABOUT YOU"
-.DB CtrlWait,30, CtrlClear, CtrlFaceShow,2, CtrlShake,$0F
-.DB CtrlLine,CtrlLine
-.ASC "BUT SHE DOESN'T!"
-.DB CtrlPause, CtrlFaceShow,0
-.ASC "JK LOL"
-.DB CtrlWait,5, CtrlClear
-.ASC "SERIOUSLY, THOUGH,", CtrlLine
-.ASC "WHAT KIND OF GAME", CtrlLine
-.ASC "ARE WE IN FOR?"
-.DB CtrlPause, CtrlLower
-.DB CtrlEnd
+StringNarumiEnd:
+.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlSpeed,4, CtrlClear, CtrlFaceShow,1, CtrlRaise
+.ASC "Ooohh... That fight... took most of my energy...", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2, CtrlSpeed,2
+.ASC "Noo! Don't die on me, damnit!", CtrlPause, CtrlClear 
+.DB CtrlFaceShow,1, CtrlSpeed,5
+.ASC "It's... It's OK... Marisa...", CtrlPause, CtrlLine
+.ASC "I'll just... revert to a... a statue for a while.", CtrlPause, CtrlLine
+.ASC "It's like... taking... a nap...", CtrlPause, CtrlClear, CtrlSpeed,7
+.ASC "What was it... you were... looking for?", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2, CtrlSpeed,2, CtrlWait,45
+.ASC "...Alice! Where is Alice's house??", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1, CtrlSpeed,8, CtrlFaceLoad,2,$00
+.ASC "When... you leave... take... two...", CtrlLine
+.ASC "...", CtrlLine, "..."
+.DB CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$00, CtrlSpeed,3
+.ASC "...Narumi...", CtrlWait,15, CtrlFaceShow,1, CtrlFaceLoad,2,$00, CtrlLine, "!", CtrlWait,10
+.ASC CtrlClear, CtrlFaceShow,2, "...rights.", CtrlPause,
+.DB CtrlLower
 
 ;Conversations:
 ;Things people say
