@@ -656,7 +656,7 @@ Cs_LoadInit:
   CsWait 1
   CsSetActorSpeed 1,0.9
   CsAnimSpeed 1,10
-  CsInputChange 1,$81   ;Playable
+  CsInputChange 1,$83   ;Playable
 Cs_None:
   CsEnd
 
@@ -698,7 +698,7 @@ Cs_Intro:
   CsWaitText
   CsSetActorSpeed 1,0.9
   CsAnimSpeed 1,10
-  CsInputChange 1,$81   ;Playable
+  CsInputChange 1,$83   ;Playable
   CsEnd
 
 ;Component Transitions
@@ -740,7 +740,7 @@ Cs_TransitionIn:
   CsMoveActorVar 20,1
   CsWait 37
   CsAnimateActorVar 1,1     ;Marisa, stand still
-  CsInputChange 1,$81
+  CsInputChange 1,$83
   CsSetVarVar 32,4
   CsSetVarVar 33,5
   CsEnd
@@ -757,7 +757,10 @@ Cs_ClearActorList:
 ;Things people say and do when you talk to them
 ;All must begin with a RET to prevent being called
 CsInt_Debug:
+  RET
   CsRunText StringTestInteraction
+  CsWaitText
+  CsInputChange 1,$83
   CsEnd
 
 .ENDS

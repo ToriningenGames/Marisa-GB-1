@@ -6,6 +6,8 @@
 .DEFINE HitboxStart     $C400
 .DEFINE HitboxEndPtr    $C0EC
 
+.DEFINE PlayerButtonBuf $C0E6
+
 .SECTION "Collision" FREE
 ;Hitbox memory format:
     ;2 bytes: X position (8.8)
@@ -281,7 +283,7 @@ NPCHitboxes:
  .dw DefaultHitboxAction
  .dw $0000,$0000
  .db $05,HitboxTalk
- .dw DefaultHitboxAction
+ .dw CsInt_Debug
 
 PlayerHitboxes:
  .db 2
@@ -289,7 +291,7 @@ PlayerHitboxes:
  .db $05,HitboxCollision
  .dw PlayerHitboxAction
  .dw $0000,$0000
- .db $01,HitboxTalk
+ .db $0C,HitboxTalk
  .dw PlayerTalkAction
  
 .ENDS
@@ -415,6 +417,49 @@ DefaultHitboxAction:
 
 PlayerTalkAction:
 ;If player has talking control, run the cutscene on the other hitbox
+  ;Only talk if freshly interacting
+  LDH A,($FE)
+  LD HL,PlayerButtonBuf
+  XOR (HL)
+  AND %00000001
+  RET z
+  ;Don't reevaluate this button press
+  LDH A,($FE)
+  LD (HL),A
+  ;Check if chara has control
+  LD A,_ControlState
+  ADD C
+  LD C,A
+  JR nc,+
+  INC B
++
+  LD A,(BC)
+  AND 2
+  RET z
+  ;Check if our argument is an interaction hitbox
+  LD HL,SP+4    ;Data frame
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  DEC HL
+  LDI A,(HL)
+  CP HitboxTalk    ;Hitbox type check
+  RET nz
+  ;Run opposing hitbox's cutscene
+  PUSH BC
+    INC HL
+    INC HL
+    LDI A,(HL)
+    LD D,(HL)
+    LD E,A
+    INC DE        ;Skip leading RET
+    LD BC,Cutscene_Task
+    CALL NewTask
+  POP BC
+  RET c ;If cutscene didn't start, don't worry about trying again next frame
+  LD A,(BC)
+  AND $FD
+  LD (BC),A
   RET
 
 .ENDS

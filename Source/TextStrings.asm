@@ -130,7 +130,7 @@ StringNarumiEnd:
 ;Conversations:
 ;Things people say
 StringTestInteraction:
-.DB CtrlSpeed,3, CtrlClear, CtrlRaise, CtrlFaceShow,0, CtrlBorder,0
-.ASC "HI!", CtrlPause
+.DB CtrlSpeed,3, CtrlClear, CtrlFaceShow,0, CtrlBorder,0, CtrlRaise, CtrlWait,30
+.ASC "HI!", CtrlWait,30, CtrlPause
 .DB CtrlLower, CtrlEnd
 .ENDS

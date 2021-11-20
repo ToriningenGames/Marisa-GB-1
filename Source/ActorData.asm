@@ -91,12 +91,12 @@
     ;+$14, size 2: Pointer to data for moving danmaku
     ;+$16, size 2: Function for moving danmaku
 
-;Control states:
-;0:   Cutscene control, locked camera
-;1:   Free existence,   locked camera
-;128: Cutscene control, free camera
-;129: Free existence,   free camera
-;255: Destruct
+;Control bit states:
+;%C00000TE
+; |     |+--- Free existence enable
+; |     +---- Interaction permitted
+; +---------- Free camera
+;$FF: Self Destruct
 
 ;Animation IDs:
 ;0:   Face Left

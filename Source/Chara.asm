@@ -43,6 +43,7 @@ CharaActorData:
  .dw _Animations
 
 CharaFrame:
+;Perform movement
   LDH A,($FE)
   LD C,A
   LD A,%00110000        ;L/R

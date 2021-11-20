@@ -43,7 +43,7 @@
 ;$C0E0 - $C0E5:
     ;Init and face extraction state space
 ;$C0E6:
-    ;Reserved
+    ;Player button buffer
 ;$C0E7:
     ;Text Face state
 ;$C0E8 - $C0E9:
