@@ -17,15 +17,15 @@
       ;32: Current map data pointer
         ;Used in unusual transitions to check Marisa's origin (since one could enter the map from another angle)
       
-      ;122: Met Reimu (boolean)
-      ;123: Beat Narumi (boolean)
-      ;124: Shroom A
+      ;116: Met Reimu (boolean)
+      ;118: Beat Narumi (boolean)
+      ;120: Shroom A
         ;0: Ground
         ;1: Collected
         ;2: Fed
-      ;125: Shroom B (ditto)
-      ;126: Shroom C (ditto)
-      ;127: Present world state
+      ;122: Shroom B (ditto)
+      ;124: Shroom C (ditto)
+      ;126: Present world state
         ;0: Marisa hasn't switched maps (thus intro music still playing)
         ;1: General play
         ;2: Marisa is fighting Narumi
@@ -596,6 +596,11 @@ LoadTitle:
 -
   LDI (HL),A
   DEC C
+  JR nz,-
+  LD HL,$C07F   ;Vars
+-
+  LD (HL),A
+  DEC L
   JR nz,-
 ;Now pausable
   LD BC,PauseTask

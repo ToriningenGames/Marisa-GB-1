@@ -71,7 +71,7 @@
  .dw 0
 .ENDM
 .MACRO CsEndVar ARGS var, check
- .IF NARGS >= 3
+ .IF NARGS >= 2
  .db $C0,var,check
  .ELSE
  .db $C0,var,0
@@ -442,12 +442,14 @@ Cs_MapFadein:
     ;Fade in
     ;Control
 Cs_StraightTransition:
-  CsEndVar 127,2        ;Can't leave if in Narumi fight
+  CsEndVar 126,2        ;Can't leave if in Narumi fight
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
-  CsJumpRelVar 127,0    ;Music change check
+  CsAddVar 126,-1
+  CsJumpRelVar 126,2    ;Music change check
   CsLoadSong SongSpark
-  CsSetVar 127,1
+  CsAddVar 126,1
+  CsAddVar 126,1
   CsJump Cs_TransitionIn
 
 ;Some of the non straight transitions
@@ -551,6 +553,7 @@ Cs_EndingA:
 
 ;Ending B (Escorted by Alice)
 Cs_EndingB:
+  RET
   CsLoadSong SongDoll
   ;Text
   ;Marisa scoots to the side, Alice moves down
