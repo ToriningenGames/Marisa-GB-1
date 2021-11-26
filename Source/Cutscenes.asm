@@ -34,12 +34,13 @@
 
 .include "mapDef.asm"
 
-.DEFINE CsChHat    0
-.DEFINE CsChMarisa 1
-.DEFINE CsChAlice  2
-.DEFINE CsChReimu  3
-.DEFINE CsChNarumi 4
-.DEFINE CsChFairy  5
+.DEFINE CsChHat      0
+.DEFINE CsChMarisa   1
+.DEFINE CsChAlice    2
+.DEFINE CsChReimu    3
+.DEFINE CsChNarumi   4
+.DEFINE CsChFairy    5
+.DEFINE CsChMushroom 6
 
 .DEFINE CsAnFaceLeft    0
 .DEFINE CsAnFaceDown    1
@@ -514,25 +515,6 @@ Cs_CurvedTransitionA:
   CsSetVar 21,CsDirUp*32
   CsJump Cs_TransitionIn
 
-Cs_CurvedTransitionB:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
-  ;Separate the map bytes for analysis
-  CsSetVar 23,0
-  CsSetVar 25,0
-  CsSetVarVar 22,32
-  CsSetVarVar 24,33
-  ;Check for exit from map 01 (to 11)
-  CsAddVar 22,(0-<MapForest01map) & $FF
-  CsAddVar 24,(0->MapForest01map) $ $FF
-  CsJumpRelVar 22,1
-  CsJump Cs_TransitionIn    ;Last check, always transition
-  CsJumpRelVar 24,1
-  CsJump Cs_TransitionIn    ;Last check, always transition
-  CsSetVar 1,CsDirDown      ;Go Down
-  CsSetVar 21,CsDirDown*32
-  CsJump Cs_TransitionIn
-
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
   CsCall Cs_TransitionOut
@@ -620,6 +602,68 @@ Cs_ReimuMeet:
 Cs_ReimuFeed:
 Cs_ReimuFull:
   CsEnd
+
+;Special loads for NPCs/Objects
+Cs_Forest30:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsNewActor 2,CsChMushroom,0
+  CsWait 2
+  CsAnimateActor 2,CsAnFaceDown
+  CsSetActor 2,10,10
+  CsJump Cs_TransitionIn
+
+Cs_Forest11:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  ;There's a shroom in the room
+  CsNewActor 2,CsChMushroom,0
+  CsWait 2
+  CsAnimateActor 2,CsAnFaceLeft
+  CsSetActor 2,10,10
+  ;Separate the map bytes for analysis
+  CsSetVar 23,0
+  CsSetVar 25,0
+  CsSetVarVar 22,32
+  CsSetVarVar 24,33
+  ;Check for exit from map 01 (to 11)
+  CsAddVar 22,(0-<MapForest01map) & $FF
+  CsAddVar 24,(0->MapForest01map) $ $FF
+  CsJumpRelVar 22,1
+  CsJump Cs_TransitionIn    ;Last check, always transition
+  CsJumpRelVar 24,1
+  CsJump Cs_TransitionIn    ;Last check, always transition
+  CsSetVar 1,CsDirDown      ;Go Down
+  CsSetVar 21,CsDirDown*32
+  CsJump Cs_TransitionIn
+
+Cs_Forest04:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsNewActor 2,CsChMushroom,0
+  CsWait 2
+  CsAnimateActor 2,CsAnFaceRight
+  CsSetActor 2,10,10
+  CsJump Cs_TransitionIn
+
+Cs_Forest00:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsNewActor 2,CsChReimu,0
+  CsWait 2
+  CsAnimateActor 2,CsAnFaceDown
+  CsSetActor 2,10,10
+  CsJump Cs_CurvedTransitionA+6
+
+Cs_Forest24:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsNewActor 2,CsChAlice,0
+  CsWait 2
+  CsAnimateActor 2,CsAnFaceDown
+  CsSetActor 2,$4D,$32
+  CsInputChange 2,2     ;Interactable
+  CsJump Cs_TransitionIn
 
 ;Debug loader
 Cs_LoadInit:

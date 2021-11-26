@@ -14,6 +14,7 @@
 .define WinHortScroll $CFAA
 .define FrameCount $CFAB
 .define SelOAMupdates $CFAC
+.DEFINE PlayerButtonBuf $C0E6
 
 .define TileDataBuffer $C0EE
 .define TileMapBuffer $C0F3
@@ -181,6 +182,8 @@ SquareTileSkip:
   LD (HL),D     ;Update important flag register
 ;ABC=?? D=$00, HL=OpControl
 
+  LDH A,($FE)   ;Update the read buffer
+  LD (PlayerButtonBuf),A
   LD C,D
   LD A,$10      ;Read controller directions (Bit 6 is zero)
   LD ($FF00+C),A

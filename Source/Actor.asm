@@ -244,24 +244,26 @@ Actor_Frame:
   LD HL,_AnimChange
   ADD HL,DE
   LD (HL),A
-  JR +++
+  JR +  
 ++++
   ;Did we just stop moving?
   LD HL,_LastFacing
   ADD HL,DE
   OR (HL)
-  JR z,+++      ;No anim change; skip even the check
+  JR z,+        ;No anim change; skip even the check
   ;Just stopped; stand in same direction
   SUB 4
   LD HL,_AnimChange
   ADD HL,DE
   LD (HL),A
   XOR A
-+++
++
+  ;Safe if player control (value doesn't change)
+  ;Changes value to 0 if cutscene control (aka as if not moving)
+  ;so if player is holding a direction, chara doesn't slide once cutscene ends
   LD HL,_LastFacing
   ADD HL,DE
   LD (HL),A
-+
   ;Animation check
   LD A,$FF
   LD HL,_AnimChange

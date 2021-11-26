@@ -43,7 +43,7 @@ LIB0 = $(addprefix lib\,\
 	Reimu.lib Narumi.lib Alice.lib Fairy.lib Pause.lib Effects.lib SinCos.lib \
 	TextStrings.lib Text.lib Hitboxes.lib CutsceneCode.lib)
 LIB1 = $(addprefix lib\,\
-	Maps.lib Songs.lib Cutscenes.lib)
+	Maps.lib Songs.lib Cutscenes.lib Mushroom.lib)
 LINK = Link.link
 OBJ = $(addprefix obj\,Assemble.obj vBlank2.obj)
 SUPP = rsc\TileData.lzc

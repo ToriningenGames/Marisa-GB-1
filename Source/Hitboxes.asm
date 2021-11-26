@@ -423,9 +423,6 @@ PlayerTalkAction:
   XOR (HL)
   AND %00000001
   RET z
-  ;Don't reevaluate this button press
-  LDH A,($FE)
-  LD (HL),A
   ;Check if chara has control
   LD A,_ControlState
   ADD C

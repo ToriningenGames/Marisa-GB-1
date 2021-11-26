@@ -116,6 +116,7 @@ CharaTypes:
  .dw ReimuActorData
  .dw NarumiActorData
  .dw FairyActorData
+ .dw MushroomActorData
 
 .DEFINE Cutscene_Actors $C0A0
 .EXPORT Cutscene_Actors

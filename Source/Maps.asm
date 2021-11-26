@@ -193,7 +193,7 @@ MapForestN23:
 .db   0 +8,   0 +16     ;up side start
 .db   0 +8,   0 +16     ;left side start
 .db  56 +8, 152 +16     ;down side start
-.dw Cs_StraightTransition
+.dw Cs_NarumiFightStart
 MapForestN13:
 .db 0
 .dw MapForestN13map
@@ -211,7 +211,7 @@ MapForest00:
 .db   0 +8,   0 +16
 .db  81 +8, 115 +16
 .db 116 +8, 144 +16
-.dw Cs_CurvedTransitionA
+.dw Cs_Forest00
 MapForest01:
 .db 3
 .dw MapForest01map
@@ -247,7 +247,7 @@ MapForest04:
 .db   0 +8,   0 +16
 .db -10 +8,  70 +16
 .db  64 +8, 178 +16
-.dw Cs_StraightTransition
+.dw Cs_Forest04
 MapForest10:
 .db 1
 .dw MapForest10map
@@ -265,7 +265,7 @@ MapForest11:
 .db 114 +8, -10 +16
 .db   0 +8,   0 +16
 .db 125 +8, 218 +16
-.dw Cs_CurvedTransitionB
+.dw Cs_Forest11
 MapForest12:
 .db 1
 .dw MapForest12map
@@ -337,7 +337,7 @@ MapForest24:
 .db 204 +8, -10 +16
 .db -10 +8, 125 +16
 .db   0 +8,   0 +16
-.dw Cs_CurvedTransitionA
+.dw Cs_Forest24
 MapForest30:
 .db 1
 .dw MapForest30map
@@ -346,7 +346,7 @@ MapForest30:
 .db   0 +8,   0 +16
 .db   0 +8,   0 +16
 .db  70 +8, 154 +16
-.dw Cs_StraightTransition
+.dw Cs_Forest30
 MapForest31:
 .db 0
 .dw MapForest31map
