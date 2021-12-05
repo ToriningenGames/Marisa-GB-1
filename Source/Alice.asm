@@ -7,7 +7,7 @@
 AliceActorData:
  .db $10
  .dw $0100
- .dw NPCHitboxes
+ .dw AliceHitboxes
  .dw AliceFrame
  .dw _HatValues
  .dw _Animations

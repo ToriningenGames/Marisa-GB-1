@@ -443,7 +443,6 @@ Cs_MapFadein:
     ;Fade in
     ;Control
 Cs_StraightTransition:
-  CsEndVar 126,2        ;Can't leave if in Narumi fight
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
   CsAddVar 126,-1
@@ -536,33 +535,49 @@ Cs_EndingA:
 ;Ending B (Escorted by Alice)
 Cs_EndingB:
   RET
+  ;Marisa, Alice, don't move anymore, and no camera tracking
+  CsInputChange 1,0
+  CsInputChange 2,0
+  CsRunText StringAliceEscort1
+  CsWaitText
   CsLoadSong SongDoll
-  ;Text
   ;Marisa scoots to the side, Alice moves down
+  
   ;Marisa tails behind Alice
+  
   ;Alice moves right
+  
   ;Alice moves up
-  ;Fadeout
-  ;Map load (0,2), bottom entrance
+  
+  CsCall Cs_MapFadeout
+  CsLoadMap MapForestBKG01
+  CsWaitMap
+  CsLoadMap MapForest02map
+  ;Bottom entrance
+  CsWaitMap
   ;Camera follows Alice
-  ;Fadein
+  
+  CsCall Cs_MapFadein
   ;Alice moves up
+  
   ;Camera stops at top of map (Alice stops at same time)
-  ;Text
+  
+  CsRunText StringAliceEscort2
+  CsWaitText
   ;Marisa moves around Alice to closer to house
-  ;Pause
+  
+  CsWait 10
   ;Marisa faces Alice
-  ;Text
+  CsAnimateActor 1,CsAnFaceDown
+  CsRunText StringAliceEscort3
+  CsWaitText
   CsLoadSong SongMagus
-  ;Text
+  CsRunText StringAliceEscort4
+  CsWaitText
   ;Danmaku
+  
   ;Fade to black
-  ;Optional?
-  ;Map load (3,1), unique spot
-  ;Camera follows Marisa
-  ;Snap to color
-  ;Text
-  ;Play game
+  CsCall Cs_MapFadeout
   CsEnd
 
 ;Ending C (Found Alice's house from the back)
@@ -703,7 +718,7 @@ Cs_LoadInit:
   CsWait 1
   CsSetActorSpeed 1,0.9
   CsAnimSpeed 1,10
-  CsInputChange 1,$83   ;Playable
+  CsInputChange 1,$87   ;Playable
 Cs_None:
   CsEnd
 
@@ -745,7 +760,7 @@ Cs_Intro:
   CsWaitText
   CsSetActorSpeed 1,0.9
   CsAnimSpeed 1,10
-  CsInputChange 1,$83   ;Playable
+  CsInputChange 1,$87   ;Playable
   CsEnd
 
 ;Component Transitions
@@ -802,12 +817,12 @@ Cs_ClearActorList:
 
 ;Interations
 ;Things people say and do when you talk to them
-;All must begin with a RET to prevent being called
+;All must begin with a RET to prevent being called (since they're put in function contexts)
 CsInt_Debug:
   RET
   CsRunText StringTestInteraction
   CsWaitText
-  CsInputChange 1,$83
+  CsInputChange 1,$87
   CsEnd
 
 .ENDS

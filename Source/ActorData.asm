@@ -92,9 +92,10 @@
     ;+$16, size 2: Function for moving danmaku
 
 ;Control bit states:
-;%C00000TE
-; |     |+--- Free existence enable
-; |     +---- Interaction permitted
+;%C0000OTE
+; |    ||+--- Free existence enable
+; |    |+---- Interaction permitted
+; |    +----- Can exit room
 ; +---------- Free camera
 ;$FF: Self Destruct
 

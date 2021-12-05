@@ -95,6 +95,7 @@
 
 .EXPORT TextData
 .EXPORT TextStatus
+.EXPORT TextSize
 
 .MACRO LoadVRAMptA ARGS width, height
   LD HL,_vRAMBuf
@@ -166,32 +167,8 @@ TextStart:
 ;Declare status
   LD HL,TextStatus
   LD (HL),textStatus_typing
-;Clear FaceState
-  XOR A
-  LD (FaceState),A
-;Setting up window for testing
-;Clear text
-  LD A,$30  ;Space
-  LD HL,TextData
-  LD C,TextSize
--
-  LDI (HL),A
-  DEC C
-  JR nz,-
-  LD BC,LoadToVRAM_Task
-  LD A,1
-  PUSH DE
-  LD DE,(>TextData)<<8 | $9C
-  CALL NewTask
-  LD HL,LCDControl      ;Turn on window
-  SET 5,(HL)
-;Put window in right spot
-  LD HL,WinHortScroll
-  LD (HL),7
-  LD HL,WinVertScroll
-  LD (HL),WinYLowered
-
-  POP BC    ;Text string
+  LD B,D    ;Text string
+  LD C,E
 
 ;Variables needed:
     ;Speed

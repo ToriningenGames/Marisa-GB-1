@@ -60,10 +60,10 @@
     ;Memory ring starting point
 ;$C0FD,$C0FE,$C0FF
     ;Storage place for tea while working.
-;$C100 - $C19F:
-    ;Text Data
-;$C1A0 - $C3FF:
-    ;Free
+;$C100 - $C19F:   |||                |||
+    ;Text Data    |||                |||
+;$C1A0 - $C3FF:   |||                |||
+    ;Free         |||                |||
 ;$C400 - $CCFF: Initial decompression zone
 ;$C400 - $C8FF    |||    Overlaps    |||
     ;Hitbox data  |||                |||
@@ -584,8 +584,31 @@ GraphicsInit:
   LD DE,$C180   ;Copy first half a kilobyte
   LD A,2
   CALL NewTask
+  LD A,B
+  CALL WaitOnTask
+;Setting up text window intially
+;Clear text area
+  LD A,$30  ;Space
+  LD HL,TextData
+  LD C,TextSize
+-
+  LDI (HL),A
+  DEC C
+  JR nz,-
+  LD BC,LoadToVRAM_Task
+  LD A,1
+  LD DE,(>TextData)<<8 | $9C
+  CALL NewTask
+;Clear FaceState
+  XOR A
+  LD (FaceState),A
+;Put window in right spot
+  LD HL,WinHortScroll
+  LD (HL),7
+  LD HL,WinVertScroll
+  LD (HL),144           ;WinYLowered
   LD HL,LCDControl
-  LD (HL),%11000011 ;BKG ON @ $98, WIN OFF @ $9C, SPR ON & 8x8, BKG TILE @ $88
+  LD (HL),%11100011 ;BKG ON @ $98, WIN ON @ $9C, SPR ON & 8x8, BKG TILE @ $88
   JP EndTask
 
 LoadTitle:

@@ -293,6 +293,15 @@ PlayerHitboxes:
  .dw $0000,$0000
  .db $0C,HitboxTalk
  .dw PlayerTalkAction
+
+AliceHitboxes:
+ .db 2
+ .dw $0000,$0000
+ .db $03,HitboxCollision
+ .dw DefaultHitboxAction
+ .dw $0000,$0000
+ .db $05,HitboxTalk
+ .dw Cs_EndingB
  
 .ENDS
 

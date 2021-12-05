@@ -25,7 +25,13 @@ ExitCheck_Task:
   OR A
   RET z     ;No go if no Marisa
   CALL Access_ActorDE
-  LD DE,_MasterY+1
+  ;No go if no exit set
+  LD DE,_ControlState
+  ADD HL,DE
+  LD A,(HL)
+  AND $04
+  RET z
+  LD DE,_MasterY+1-_ControlState
   ADD HL,DE
   LD A,(HL)
   SUB 16

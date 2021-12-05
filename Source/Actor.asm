@@ -258,7 +258,8 @@ Actor_Frame:
   LD (HL),A
   XOR A
 +
-  ;Safe if player control (value doesn't change)
+  ;Always update last facing
+  ;Safe if player control (value doesn't change if not updated)
   ;Changes value to 0 if cutscene control (aka as if not moving)
   ;so if player is holding a direction, chara doesn't slide once cutscene ends
   LD HL,_LastFacing
