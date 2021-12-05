@@ -3,4 +3,5 @@ lib\Graphics.lib: .\Source/Graphics.asm \
 	rsc\Alice1.lzc \
 	rsc\Marisa1.lzc \
 	rsc\Marisa2.lzc \
-	rsc\Reimu1.lzc
+	rsc\Reimu1.lzc \
+	rsc\Narumi1.lzc
