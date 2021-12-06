@@ -269,43 +269,6 @@ Text_Shake_Task:
   LD D,A
   JR nc,-
   JP EndTask
-  
-;Old method
-  ;WinX += -C
-  ;for (C *= 2; C; C--)
-    ;for (i = 0; i < C; i++) WinX++, delay
-    ;C--
-    ;for (i = 0; i < C; i++) WinX--, delay
-  LD C,16   ;C*2 as above
-  LD (HL),0 ;Initial (-8 because of window's offset)
-  LD D,C    ;i as above
-Text_Shake_Task_Loop:
-  LD D,C
--
-  LD A,B
---
-  CALL HaltTask
-  DEC A
-  JR nz,--
-  LD HL,WinHortScroll
-  INC (HL)
-  DEC D
-  JR nz,-
-  DEC C
-  LD D,C
--
-  LD A,B
---
-  CALL HaltTask
-  DEC A
-  JR nz,--
-  LD HL,WinHortScroll
-  DEC (HL)
-  DEC D
-  JR nz,-
-  DEC C
-  JR nz,Text_Shake_Task_Loop
-  JP EndTask
 
 Text_EndOfText:
   ;Escape this prison!
