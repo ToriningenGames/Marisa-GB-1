@@ -38,12 +38,12 @@ vpath %.obj.d .\Submakes\obj
 vpath %.lib.d .\Submakes\lib
 
 LIB0 = $(addprefix lib\,\
-	Task.lib OAM2.lib Actor.lib Face.lib Sound.lib Memory.lib \
+	Task.lib OAM2.lib Actor.lib Face.lib Sound.lib Memory.lib MapSupport.lib \
 	LCD_IRQ_Assist.lib Extract.lib Chara.lib Exits.lib Camera.lib Graphics.lib \
 	Reimu.lib Narumi.lib Alice.lib Fairy.lib Pause.lib Effects.lib SinCos.lib \
-	TextStrings.lib Text.lib Hitboxes.lib CutsceneCode.lib)
+	TextStrings.lib Text.lib Hitboxes.lib CutsceneCode.lib Mushroom.lib)
 LIB1 = $(addprefix lib\,\
-	Maps.lib Songs.lib Cutscenes.lib Mushroom.lib)
+	Maps.lib Songs.lib Cutscenes.lib)
 LINK = Link.link
 OBJ = $(addprefix obj\,Assemble.obj vBlank2.obj)
 SUPP = rsc\TileData.lzc
