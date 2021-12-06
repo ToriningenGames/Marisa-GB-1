@@ -276,6 +276,12 @@ DefaultHitboxes:
  .db $03,HitboxNone
  .dw DefaultHitboxAction
 
+NarumiHitboxes:
+ .db 1
+ .dw $0000,$0000
+ .db $05,HitboxCollision
+ .dw DefaultHitboxAction
+
 NPCHitboxes:
  .db 2
  .dw $0000,$0000

@@ -9,7 +9,7 @@
 NarumiActorData:
  .db $10
  .dw $0100
- .dw DefaultHitboxes
+ .dw NarumiHitboxes
  .dw NarumiFrame
  .dw _HatValues
  .dw _Animations
