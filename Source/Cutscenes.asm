@@ -596,6 +596,7 @@ Cs_NarumiFightStart:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
   CsLoadSong SongNull   ;No song plays if the fight is finished
+  CsSetVar 126,0        ;Change music on exit
   CsNewActor 2,CsChNarumi,0
   CsWait 2
   CsSetActor 2,56,72
@@ -616,7 +617,6 @@ Cs_NarumiFightEnd:
   CsLoadSong SongDoll
   CsRunText StringNarumiEnd
   CsWaitText
-  CsSetVar 126,0        ;Change music on exit
   CsSetVar 118,1        ;Narumi is beaten
   CsInputChange 1,$87   ;Marisa may leave
   CsEnd
