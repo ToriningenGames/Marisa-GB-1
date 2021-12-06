@@ -76,7 +76,7 @@ MAP "h" = $7F
     
     ;"0123456789ABCD"
 StringOpeningMessage1:
-.DB CtrlFaceLoad,1,$03, CtrlFaceLoad,2,$01, CtrlBorder,1, CtrlSpeed,2, CtrlClear, CtrlFaceShow,1, CtrlRaise
+.DB CtrlFaceLoad,1,$03, CtrlFaceLoad,2,$01, CtrlBorder,0, CtrlSpeed,2, CtrlFaceShow,1, CtrlClear, CtrlRaise
 .ASC "ALL THAT", CtrlLine
 .ASC "RUCKUS OVER A", CtrlLine
 .ASC "FEW LITTLE", CtrlLine
@@ -95,51 +95,64 @@ StringOpeningMessage2:
 .ASC "...I HAVE NO", CtrlLine
 .ASC "IDEA WHERE", CtrlLine
 .ASC "SHE LIVES.", CtrlPause
-.DB CtrlFaceShow,0, CtrlClear, CtrlWait,90, CtrlFaceShow,2, CtrlCorner, CtrlFaceLoad,1,$06, CtrlRaise
+.DB CtrlFaceShow,0, CtrlClear, CtrlWait,90, CtrlFaceShow,2, CtrlCorner, CtrlFaceLoad,1,$06
 .ASC "THERE'S ONLY", CtrlLine
 .ASC "ONE THING", CtrlLine
 .ASC "I CAN DO...", CtrlPause, CtrlClear
 .DB CtrlEnd
 StringOpeningMessage3:
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow,1, CtrlCorner
 .ASC "FIND", CtrlLine
 .ASC "ALICE'S", CtrlLine
 .ASC "HOUSE!", CtrlPause, CtrlClear
 .DB CtrlLower, CtrlEnd
 
+StringNarumiStart1:
+.DB CtrlFaceLoad,1,$12, CtrlFaceLoad,2,$11, CtrlFaceShow,1, CtrlClear, CtrlBorder,1, CtrlRaise
+.ASC "TEXT", CtrlPause
+.DB CtrlEnd
+StringNarumiStart2:
+.DB CtrlFaceShow,2, CtrlClear
+.ASC "MORE TEXT", CtrlPause
+.DB CtrlLower, CtrlEnd
+
 StringNarumiEnd:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlSpeed,4, CtrlClear, CtrlFaceShow,1, CtrlRaise
-.ASC "OOOHH... THAT FIGHT", CtrlLine
-.ASC "... TOOK MOST OF MY", CtrlLine
-.ASC "ENERGY...", CtrlPause, CtrlClear
+.DB CtrlFaceLoad,1,$13, CtrlFaceLoad,2,$04, CtrlSpeed,4, CtrlFaceShow,1, CtrlClear, CtrlRaise
+.ASC "OOOHH...", CtrlLine
+.ASC "THAT FIGHT...", CtrlLine
+.ASC "TOOK MOST OF", CtrlLine
+.ASC "MY ENERGY...", CtrlPause, CtrlClear
 .DB CtrlFaceShow,2, CtrlSpeed,2
-.ASC "NOO! DON'T DIE ON ME", CtrlLine
-.ASC "DAMNIT!", CtrlPause, CtrlClear 
-.DB CtrlFaceShow,1, CtrlSpeed,5
-.ASC "IT'S... IT'S OK...", CtrlLine
+.ASC "NOO!", CtrlLine
+.ASC "DON'T DIE", CtrlLine
+.ASC "ON ME, DAMNIT!", CtrlPause, CtrlClear 
+.DB CtrlFaceShow,1, CtrlSpeed,7
+.ASC "IT'S...", CtrlLine
+.ASC "IT'S OK...", CtrlLine
 .ASC "MARISA...", CtrlPause, CtrlClear
-.ASC "I'LL JUST... REVERT", CtrlLine
-.ASC "TO A... A STATUE", CtrlLine
+.ASC "I'LL JUST...", CtrlLine
+.ASC "REVERT TO A...", CtrlLine
+.ASC "A STATUE...", CtrlLine
 .ASC "FOR A WHILE.", CtrlPause, CtrlClear
 .ASC "IT'S LIKE...", CtrlLine
 .ASC "TAKING...", CtrlLine
-.ASC "A NAP...", CtrlPause, CtrlClear, CtrlSpeed,7
+.ASC "A NAP...", CtrlPause, CtrlClear, CtrlSpeed,8
 .ASC "WHAT WAS IT...", CtrlLine
 .ASC "YOU WERE...", CtrlLine
 .ASC "LOOKING FOR?", CtrlPause, CtrlClear
 .DB CtrlFaceShow,2, CtrlSpeed,2, CtrlWait,45
 .ASC "...ALICE!", CtrlLine
-.ASC "WHERE IS ALICE'S", CtrlLine
-.ASC "HOUSE??", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1, CtrlSpeed,8, CtrlFaceLoad,2,$00
+.ASC "WHERE IS", CtrlLine
+.ASC "HER HOUSE??", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1, CtrlSpeed,13, CtrlFaceLoad,2,$07
 .ASC "WHEN...", CtrlLine
 .ASC "YOU LEAVE...", CtrlLine
-.ASC "TAKE... TWO...", CtrlWait,30, CtrlClear
-.ASC "...", CtrlLine, "..."
-.DB CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$00, CtrlSpeed,3
-.ASC "...NARUMI...", CtrlWait,15, CtrlFaceShow,1, CtrlFaceLoad,2,$00, CtrlLine, "!", CtrlWait,10
+.ASC "TAKE... TWO...", CtrlWait,80, CtrlClear
+.ASC "...", CtrlLine, CtrlWait,40, "...", CtrlPause
+.DB CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$04, CtrlSpeed,5
+.ASC "...NARUMI...", CtrlWait,70, CtrlFaceShow,1, CtrlFaceLoad,2,$13, CtrlLine, "!", CtrlPause, CtrlSpeed,7
 .ASC CtrlClear, CtrlFaceShow,2, "...RIGHTS.", CtrlPause,
-.DB CtrlLower
+.DB CtrlLower, CtrlEnd
 
 StringAliceEscort1:
 .DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlSpeed,4, CtrlFaceShow,1, CtrlClear

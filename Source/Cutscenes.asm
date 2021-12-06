@@ -442,14 +442,15 @@ Cs_MapFadein:
         ;Direction in var 1
     ;Fade in
     ;Control
+Cs_MusicCheck:
+  CsEndVar 126,1
+  CsLoadSong SongRetrib
+  CsSetVar 126,1
+  CsEnd
 Cs_StraightTransition:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
-  CsAddVar 126,-1
-  CsJumpRelVar 126,2    ;Music change check
-  CsLoadSong SongSpark
-  CsAddVar 126,1
-  CsAddVar 126,1
+  CsCall Cs_MusicCheck
   CsJump Cs_TransitionIn
 
 ;Some of the non straight transitions
@@ -592,24 +593,32 @@ Cs_EndingC:
 
 ;Narumi Fight intro
 Cs_NarumiFightStart:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsLoadSong SongNull   ;No song plays if the fight is finished
+  CsNewActor 2,CsChNarumi,0
+  CsWait 2
+  CsSetActor 2,56,72
+  CsAnimateActor 2,CsAnFaceDown
+  CsCall Cs_TransitionIn
+  CsInputChange 1,$87
+  CsEndVar 118,1        ;No text etc if the fight already happened
+  CsInputChange 1,$80   ;Camera follow, but sit still
+  CsRunText StringNarumiStart1
+  CsWaitText
   CsLoadSong SongSpark
-  CsEnd
+  CsRunText StringNarumiStart2
+  CsWaitText
+;  CsEnd
 
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
-  ;N: Ooohh... That fight... took most of my energy.
-  ;M: Noo! Don't die on me, damnit!
-  ;N: It's... It's OK... Marisa.
-  ;N: I'll just... revert to a... a statue for a while.
-  ;N: It's like... taking... a nap.
-  ;N: What was it... you were... looking for?
-  ;M: ...Alice! Where is Alice's house??
-  ;N: When... you leave... take... two...
-  ;N: ...
-  ;N: ...
-  ;M: ...Narumi... !
-  ;N: ...rights.
-  CsLoadSong SongNull
+  CsLoadSong SongDoll
+  CsRunText StringNarumiEnd
+  CsWaitText
+  CsSetVar 126,0        ;Change music on exit
+  CsSetVar 118,1        ;Narumi is beaten
+  CsInputChange 1,$87   ;Marisa may leave
   CsEnd
 
 ;Feeding Reimu Shrooms
@@ -619,6 +628,7 @@ Cs_ReimuFull:
   CsEnd
 
 ;Special loads for NPCs/Objects
+;Shroom room
 Cs_Forest30:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
@@ -628,6 +638,7 @@ Cs_Forest30:
   CsSetActor 2,10,10
   CsJump Cs_TransitionIn
 
+;Shroom room
 Cs_Forest11:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
@@ -652,6 +663,7 @@ Cs_Forest11:
   CsSetVar 21,CsDirDown*32
   CsJump Cs_TransitionIn
 
+;Shroom room
 Cs_Forest04:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
@@ -661,6 +673,7 @@ Cs_Forest04:
   CsSetActor 2,10,10
   CsJump Cs_TransitionIn
 
+;Reimu room
 Cs_Forest00:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
@@ -670,6 +683,7 @@ Cs_Forest00:
   CsSetActor 2,10,10
   CsJump Cs_CurvedTransitionA+6
 
+;Alice room
 Cs_Forest24:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
@@ -679,48 +693,6 @@ Cs_Forest24:
   CsSetActor 2,$4D,$32
   CsInputChange 2,2     ;Interactable
   CsJump Cs_TransitionIn
-
-;Debug loader
-Cs_LoadInit:
-  CsLoadSong SongRetrib
-  CsPanSong $FF,$AA
-  CsWait 45
-  CsLoadBkgColor $FE
-  CsWait 45
-  CsLoadBkgColor $FF
-  CsLoadObjColor $FF,$FF
-  CsWait 45
-  CsSetCamera 24,0
-  CsLoadMap MapForestBKG03
-  CsNewActor 0,CsChHat,0
-  CsNewActor 1,CsChMarisa,0
-  CsNewActor 2,CsChAlice,0
-  CsNewActor 3,CsChNarumi,0
-  CsNewActor 4,CsChReimu,0
-  CsWait 2
-  CsInputChange 1,0     ;Cutscene control of Marisa
-  CsInputChange 2,2     ;Alice, stay still
-  CsInputChange 3,2
-  CsInputChange 4,2
-  CsAnimateActor 1,CsAnFaceDown
-  CsAnimateActor 2,CsAnFaceDown
-  CsAssignHat 0,1
-  CsWaitMap
-  CsLoadMap MapForest23map
-  CsSetActor 1,130,70
-  CsSetActor 2,80,55
-  CsSetActor 3,95,55
-  CsSetActor 4,110,55
-  CsWaitMap
-  CsLoadObj MapForest23obj
-  CsInputChange 1,$80   ;Camera follow
-  CsCall Cs_MapFadein
-  CsWait 1
-  CsSetActorSpeed 1,0.9
-  CsAnimSpeed 1,10
-  CsInputChange 1,$87   ;Playable
-Cs_None:
-  CsEnd
 
 ;New setup
 Cs_Intro:
@@ -802,7 +774,7 @@ Cs_TransitionIn:
   CsMoveActorVar 20,1
   CsWait 37
   CsAnimateActorVar 1,1     ;Marisa, stand still
-  CsInputChange 1,$83
+  CsInputChange 1,$87
   CsSetVarVar 32,4
   CsSetVarVar 33,5
   CsEnd
