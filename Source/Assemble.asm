@@ -25,11 +25,7 @@
         ;2: Fed
       ;122: Shroom B (ditto)
       ;124: Shroom C (ditto)
-      ;126: Present world state
-        ;0: Marisa hasn't switched maps (thus intro music still playing)
-        ;1: General play
-        ;2: Marisa is fighting Narumi
-        ;3: Marisa reached an ending
+      ;126: Maintain Music between rooms (boolean)
 ;$C080 - $C08F:
     ;Button data area
 ;$C090 - $C09E:
@@ -62,7 +58,9 @@
     ;Storage place for tea while working.
 ;$C100 - $C19F:   |||                |||
     ;Text Data    |||                |||
-;$C1A0 - $C3FF:   |||                |||
+;$C1A0 - $C1A9:   |||                |||
+    ;Text Control |||                |||
+;$C1AA - $C3FF:   |||                |||
     ;Free         |||                |||
 ;$C400 - $CCFF: Initial decompression zone
 ;$C400 - $C8FF    |||    Overlaps    |||
@@ -632,7 +630,7 @@ LoadTitle:
   LD BC,Camera_Task
   CALL NewTaskLo
 ;Play opening cutscene
-  LD DE,Cs_LoadInit
+  LD DE,Cs_Intro        ;Cs_LoadInit
   LD BC,Cutscene_Task
   CALL NewTask
 ;Wait for cutscene to finish, so Marisa is initialized
