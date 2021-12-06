@@ -78,13 +78,11 @@
 .DEFINE WinYRaised  144 - 8 * 5
 .DEFINE WinYLowered 144
 .DEFINE TextStatus  $C0EA
-;Dynamic memory format:
-.define _textSource 0   ;+$00: Source   (Only save this if you have to!)
-.define _textCurPos 2   ;+$02: Cursor Position
-.define _textDelay  3   ;+$03: Frame delay
-.define _vRAMBuf    4   ;+$04: Buffer for vRAM copy function
-;+$0A
-;+$20: OOB
+;Control memory format:
+.define TextSource $C1A0   ;Source   (Only save this if you have to!)
+.define TextCurPos $C1A2   ;Cursor Position
+.define TextDelay  $C1A3   ;Frame delay
+.define VRAMBuf    $C1A4   ;Buffer for vRAM copy function
 
 .DEFINE BlinkerSpot TextData+4*32+19
 
@@ -98,8 +96,7 @@
 .EXPORT TextSize
 
 .MACRO LoadVRAMptA ARGS width, height
-  LD HL,_vRAMBuf
-  ADD HL,DE
+  LD HL,VRAMBuf
   PUSH DE
   LD D,H
   LD E,L
@@ -119,8 +116,7 @@
   POP DE
 .ENDM
 .MACRO LoadVRAM ARGS width, height, point
-  LD HL,_vRAMBuf
-  ADD HL,DE
+  LD HL,VRAMBuf
   PUSH DE
   LD D,H
   LD E,L
@@ -177,23 +173,12 @@ TextStart:
     ;Source
     ;Facedata
 ;BC-> source
-;DE-> Allocated memory
 ;HL== temp
-;Getting dynamic memory
-  CALL MemAlloc
-;Shall Face code take a pointer like this? Any need?
-  LD HL,_textCurPos
-  ADD HL,DE
-  LD (HL),<TextData + 33
-  INC HL
-  LD (HL),1 ;Delay
   
 TextProcessLoop:
 ;Processing delay
 ;Implements text speed
-  LD HL,_textDelay
-  ADD HL,DE
-  LD A,(HL)
+  LD A,(TextDelay)
 _textWaitLoop:   ;Multiple entrys, in case something had to wait
   CALL HaltTask
   DEC A
@@ -225,8 +210,7 @@ TextProcessControlReturn:
   JP HL
 +
 ;Normal character
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD L,(HL)
   LD H,>TextData
   LD (HL),A
@@ -325,7 +309,6 @@ Text_Shake_Task_Loop:
 
 Text_EndOfText:
   ;Escape this prison!
-  CALL MemFree
   POP HL    ;Return address
   LD HL,TextStatus  ;Update status
   LD (HL),textStatus_done
@@ -342,9 +325,7 @@ Text_ReturnToCorner:
   JR z,+
   LD A,$25  ;For face
 +
-  LD HL,_textCurPos
-  ADD HL,DE
-  LD (HL),A
+  LD (TextCurPos),A
   RET
 
 Text_LowerWindow:
@@ -417,8 +398,7 @@ Text_RaiseWindow:
   JP TextProcessControlReturn
 
 Text_MoveUp:            ;test
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD A,(HL)
   SUB 32
   CP 32     ;Bounds: border on top
@@ -427,8 +407,7 @@ Text_MoveUp:            ;test
   RET
 
 Text_MoveDown:
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD A,(HL)
   ADD 32
   CP 160    ;Bounds: bottom of visible window
@@ -437,8 +416,7 @@ Text_MoveDown:
   RET
 
 Text_MoveLeft:
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD A,(HL)
   AND $1F
 ;Check for wrapping
@@ -462,8 +440,7 @@ Text_MoveLeft:
   RET
 
 Text_MoveRight:
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD A,(HL)
   AND $1F
 ;Check for potential wrapping
@@ -488,23 +465,19 @@ Text_MoveRight:
   RET
 
 Text_Backspace:
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD L,(HL)
   LD H,>TextData
   DEC L
   LD (HL),$30
   LD A,L
   POP HL    ;Return
-  LD HL,_textCurPos
-  ADD HL,DE
-  LD (HL),A
+  LD (TextCurPos),A
   LoadVRAMptA 1, 1
   JP TextProcessLoop
 
 Text_Tab:
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   PUSH BC
   LD C,(HL)
   LD L,C
@@ -522,11 +495,8 @@ Text_Tab:
   DEC A
   JR nz,-
   LD A,L
-  LD HL,_textCurPos ;Update cursor
-  ADD HL,DE
-  LD (HL),A
-  LD HL,_vRAMBuf
-  ADD HL,DE
+  LD (TextCurPos),A     ;Update cursor
+  LD HL,VRAMBuf
   PUSH DE
   LD D,H
   LD E,L
@@ -560,26 +530,23 @@ Text_Pause:
 ;Place icon
   LD HL,BlinkerSpot
   LD (HL),$6E
-  LD HL,_vRAMBuf
-  ADD HL,DE
-  PUSH DE
-    LD D,H
-    LD E,L
-    LD A,1
-    LDI (HL),A    ;Width
-    LDI (HL),A    ;Height
-    LD (HL),<BlinkerSpot  ;Source
-    INC HL
-    LD (HL),>BlinkerSpot
-    INC HL
-    LD (HL),<BlinkerSpot  ;Destination
-    INC HL
-    LD (HL),$9C   ;Window page
-    PUSH BC
-      LD BC,LoadRectToVRAM_Task
-      CALL NewTask
-    POP BC
-  POP DE
+  LD HL,VRAMBuf
+  LD D,H
+  LD E,L
+  LD A,1
+  LDI (HL),A    ;Width
+  LDI (HL),A    ;Height
+  LD (HL),<BlinkerSpot  ;Source
+  INC HL
+  LD (HL),>BlinkerSpot
+  INC HL
+  LD (HL),<BlinkerSpot  ;Destination
+  INC HL
+  LD (HL),$9C   ;Window page
+  PUSH BC
+    LD BC,LoadRectToVRAM_Task
+    CALL NewTask
+  POP BC
 --
   LD A,32
 -
@@ -597,16 +564,13 @@ Text_Pause:
   LD A,1    ;Toggle b/w the two tiles
   XOR (HL)
   LD (HL),A
-  PUSH DE       ;Buffer correct from setup
-    PUSH BC
-      LD HL,_vRAMBuf
-      ADD HL,DE
-      LD D,H
-      LD E,L
-      LD BC,LoadRectToVRAM_Task
-      CALL NewTask
-    POP BC
-  POP DE
+  PUSH BC       ;Buffer correct from setup
+    LD HL,VRAMBuf
+    LD D,H
+    LD E,L
+    LD BC,LoadRectToVRAM_Task
+    CALL NewTask
+  POP BC
   JR --
 +
 ;  JR TextProcessLoop
@@ -617,8 +581,7 @@ Text_Clear:
   CALL Text_ReturnToCorner
 ;And clear out the text input area
 ;Set HL to upper left corner of text area
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD L,(HL)
   LD H,>TextData
   DEC HL    ;Actually the column before
@@ -639,17 +602,14 @@ Text_Clear:
   JR nz,--
   LD BC,LoadToVRAM_Task
   LD A,1
-  PUSH DE
   LD DE,(>TextData)<<8 | $9C
   CALL NewTask
-  POP DE
   POP BC
   POP HL
   JP TextProcessLoop
 
 Text_CarriageReturn:
-  LD HL,_textCurPos
-  ADD HL,DE
+  LD HL,TextCurPos
   LD A,(FaceState)
   OR A
   LD A,%11100000
@@ -668,9 +628,7 @@ Text_CarriageReturn:
 Text_SetSpeed:
   LD A,(BC)
   INC BC
-  LD HL,_textDelay
-  ADD HL,DE
-  LD (HL),A
+  LD (TextDelay),A
   RET
 
 Text_ShowFace:
@@ -691,17 +649,15 @@ Text_ShowFace:
 Text_LoadFace:
   POP HL        ;Return
 -
-  PUSH DE
-    LD A,(BC)
-    INC BC
-    LD D,A
-    LD A,(BC)
-    INC BC
-    PUSH BC
-      LD BC,FaceLoad_Task
-      CALL NewTask
-    POP BC
-  POP DE
+  LD A,(BC)
+  INC BC
+  LD D,A
+  LD A,(BC)
+  INC BC
+  PUSH BC
+    LD BC,FaceLoad_Task
+    CALL NewTask
+  POP BC
   JP nc,TextProcessControlReturn
   DEC BC    ;If task unavailable, try again next time
   DEC BC
