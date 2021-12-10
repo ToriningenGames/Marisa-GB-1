@@ -403,6 +403,7 @@ Start:
   LD (HL),A ;No vBlank procedures get run yet
   LD L,$AB
   LD (HL),A ;Zero frame counter
+  LD (musicglobalbase+1),A      ;no music
   LDH ($0F),A   ;Clear interrupt flags
   INC A
   LDH ($FF),A   ;Enable vBlank
@@ -434,7 +435,7 @@ HRAMRoutineLoadLoop:
   LD (ObjUse),A
   LD BC,ObjManage_Task
   CALL NewTask
-;Set up sound initializer as a serparate task
+;Set up sound initializer as a separate task
   LD BC,SoundInit
   CALL NewTask
 ;Initialize memory
@@ -446,6 +447,9 @@ HRAMRoutineLoadLoop:
 ;Set up Title Screen Loader as a separate task
   LD BC,LoadTitle
   CALL NewTask
+;Now pausable
+  LD BC,PauseTask
+  CALL NewTaskLo
 ;Set up Object Priority task
   LD BC,ObjectPriority_Task
   CALL NewTaskLo
@@ -623,9 +627,6 @@ LoadTitle:
   LD (HL),A
   DEC L
   JR nz,-
-;Now pausable
-  LD BC,PauseTask
-  CALL NewTask
 ;Camera Setup
   LD BC,Camera_Task
   CALL NewTaskLo

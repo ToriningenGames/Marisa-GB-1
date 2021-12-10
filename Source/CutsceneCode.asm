@@ -333,14 +333,18 @@ Cutscene_CameraMove:
 ;E= Distance
 ;Meanings:
 ;Direction:
-    ;0, camera moves up
-    ;1, camera moves left
-    ;2, camera moves down
-    ;3, camera moves right
+    ;0, camera moves left
+    ;1, camera moves down
+    ;2, camera moves right
+    ;3, camera moves up
 ;Distance:
     ;How many pixels to move the camera
 ;Speed:
     ;Pixels/frame
+  ;Modify direction just a tad to be easier to test
+  LD A,$40
+  ADD D
+  LD D,A
 ;Up down/Left right distinction
   LD C,<BkgVertScroll
   BIT 6,D
@@ -452,23 +456,19 @@ Cutscene_ActorNew:
     LD H,(HL)
     LD L,A
     LD BC,Actor_FrameInit
-    LD A,$E0          ;Check for hats
-    AND D
     LD A,E
     LD D,H
     LD E,L
-    JR z,+
-    CALL NewTask
-    JR ++
-+
-    CALL NewTaskLo    ;Hats go last b/c they're dependent on their parent's position
+    ;Put actors in the back so any cutscenes moving them always run before they're drawn
+    ;Should also reduce priority flicker under load, since there's less space for vBlank to happen in
+    CALL NewTaskLo
 ++
   POP HL
   JP c,EndTask
   LD (HL),B
   JP EndTask
 
-Cutscene_ActorDelete:       ;TEST
+Cutscene_ActorDelete:
 ;D= %000IIIII
     ;   +++++--- Reference ID
   LD HL,Cutscene_Actors
