@@ -542,27 +542,43 @@ Cs_EndingB:
   CsRunText StringAliceEscort1
   CsWaitText
   CsLoadSong SongDoll
+  CsSetActorSpeed 2,60/(50+110)
+  CsSetActorSpeed 1,60/(50+110)
+  CsAnimSpeed 2,$08
   ;Marisa scoots to the side, Alice moves down
-  
+  CsAnimateActor 2,CsAnWalkDown
+  CsMoveActorDist 2,CsDirDown,60
   ;Marisa tails behind Alice
-  
+  CsWait 50
+  CsAnimateActor 1,CsAnWalkDown
+  CsMoveActorDist 1,CsDirDown,60
+  CsWait 110
   ;Alice moves right
-  
-  ;Alice moves up
-  
+  CsAnimateActor 2,CsAnWalkRight
+  CsMoveActorDist 2,CsDirRight,(170+50)*(60/(50+110))
+  CsWait 50
+  CsAnimateActor 1,CsAnWalkRight
+  CsMoveActorDist 1,CsDirRight,(170+50)*(60/(50+110))
+  CsWait 170
   CsCall Cs_MapFadeout
   CsLoadMap MapForestBKG01
   CsWaitMap
   CsLoadMap MapForest02map
   ;Bottom entrance
+  CsSetActor 2,100,240
+  CsSetActor 1,98,250
+  CsAnimateActor 2,CsAnWalkUp
+  CsAnimateActor 1,CsAnWalkUp
+  CsSetCamera 0,111
   CsWaitMap
   ;Camera follows Alice
-  
   CsCall Cs_MapFadein
   ;Alice moves up
-  
+  CsMoveCameraTime CsDirUp,400,101
+  CsMoveActorTime 2,CsDirUp,400,150
+  CsMoveActorTime 1,CsDirUp,400,140
   ;Camera stops at top of map (Alice stops at same time)
-  
+  CsWait 400
   CsRunText StringAliceEscort2
   CsWaitText
   ;Marisa moves around Alice to closer to house
