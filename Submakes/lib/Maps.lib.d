@@ -20,4 +20,5 @@ lib\Maps.lib: .\Source/Maps.asm \
 	rsc\Forest_(3~1).gbm \
 	rsc\Forest_(3~2).gbm \
 	rsc\Forest_(3~3).gbm \
-	rsc\Forest_(3~4).gbm
+	rsc\Forest_(3~4).gbm \
+	rsc\EndingB.gbm

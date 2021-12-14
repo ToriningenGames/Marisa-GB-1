@@ -178,8 +178,12 @@ TextStart:
 TextProcessLoop:
 ;Processing delay
 ;Implements text speed
+  LDH A,($FE)   ;If B is pressed, run text at max speed
+  RRA
+  AND %00000001
+  JR nz,_textWaitLoop
   LD A,(TextDelay)
-_textWaitLoop:   ;Multiple entrys, in case something had to wait
+_textWaitLoop:   ;Multiple entrys to here, in case something had to wait
   CALL HaltTask
   DEC A
   JR nz,_textWaitLoop

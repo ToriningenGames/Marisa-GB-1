@@ -61,9 +61,6 @@ Channel4Stacatto:
 ;Associated Stacatto data
  .db $1D,  $00,  $02,  $1F,  $00,  $04,  $00,  $00,  $00,  $30,  $00,  $04
  .db $FF,  $00,  $00,  $02,  $01,  $04,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
- .db $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
- .db $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
- .db $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
 ;Format:
 ;Octave 2: usual percussion. Always available
     ;A: Bass drum

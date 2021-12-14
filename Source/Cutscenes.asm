@@ -571,19 +571,29 @@ Cs_EndingB:
   CsAnimateActor 1,CsAnWalkUp
   CsSetCamera 0,111
   CsWaitMap
+  CsLoadMap MapForestEndBmap
   ;Camera follows Alice
   CsCall Cs_MapFadein
   ;Alice moves up
   CsMoveCameraTime CsDirUp,400,101
-  CsMoveActorTime 2,CsDirUp,400,150
-  CsMoveActorTime 1,CsDirUp,400,140
+  CsMoveActorTime 2,CsDirUp,400,130
+  CsMoveActorTime 1,CsDirUp,400,120
   ;Camera stops at top of map (Alice stops at same time)
   CsWait 400
+  CsAnimateActor 1,CsAnFaceUp
+  CsAnimateActor 2,CsAnFaceUp
   CsRunText StringAliceEscort2
   CsWaitText
   ;Marisa moves around Alice to closer to house
-  
-  CsWait 10
+  CsAnimateActor 1,CsAnWalkLeft
+  CsMoveActorTime 1,CsDirLeft,30,16
+  CsWait 30
+  CsAnimateActor 1,CsAnWalkUp
+  CsMoveActorTime 1,CsDirUp,80,44
+  CsWait 80
+  CsAnimateActor 1,CsAnWalkRight
+  CsMoveActorTime 1,CsDirRight,30,12
+  CsWait 30
   ;Marisa faces Alice
   CsAnimateActor 1,CsAnFaceDown
   CsRunText StringAliceEscort3

@@ -300,6 +300,9 @@ MapForest33map:
 MapForest34map:
 .incbin "rsc/Forest_(3~4).gbm"
 
+MapForestEndBmap:
+.incbin "rsc/EndingB.gbm"
+
 MapForestN23obj:
 .dw 0               ;left
 .dw MapForestN13    ;down
