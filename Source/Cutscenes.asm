@@ -555,10 +555,10 @@ Cs_EndingB:
   CsWait 110
   ;Alice moves right
   CsAnimateActor 2,CsAnWalkRight
-  CsMoveActorDist 2,CsDirRight,(170+50)*(60/(50+110))
+  CsMoveActorDist 2,CsDirRight,(190+50)*(60/(50+110))
   CsWait 50
   CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorDist 1,CsDirRight,(170+50)*(60/(50+110))
+  CsMoveActorDist 1,CsDirRight,(190+50)*(60/(50+110))
   CsWait 170
   CsCall Cs_MapFadeout
   CsLoadMap MapForestBKG01
@@ -610,7 +610,16 @@ Cs_EndingB:
 ;Ending C (Found Alice's house from the back)
 Cs_EndingC:
   CsLoadSong SongDoll
+  ;Marisa doesn't recognise the house
+  ;Marisa sneaks in to the house (for perusal)
+  ;Some comments on how "Alice-like" it is
+  ;Fairies sneak in from the front; a lot of them
+  ;Battle ensues
+  ;Fadeout... time passes
+  ;Alice comes home, is displeased at the carnage
+  ;Blames Marisa, more battle ensues
   CsEnd
+
 ;Bad insult lines:
   ;I'm gonna hang you with your own apron!
   ;Not if I garotte you with your own dollstrings first!

@@ -157,22 +157,89 @@ StringNarumiEnd:
 StringAliceEscort1:
 .DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlSpeed,4, CtrlFaceShow,1, CtrlClear
 .DB CtrlBorder,1, CtrlRaise
-.ASC "TEXT", CtrlPause
+.ASC "TEXT", CtrlPause          ;Marisa meet Alice
 .DB CtrlLower, CtrlEnd
 StringAliceEscort2:
 .DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlFaceShow,1, CtrlClear
 .DB CtrlRaise
-.ASC "TEXT", CtrlPause
+.ASC "TEXT", CtrlPause          ;Alice meet nonhouse
 .DB CtrlLower, CtrlEnd
 StringAliceEscort3:
 .DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlFaceShow,1, CtrlClear
 .DB CtrlRaise
-.ASC "TEXT", CtrlPause, CtrlClear, CtrlEnd
+.ASC "TEXT", CtrlPause          ;Marisa now talk to Alice
+.DB CtrlClear, CtrlEnd
 StringAliceEscort4:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00
-.DB CtrlFaceShow,1, CtrlCorner
-.ASC "TEXT", CtrlPause
+.DB CtrlFaceShow,2, CtrlCorner
+.ASC "TEXT", CtrlPause          ;Convo continue, song change
 .DB CtrlLower, CtrlEnd
+
+StringReimuMeet:
+;M: Hey.
+;R: Oi.
+;M: What'cha doing in the forest?
+;R: Heading to Kourindou.
+;   *pause*
+;M: ...It's right there.
+;R: Too hungry. Can't move.
+;M: Then eat.
+;R: Shion's been staying at the shrine, so I haven't had any food in days.
+;M: Ouch. I'll see if I can find somethin' for ya.
+
+     ;0123456789ABCD
+StringReimuFeed1:
+.DB CtrlFaceLoad,1,$0C, CtrlFaceLoad,2,$01, CtrlFaceShow,1, CtrlClear
+.DB CtrlSpeed,2, CtrlBorder,2, CtrlRaise
+.ASC "FOOD?", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$0E
+.ASC "NO.", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1
+.ASC "...", CtrlPause
+.DB CtrlLower, CtrlEnd
+
+StringReimuFeed2:
+.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$0D, CtrlFaceShow,1, CtrlClear
+.DB CtrlSpeed,2, CtrlBorder,2, CtrlRaise
+.ASC "FOUND A", CtrlLine
+.ASC "MUSHRO"   ;Interrupted
+.DB CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$03
+.ASC "(OM NOM NOM)", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1, CtrlFaceLoad,2,$0E
+.ASC "...BETTER?", CtrlPause, CtrlClear
+.DB CtrlEnd
+StringReimuFeed3:
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$02
+.ASC "NO.", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1
+.ASC "...", CtrlPause
+.DB CtrlLower, CtrlEnd
+
+;Run Feed 2 first
+StringReimuFeed4:
+.DB CtrlFaceLoad,2,$0F, CtrlWait,2, CtrlFaceShow,2, CtrlFaceLoad,1,$07
+.ASC "...I FEEL SICK", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1
+.ASC "UHH...", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2
+.ASC "WHAT MUSHROOMS", CtrlLine
+.ASC "HAVE YOU BEEN", CtrlLine
+.ASC "FEEDING ME?", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1
+.ASC "UM...", CtrlLine, CtrlLine, CtrlWait,60
+.ASC "AMANITA?", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$05
+.ASC "WHY WOULD YOU"
+.DB CtrlFaceShow,0 CtrlClear
+.ASC "  $!&\"*<+/=`#'%  ", CtrlPause
+.DB CtrlFaceShow,1, CtrlClear
+.ASC "NOT A GOOD WAY", CtrlLine
+.ASC "TO FIGHT", CtrlLine
+.ASC "HUNGER, REIMU.", CtrlPause, CtrlClear
+.DB CtrlFaceShow,2
+.ASC "YOU...", CtrlPause, CtrlLine
+.ASC "NEXT TIME,", CtrlLine
+.ASC "YOUR ASS", CtrlLine
+.ASC "IS MINE!", CtrlPause, CtrlClear
 
 ;Conversations:
 ;Things people say

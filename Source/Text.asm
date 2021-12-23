@@ -34,7 +34,7 @@
             ;"@" is palette 1
             ;"[" is palette 2
             ;"]" is palette 3 (Text color)
-    ;Two down arrows are accessable at '^' and '_'
+    ;Two next arrows are accessable at '^' and '_'
 ;Characters below $30 and above $80 are treated as control, not printing.
     ;These do not have a byte following:
         ;$00 (NUL): End of text block
