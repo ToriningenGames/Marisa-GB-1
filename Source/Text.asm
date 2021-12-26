@@ -143,7 +143,7 @@
 TextControlFunctions:
  .dw Text_EndOfText,    Text_ReturnToCorner, Text_RaiseWindow,  Text_LowerWindow
  .dw Text_MoveUp,       Text_MoveDown,       Text_MoveLeft,     Text_MoveRight
- .dw Text_Backspace,    Text_Tab,            Text_Newline,      Text_Pause
+ .dw Text_Backspace,    Text_Error,          Text_Newline,      Text_Pause
  .dw Text_Clear,        Text_CarriageReturn, Text_Error,        Text_Error
  .dw Text_SetSpeed,     Text_LoadFace,       Text_ShowFace,     Text_Error
  .dw Text_LoadBorder,   Text_Shake,          Text_Wait;,         Text_Error
@@ -441,48 +441,6 @@ Text_Backspace:
   POP HL    ;Return
   LD (TextCurPos),A
   LoadVRAMptA 1, 1
-  JP TextProcessLoop
-
-Text_Tab:
-  LD HL,TextCurPos
-  PUSH BC
-  LD C,(HL)
-  LD L,C
-  LD H,>TextData
-  LD A,$03  ;Up to the tab stop
-  AND L
-  OR $FC
-  CPL
-  INC A ;Make it positive
-  INC A ;Offset by 1
-  LD B,A
--
-  LD (HL),$30
-  INC L
-  DEC A
-  JR nz,-
-  LD A,L
-  LD (TextCurPos),A     ;Update cursor
-  LD HL,VRAMBuf
-  PUSH DE
-  LD D,H
-  LD E,L
-  LD (HL),B
-  INC HL
-  LD (HL),1
-  INC HL
-  LD (HL),C
-  INC HL
-  LD (HL),>TextData
-  INC HL
-  LD (HL),C    ;Window low
-  INC HL
-  LD (HL),$9C   ;Window high
-  LD BC,LoadRectToVRAM_Task
-  CALL NewTask
-  POP DE
-  POP BC
-  POP HL    ;This is a printing character, therefore we need the delay
   JP TextProcessLoop
 
 Text_Newline:

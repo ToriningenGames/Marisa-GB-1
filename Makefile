@@ -8,8 +8,7 @@ LZ = $(if $(TOOLDIR),$(TOOLDIR)\,)LZifier.exe
 SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\,)specfile_marisa.cfg
 
 #Defines
-WLADEF :=
-override WLADEF := $(addprefix -D ,$(WLADEF))
+MAP :=
 
 #Shell commands we use to build
 RM = del /S /Q 2>NUL
@@ -17,6 +16,7 @@ QUIET = @
 GREP = findstr /v " SECTION" $(SYM)
 MV = move >NUL
 WHICH = where 2>NUL
+TRIM = fsutil file seteof bin\Assemble.gb 32768
 
 #Source files
 vpath %.asm .\Source
@@ -47,7 +47,7 @@ LIB0 = $(addprefix lib\,\
 	Reimu.lib Narumi.lib Alice.lib Fairy.lib Pause.lib Effects.lib SinCos.lib \
 	TextStrings.lib Text.lib Hitboxes.lib CutsceneCode.lib Mushroom.lib)
 LIB1 = $(addprefix lib\,\
-	Maps.lib Songs.lib Cutscenes.lib)
+	Maps.lib Songs.lib Cutscenes.lib Voicelist.lib)
 LINK = Link.link
 OBJ = $(addprefix obj\,Assemble.obj vBlank2.obj)
 SUPP = rsc\TileData.lzc
@@ -65,20 +65,21 @@ include $(addprefix Submakes\,$(addsuffix .d,$(OBJ)))
 
 $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(WLALINK) -v -S -r $(LINK) $(OUT)
+	$(TRIM)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
 	$(QUIET)$(RM) $(SYM)
 	$(QUIET)$(MV) ~tempsym $(SYM)
 
 Submakes\obj\\%.obj.d : %.asm | Submakes Submakes\obj
-	$(WLAGB) -M -I Source -o obj\$(notdir $(addsuffix .obj,$(basename $<))) $< > $@
+	$(WLAGB) $(if $(MAP),-D $(MAP),) -M -I Source -o obj\$(notdir $(addsuffix .obj,$(basename $<))) $< > $@
 Submakes\lib\\%.lib.d : %.asm | Submakes Submakes\lib
-	$(WLAGB) -M -I Source -l lib\$(notdir $(addsuffix .lib,$(basename $<))) $< > $@
+	$(WLAGB) $(if $(MAP),-D $(MAP),) -M -I Source -l lib\$(notdir $(addsuffix .lib,$(basename $<))) $< > $@
 
 obj\\%.obj : %.asm %.obj.d | obj
-	$(WLAGB) $(WLADEF) -v -x -I $(<D) -o $@ $<
+	$(WLAGB) $(if $(MAP),-D $(MAP),) -v -x -I $(<D) -o $@ $<
 lib\\%.lib : %.asm %.lib.d | lib
-	$(WLAGB) $(WLADEF) -v -x -I $(<D) -l $@ $<
+	$(WLAGB) $(if $(MAP),-D $(MAP),) -v -x -I $(<D) -l $@ $<
 rsc\\%.gbm : %.tmx | rsc
 	$(MAPCONV) $< $@
 rsc\\%.lzc : %.gb $(SPECFILE) | rsc
@@ -90,7 +91,7 @@ $(LINK) : Makefile
 	$(foreach I, $(OBJ),$(file >> $(LINK), $(I)))
 	$(file >> $(LINK),[libraries])
 	$(foreach I, $(LIB0), $(file >> $(LINK),BANK 0 SLOT 0 $(I)))
-	$(foreach I, $(LIB1), $(file >> $(LINK),BANK 1 SLOT 1 $(I)))
+	$(foreach I, $(LIB1), $(file >> $(LINK),$(if $(findstring ALTMAP,$(MAP)),BANK 0 SLOT 0,BANK 1 SLOT 1) $(I)))
 
 bin obj lib rsc Submakes Submakes\obj Submakes\lib:
 	mkdir $@

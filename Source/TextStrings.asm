@@ -176,17 +176,39 @@ StringAliceEscort4:
 
 StringReimuMeet:
 ;M: Hey.
+.ASC "HEY.", CtrlPause, CtrlClear
 ;R: Oi.
+.ASC "OI.", CtrlPause, CtrlClear
 ;M: What'cha doing in the forest?
+.ASC "WHAT'CHA DOING", CtrlLine
+.ASC "IN THE FOREST?", CtrlPause, CtrlClear
 ;R: Heading to Kourindou.
+.ASC "HEADING TO", CtrlLine
+.ASC "KOURINDOU.", CtrlPause, CtrlClear
 ;   *pause*
 ;M: ...It's right there.
+.ASC "...IT'S RIGHT", CtrlLine
+.ASC "THERE.", CtrlPause, CtrlClear
 ;R: Too hungry. Can't move.
+.ASC "TOO HUNGRY.", CtrlLine
+.ASC "CAN'T MOVE.", CtrlPause, CtrlClear
 ;M: Then eat.
+.ASC "THEN EAT.", CtrlPause, CtrlClear
 ;R: Shion's been staying at the shrine, so I haven't had any food in days.
+.ASC "SHION'S BEEN", CtrlLine
+.ASC "STAYING AT THE", CtrlLine
+.ASC "SHRINE,", CtrlPause, CtrlClear
+.ASC "SO I", CtrlLine
+.ASC "HAVEN'T HAD", CtrlLine
+.ASC "ANY FOOD IN", CtrlLine
+.ASC "DAYS.", CtrlPause, CtrlClear
 ;M: Ouch. I'll see if I can find somethin' for ya.
+.ASC "OUCH. I'LL SEE", CtrlLine
+.ASC "IF I CAN FIND", CtrlLine
+.ASC "SOMETHIN'", CtrlLine
+.ASC "FOR YA.", CtrlPause, CtrlClear
+.DB CtrlLower, CtrlEnd
 
-     ;0123456789ABCD
 StringReimuFeed1:
 .DB CtrlFaceLoad,1,$0C, CtrlFaceLoad,2,$01, CtrlFaceShow,1, CtrlClear
 .DB CtrlSpeed,2, CtrlBorder,2, CtrlRaise

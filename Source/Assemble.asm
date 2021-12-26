@@ -183,14 +183,22 @@
 .include "memmap.asm"
 .include "macros.asm"
 
-.BANK 1 SLOT 1
-.ORG $0000
-.SECTION "Voice data" ALIGN 256 SEMIFREE
-Wave:
-.include "Voicelist.asm"
-.ENDS
+.IF defined(ALTMAP)
+;Fill in the dummy bank with a value that won't break the checksum
+.BANK 1 SLOT 0
+.ORG 0
+.db 0
 
+.BANK 0 SLOT 0
+.ORG $7FF8
+
+.ELSE
+
+.BANK 1 SLOT 1
 .ORG $3FF8
+
+.ENDIF
+
 .SECTION "HRAM Routine" FORCE
 HRAMRoutine:    ;8 bytes, 656 cycles. As small as can be while not interfering with OAM DMA
   LDH ($46),A
@@ -201,7 +209,6 @@ _local:
   RET   ;These extra 16 cycles are not documented above.
 .ENDS
 
-;End header
 .BANK 0 SLOT 0
 
 ;RST Vectors

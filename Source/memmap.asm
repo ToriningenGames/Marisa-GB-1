@@ -1,6 +1,9 @@
 .IFNDEF MEM_MAP
 .DEFINE MEM_MAP
 
+;Multiple maps are available for different building purposes.
+;Remember to clean between switching maps, or keep them in separate build directories
+
 ;Expanded 64KiB memory map
 ;This map isn't actually supported by the game, and there's no mapper for it.
 ;It exists for editing the game and allowing WLA to give you statistics even when you're over size
@@ -10,12 +13,12 @@
 ;for each bank.
 ;It is entirely possible there is enough space, but alignment requirements push over the barrier
 
-.IFDEF FATMAP
+.IF defined(FATMAP)
 
 .MEMORYMAP          ;Memory Map (For wla-gb)
 SLOTSIZE $8000
 DEFAULTSLOT 1
-SLOT 0 $0000    ;ROM banks
+SLOT 0 $0000
 SLOT 1 $8000
 .ENDME
 
@@ -25,15 +28,37 @@ BANKSIZE $8000
 BANKS 2
 .ENDRO
 
+.ELIF defined(ALTMAP)
+
+;Nonstandard 32KiB memory map
+;This is completely functional, but allows banks to cross the $4000 mark
+;Because wla-gb doesn't allow only one bank, a dummy bank of one byte is added.
+;The main Assemble file ensures this won't break the checksum
+;The makefile removes it after the ROM file is made
+
+.MEMORYMAP          ;Memory Map (For wla-gb)
+SLOTSIZE $8000
+DEFAULTSLOT 0
+SLOT 0 $0000
+.ENDME
+
+.ROMBANKMAP         ;ROM Bank Map (no mapping)
+BANKSTOTAL 2
+BANKSIZE $8000
+BANKS 1
+BANKSIZE $1
+BANKS 1
+.ENDRO
+
 .ELSE
 
 ;Standard 32KiB memory map
-;This is the only configuration the game supports running
+;This is the regulation way to lay the banks
 
 .MEMORYMAP          ;Memory Map (For wla-gb)
 SLOTSIZE $4000
 DEFAULTSLOT 1
-SLOT 0 $0000    ;ROM banks
+SLOT 0 $0000
 SLOT 1 $4000
 .ENDME
 

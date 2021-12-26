@@ -515,152 +515,6 @@ Cs_CurvedTransitionA:
   CsSetVar 21,CsDirUp*32
   CsJump Cs_TransitionIn
 
-;Ending A (Found Alice's house from the front)
-Cs_EndingA:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
-  CsLoadSong SongDoll
-  CsCall Cs_TransitionIn
-  ;Pan camera up to house
-  ;Pan down to Marisa
-  ;Text
-  ;Walk up to door
-  ;Door opens; Alice in doorway
-  ;Text
-  ;Marisa walks in, Alice leaves from doorway
-  ;Door close
-  ;Camera pans up, scene fades to white
-  ;Text?
-  CsEnd
-
-;Ending B (Escorted by Alice)
-Cs_EndingB:
-  RET
-  ;Marisa, Alice, don't move anymore, and no camera tracking
-  CsInputChange 1,0
-  CsInputChange 2,0
-  CsRunText StringAliceEscort1
-  CsWaitText
-  CsLoadSong SongDoll
-  CsSetActorSpeed 2,60/(50+110)
-  CsSetActorSpeed 1,60/(50+110)
-  CsAnimSpeed 2,$08
-  ;Marisa scoots to the side, Alice moves down
-  CsAnimateActor 2,CsAnWalkDown
-  CsMoveActorDist 2,CsDirDown,60
-  ;Marisa tails behind Alice
-  CsWait 50
-  CsAnimateActor 1,CsAnWalkDown
-  CsMoveActorDist 1,CsDirDown,60
-  CsWait 110
-  ;Alice moves right
-  CsAnimateActor 2,CsAnWalkRight
-  CsMoveActorDist 2,CsDirRight,(190+50)*(60/(50+110))
-  CsWait 50
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorDist 1,CsDirRight,(190+50)*(60/(50+110))
-  CsWait 170
-  CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG01
-  CsWaitMap
-  CsLoadMap MapForest02map
-  ;Bottom entrance
-  CsSetActor 2,100,240
-  CsSetActor 1,98,250
-  CsAnimateActor 2,CsAnWalkUp
-  CsAnimateActor 1,CsAnWalkUp
-  CsSetCamera 0,111
-  CsWaitMap
-  CsLoadMap MapForestEndBmap
-  ;Camera follows Alice
-  CsCall Cs_MapFadein
-  ;Alice moves up
-  CsMoveCameraTime CsDirUp,400,101
-  CsMoveActorTime 2,CsDirUp,400,130
-  CsMoveActorTime 1,CsDirUp,400,120
-  ;Camera stops at top of map (Alice stops at same time)
-  CsWait 400
-  CsAnimateActor 1,CsAnFaceUp
-  CsAnimateActor 2,CsAnFaceUp
-  CsRunText StringAliceEscort2
-  CsWaitText
-  ;Marisa moves around Alice to closer to house
-  CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,30,16
-  CsWait 30
-  CsAnimateActor 1,CsAnWalkUp
-  CsMoveActorTime 1,CsDirUp,80,44
-  CsWait 80
-  CsAnimateActor 1,CsAnWalkRight
-  CsMoveActorTime 1,CsDirRight,30,12
-  CsWait 30
-  ;Marisa faces Alice
-  CsAnimateActor 1,CsAnFaceDown
-  CsRunText StringAliceEscort3
-  CsWaitText
-  CsLoadSong SongMagus
-  CsRunText StringAliceEscort4
-  CsWaitText
-  ;Danmaku
-  
-  ;Fade to black
-  CsCall Cs_MapFadeout
-  CsEnd
-
-;Ending C (Found Alice's house from the back)
-Cs_EndingC:
-  CsLoadSong SongDoll
-  ;Marisa doesn't recognise the house
-  ;Marisa sneaks in to the house (for perusal)
-  ;Some comments on how "Alice-like" it is
-  ;Fairies sneak in from the front; a lot of them
-  ;Battle ensues
-  ;Fadeout... time passes
-  ;Alice comes home, is displeased at the carnage
-  ;Blames Marisa, more battle ensues
-  CsEnd
-
-;Bad insult lines:
-  ;I'm gonna hang you with your own apron!
-  ;Not if I garotte you with your own dollstrings first!
-  ;I'm gonna shove so much gunpowder down your throat, it explodes out your ass!
-  ;Not if I shove so many mushrooms down your throat, they sprout our your cro-
-
-;Narumi Fight intro
-Cs_NarumiFightStart:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
-  CsLoadSong SongNull   ;No song plays if the fight is finished
-  CsSetVar 126,0        ;Change music on exit
-  CsNewActor 2,CsChNarumi,0
-  CsWait 2
-  CsSetActor 2,56,72
-  CsAnimateActor 2,CsAnFaceDown
-  CsCall Cs_TransitionIn
-  CsInputChange 1,$87
-  CsEndVar 118,1        ;No text etc if the fight already happened
-  CsInputChange 1,$80   ;Camera follow, but sit still
-  CsRunText StringNarumiStart1
-  CsWaitText
-  CsLoadSong SongSpark
-  CsRunText StringNarumiStart2
-  CsWaitText
-;  CsEnd
-
-;Narumi Fight outro
-Cs_NarumiFightEnd:
-  CsLoadSong SongDoll
-  CsRunText StringNarumiEnd
-  CsWaitText
-  CsSetVar 118,1        ;Narumi is beaten
-  CsInputChange 1,$87   ;Marisa may leave
-  CsEnd
-
-;Feeding Reimu Shrooms
-Cs_ReimuMeet:
-Cs_ReimuFeed:
-Cs_ReimuFull:
-  CsEnd
 
 ;Special loads for NPCs/Objects
 ;Shroom room
@@ -689,7 +543,7 @@ Cs_Forest11:
   CsSetVarVar 24,33
   ;Check for exit from map 01 (to 11)
   CsAddVar 22,(0-<MapForest01map) & $FF
-  CsAddVar 24,(0->MapForest01map) $ $FF
+  CsAddVar 24,(0->MapForest01map) & $FF
   CsJumpRelVar 22,1
   CsJump Cs_TransitionIn    ;Last check, always transition
   CsJumpRelVar 24,1
@@ -830,6 +684,204 @@ CsInt_Debug:
   CsRunText StringTestInteraction
   CsWaitText
   CsInputChange 1,$87
+  CsEnd
+;Ending A (Found Alice's house from the front)
+Cs_EndingA:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsLoadSong SongDoll
+  CsCall Cs_TransitionIn
+  ;Pan camera up to house
+  ;Pan down to Marisa
+  ;Text
+  ;Walk up to door
+  ;Door opens; Alice in doorway
+  ;Text
+  ;Marisa walks in, Alice leaves from doorway
+  ;Door close
+  ;Camera pans up, scene fades to white
+  ;Text?
+  CsEnd
+
+;Ending B (Escorted by Alice)
+Cs_EndingB:
+  RET
+  ;Marisa, Alice, don't move anymore, and no camera tracking
+  CsInputChange 1,0
+  CsInputChange 2,0
+  CsRunText StringAliceEscort1
+  CsWaitText
+  CsLoadSong SongDoll
+  CsSetActorSpeed 2,60/(50+110)
+  CsSetActorSpeed 1,60/(50+110)
+  CsAnimSpeed 2,$08
+  ;Marisa scoots to the side, Alice moves down
+  CsAnimateActor 2,CsAnWalkDown
+  CsMoveActorDist 2,CsDirDown,60
+  ;Marisa tails behind Alice
+  CsWait 50
+  CsAnimateActor 1,CsAnWalkDown
+  CsMoveActorDist 1,CsDirDown,60
+  CsWait 110
+  ;Alice moves right
+  CsAnimateActor 2,CsAnWalkRight
+  CsMoveActorDist 2,CsDirRight,(190+50)*(60/(50+110))
+  CsWait 50
+  CsAnimateActor 1,CsAnWalkRight
+  CsMoveActorDist 1,CsDirRight,(190+50)*(60/(50+110))
+  CsWait 170
+  CsCall Cs_MapFadeout
+  CsLoadMap MapForestBKG01
+  CsWaitMap
+  CsLoadMap MapForest02map
+  ;Bottom entrance
+  CsSetActor 2,100,240
+  CsSetActor 1,98,250
+  CsAnimateActor 2,CsAnWalkUp
+  CsAnimateActor 1,CsAnWalkUp
+  CsSetCamera 0,111
+  CsWaitMap
+  CsLoadMap MapForestEndBmap
+  ;Camera follows Alice
+  CsCall Cs_MapFadein
+  ;Alice moves up
+  CsMoveCameraTime CsDirUp,400,101
+  CsMoveActorTime 2,CsDirUp,400,130
+  CsMoveActorTime 1,CsDirUp,400,120
+  ;Camera stops at top of map (Alice stops at same time)
+  CsWait 400
+  CsAnimateActor 1,CsAnFaceUp
+  CsAnimateActor 2,CsAnFaceUp
+  CsRunText StringAliceEscort2
+  CsWaitText
+  ;Marisa moves around Alice to closer to house
+  CsAnimateActor 1,CsAnWalkLeft
+  CsMoveActorTime 1,CsDirLeft,30,16
+  CsWait 30
+  CsAnimateActor 1,CsAnWalkUp
+  CsMoveActorTime 1,CsDirUp,80,44
+  CsWait 80
+  CsAnimateActor 1,CsAnWalkRight
+  CsMoveActorTime 1,CsDirRight,30,12
+  CsWait 30
+  ;Marisa faces Alice
+  CsAnimateActor 1,CsAnFaceDown
+  CsRunText StringAliceEscort3
+  CsWaitText
+  CsLoadSong SongMagus
+  CsRunText StringAliceEscort4
+  CsWaitText
+  ;Danmaku
+  
+  ;Fade to black
+  CsCall Cs_MapFadeout
+  CsEnd
+
+;Ending C (Found Alice's house from the back)
+Cs_EndingC:
+  CsLoadSong SongDoll
+  ;Marisa doesn't recognise the house
+  ;Marisa sneaks in to the house (for perusal)
+  ;Some comments on how "Alice-like" it is
+  ;Fairies sneak in from the front; a lot of them
+  ;Battle ensues
+  ;Fadeout... time passes
+  ;Alice comes home, is displeased at the carnage
+  ;Blames Marisa, more battle ensues
+  CsEnd
+
+;Bad insult lines:
+  ;I'm gonna hang you with your own apron!
+  ;Not if I garotte you with your own dollstrings first!
+  ;I'm gonna shove so much gunpowder down your throat, it explodes out your ass!
+  ;Not if I shove so many mushrooms down your throat, they sprout our your cro-
+
+;Narumi Fight intro
+Cs_NarumiFightStart:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsLoadSong SongNull   ;No song plays if the fight is finished
+  CsSetVar 126,0        ;Change music on exit
+  CsNewActor 2,CsChNarumi,0
+  CsWait 2
+  CsSetActor 2,56,72
+  CsAnimateActor 2,CsAnFaceDown
+  CsCall Cs_TransitionIn
+  CsInputChange 1,$87
+  CsEndVar 118,1        ;No text etc if the fight already happened
+  CsInputChange 1,$80   ;Camera follow, but sit still
+  CsRunText StringNarumiStart1
+  CsWaitText
+  CsLoadSong SongSpark
+  CsRunText StringNarumiStart2
+  CsWaitText
+  CsEnd
+
+;Narumi Fight outro
+Cs_NarumiFightEnd:
+  CsLoadSong SongDoll
+  CsRunText StringNarumiEnd
+  CsWaitText
+  CsSetVar 118,1        ;Narumi is beaten
+  CsInputChange 1,$87   ;Marisa may leave
+  CsEnd
+
+;Feeding Reimu Shrooms
+Cs_ReimuMeet:
+  CsCall Cs_ReimuFeed
+  CsEndVar 116,1
+  CsRunText StringReimuMeet
+  CsWaitText
+  CsSetVar 116,1
+  CsEnd
+  
+Cs_ReimuFeed:
+  CsEndVar 116,0
+  ;Does Marisa have mushrooms?
+  CsCall Cs_ReimuMushroomTest
+  CsEndVar 0,0
+  ;Marisa has mushrooms
+  CsRunText StringReimuFeed2
+  ;Those mushrooms are gone now
+  CsJumpRelVar 120,0
+  CsJumpRel 1
+  CsSetVar 120,2
+  CsJumpRelVar 122,0
+  CsJumpRel 1
+  CsSetVar 122,2
+  CsJumpRelVar 124,0
+  CsJumpRel 1
+  CsSetVar 124,2
+  ;Are there any left?
+  CsWaitText
+  CsCall Cs_ReimuFullTest
+  CsEndVar 0,0
+  CsRunText StringReimuFeed3
+  CsWaitText
+  CsEnd
+
+;Uses Var 0 for whether the forest has shrooms or not
+Cs_ReimuFullTest:
+  CsSetVar 0,1
+  CsEndVar 120,0
+  CsEndVar 122,0
+  CsEndVar 124,0
+  ;No mushrooms left
+  CsSetVar 0,0
+  CsRunText StringReimuFeed4
+  CsWaitText
+  CsEnd
+
+;Uses Var 0 for whether Marisa has shrooms or not
+Cs_ReimuMushroomTest:
+  CsSetVar 0,1
+  CsEndVar 120,1
+  CsEndVar 122,1
+  CsEndVar 124,1
+  ;No mushrooms collected
+  CsSetVar 0,0
+  CsRunText StringReimuFeed1
+  CsWaitText
   CsEnd
 
 .ENDS
