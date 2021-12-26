@@ -142,11 +142,11 @@
 .SECTION TextControl ALIGN 256 FREE
 TextControlFunctions:
  .dw Text_EndOfText,    Text_ReturnToCorner, Text_RaiseWindow,  Text_LowerWindow
- .dw Text_MoveUp,       Text_MoveDown,       Text_MoveLeft,     Text_MoveRight
- .dw Text_Backspace,    Text_Error,          Text_Newline,      Text_Pause
+ .dw Text_Error,        Text_Error,          Text_Error,        Text_Error
+ .dw Text_Error,        Text_Error,          Text_Newline,      Text_Pause
  .dw Text_Clear,        Text_CarriageReturn, Text_Error,        Text_Error
  .dw Text_SetSpeed,     Text_LoadFace,       Text_ShowFace,     Text_Error
- .dw Text_LoadBorder,   Text_Shake,          Text_Wait;,         Text_Error
+ .dw Text_LoadBorder,   Text_Error,          Text_Wait;,         Text_Error
 
 ;Table for window Y positions during raising and lowering
 WindowLUT:
@@ -220,7 +220,28 @@ TextProcessControlReturn:
   LD (HL),A
   LD A,L
   LoadVRAMptA 1, 1      ;Idea: Don't initiate a task for this.
-  CALL Text_MoveRight
+;Text_MoveRight:
+  LD HL,TextCurPos
+  LD A,(HL)
+  AND $1F
+;Check for potential wrapping
+  CP $13
+  JR c,+
+    ;Do wrap
+  LD A,(HL)
+  ADD $0D   ;Very beginning due to later +1
+  LD (HL),A
+;Adjust offset from left if there is a face
+  LD A,(FaceState)
+  AND $03
+  JR z,+
+;Face; apply offset
+  LD A,4
+  ADD (HL)
+  LD (HL),A
++   ;No face/no wrap
+  INC (HL)
+;  RET
   JR TextProcessLoop
 
 Text_Wait:
@@ -228,51 +249,6 @@ Text_Wait:
   INC BC
   POP HL    ;Return address
   JR _textWaitLoop
-
-Text_Shake:
-  LD A,(BC)
-  INC BC
-  PUSH BC
-  LD BC,Text_Shake_Task
-  CALL NewTask
-  POP BC
-  RET
-
-Text_Shake_Task:
-  RLCA      ;Delay (converted to fixed 8.8 from fixed 3.5)
-  RLCA
-  RLCA
-  LD B,A
-  AND $F8
-  LD C,A
-  LD A,$03
-  AND B
-  LD B,A
-  LD DE,$0800   ;Magnitude (fixed 8.8)
-  LD A,D
--   ;Move screen right and left, with one frame delays
-  LD HL,WinHortScroll
-  ADD (HL)
-  LD (HL),A
-  CALL HaltTask
-  SUB D
-  LD (WinHortScroll),A
-  CALL HaltTask
-  SUB D
-  LD (WinHortScroll),A
-  CALL HaltTask
-  ADD D
-  LD (WinHortScroll),A
-  CALL HaltTask
-;Decay
-  LD A,E
-  SUB C
-  LD E,A
-  LD A,D
-  SBC B
-  LD D,A
-  JR nc,-
-  JP EndTask
 
 Text_EndOfText:
   ;Escape this prison!
@@ -364,73 +340,6 @@ Text_RaiseWindow:
   LD C,A
   JP TextProcessControlReturn
 
-Text_MoveUp:            ;test
-  LD HL,TextCurPos
-  LD A,(HL)
-  SUB 32
-  CP 32     ;Bounds: border on top
-  RET c
-  LD (HL),A
-  RET
-
-Text_MoveDown:
-  LD HL,TextCurPos
-  LD A,(HL)
-  ADD 32
-  CP 160    ;Bounds: bottom of visible window
-  RET nc
-  LD (HL),A
-  RET
-
-Text_MoveLeft:
-  LD HL,TextCurPos
-  LD A,(HL)
-  AND $1F
-;Check for wrapping
-  CP $06
-  JR nc,++
-;Wrap maybe
-  CP $02
-  JR c,+
-;Do wrap if there is a face
-  LD A,(FaceState)
-  OR A
-  JR z,++
-+   ;Do wrap
-  LD A,(HL)
-;%sss10011  ,there is a -1 later to make it 18 mod 32
-  AND %11100000
-  SUB %00001100
-  LD (HL),A
-++  ;Do not wrap
-  DEC (HL)
-  RET
-
-Text_MoveRight:
-  LD HL,TextCurPos
-  LD A,(HL)
-  AND $1F
-;Check for potential wrapping
-  CP $13
-  JR c,++
-    ;Do wrap
-  LD A,(HL)
-  AND $E0   ;Very beginning due to later +1
-  ADD $20
-  LD (HL),A
-;Adjust offset from left if there is a face
-  LD A,(FaceState)
-  AND $03
-  JR z,+
-;Face; apply offset
-  LD A,4
-  ADD (HL)
-  LD (HL),A
-+   ;No face
-++  ;Do not wrap
-  INC (HL)
-  RET
-
 Text_Backspace:
   LD HL,TextCurPos
   LD L,(HL)
@@ -445,7 +354,14 @@ Text_Backspace:
 
 Text_Newline:
   CALL Text_CarriageReturn
-  JP Text_MoveDown
+;Text_MoveDown:
+  LD HL,TextCurPos
+  LD A,(HL)
+  ADD 32
+  CP 160    ;Bounds: bottom of visible window
+  RET nc
+  LD (HL),A
+  RET
 
 Text_Pause:
   POP HL    ;Return

@@ -8,12 +8,12 @@
 .ENUMID CtrlCorner      ;None
 .ENUMID CtrlRaise       ;None
 .ENUMID CtrlLower       ;None
-.ENUMID CtrlUp          ;None
-.ENUMID CtrlDown        ;None
-.ENUMID CtrlLeft        ;None
-.ENUMID CtrlRight       ;None
-.ENUMID CtrlDel         ;None
-.ENUMID CtrlTab         ;None
+.ENUMID CtrlUp          ;None (Do not use)
+.ENUMID CtrlDown        ;None (Do not use)
+.ENUMID CtrlLeft        ;None (Do not use)
+.ENUMID CtrlRight       ;None (Do not use)
+.ENUMID CtrlDel         ;None (Do not use)
+.ENUMID CtrlTab         ;None (Do not use)
 .ENUMID CtrlLine        ;None
 .ENUMID CtrlPause       ;None
 .ENUMID CtrlClear       ;None
@@ -25,7 +25,7 @@
 .ENUMID CtrlFaceShow    ;Slot
 .ENUMID Ctrl_Invalid0   ;Do not use
 .ENUMID CtrlBorder      ;Border ID
-.ENUMID CtrlShake       ;Shake slowness
+.ENUMID CtrlShake       ;Shake slowness (Do not use)
 .ENUMID CtrlWait        ;Frames to wait
 
 ;This is dependent on the tile data. Then again, this entire process is.
