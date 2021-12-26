@@ -7,6 +7,10 @@ MAPCONV = $(if $(TOOLDIR),$(TOOLDIR)\,)LZ-MapConv.exe
 LZ = $(if $(TOOLDIR),$(TOOLDIR)\,)LZifier.exe
 SPECFILE = $(if $(TOOLDIR),$(TOOLDIR)\,)specfile_marisa.cfg
 
+#Defines
+WLADEF :=
+override WLADEF := $(addprefix -D ,$(WLADEF))
+
 #Shell commands we use to build
 RM = del /S /Q 2>NUL
 QUIET = @
@@ -72,9 +76,9 @@ Submakes\lib\\%.lib.d : %.asm | Submakes Submakes\lib
 	$(WLAGB) -M -I Source -l lib\$(notdir $(addsuffix .lib,$(basename $<))) $< > $@
 
 obj\\%.obj : %.asm %.obj.d | obj
-	$(WLAGB) -v -x -I $(<D) -o $@ $<
+	$(WLAGB) $(WLADEF) -v -x -I $(<D) -o $@ $<
 lib\\%.lib : %.asm %.lib.d | lib
-	$(WLAGB) -v -x -I $(<D) -l $@ $<
+	$(WLAGB) $(WLADEF) -v -x -I $(<D) -l $@ $<
 rsc\\%.gbm : %.tmx | rsc
 	$(MAPCONV) $< $@
 rsc\\%.lzc : %.gb $(SPECFILE) | rsc
