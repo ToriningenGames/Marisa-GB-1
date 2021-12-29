@@ -41,12 +41,7 @@
         ;$01 (SOH): Return to upper-left
         ;$02 (STX): Raise window
         ;$03 (ETX): Lower window
-        ;$04 (EOT): Move cursor up
-        ;$05 (ENQ): Move cursor down
-        ;$06 (ACK): Move cursor left
-        ;$07 (BEL): Move cursor right
-        ;$08 (BS):  Deletes last printed character
-        ;$09 (HT):  Four spaces
+        ;$04 (EOT): Snap window up
         ;$0A (LF):  Newline
         ;$0B (VT):  Wait for input
         ;$0C (FF):  Clear
@@ -142,7 +137,7 @@
 .SECTION TextControl ALIGN 256 FREE
 TextControlFunctions:
  .dw Text_EndOfText,    Text_ReturnToCorner, Text_RaiseWindow,  Text_LowerWindow
- .dw Text_Error,        Text_Error,          Text_Error,        Text_Error
+ .dw Text_SnapWindowUp, Text_SnapWindowDown, Text_Error,        Text_Error
  .dw Text_Error,        Text_Error,          Text_Newline,      Text_Pause
  .dw Text_Clear,        Text_CarriageReturn, Text_Error,        Text_Error
  .dw Text_SetSpeed,     Text_LoadFace,       Text_ShowFace,     Text_Error
@@ -219,7 +214,25 @@ TextProcessControlReturn:
   LD H,>TextData
   LD (HL),A
   LD A,L
-  LoadVRAMptA 1, 1      ;Idea: Don't initiate a task for this.
+-
+  LD HL,OpControl
+  BIT 6,(HL)
+  JR z,+
+  CALL HaltTask
+  JR -
++
+  LD HL,TileMapBuffer
+  LD (HL),1
+  INC HL
+  LD (HL),1
+  INC HL
+  LDI (HL),A
+  LD (HL),>TextData
+  INC HL
+  LDI (HL),A    ;Window low
+  LD (HL),$9C   ;Window high
+  LD HL,OpControl
+  SET 6,(HL)
 ;Text_MoveRight:
   LD HL,TextCurPos
   LD A,(HL)
@@ -307,8 +320,7 @@ Text_RaiseWindow:
 ;6, by 2: 42
 ;5, by 3: 45
 ;4, by 4: 40
-;NEW: Slow it down
-;LUT?
+
   POP HL    ;Return
   LD A,%01000000    ;Enable LY interrupt
   LD (LCDCounter),A
@@ -338,6 +350,30 @@ Text_RaiseWindow:
   DEC DE
   LD A,(DE)
   LD C,A
+  JP TextProcessControlReturn
+
+Text_SnapWindowUp:
+  POP HL    ;Return
+  LD A,%01000000    ;Enable LY interrupt
+  LD (LCDCounter),A
+  XOR A
+  LDH ($0F),A
+  LD HL,$FFFF
+  SET 1,(HL)
+  LD A,$68      ;Raised window position
+  LD (WinVertScroll),A
+  LD (LY),A     ;LY interrupt line for sprite disabling
+  JP TextProcessControlReturn
+
+Text_SnapWindowDown:
+  POP HL    ;Return
+  LD A,$90      ;Lowered window position
+  LD (WinVertScroll),A
+  LD (LY),A     ;LY interrupt line for sprite disabling
+  XOR A
+  LD (LCDCounter),A   ;Disable LY interrupt
+  LD HL,$FFFF
+  RES 1,(HL)
   JP TextProcessControlReturn
 
 Text_Backspace:

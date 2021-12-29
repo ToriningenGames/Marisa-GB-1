@@ -8,8 +8,8 @@
 .ENUMID CtrlCorner      ;None
 .ENUMID CtrlRaise       ;None
 .ENUMID CtrlLower       ;None
-.ENUMID CtrlUp          ;None (Do not use)
-.ENUMID CtrlDown        ;None (Do not use)
+.ENUMID CtrlSnapUp      ;None
+.ENUMID CtrlSnapDown    ;None
 .ENUMID CtrlLeft        ;None (Do not use)
 .ENUMID CtrlRight       ;None (Do not use)
 .ENUMID CtrlDel         ;None (Do not use)
@@ -76,7 +76,7 @@ MAP "h" = $7F
     
     ;"0123456789ABCD"
 StringOpeningMessage1:
-.DB CtrlFaceLoad,1,$03, CtrlFaceLoad,2,$01, CtrlBorder,0, CtrlSpeed,2, CtrlFaceShow,1, CtrlClear, CtrlRaise
+.DB CtrlFaceLoad,1,$03, CtrlFaceLoad,2,$01, CtrlBorder,0, CtrlSpeed,2, CtrlWait,1, CtrlFaceShow,1, CtrlClear, CtrlRaise
 .ASC "ALL THAT", CtrlLine
 .ASC "RUCKUS OVER A", CtrlLine
 .ASC "FEW LITTLE", CtrlLine
@@ -91,7 +91,7 @@ StringOpeningMessage1:
 .ASC "THEN.", CtrlPause
 .DB CtrlLower, CtrlEnd
 StringOpeningMessage2:
-.DB CtrlFaceLoad,1,$07, CtrlFaceLoad,2,$05, CtrlFaceShow,1, CtrlClear, CtrlRaise
+.DB CtrlFaceLoad,1,$07, CtrlFaceLoad,2,$05, CtrlFaceShow,1, CtrlWait,1, CtrlClear, CtrlRaise
 .ASC "...I HAVE NO", CtrlLine
 .ASC "IDEA WHERE", CtrlLine
 .ASC "SHE LIVES.", CtrlPause
@@ -173,6 +173,20 @@ StringAliceEscort4:
 .DB CtrlFaceShow,2, CtrlCorner
 .ASC "TEXT", CtrlPause          ;Convo continue, song change
 .DB CtrlLower, CtrlEnd
+
+StringAliceHouse1:
+.DB CtrlFaceShow,0, CtrlClear, CtrlRaise
+.ASC ".", CtrlPause
+.DB CtrlLower, CtrlEnd
+StringAliceHouse2:
+.DB CtrlClear, CtrlRaise
+.ASC "!", CtrlPause
+.DB CtrlLower, CtrlEnd
+StringAliceHouse3:
+.DB CtrlFaceLoad,1,$04, CtrlSpeed,2, CtrlFaceShow,1, CtrlClear
+.DB CtrlSnapUp
+.ASC "WHOA"
+.DB CtrlSnapDown, CtrlEnd
 
 StringReimuMeet:
 ;M: Hey.
@@ -263,10 +277,4 @@ StringReimuFeed4:
 .ASC "YOUR ASS", CtrlLine
 .ASC "IS MINE!", CtrlPause, CtrlClear
 
-;Conversations:
-;Things people say
-StringTestInteraction:
-.DB CtrlSpeed,3, CtrlFaceShow,0, CtrlClear, CtrlBorder,0, CtrlRaise, CtrlWait,30
-.ASC "HI!", CtrlWait,30, CtrlPause
-.DB CtrlLower, CtrlEnd
 .ENDS

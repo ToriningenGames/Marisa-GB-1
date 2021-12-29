@@ -102,7 +102,7 @@ MapForest02:
 .db  74 +8,  -6 +16
 .db   0 +8,   0 +16
 .db  68 +8,  10 +16
-.dw Cs_CurvedTransitionA
+.dw Cs_EndingAC
 MapForest03:
 .db 0
 .dw MapForest03map
@@ -300,6 +300,10 @@ MapForest33map:
 MapForest34map:
 .incbin "rsc/Forest_(3~4).gbm"
 
+MapForestEndA1map:
+.incbin "rsc/EndingA1.gbm"
+MapForestEndA2map:      ;Closing the door is a separate map so we don't redo the grass layout
+.incbin "rsc/EndingA2.gbm"
 MapForestEndBmap:
 .incbin "rsc/EndingB.gbm"
 

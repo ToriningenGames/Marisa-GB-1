@@ -201,10 +201,6 @@
 .MACRO CsAssignHat ARGS hat, ID
  .db 10,hat,ID
 .ENDM
-.MACRO CsAlterMap ARGS alteration
- .db 16
- .dw alteration
-.ENDM
 .MACRO CsShootDanmaku ARGS ID, type
  .db 17,type,ID
 .ENDM
@@ -578,22 +574,96 @@ Cs_ClearActorList:
   CsEndVar 23
   CsJumpRel -4
 
+;Made it to Alice's house; determine which ending to give
+Cs_EndingAC:
+  ;Specifically, is she coming from the back?
+  CsAddVar 32,(0-<MapForest24map) & $FF
+  CsJumpRelVar 32,1
+  CsJump Cs_EndingA
+  CsAddVar 33,(0->MapForest24map) & $FF
+  CsJumpRelVar 33,1
+  CsJump Cs_EndingA
+;Ending C (Found Alice's house from the back)
+Cs_EndingC:
+  CsLoadSong SongDoll
+  ;Marisa doesn't recognise the house
+  ;Marisa sneaks in to the house (for perusal)
+  ;Some comments on how "Alice-like" it is
+  ;Fairies sneak in from the front; a lot of them
+  ;Battle ensues
+  ;Fadeout... time passes
+  ;Alice comes home, is displeased at the carnage
+  ;Blames Marisa, more battle ensues
+  CsEnd
+
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
   CsLoadSong SongDoll
-  CsCall Cs_TransitionIn
-  ;Pan camera up to house
-  ;Pan down to Marisa
-  ;Text
-  ;Walk up to door
-  ;Door opens; Alice in doorway
-  ;Text
-  ;Marisa walks in, Alice leaves from doorway
-  ;Door close
-  ;Camera pans up, scene fades to white
-  ;Text?
+  CsLoadMap MapForest02map
+  CsWaitReadyMap
+  CsShowMap
+  CsLoadMap MapForestEndA1map   ;Ready the open door
+  CsCall Cs_ComputePlayerAndCamera+8*3*3        ;Bottom of map
+  CsCall Cs_MapFadein
+  CsMoveActorVar 20,1   ;Enter Marisa
+  CsWait 37
+  CsAnimateActor 1,CsAnFaceUp     ;Marisa, stand still
+  CsWait 50
+  CsAnimSpeed 1,$04
+  CsAnimateActor 1,CsAnWalkUp   ;Ok now go
+  CsMoveActorSpeed 1,CsDirUp,0.2,20
+  CsMoveCameraSpeed CsDirUp,1.11,111     ;Pan camera up to house
+  CsWait 200
+  CsSetActorY 1,170     ;Marisa made it to the house weirdly quick
+  CsSetActorX 1,64
+  CsAnimateActor 1,CsAnFaceUp
+  CsMoveCameraTime CsDirDown,80,40      ;Pan down to Marisa
+  CsWait 80
+  CsRunText StringAliceHouse1
+  CsWaitText
+  CsAnimSpeed 1,$06
+  CsAnimateActor 1,CsAnWalkUp   ;Walk up to door
+  CsMoveActorTime 1,CsDirUp,190,72
+  CsWait 190
+  CsShowMap             ;Door opens
+  CsNewActor 2,CsChAlice,0      ;Alice in doorway
+  CsLoadMap MapForestEndA2map   ;Ready the closed door
+  CsWait 1
+  CsSetActor 2,64,90
+  CsAnimateActor 2,CsAnFaceDown
+  CsAnimateActor 1,CsAnFaceUp   ;Marisa startled
+  CsMoveActorTime 1,CsDirDown,7,18
+  CsWait 20
+  CsRunText StringAliceHouse2
+  CsWaitText
+  CsAnimateActor 1,CsAnWalkUp   ;Marisa walks in
+  CsMoveActorTime 1,CsDirUp,50,47
+  CsWait 15
+  CsAnimateActor 2,CsAnFaceUp   ;Alice leaves from doorway
+  CsWait 20
+  CsDeleteActor 2
+  CsWait 10
+  CsAnimateActor 1,CsAnFaceUp
+  CsWait 15
+  CsAssignHat 0,0
+  CsSetActor 0,200,200
+  CsRunText StringAliceHouse3
+  CsWaitText
+  CsDeleteActor 1
+  CsWait 10
+  CsShowMap             ;Door close
+  CsLoadSong SongNull
+  CsWait 90
+  CsLoadBkgColor %11111001
+  CsLoadObjColor %11100101,%11111001
+  CsWait 90
+  CsLoadBkgColor %11111110
+  CsLoadObjColor %11111010,%11111110
+  CsWait 90
+  CsLoadBkgColor %11111111
+  CsLoadObjColor %11111111,%11111111
   CsEnd
 
 ;Ending B (Escorted by Alice)
@@ -670,19 +740,6 @@ Cs_EndingB:
   
   ;Fade to black
   CsCall Cs_MapFadeout
-  CsEnd
-
-;Ending C (Found Alice's house from the back)
-Cs_EndingC:
-  CsLoadSong SongDoll
-  ;Marisa doesn't recognise the house
-  ;Marisa sneaks in to the house (for perusal)
-  ;Some comments on how "Alice-like" it is
-  ;Fairies sneak in from the front; a lot of them
-  ;Battle ensues
-  ;Fadeout... time passes
-  ;Alice comes home, is displeased at the carnage
-  ;Blames Marisa, more battle ensues
   CsEnd
 
 ;Bad insult lines:

@@ -294,9 +294,6 @@ Cutscene_RelJump:
   LD B,A
   JP _Cutscene_ItemReturn
 
-;Conditional jump
-;
-
 
 ;These are tasks
 
