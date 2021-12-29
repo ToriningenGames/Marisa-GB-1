@@ -74,17 +74,19 @@ The Storyline.txt is not engine, data, or art related, so it doesn't have a home
     - Dependent tools not in `Tools`? Use `make TOOLDIR=path/to/tools`
     - Build environment won't check out, but you know it'll be OK anyways? Use `make force`
     - `make clean` is available for you
+    - The Makefile has a few memory maps available for you. Building alone may not leave enough space, but using `make MAP=ALTMAP` ekes out a few extra bytes. If you're adding things in and know it's over size, use `make MAP=FATMAP`. *The game will not run using this map!*
 
 For right now, the Tools folder contains win64 versions of tools I writ. `make` and `wla` will have to be provided by you.
 
 ## Tips When Editiing
 - The Makefile autogenerates the WLA linkfile as Link.link, adds all the pieces where they need to be, and throws it together.
-- The two Make variables LIB0 and LIB1 place the libraries in banks 0 and 1. I tried to organize approximately on what would and would not be bankswitched, though it doesn't matter, because the project is 32k.
+- The two Make variables LIB0 and LIB1 place the libraries in banks 0 and 1. I tried to organize approximately on what would and would not be bankswitched, though it doesn't matter, because the project is 32k. (This can be thrown out the window with the altername memory maps)
 - The symbol file is stripped of section information automatically. This is done in the Makefile.
 - It is encouraged, though not necessary, to ensure every resource has a compiled variant, so everything included is in Source or rsc.
 - The tools are not very well documented here (left the documentation in the source). This will get fixed in the distant future.
-- The Makefile is written on and for a Windows machine (line endings, commands, etc.). The executables are win64 binaries. The data of the project is fully portable.
+- The Makefile is written on and for a Windows machine (line endings, commands, etc.). The executables are win64 binaries. The data of the project is probably portable.
 - The Makefile should rebuild submakes when the source file changes, which, while costly, ensures they don't fall out of date. Additionally, it _should_ make Make build most the file's dependencies first.
+- I dislike Make and disagree with how it does things and sees the world, so I likely have done a few things incorrectly there. If some change doesn't seem to be sticking, suspect the Makefile.
 
 # TODO
 Outside game:
@@ -95,26 +97,18 @@ Outside game:
 <li />[ ] Add the music midis in
 <li />[x] Release the "picnic" demo
 <li />[ ] Write a prereq script
+<li />[ ] Release video?
 </ul>
 Inside game:
 <ul>
-<li />[x] Fix cutscene Actor control (movement, delete, control)
-<li />[x] Add actor destructors
-<li />[x] Add Danmaku
-<li />[ ] Add Reimu character behavior
-<li />[ ] Add Reimu walking animations
-<li />[ ] Add Narumi character behavior
-<li />[ ] Add Alice character behavior
-<li />[ ] Add Alice's other walking animations
-<li />[ ] Add Fairy character behaviors
-<li />[x] Add Fairy floaing animations
-<li />[x] Add text option to wait for button press
-<li />[ ] Add some sort of character talk interation
-<li />[x] Create most more maps
-<li />[ ] Write some title music
-<li />[ ] Pare down unused utility functions
-<li />[ ] Write all the cutscenes
-<li />[x] Add camera behavior to follow player movement
-<li />[x] Fix hat being unable to act after leaving camera view
-<li />[x] Add conditionals to cutscenes
+<li />[ ] Finish the last half-dozen cutscenes
+<li />[ ] Script and write the last half-dozen text blobs
+<li />[ ] Tie the cutscenes into the game at their intended points
+<li />[ ] Rewrite Love-Colored Master Spark to be more fitting and smaller
+<li />[ ] Rewrite the fairy behavior to be more RAM based and modular
+<li />[ ] Reimplement danmaku
+<li />[ ] Write up patterns for the fairies
+<li />[ ] Write up patterns for Narumi
+<li />[ ] Tie the patterns to their characters
+<li />[ ] Add the hat interaction
 </ul>
