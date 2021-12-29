@@ -803,12 +803,16 @@ Cs_ReimuFeed:
   CsSetVar 124,2
   ;Are there any left?
   CsWaitText
-  CsJumpRelVar 120,4
-  CsJumpRelVar 122,3
-  CsJumpRelVar 124,2
-  CsRunText StringReimuFeed4
-  CsJumpRel 1
+  CsJumpRelVar 120,3
+  CsJumpRelVar 122,2
+  CsJumpRelVar 124,1
+  CsJump Cs_ReimuDone
   CsRunText StringReimuFeed3
+  CsWaitText
+  CsEnd
+
+Cs_ReimuDone:
+  CsRunText StringReimuFeed4
   CsWaitText
   CsEnd
 

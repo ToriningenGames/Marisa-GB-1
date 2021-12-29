@@ -188,6 +188,11 @@ StringAliceHouse3:
 .ASC "WHOA"
 .DB CtrlSnapDown, CtrlEnd
 
+StringHouseBack1:
+.DB CtrlFaceShow,0, CtrlClear, CtrlRaise
+.ASC ".", CtrlPause
+.DB CtrlLower, CtrlEnd
+
 StringReimuMeet:
 ;M: Hey.
 .ASC "HEY.", CtrlPause, CtrlClear
