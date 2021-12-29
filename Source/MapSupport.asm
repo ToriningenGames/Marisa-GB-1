@@ -53,24 +53,31 @@ LoadMap_Task:
   LD A,$EF      ;Sentinel value for grass
 -
   CP (HL)
-  JR nz,+
-;Is grass
-  RST $18   ;Random
-  AND $F
-  RRA   ;Random number [0-8], with 0s and 8s being unlikely
-  ADC (HL)  ;offset into grass
-  LD (HL),A
-  LD A,$EF      ;Sentinel value for grass
-+   ;Is not grass
-  INC HL
+  JR z,+
+  INC HL   ;Is not grass
+--
   DEC C
   JR nz,-
+  LD D,H
+  LD E,L
+  CALL HaltTask         ;Let other things run (and conserve battery)
+  LD H,D
+  LD L,E
   DEC B
   JR nz,-
 ++
   LD HL,hotMap
   LD (HL),$80
   JP EndTask
++
+;Is grass
+  RST $18   ;Random
+  AND $F
+  RRA   ;Random number [0-8], with 0s and 8s being unlikely
+  ADC (HL)  ;offset into grass
+  LDI (HL),A
+  LD A,$EF      ;Sentinel value for grass
+  JR --
 
 ;Loads map in RAM to screen
 ShowMap_Task:

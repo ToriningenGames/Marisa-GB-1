@@ -11,7 +11,7 @@
 .include "macros.asm"
 
 
-.SECTION "Maps" ALIGN 256 FREE
+.SECTION "Maps" FREE
 
 MapBackBase:
 MapForestBKG01:
