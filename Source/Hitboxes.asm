@@ -289,7 +289,7 @@ NPCHitboxes:
  .dw DefaultHitboxAction
  .dw $0000,$0000
  .db $05,HitboxTalk
- .dw CsInt_Debug
+ .dw Cs_NarumiFightEnd
 
 PlayerHitboxes:
  .db 2
