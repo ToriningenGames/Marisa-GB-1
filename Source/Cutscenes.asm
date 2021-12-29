@@ -60,13 +60,6 @@
  .db $80+28
  .dw time+$100
 .ENDM
-.MACRO CsWaitVar ARGS var, timebase
- .IF NARGS >= 3
- .db $C0+28,var,>basetime
- .ELSE
- .db $C0+28,var,$01     ;default +$100 to match CsWait
- .ENDIF
-.ENDM
 .MACRO CsEnd
  .db $80
  .dw 0
@@ -85,40 +78,16 @@
 .MACRO CsInputChange ARGS ID, control
  .db 1,control,ID
 .ENDM
-.MACRO CsInputChangeVar ARGS var, ID
- .db $40+1,var,ID
-.ENDM
 .MACRO CsRunText ARGS TextPtr
  .db 3
  .dw TextPtr
 .ENDM
-.MACRO CsRunTextVar ARGS var, textbase
- .IF NARGS >= 3
- .db $40+3,var,>textbase
- .ELSE
- .db $40+3,var,0
- .ENDIF
-.ENDM
 .MACRO CsSetCamera ARGS X, Y
  .db 4,Y,X
-.ENDM
-.MACRO CsSetCameraVar ARGS var, morex
- .IF NARGS >= 3
- .db $40+4,var,morex
- .ELSE
- .db $40+4,var,0
- .ENDIF
 .ENDM
 .MACRO CsMoveCameraSpeed ARGS dir, speed, dist
 ;I want to move in [dir], and go [dist] via [speed] pixels/frame
  .db 5,dist,(dir<<6) | ((speed*16) & $3F)
-.ENDM
-.MACRO CsMoveCameraSpeedVar ARGS var, dir=0, morespeed
- .IF NARGS >= 3
- .db $40+5,var,(dir<<6) | ((morespeed*16) & $3F)
- .ELSE
- .db $40+5,var,(dir<<6)
- .ENDIF
 .ENDM
 .MACRO CsMoveCameraTime ARGS dir, time, dist
 ;I want to move in [dir], and go [dist] in exactly [time] frames
@@ -127,15 +96,8 @@
 .MACRO CsNewActor ARGS ID, species, race
  .db 6,race,(species << 5) | ID
 .ENDM
-.MACRO CsNewActorVar ARGS var, ID, speciesmod
- .IF NARGS >= 3
- .db $40+6,var,(speciesmod << 5) | ID
- .ELSE
- .db $40+6,var,ID
- .ENDIF
-.ENDM
 .MACRO CsDeleteActor ARGS ID
- .db 7,0,ID
+ .db 7,ID,0
 .ENDM
 .MACRO CsDeleteActorVar ARGS var, ID
  .db $40+7,var,ID
@@ -169,14 +131,8 @@
 .MACRO CsAnimSpeed ARGS ID, animspeed
  .db 8,animspeed,ID | ((0)*32)
 .ENDM
-.MACRO CsAnimSpeedVar ARGS var, ID
- .db $40+8,var,ID | ((0)*32)
-.ENDM
 .MACRO CsSetActorSpeed ARGS ID, speed
  .db 9,speed*16,ID | ((2)*32)
-.ENDM
-.MACRO CsSetActorSpeedVar ARGS var, ID
- .db $40+9,var,ID | ((2)*32)
 .ENDM
 .MACRO CsMoveActor ARGS ID, dir, dist
  .db 9,dist,ID | ((dir + 3)*32)
@@ -185,30 +141,15 @@
  .IF NARGS >= 3
  .db $40+9,var,ID | ((dir + 3)*32)
  .ELSE
- .db $40+9,var,ID | ((3)*32)
+ .db $40+9,var,ID
  .ENDIF
 .ENDM
 .MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
  .db 9,speed*16,ID | ((2)*32)
  .db 9,dist, ID | ((dir + 3)*32)
 .ENDM
-.MACRO CsMoveActorSpeedVar ARGS varspeed, vardist, ID, dir
- .db $40+9,varspeed,ID | ((2)*32)
- .IF NARGS >= 3
- .db $40+9,vardist, ID | ((dir + 3)*32)
- .ELSE
- .db $40+9,vardist, ID | ((3)*32)
- .ENDIF
-.ENDM
 .MACRO CsMoveActorDist ARGS ID, dir, dist
  .db 9,dist,ID | ((dir + 3)*32)
-.ENDM
-.MACRO CsMoveActorDistVar ARGS var, ID, dir
- .IF NARGS >= 3
- .db $40+9,vardist,ID | ((dir + 3)*32)
- .ELSE
- .db $40+9,vardist,ID | ((3)*32)
- .ENDIF
 .ENDM
 .MACRO CsMoveActorTime ARGS ID, dir, time, dist
  .db 9,dist/time*16,ID | ((2)*32)
@@ -217,22 +158,8 @@
 .MACRO CsLoadObjColor ARGS color0, color1
  .db $80+30,color1,color0
 .ENDM
-.MACRO CsLoadObjColorVar ARGS var, morecolor0
- .IF NARGS >= 2
- .db $C0+30,var,morecolor0
- .ELSE
- .db $C0+30,var,0
- .ENDIF
-.ENDM
 .MACRO CsLoadBkgColor ARGS color
- .db $80+31,0,color
-.ENDM
-.MACRO CsLoadBkgColorVar ARGS var, morecolor
- .IF NARGS >= 2
- .db $C0+31,var,morecolor
- .ELSE
- .db $C0+31,var,0
- .ENDIF
+ .db $80+31,color,0
 .ENDM
 .MACRO CsLoadObj ARGS objs
  .db 11
@@ -256,30 +183,20 @@
  .db $40+12,var,0
  .ENDIF
 .ENDM
-.MACRO CsWaitMap
+.MACRO CsWaitReadyMap
  .db $80+27
- .dw 0      ;Dummy
+ .db 0,$80
+.ENDM
+.MACRO CsShowMap
+ .db 26,0,0
+ .db $80+27,0,$FF       ;Wait on map after
 .ENDM
 .MACRO CsLoadSong ARGS song
  .db 13
  .dw song
 .ENDM
-.MACRO CsLoadSongVar ARGS var, songbase
- .IF NARGS >= 2
- .db $40+13,var,>songbase
- .ELSE
- .db $40+13,var,0
- .ENDIF
-.ENDM
 .MACRO CsPanSong ARGS channelSelect, stereoVolume
  .db 14,channelSelect,stereoVolume
-.ENDM
-.MACRO CsPanSongVar ARGS var, moreStereoVolume
- .IF NARGS >= 2
- .db $40+14,var,moreStereoVolume
- .ELSE
- .db $40+14,var,0
- .ENDIF
 .ENDM
 .MACRO CsAssignHat ARGS hat, ID
  .db 10,hat,ID
@@ -288,17 +205,8 @@
  .db 16
  .dw alteration
 .ENDM
-.MACRO CsAlterMapVar ARGS var, altbase
- .IF NARGS >= 2
- .db $40+16,var,>altbase
- .ELSE
- .db $40+16,var,0
-.ENDM
 .MACRO CsShootDanmaku ARGS ID, type
  .db 17,type,ID
-.ENDM
-.MACRO CsShootDanmakuVar ARGS var, ID
- .db $40+17,var,ID
 .ENDM
 .MACRO CsCall ARGS cs
  .db $80+2
@@ -347,8 +255,7 @@
  .db $80+23,scale,var
 .ENDM
 
-
-.SECTION "Cutscenes" ALIGN 256 FREE
+.SECTION "Block Cutscenes" BITWINDOW 8 FREE
 
 ;It is required that this pointer is page-aligned
 Cs_ComputePlayerAndCamera:
@@ -388,6 +295,10 @@ Cs_ComputePlayerAndCamera:
   CsSnapCamera
   CsSetActorYVar 18,1
   CsEnd
+
+.ENDS
+
+.SECTION "Cutscenes" FREE
 
 ;Var definitions on map changes
     ;1: Entry facing direction
@@ -442,77 +353,70 @@ Cs_MapFadein:
         ;Direction in var 1
     ;Fade in
     ;Control
-Cs_MusicCheck:
-  CsEndVar 126,1
-  CsLoadSong SongRetrib
-  CsSetVar 126,1
-  CsEnd
 Cs_StraightTransition:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
-  CsCall Cs_MusicCheck
+  CsJumpRelVar 126,1
+  CsJump Cs_TransitionIn
+  CsLoadSong SongRetrib         ;Change music
+  CsSetVar 126,1
   CsJump Cs_TransitionIn
 
 ;Some of the non straight transitions
 Cs_CurvedTransitionA:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
-  ;Separate the map bytes for analysis
-  CsSetVar 23,0
-  CsSetVar 25,0
-  CsSetVarVar 22,32
-  CsSetVarVar 24,33
   ;Check for exit from map 01 (to map 00)
-  CsAddVar 22,(0 - <MapForest01map) & $FF
-  CsAddVar 24,(0 - >MapForest01map) & $FF
-  CsJumpRelVar 22,1
+  CsAddVar 32,(0 - <MapForest01map) & $FF
+  CsAddVar 33,(0 - >MapForest01map) & $FF
+  CsJumpRelVar 32,1
   CsJumpRel 1
-  CsJumpRelVar 24,6
+  CsJumpRelVar 33,6
   ;Check for exit from map 11
-  CsAddVar 22,((<MapForest01map) - (<MapForest11map)) & $FF
-  CsAddVar 24,((>MapForest01map) - (>MapForest11map)) & $FF
-  CsJumpRelVar 22,1
+  CsAddVar 32,((<MapForest01map) - (<MapForest11map)) & $FF
+  CsAddVar 33,((>MapForest01map) - (>MapForest11map)) & $FF
+  CsJumpRelVar 32,1
   CsJumpRel 5
-  CsJumpRelVar 24,1
+  CsJumpRelVar 33,1
   CsJumpRel 3
   CsSetVar 1,CsDirLeft      ;Go Left
-  CsSetVar 21,CsDirLeft*32
+  CsSetVar 21,(CsDirLeft+3)*32
   CsJump Cs_TransitionIn
   ;Check for exit from map 04   fix
-  CsAddVar 22,((<MapForest11map) - (<MapForest04map)) & $FF
-  CsAddVar 24,((>MapForest11map) - (>MapForest04map)) & $FF
-  CsJumpRelVar 22,1
+  CsAddVar 32,((<MapForest11map) - (<MapForest04map)) & $FF
+  CsAddVar 33,((>MapForest11map) - (>MapForest04map)) & $FF
+  CsJumpRelVar 32,1
   CsJumpRel 1
-  CsJumpRelVar 24,6
+  CsJumpRelVar 33,6
   ;Check for exit from map 24
-  CsAddVar 22,((<MapForest04map) - (<MapForest24map)) & $FF
-  CsAddVar 24,((>MapForest04map) - (>MapForest24map)) & $FF
-  CsJumpRelVar 22,1
+  CsAddVar 32,((<MapForest04map) - (<MapForest24map)) & $FF
+  CsAddVar 33,((>MapForest04map) - (>MapForest24map)) & $FF
+  CsJumpRelVar 32,1
   CsJumpRel 5
-  CsJumpRelVar 24,1
+  CsJumpRelVar 33,1
   CsJumpRel 3
   CsSetVar 1,CsDirDown      ;Go Down
-  CsSetVar 21,CsDirDown*32
+  CsSetVar 21,(CsDirDown+3)*32
   CsJump Cs_TransitionIn
   ;Check for exit from map 02
-  CsAddVar 22,((<MapForest24map) - (<MapForest02map)) & $FF
-  CsAddVar 24,((>MapForest24map) - (>MapForest02map)) & $FF
-  CsJumpRelVar 22,1
+  CsAddVar 32,((<MapForest24map) - (<MapForest02map)) & $FF
+  CsAddVar 33,((>MapForest24map) - (>MapForest02map)) & $FF
+  CsJumpRelVar 32,1
   CsJumpRel 5
-  CsJumpRelVar 24,1
+  CsJumpRelVar 33,1
   CsJumpRel 3
   CsSetVar 1,CsDirRight     ;Go Right
-  CsSetVar 21,CsDirRight*32
+  CsSetVar 21,(CsDirRight+3)*32
   CsJump Cs_TransitionIn
   ;Check for exit from map 00
-  CsAddVar 22,((<MapForest02map) - (<MapForest00map)) & $FF
-  CsAddVar 24,((>MapForest02map) - (>MapForest00map)) & $FF
-  CsJumpRelVar 22,1
+  CsAddVar 32,((<MapForest02map) - (<MapForest00map)) & $FF
+  CsAddVar 33,((>MapForest02map) - (>MapForest00map)) & $FF
+  CsJumpRelVar 32,1
   CsJump Cs_TransitionIn    ;Last check, always transition
-  CsJumpRelVar 24,1
+  CsJumpRelVar 33,1
   CsJump Cs_TransitionIn
   CsSetVar 1,CsDirUp        ;Go Up
-  CsSetVar 21,CsDirUp*32
+  CsSetVar 21,(CsDirUp+3)*32
   CsJump Cs_TransitionIn
 
 
@@ -536,20 +440,15 @@ Cs_Forest11:
   CsWait 2
   CsAnimateActor 2,CsAnFaceLeft
   CsSetActor 2,10,10
-  ;Separate the map bytes for analysis
-  CsSetVar 23,0
-  CsSetVar 25,0
-  CsSetVarVar 22,32
-  CsSetVarVar 24,33
   ;Check for exit from map 01 (to 11)
-  CsAddVar 22,(0-<MapForest01map) & $FF
-  CsAddVar 24,(0->MapForest01map) & $FF
-  CsJumpRelVar 22,1
+  CsAddVar 32,(0-<MapForest01map) & $FF
+  CsAddVar 33,(0->MapForest01map) & $FF
+  CsJumpRelVar 32,1
   CsJump Cs_TransitionIn    ;Last check, always transition
-  CsJumpRelVar 24,1
+  CsJumpRelVar 33,1
   CsJump Cs_TransitionIn    ;Last check, always transition
   CsSetVar 1,CsDirDown      ;Go Down
-  CsSetVar 21,CsDirDown*32
+  CsSetVar 21,(CsDirDown+3)*32
   CsJump Cs_TransitionIn
 
 ;Shroom room
@@ -600,11 +499,12 @@ Cs_Intro:
   CsInputChange 1,0     ;Cutscene control of Marisa
   CsAnimateActor 1,CsAnFaceDown
   CsAssignHat 0,1
-  CsWaitMap
+  CsWaitReadyMap
   CsLoadMap MapForest23map
   CsSetActor 1,130,70
-  CsWaitMap
+  CsWaitReadyMap
   CsLoadObj MapForest23obj
+  CsShowMap
   CsInputChange 1,$80   ;Camera follow
   ;Marisa walk into scene here
   CsCall Cs_MapFadein
@@ -629,36 +529,39 @@ Cs_Intro:
 
 Cs_TransitionOut:
   CsInputChange 1,0
-  CsSetVar 2,0
   CsAddVar 1,CsAnWalkLeft
   CsAnimateActorVar 1,1
   CsAddVar 1,-CsAnWalkLeft
   CsSetVar 20,30    ;Distance
   CsSetVarVar 21,1
+  CsAddVar 21,3
   CsMultVar 21,32   ;put the dir part in its place in the byte
   CsMoveActorVar 20,1
   CsCall Cs_MapFadeout
   CsSetVarVar 2,3   ;Convert backing to short and index into back maps (26 bytes per item)
-  CsSetVar 3,0
   CsMultVar 2,26
-  CsLoadMapVar 2,MapBackBase
-  CsWaitMap
+  CsAddVar 2,<MapBackBase
+  CsAddVar 3,>MapBackBase
+  CsLoadMapVar 2
+  CsWaitReadyMap
   CsLoadMapVar 4
-  CsWaitMap
+  CsWaitReadyMap
   CsLoadObjVar 6
+  CsShowMap
   CsEnd
 
 Cs_TransitionIn:
-  CsSetVar 2,0
   CsAddVar 1,CsAnWalkLeft   ;In case fancing changed
   CsAnimateActorVar 1,1
   CsAddVar 1,-CsAnWalkLeft
   CsSetVarVar 6,1   ;Index into ComputePlayerAndCamera list (24 bytes per item)
   CsSetVar 7,0
   CsMultVar 6,24
+  CsAddVar 6,<Cs_ComputePlayerAndCamera
+  CsAddVar 7,>Cs_ComputePlayerAndCamera
   CsSetVar 17,0
   CsSetVar 19,0
-  CsCallVar 6,Cs_ComputePlayerAndCamera
+  CsCallVar 6
   CsCall Cs_MapFadein
   CsMoveActorVar 20,1
   CsWait 37
@@ -669,22 +572,12 @@ Cs_TransitionIn:
   CsEnd
 
 Cs_ClearActorList:
-  CsSetVar 24,0
   CsSetVar 23,30
-  CsDeleteActorVar 22,1
+  CsDeleteActorVar 23,1
   CsAddVar 23,-1
   CsEndVar 23
   CsJumpRel -4
 
-;Interations
-;Things people say and do when you talk to them
-;All must begin with a RET to prevent being called (since they're put in function contexts)
-CsInt_Debug:
-  RET
-  CsRunText StringTestInteraction
-  CsWaitText
-  CsInputChange 1,$87
-  CsEnd
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
   CsCall Cs_TransitionOut
@@ -705,7 +598,7 @@ Cs_EndingA:
 
 ;Ending B (Escorted by Alice)
 Cs_EndingB:
-  RET
+  RET   ;Used as interaction function
   ;Marisa, Alice, don't move anymore, and no camera tracking
   CsInputChange 1,0
   CsInputChange 2,0
@@ -732,7 +625,7 @@ Cs_EndingB:
   CsWait 170
   CsCall Cs_MapFadeout
   CsLoadMap MapForestBKG01
-  CsWaitMap
+  CsWaitReadyMap
   CsLoadMap MapForest02map
   ;Bottom entrance
   CsSetActor 2,100,240
@@ -740,8 +633,10 @@ Cs_EndingB:
   CsAnimateActor 2,CsAnWalkUp
   CsAnimateActor 1,CsAnWalkUp
   CsSetCamera 0,111
-  CsWaitMap
+  CsWaitReadyMap
   CsLoadMap MapForestEndBmap
+  CsWaitReadyMap
+  CsShowMap
   ;Camera follows Alice
   CsCall Cs_MapFadein
   ;Alice moves up
@@ -756,8 +651,8 @@ Cs_EndingB:
   CsWaitText
   ;Marisa moves around Alice to closer to house
   CsAnimateActor 1,CsAnWalkLeft
-  CsMoveActorTime 1,CsDirLeft,30,16
-  CsWait 30
+  CsMoveActorTime 1,CsDirLeft,50,28
+  CsWait 50
   CsAnimateActor 1,CsAnWalkUp
   CsMoveActorTime 1,CsDirUp,80,44
   CsWait 80
@@ -836,39 +731,27 @@ Cs_ReimuMeet:
   CsEnd
   
 Cs_ReimuFeed:
-  CsEndVar 116,0
+  CsEndVar 116
   ;Does Marisa have mushrooms?
   CsCall Cs_ReimuMushroomTest
-  CsEndVar 0,0
+  CsEndVar 0
   ;Marisa has mushrooms
   CsRunText StringReimuFeed2
   ;Those mushrooms are gone now
-  CsJumpRelVar 120,0
-  CsJumpRel 1
+  CsJumpRelVar 120,1
   CsSetVar 120,2
-  CsJumpRelVar 122,0
-  CsJumpRel 1
+  CsJumpRelVar 122,1
   CsSetVar 122,2
-  CsJumpRelVar 124,0
-  CsJumpRel 1
+  CsJumpRelVar 124,1
   CsSetVar 124,2
   ;Are there any left?
   CsWaitText
-  CsCall Cs_ReimuFullTest
-  CsEndVar 0,0
-  CsRunText StringReimuFeed3
-  CsWaitText
-  CsEnd
-
-;Uses Var 0 for whether the forest has shrooms or not
-Cs_ReimuFullTest:
-  CsSetVar 0,1
-  CsEndVar 120,0
-  CsEndVar 122,0
-  CsEndVar 124,0
-  ;No mushrooms left
-  CsSetVar 0,0
+  CsJumpRelVar 120,4
+  CsJumpRelVar 122,3
+  CsJumpRelVar 124,2
   CsRunText StringReimuFeed4
+  CsJumpRel 1
+  CsRunText StringReimuFeed3
   CsWaitText
   CsEnd
 

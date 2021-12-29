@@ -16,7 +16,6 @@
     ;Play actor animation
     ;Open door
     ;Stopping player controlled movement
-    ;Try to never have a "Call this function" function
 ;Cutscenes will be responsible for tracking which character is which, and where,
 ;EXCEPT for the hat and the player; IDs for those are available at $C0E9/A
 ;Cutscene data is abstracted from ID juggling by using an index system;
@@ -36,33 +35,6 @@
 
 .SECTION "Cutscene Data" ALIGN 256 FREE
 
-;Cutscene function signature:
-    ;Some are tasks
-    ;DE->Data
-;Cutscene abilities:
-;End (If D == E)
-;Disable player input
-;Enable player input
-;Run Text
-;Set camera
-;Move camera
-;Create actor
-;Destroy actor
-;Set actor position
-;Animate actor
-;Move actor
-;Load object palette
-;Load background palette
-;Load map
-;Load song
-;Load song panning
-;Assign hat to actor
-;Set actor speed
-;Alter Map
-;Shoot Danmaku
-;Wait for time
-;Wait on text
-
 ;Attach hat to character
 ;Detach hat from characters
 
@@ -74,7 +46,8 @@
         ;clear calls the action with DE as-is
         ;set uses E as a var number.
             ;E is replaced with the value at $C000+var,
-            ;D is added with the value at $C001+var
+            ;D is replaced with the value at $C001+var
+            ;A takes on the original value of D
 Cutscene_LUT:
  .dw Cutscene_End
  .dw Cutscene_InputChange
@@ -88,7 +61,7 @@ Cutscene_LUT:
  .dw Cutscene_ActorMovement
  .dw Cutscene_HatAssign
  .dw Cutscene_ObjectsLoad
- .dw Cutscene_MapLoad
+ .dw LoadMap_Task       ;CsLoadMap
  .dw Cutscene_SongLoad
  .dw Cutscene_SongPan
  .dw LoadRectToVRAM_Task
@@ -102,7 +75,7 @@ Cutscene_LUT:
  .dw Cutscene_VarMultiply
  .dw Cutscene_End
  .dw Cutscene_End
- .dw Cutscene_End
+ .dw ShowMap_Task       ;CsShowMap
  .dw Cutscene_MapWait
  .dw Cutscene_Wait
  .dw Cutscene_TextWait
@@ -148,21 +121,19 @@ _Cutscene_ItemReturn:
   INC BC
   LD D,A
   BIT 7,L   ;Var indirection indicator
-  JR z,++
-  RES 7,L
-  PUSH HL   ;Grab DE from vars
   PUSH AF
-    LD H,varPage
-    LD L,E
-    LD E,(HL)
-    INC L
-    LD A,D
-    ADD (HL)
-    LD D,A
-  POP AF
-  POP HL
+    JR z,++
+    RES 7,L
+    PUSH HL   ;Grab DE from vars
+      LD H,varPage
+      LD L,E
+      LD E,(HL)
+      INC L
+      LD D,(HL)
+    POP HL
 ++
-  JR c,+    ;Same task cutscene item
+    JR c,+    ;Same task cutscene item
+  POP AF
   PUSH BC
     LD C,(HL)
     INC HL
@@ -176,9 +147,10 @@ _Cutscene_ItemReturn:
   CALL HaltTask
   JR -
 +
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
+    LDI A,(HL)
+    LD H,(HL)
+    LD L,A
+  POP AF
   JP HL
 
 ;Cutscene functions
@@ -191,22 +163,21 @@ Cutscene_CameraSnap:
   JR _Cutscene_ItemReturn
 
 Cutscene_End:
-  LD A,D
   CP E
   JR nz,_Cutscene_ItemReturn
   JP EndTask
 
 Cutscene_BkgPaletteLoad:
-;D= New background palette
+;E= New background palette
   LD HL,BkgPal
-  LD (HL),D
+  LD (HL),E
   JR _Cutscene_ItemReturn
 
 Cutscene_VarSet:
-;D= variable to set
+;A= variable to set
 ;E= value to set to
   LD H,varPage
-  LD L,D
+  LD L,A
   LD (HL),E
   JR _Cutscene_ItemReturn
 
@@ -230,31 +201,30 @@ Cutscene_Wait:
   JR _Cutscene_ItemReturn
 
 Cutscene_VarToVar:
-;D= dest
+;A= dest
 ;E= src
   LD H,varPage
   LD L,E
-  LD A,(HL)
-  LD L,D
-  LD (HL),A
+  LD D,(HL)
+  LD L,A
+  LD (HL),D
   JR _Cutscene_ItemReturn
 
 Cutscene_MapWait:
   LD DE,hotMap
--
   CALL HaltTask
-  LD A,(DE)
-  INC A
-  JR nz,-
+  LD H,D
+  LD L,E
+  XOR (HL)
+  RET nz
   JR _Cutscene_ItemReturn
 
-Cutscene_TextWait
+Cutscene_TextWait:
   LD DE,TextStatus
--
   CALL HaltTask
   LD A,(DE)
   CP textStatus_done
-  JR nz,-
+  RET nz
   JP _Cutscene_ItemReturn
 
 Cutscene_CutsceneCall:
@@ -273,21 +243,21 @@ Cutscene_CutsceneCall:
   JP _Cutscene_ItemReturn
 
 Cutscene_VarAdd:
-;D= variable to add to
+;A= variable to add to
 ;E= value to add
   LD H,varPage
-  LD L,D
+  LD L,A
   LD A,(HL)
   ADD E
   LD (HL),A
   JP _Cutscene_ItemReturn
 
 Cutscene_VarMultiply:
-;D= variable involved
+;A= variable involved
 ;E= multiplier
   PUSH BC
     LD H,varPage
-    LD L,D
+    LD L,A
     LD B,(HL)
     LD C,E
     CALL Multiply
@@ -299,7 +269,8 @@ Cutscene_VarMultiply:
   
 Cutscene_RelJump:
 ;E= 0 to go
-;D= offset
+;A= offset
+  LD D,A
   LD A,E
   OR A
   JP nz,_Cutscene_ItemReturn
@@ -322,6 +293,9 @@ Cutscene_RelJump:
   ADC -1
   LD B,A
   JP _Cutscene_ItemReturn
+
+;Conditional jump
+;
 
 
 ;These are tasks
@@ -469,11 +443,12 @@ Cutscene_ActorNew:
   JP EndTask
 
 Cutscene_ActorDelete:
-;D= %000IIIII
+;A= Offset
+;E= %000IIIII
     ;   +++++--- Reference ID
   LD HL,Cutscene_Actors
-  LD A,$1F
-  AND D
+  ADD E
+  AND $1F
   ADD L
   LD L,A
   ;Send deletion message
@@ -488,8 +463,9 @@ Cutscene_ActorDelete:
   JP EndTask
 
 Cutscene_ActorMovement:
-;D= %DDDIIIII
-    ;|||+++++--- Reference ID
+;A= %000IIIII
+    ;   +++++--- Reference ID
+;D= %DDD00000
     ;+++-------- Action
     ;               0: Set X position
     ;               1: Set Y position
@@ -503,8 +479,9 @@ Cutscene_ActorMovement:
     ;Actor speed: Pixels/frame (4.4)
     ;Move actor U/L/D/R: Distance (pixels)
     ;Anim speed: speed val
-  LD A,$1F
-  AND D
+  OR D
+  LD D,A
+  AND $1F
   ADD A,<Cutscene_Actors
   LD C,A
   LD A,>Cutscene_Actors
@@ -579,7 +556,7 @@ Cutscene_ActorMovement:
   JP EndTask
 
 Cutscene_ActorAnimate:
-;D= %DDDIIIII
+;A= %DDDIIIII
     ;|||+++++--- Reference ID
     ;+++-------- Action
     ;               0: Set anim speed
@@ -587,9 +564,9 @@ Cutscene_ActorAnimate:
 ;E= Value
     ;Play animation: anim ID
     ;Anim speed: speed val
+  LD D,A
   LD H,>Cutscene_Actors
-  LD A,$1F
-  AND D
+  AND $1F
   ADD A,<Cutscene_Actors
   LD L,A
   ;Set the message
@@ -626,24 +603,6 @@ Cutscene_ActorAnimate:
   LD (HL),C
   JP EndTask
 
-Cutscene_MapLoad:
-;DE->Map Data
-;Load in the new map
-  XOR A
-  LD (hotMap),A
--
-  LD BC,LoadMap_Task
-  CALL NewTask
-  JR nc,+
-  CALL HaltTask
-  JR -
-+
-;Wait for map to be loaded
-  LD A,B
-  CALL WaitOnTask
-;Put map on screen
-  JP ShowMap_Task
-
 Cutscene_ObjectsLoad:
 ;DE->Objects data
 ;Load in the boundaries
@@ -677,10 +636,10 @@ Cutscene_SongPan:
   JP EndTask
 
 Cutscene_InputChange:
-;D= Actor ID
+;A= Actor ID
 ;E= New control state
 ;Send message to actor that control state is now X?
-  LD A,D
+  LD D,A
   ADD <Cutscene_Actors
   LD C,A
   LD B,>Cutscene_Actors
@@ -745,9 +704,8 @@ Cutscene_HatAssign:
   JP EndTask
 
 Cutscene_DanmakuInit:
-;D= Actor ID
+;A= Actor ID
 ;E= Danmaku type
-  LD A,D
   ADD <Cutscene_Actors
   LD C,A
   LD B,>Cutscene_Actors
