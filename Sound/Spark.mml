@@ -1,0 +1,154 @@
+@0 T120
+@1 T110
+@2 T80
+
+@11 V$FF
+@12 V$FF
+@13 V$FF
+@14 V$FF
+
+@21 V$FF
+
+@31 V$FF
+
+X0 ^0 @         #Control
+V$FF H$FF
+[:
+#Opening
+    #Full speed, maybe quieter
+    R1.8
+#Verse
+    #Slow a little, standard volume
+    R1.8
+#Bridge
+    #Slow a bit, play with volume
+    R1.8
+#Chorus
+    #Full speed, good volume
+    [1:1
+        R1.6
+#Chorus Repeat
+    ]1
+#Closer
+    #Yes volume
+    R1.2
+]0
+
+X1 ^0 @         #Melody
+[:
+#Opening
+    #Use a long instrument; whole notes require sustain
+    @11 O5
+    ^4
+    [1:1
+        C.3 R  C F G A-
+        C.3 R  <A-> B- C8 B-8 <A-8> A-8
+    ]1
+#Verse
+    #Use a picazzio-like instrument; help keep this section sounding light
+    @12
+    ^8
+    C E- F R
+    C E- F R
+    C E- F C A- G F E-
+    B- C E- R
+    B- C E- R
+    B- C E- C >C B-< A- G
+    C E- F R
+    C E- F R
+    C E- F C A- G F E-
+    B- C <A- R G R E- C F R G R A- R
+#Bridge
+    #Instrument needs decay; long note trouble helps balance with full backing
+    @13
+    ^8
+    A- > B-
+    C4.3 B- E- F4.3 G A- G2 E-4 F4
+    C4.3 C  E- F4.3 C E- F4.3
+    G A- G2 A-4 > B-4 C2
+    C B- <A- G
+#Chorus
+    #Also decay; be sure to have a solid backing to make it reasonble to hear
+    @14
+    [1 :1
+        F+ G+ >A< R G+ F+ E F+.6
+        [1 :1
+            C+ F+
+        ]1
+           G+ >A< R G+ F+ E > C+.6 B A < G+
+        F+ G+ >A< R G+ F+ E > C+.2 B
+        A B A B A < G+
+    ]1
+#Chorus Repeat
+#Closer
+    #Same instrument as above; just that two measure melody
+    > A B C+ R B C+ E F+.9
+]0
+
+X2 ^0 @         #Tenor
+[:
+#Opening
+    #Join bass
+    R1.8
+#Verse
+    #Only highlights
+    R1.8
+#Bridge
+    #Basically a bass duet
+    R1.8
+#Chorus
+    #Marry the bass and the melody
+    [1:1
+        R1.6
+#Chorus Repeat
+    ]1
+#Closer
+    #Join the melody rhythm; stay near center range
+    R1.2
+]0
+
+X3 ^0 @         #Bass
+[:
+#Opening
+    #Short and light
+    R1.8
+#Verse
+    #Long bouncing notes; like a march
+    R1.8
+#Bridge
+    #Have a couple fun jazz pickups, I guess
+    R1.8
+#Chorus
+    #Echo the Verse melody here for fun points
+    [1:1
+        R1.6
+#Chorus Repeat
+    ]1
+#Closer
+    #Join the melody rhythm; but descend
+    R1.2
+]0
+
+X4 ^0 @         #Percussion
+R1 O2
+[:
+#Opening
+    #No
+    R1.7
+#Verse
+    #No
+    R1.8
+#Bridge
+    #Pickup
+    R1.8
+#Chorus
+    #Drums finally come in; have plenty of fun crashes, but don't make it heavy
+    [1:1
+        R1.6
+#Chorus Repeat
+    ]1
+#Closer
+    #Crash cymbal at end may hang over repeat
+    R1.2
+    E1
+]0
