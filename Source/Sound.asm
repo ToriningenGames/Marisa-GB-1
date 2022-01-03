@@ -85,14 +85,14 @@ Channel4Pitch:
 ;Octaves 2 - 6, following special format
 ;The high-order byte is the associated envelope
  ;      A           B     C           D           E     F           G
- .dw $F173,$4934,$8134,$7101,$3511,$9351,$1E51,$7425,$8625,$8124,$B623,$F251
+ .dw $F173,$4934,$8134,$7101,$3511,$9351,$1E51,$7425,$8625,$B425,$B623,$F251
  .dw $00FF,$3C34,$4921,$B134,$E234,$D351,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
  .dw $00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF,$00FF
 Channel4Stacatto:
 ;Associated Stacatto data
- .db $1D,  $00,  $02,  $1F,  $00,  $04,  $00,  $00,  $00,  $30,  $00,  $04
+ .db $1D,  $00,  $02,  $1F,  $00,  $04,  $00,  $00,  $00,  $00,  $00,  $04
  .db $FF,  $00,  $00,  $02,  $01,  $04,  $FF,  $FF,  $FF,  $FF,  $FF,  $FF
 ;Format:
 ;Octave 2: usual percussion. Always available
@@ -105,6 +105,7 @@ Channel4Stacatto:
     ;D+: Elec. snare roll crescendo
     ;E: Crash cymbal
     ;F: Mid tom
+    ;F+: Loud Crash
     ;G: Hi tom
     ;G+: Elec. snare loudest
 ;Octave 3: Rolls, rides, and runs

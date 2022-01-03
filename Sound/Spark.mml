@@ -1,22 +1,31 @@
+# Love Colored Master Spark
+# Original: ZUN
+# Arrange: Toriningen
+# Intended to be calm and fit for being in the background,
+#   it ended up schizophrenic between brooding and clumsy.
+# Other than some bits on Channel 2,
+# I feel good about this one.
+# I hope future me is prepared to eat those words looking back after improving.
+
 @0 T120
 @1 T110
 @2 T80
 @4 T120
 
-@11 V$FF
-@12 V$FF
-@13 V$FF
-@14 V$FF
+@11 V$90
+@12 V$90
+@13 V$90
+@14 V$90
 
-@21 V$FF
-@22 V$FF
-@23 V$FF
-@24 V$FF
+@21 V$80
+@22 V$80
+@23 V$80
+@24 V$80
 
-@31 V$FF I1
-@32 V$FF
-@33 V$FF
-@34 V$FF
+@31 V$7F I1
+@32 V$7F
+@33 V$7F
+@34 V$7F
 
 X0 ^0 @         #Control
 V$FF H$FF
@@ -31,7 +40,7 @@ V$FF H$FF
     R1.7
     R4.3
 #Bridge
-    #Slow a bit, play with volume
+    #Slow a bit, play around with volume
     @2
     R4
     R1.7
@@ -184,36 +193,11 @@ X3 ^0           #Bass
     <G+.4 >A.3 B.9
 ]0
 
-X4 ^0 @ O2      #Percussion
-#Opening
-    #No
-    R1.8
+X4 ^0 O2      #Percussion
 [:
-#Verse
-    #No
-    @1
-    R1.7
-    R4.3
-#Bridge
-    #Pickup
-    @2
-    R4
-    R1.7
-    R2
-#Chorus
-    #Drums finally come in; have plenty of fun crashes, but don't make it heavy
-    @4
-    R2
-    [1:1
-        R1.6
-#Chorus Repeat
-    ]1
-#Closer
-    #Roll!
-    ^8
-    R R R R R R R R.5 B-.4
 #Opening
     #Grandiose, spare drums
+    ^8 @0
     E1
     B1
     E4.3 C+ C
@@ -222,4 +206,42 @@ X4 ^0 @ O2      #Percussion
     B1
     E4.3 C+ C
     B.5 C C C16 C16
+#Verse
+    #March-like. I like Sousa. But I am not Sousa
+    ^8 @1
+    A.2 B.2 C+.2 B.2
+    A.2 B.2 C+.2 B C+16 C16
+    A.2 B.2 C+.2 B.2
+    A B B.2 C+.2 B F16 F16
+    A.2 B.2 C+ B B.2
+    A.2 B.2 C+.2 B C+16 C16
+    A.2 B.2 C+.2 B B
+    A C B.2 FF @2 G16 G16 G16 G16
+#Bridge
+    E.5        C C C
+    E2       C+2
+    E4  A4   C+.3  A
+    E4  C4   A A B A
+    E4  C+4  B A C+4
+    E A C+ A B A C+4
+    E A C+ A16 A16 B16 B16 A B C+
+    E ^16 CC+ A8BB
+#Chorus
+    #Drums finally come in; have plenty of fun crashes, but don't make it heavy
+    @4
+    G8C+C FC+C+A
+    [1:1
+        ^8
+        E C B  C+ A  C  B  C+
+        E C B  B  C+ C  B  B
+        E A B  C+ C  C+ B  C+
+        E C B  B  A  C  B  C+
+        E A B  C+ B  C+ C  C16 C16
+        A C E  B  E  B  B16 B16 A16 B16
+#Chorus Repeat
+    ]1
+#Closer
+    #Roll!
+    ^8
+    E C+ F.2 B G.2 F.5 B-.4
 ]0
