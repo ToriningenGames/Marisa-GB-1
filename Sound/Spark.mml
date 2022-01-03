@@ -1,6 +1,7 @@
 @0 T120
 @1 T110
 @2 T80
+@4 T120
 
 @11 V$FF
 @12 V$FF
@@ -37,7 +38,7 @@ V$FF H$FF
     R2
 #Chorus
     #Full speed, good volume
-    @0
+    @4
     R2
     [1:1
         R1.6
@@ -84,7 +85,7 @@ X1 ^0           #Melody
     F4.3 G A-
     G2 A-4 > B-4
     C2
-    @0 @14
+    @4 @14
             C B- <A- G
 #Chorus
     #Also decay; be sure to have a solid backing to make it reasonble to hear
@@ -110,27 +111,31 @@ X2 ^0           #Tenor
     A-1 A-2 > B-2 <
 #Verse
     #Only highlights
-    @1 @22
-    R1.7
-    R4.3
+    @1 @22 ^8 O5
+    R4 A R.3 A R.3 A R4 A A4 <
+    R4 G R.3 G R.3 G R G G4 G >
+    R4 A R.3 A R.3 A R4 A A4
+    R4 D R D- R C R.2 C R C R C
 #Bridge
     #Basically a bass duet
     @2 @23
-    R4
-    R1.7
-    R2
+    T0 C B  #O5
+   #E-1   D1   B-1  E-2 D2 <A-2> A-2 A2 >A2< B4 >B2 B-4 A2
+    B-2 A1  < A-1 G1     G-2  F2   E-2 D2  C2  B2   F4 F4 G2
 #Chorus
     #Marry the bass and the melody
-    @0 @24
-    R2
-    [1:1
-        R1.6
+    @4 @24
+    ^16 GF+FED+DC+C
+    [1:1 ^8 O4
+        B R C+ R <G+> A B  R  C+ R  E.2 R F R F+.2 R
+            C+ R  D+  E F+ R  G+ R >B.2 R C R C+.3
+          < C+ R  G+> A B  C+ D2            C+2
 #Chorus Repeat
     ]1
 #Closer
-    #Oops accidently descended
+    #Oops accidentally descended
     ^8
-    O5
+    #O5
     F.4 E.3 D+.9
 ]0
 
@@ -159,7 +164,7 @@ X3 ^0           #Bass
     E-1 D1 B-1 E-2 D2 <A-2> A-2 A2 >A2< B4 >B2 B-4 A2
 #Chorus
     #Echo the Verse melody here for fun points
-    @0 O3
+    @4 O3
     A8 B-8 B8 C8 @34
     [1:1 O3
         ^8
@@ -179,10 +184,10 @@ X3 ^0           #Bass
     <G+.4 >A.3 B.9
 ]0
 
-X4 ^0 @         #Percussion
+X4 ^0 @ O2      #Percussion
 #Opening
     #No
-O2 R1.8
+    R1.8
 [:
 #Verse
     #No
@@ -197,7 +202,7 @@ O2 R1.8
     R2
 #Chorus
     #Drums finally come in; have plenty of fun crashes, but don't make it heavy
-    @0
+    @4
     R2
     [1:1
         R1.6
