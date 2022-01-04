@@ -12,48 +12,50 @@
 @2 T80
 @4 T120
 
-@11 V$90
-@12 V$90
-@13 V$90
-@14 V$90
+@11 V$90 I2     #Touch
+@12 V$90 I2     #Touch
+@13 V$A0 I2
 
-@21 V$80
-@22 V$80
-@23 V$80
-@24 V$80
+@21 V$80 I0     #Touch
+@22 V$87 I0
+@23 V$60 I1
+@24 V$90 I1
 
-@31 V$7F I1
-@32 V$7F
-@33 V$7F
-@34 V$7F
+@31 V$7F I1     #Touch
+@32 V$7F I1     #Touch
+@33 V$7F I1     #Touch (Wave)
+@34 V$FF I1.31
 
-X0 ^0 @         #Control
-V$FF H$FF
+X0 ^0 @ H$FF    #Control
 [:
 #Opening
     #Full speed, maybe quieter
     @0
+    V$55
     R1.8
 #Verse
     #Slow a little, standard volume
     @1
+    V$55
     R1.7
     R4.3
 #Bridge
     #Slow a bit, play around with volume
     @2
+    V$44
     R4
     R1.7
     R2
 #Chorus
     #Full speed, good volume
     @4
-    R2
+    V$55 R4 V$66 R4
     [1:1
         R1.6
 #Chorus Repeat
     ]1
 #Closer
+    V$77
     #Yes volume
     R1.2
 ]0
@@ -94,8 +96,8 @@ X1 ^0           #Melody
     F4.3 G A-
     G2 A-4 > B-4
     C2
-    @4 @14
-            C B- <A- G
+    @4 I3
+            C B- <A- G V$C0
 #Chorus
     #Also decay; be sure to have a solid backing to make it reasonble to hear
     [1 :1 ^8
@@ -143,7 +145,7 @@ X2 ^0           #Tenor
     ]1
 #Closer
     #Oops accidentally descended
-    ^8
+    ^8 V$90
     #O5
     F.4 E.3 D+.9
 ]0
@@ -216,7 +218,7 @@ X4 ^0 O2      #Percussion
     A.2 B.2 C+ B B.2
     A.2 B.2 C+.2 B C+16 C16
     A.2 B.2 C+.2 B B
-    A C B.2 FF @2 G16 G16 G16 G16
+    A C B.2 FF @2 G32.3 G32.3 G16
 #Bridge
     E.5        C C C
     E2       C+2
