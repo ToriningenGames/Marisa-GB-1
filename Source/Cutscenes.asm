@@ -354,7 +354,7 @@ Cs_StraightTransition:
   CsCall Cs_ClearActorList
   CsJumpRelVar 126,1
   CsJump Cs_TransitionIn
-  CsLoadSong SongRetrib         ;Change music
+  CsLoadSong SongSpark         ;Change music
   CsSetVar 126,1
   CsJump Cs_TransitionIn
 
@@ -461,10 +461,12 @@ Cs_Forest04:
 Cs_Forest00:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
+  CsJumpRelVar 114,5
   CsNewActor 2,CsChReimu,0
   CsWait 2
   CsAnimateActor 2,CsAnFaceDown
-  CsSetActor 2,10,10
+  CsSetActor 2,104,88
+  CsInputChange 2,2     ;Interact!
   CsJump Cs_CurvedTransitionA+6
 
 ;Alice room
@@ -488,6 +490,9 @@ Cs_Intro:
   CsLoadBkgColor $FF
   CsLoadObjColor $FF,$FF
   CsWait 45
+  ;Variable Setup
+  CsSetVar 114,1    ;Reimu appears in (0,0)
+  ;First Scene setup
   CsLoadMap MapForestBKG03
   CsNewActor 0,CsChHat,0
   CsNewActor 1,CsChMarisa,0
@@ -764,7 +769,7 @@ Cs_NarumiFightStart:
   CsInputChange 1,$80   ;Camera follow, but sit still
   CsRunText StringNarumiStart1
   CsWaitText
-  CsLoadSong SongSpark
+  CsLoadSong SongMagus
   CsRunText StringNarumiStart2
   CsWaitText
   CsEnd
@@ -780,11 +785,16 @@ Cs_NarumiFightEnd:
 
 ;Feeding Reimu Shrooms
 Cs_ReimuMeet:
+  RET
+  CsInputChange 1,0
   CsCall Cs_ReimuFeed
+  CsInputChange 1,$87
   CsEndVar 116,1
+  CsInputChange 1,0
   CsRunText StringReimuMeet
   CsWaitText
   CsSetVar 116,1
+  CsInputChange 1,$87
   CsEnd
   
 Cs_ReimuFeed:
@@ -814,6 +824,27 @@ Cs_ReimuFeed:
 Cs_ReimuDone:
   CsRunText StringReimuFeed4
   CsWaitText
+  CsAnimateActor 2,CsAnFaceUp
+  CsRunText StringReimuFeed5
+  CsWaitText
+  CsAnimateActor 2,CsAnFaceDown
+  CsRunText StringReimuFeed6
+  CsWaitText
+  CsAnimateActor 2,CsAnFaceLeft
+  CsWait 20
+  CsAnimateActor 2,CsAnWalkLeft
+  CsMoveActorTime 2,CsDirLeft,40,6
+  CsWait 40
+  CsAnimateActor 2,CsAnFaceLeft
+  CsWait 70
+  CsAnimateActor 2,CsAnWalkLeft
+  CsMoveActorTime 2,CsDirLeft,40,6
+  CsWait 40
+  CsAnimateActor 2,CsAnFaceLeft
+  CsWait 70
+  CsAnimateActor 2,CsAnWalkLeft
+  CsMoveActorTime 2,CsDirLeft,60,10
+  CsWait 30
   CsEnd
 
 ;Uses Var 0 for whether Marisa has shrooms or not

@@ -1,6 +1,6 @@
 ;Voicelist
 
-.SECTION "Voice data" ALIGN 256 FREE
+.SECTION "Voice data" FREE
 Wave:
 
 ;First four match the output of channels 1 and 2
@@ -47,10 +47,13 @@ Wave:
 .db $13,$57,$8A,$CD,$FE,$ED,$CC,$BA,$AA,$BC,$CD,$EE,$EC,$A8,$64,$20
 
 ;14 Master Spark (plays at 110 Hz. Set NR33/34 to $5AC)
-;.db $01,$34,$42,$16,$64,$BF,$EE,$EB,$68,$99,$92,$16,$62,$6B,$66,$42
+.db $01,$34,$42,$16,$64,$BF,$EE,$EB,$68,$99,$92,$16,$62,$6B,$66,$42
 
-;31 Other Master Spark. Same pitch
-;.db $BE,$EA,$73,$39,$EF,$FF,$FE,$CA,$BD,$DB,$96,$32,$10,$13,$21,$24
+;31.15 Other Master Spark. Same pitch
+.db $BE,$EA,$73,$39,$EF,$FF,$FE,$CA,$BD,$DB,$96,$32,$10,$13,$21,$24
+
+;25.16 Rough Sine
+.db $02,$13,$25,$58,$89,$AC,$DF,$EF,$FE,$EF,$ED,$BC,$A8,$64,$23,$10
 
 .ENDS
 

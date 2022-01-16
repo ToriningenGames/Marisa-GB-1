@@ -7,7 +7,7 @@
 ReimuActorData:
  .db $10
  .dw $0100
- .dw DefaultHitboxes
+ .dw ReimuHitboxes
  .dw ReimuFrame
  .dw _HatValues
  .dw _Animations
@@ -31,8 +31,8 @@ _UpFace:
  .db 4
  .db -16,-4,$1F,%00000000  ;Head ribbon
  .db  -8,-4,$22,%00000000  ;Head
- .db  -0,-8,$2A,%00100000  ;Waist left
- .db  -0, 0,$2A,%00000000  ;Waist right
+ .db  -0,-8,$2A,%00000000  ;Waist left
+ .db  -0, 0,$2A,%00100000  ;Waist right
  .db $F1
  .db $FF
  .dw _IdleLoop
@@ -41,18 +41,18 @@ _LeftFace:
  .db 4
  .db -16,-4,$21,%00100000  ;Head ribbon
  .db  -8,-4,$24,%00100000  ;Head
- .db  -0,-8,$2D,%00100000  ;Waist left
- .db  -0, 0,$2D,%00000000  ;Waist right
+ .db  -0,-8,$2D,%00000000  ;Waist left
+ .db  -0, 0,$2D,%00100000  ;Waist right
  .db $F1
  .db $FF
  .dw _IdleLoop
 
-_RightFace:
+_LeftWalk:
  .db 4
- .db -16,-4,$21,%00000000  ;Head ribbon
- .db  -8,-4,$24,%00000000  ;Head
- .db  -0,-8,$2D,%00000000  ;Waist left
- .db  -0, 0,$2D,%00100000  ;Waist right
+ .db -16,-4,$21,%00100000  ;Head ribbon
+ .db  -8,-4,$24,%00100000  ;Head
+ .db  -0,-8,$2F,%00000000  ;Waist left
+ .db  -0, 0,$30,%00000000  ;Waist right
  .db $F1
  .db $FF
  .dw _IdleLoop
@@ -60,11 +60,11 @@ _RightFace:
 _Animations:
  .dw _LeftFace
  .dw _DownFace
- .dw _RightFace
- .dw _UpFace
  .dw _LeftFace
+ .dw _UpFace
+ .dw _LeftWalk
  .dw _DownFace
- .dw _RightFace
+ .dw _LeftWalk
  .dw _UpFace
 
 _HatValues:

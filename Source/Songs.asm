@@ -10,7 +10,7 @@ SongNull:
 
 .SECTION "song_spark" FREE
 SongSpark:
- .incbin "rsc\Spark2.mcs"
+ .incbin "rsc\Spark.mcs"
 .ENDS
 
 .SECTION "song_retrib" FREE

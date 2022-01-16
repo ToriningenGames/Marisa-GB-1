@@ -432,7 +432,7 @@ Text_Pause:
   LD L,A
   LDH A,($FE)
   AND %11110111 ;All buttons save Start
-  JR nz,+
+  JP nz,TextProcessLoop
   LD A,L
   DEC A
   JR nz,-
@@ -449,10 +449,7 @@ Text_Pause:
     CALL NewTask
   POP BC
   JR --
-+
-;  JR TextProcessLoop
-;Calling pause resets the cursor to the upper left. Which is what clear does.
-  PUSH HL   ;Dummy return
+
 Text_Clear:
 ;Return cursor to the upper-left corner
   CALL Text_ReturnToCorner

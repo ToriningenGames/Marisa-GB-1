@@ -17,6 +17,7 @@
       ;32: Current map data pointer
         ;Used in unusual transitions to check Marisa's origin (since one could enter the map from another angle)
       
+      ;114: Reimu Hungry (boolean)
       ;116: Met Reimu (boolean)
       ;118: Beat Narumi (boolean)
       ;120: Shroom A

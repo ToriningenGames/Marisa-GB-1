@@ -194,38 +194,38 @@ StringHouseBack1:
 .DB CtrlLower, CtrlEnd
 
 StringReimuMeet:
-;M: Hey.
+.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$0E, CtrlFaceShow,1, CtrlClear
+.DB CtrlSpeed,2, CtrlBorder,2, CtrlRaise
 .ASC "HEY.", CtrlPause, CtrlClear
-;R: Oi.
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$03
 .ASC "OI.", CtrlPause, CtrlClear
-;M: What'cha doing in the forest?
+.DB CtrlFaceShow,1
 .ASC "WHAT'CHA DOING", CtrlLine
 .ASC "IN THE FOREST?", CtrlPause, CtrlClear
-;R: Heading to Kourindou.
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$05
 .ASC "HEADING TO", CtrlLine
 .ASC "KOURINDOU.", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1, CtrlWait,80
 ;   *pause*
-;M: ...It's right there.
 .ASC "...IT'S RIGHT", CtrlLine
 .ASC "THERE.", CtrlPause, CtrlClear
-;R: Too hungry. Can't move.
+.DB CtrlFaceShow,2
 .ASC "TOO HUNGRY.", CtrlLine
 .ASC "CAN'T MOVE.", CtrlPause, CtrlClear
-;M: Then eat.
+.DB CtrlFaceShow,1
 .ASC "THEN EAT.", CtrlPause, CtrlClear
-;R: Shion's been staying at the shrine, so I haven't had any food in days.
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$07
 .ASC "SHION'S BEEN", CtrlLine
 .ASC "STAYING AT THE", CtrlLine
 .ASC "SHRINE,", CtrlPause, CtrlClear
-.ASC "SO I", CtrlLine
-.ASC "HAVEN'T HAD", CtrlLine
-.ASC "ANY FOOD IN", CtrlLine
-.ASC "DAYS.", CtrlPause, CtrlClear
-;M: Ouch. I'll see if I can find somethin' for ya.
-.ASC "OUCH. I'LL SEE", CtrlLine
+.ASC "SO I HAVEN'T", CtrlLine
+.ASC "HAD ANY FOOD", CtrlLine
+.ASC "IN DAYS.", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1, CtrlFaceLoad,2,$00
+.ASC "OUCH.", CtrlPause, CtrlFaceShow,2, "I'LL SEE", CtrlLine
 .ASC "IF I CAN FIND", CtrlLine
 .ASC "SOMETHIN'", CtrlLine
-.ASC "FOR YA.", CtrlPause, CtrlClear
+.ASC "FOR YA.", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringReimuFeed1:
@@ -257,7 +257,7 @@ StringReimuFeed3:
 
 ;Run Feed 2 first
 StringReimuFeed4:
-.DB CtrlFaceLoad,2,$0F, CtrlWait,2, CtrlFaceShow,2, CtrlFaceLoad,1,$07
+.DB CtrlFaceLoad,2,$0F, CtrlWait,2, CtrlFaceShow,2, CtrlFaceLoad,1,$07, CtrlSpeed,3
 .ASC "...I FEEL SICK", CtrlPause, CtrlClear
 .DB CtrlFaceShow,1
 .ASC "UHH...", CtrlPause, CtrlClear
@@ -269,17 +269,20 @@ StringReimuFeed4:
 .ASC "UM...", CtrlLine, CtrlLine, CtrlWait,60
 .ASC "AMANITA?", CtrlPause, CtrlClear
 .DB CtrlFaceShow,2, CtrlFaceLoad,1,$05
-.ASC "WHY WOULD YOU"
-.DB CtrlFaceShow,0 CtrlClear
+.ASC "WHY WOULD YOU", CtrlEnd
+StringReimuFeed5:
+.DB CtrlFaceShow,0, CtrlClear, CtrlSpeed,5
 .ASC "  $!&\"*<+/=`#'%  ", CtrlPause
-.DB CtrlFaceShow,1, CtrlClear
+.DB CtrlFaceShow,1, CtrlClear, CtrlSpeed,2
 .ASC "NOT A GOOD WAY", CtrlLine
 .ASC "TO FIGHT", CtrlLine
-.ASC "HUNGER, REIMU.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2
+.ASC "HUNGER, REIMU.", CtrlPause, CtrlEnd
+StringReimuFeed6:
+.DB CtrlFaceShow,2, CtrlClear
 .ASC "YOU...", CtrlPause, CtrlLine
 .ASC "NEXT TIME,", CtrlLine
 .ASC "YOUR ASS", CtrlLine
-.ASC "IS MINE!", CtrlPause, CtrlClear
+.ASC "IS MINE!", CtrlPause
+.DB CtrlLower, CtrlEnd
 
 .ENDS

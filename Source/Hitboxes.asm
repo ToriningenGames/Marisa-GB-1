@@ -309,6 +309,15 @@ AliceHitboxes:
  .db $05,HitboxTalk
  .dw Cs_EndingB
  
+ReimuHitboxes:
+ .db 2
+ .dw $0000,$0000
+ .db $03,HitboxCollision
+ .dw DefaultHitboxAction
+ .dw $0000,$0000
+ .db $05,HitboxTalk
+ .dw Cs_ReimuMeet
+ 
 .ENDS
 
 .SECTION "Hitbox Behaviors" FREE
