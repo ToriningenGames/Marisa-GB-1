@@ -550,7 +550,7 @@ GraphicsInit:
   POP DE
   ;DE Correct
   LD BC,LoadToVRAM_Task
-  LD A,2
+  LD A,1
   CALL NewTask
   LD A,B
   LD B,D
@@ -583,11 +583,10 @@ GraphicsInit:
   LD (HL),A
   JR -
 +
-  LD B,$FF
 -
   CALL HaltTask
   LD A,(BkgPal)
-  XOR B
+  CP $FF
   JR nz,-
 ;Screen black
   LD BC,LoadToVRAM_Task
@@ -597,18 +596,6 @@ GraphicsInit:
   LD A,B
   CALL WaitOnTask
 ;Setting up text window intially
-;Clear text area
-  LD A,$30  ;Space
-  LD HL,TextData
-  LD C,TextSize
--
-  LDI (HL),A
-  DEC C
-  JR nz,-
-  LD BC,LoadToVRAM_Task
-  LD A,1
-  LD DE,(>TextData)<<8 | $9C
-  CALL NewTask
 ;Clear FaceState
   XOR A
   LD (FaceState),A

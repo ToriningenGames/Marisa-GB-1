@@ -145,7 +145,7 @@ TextControlFunctions:
 
 ;Table for window Y positions during raising and lowering
 WindowLUT:
- .db $90,$8D,$8A,$88,$87,$84,$82,$80,$7F,$7D,$7B,$79,$78,$76,$75,$73,$72,$71,$70,$6F,$6E,$6D,$6C,$6B,$6B,$6A,$69,$69,$69,$68
+ .db $8D,$8A,$88,$87,$84,$82,$80,$7F,$7D,$7B,$79,$78,$76,$75,$73,$72,$71,$70,$6F,$6E,$6D,$6C,$6B,$6B,$6A,$69,$69,$69,$68
 WindowLUTEnd:
 .DEFINE WindowLUTSize (WindowLUTEnd-WindowLUT)
 .ENDS
@@ -305,6 +305,8 @@ Text_LowerWindow:
   DEC A
   JR nz,-
   LD (LCDCounter),A   ;Disable LY interrupt
+  LD A,$90              ;Final window removal
+  LD (WinVertScroll),A  ;Done here to avoid disabling sprites at top of screen
   LD HL,$FFFF
   RES 1,(HL)
   LD A,(DE)
@@ -322,12 +324,7 @@ Text_RaiseWindow:
 ;4, by 4: 40
 
   POP HL    ;Return
-  LD A,%01000000    ;Enable LY interrupt
-  LD (LCDCounter),A
-  XOR A
-  LDH ($0F),A
-  LD HL,$FFFF
-  SET 1,(HL)
+  CALL Text_WindowSetUp
   LD A,C
   LD (DE),A
   INC DE
@@ -352,14 +349,18 @@ Text_RaiseWindow:
   LD C,A
   JP TextProcessControlReturn
 
-Text_SnapWindowUp:
-  POP HL    ;Return
+Text_WindowSetUp:
   LD A,%01000000    ;Enable LY interrupt
   LD (LCDCounter),A
   XOR A
   LDH ($0F),A
   LD HL,$FFFF
   SET 1,(HL)
+  RET
+
+Text_SnapWindowUp:
+  POP HL    ;Return
+  CALL Text_WindowSetUp
   LD A,$68      ;Raised window position
   LD (WinVertScroll),A
   LD (LY),A     ;LY interrupt line for sprite disabling
@@ -369,7 +370,6 @@ Text_SnapWindowDown:
   POP HL    ;Return
   LD A,$90      ;Lowered window position
   LD (WinVertScroll),A
-  LD (LY),A     ;LY interrupt line for sprite disabling
   XOR A
   LD (LCDCounter),A   ;Disable LY interrupt
   LD HL,$FFFF
@@ -462,25 +462,29 @@ Text_Clear:
 ;Clear it
   PUSH BC
 --
-  LD A,$9F
+  LD A,$30  ;Space
   LD BC,32  ;Row movement
--
-  LD (HL),$30
+  LD (HL),A
   ADD HL,BC
-  CP L
-  JR nc,-
-  LD BC,1-4*32      ;First row, next column
+  LD (HL),A
   ADD HL,BC
-  LD A,$34
+  LD (HL),A
+  ADD HL,BC
+  LD (HL),A
+  LD BC,1-3*32      ;First row, next column
+  ADD HL,BC
+  LD A,$33
   CP L
-  JR nz,--
+  JR nc,--
   LD BC,LoadToVRAM_Task
   LD A,1
   LD DE,(>TextData)<<8 | $9C
   CALL NewTask
   POP BC
   POP HL
-  JP TextProcessLoop
+  LD HL,TextProcessLoop
+  PUSH HL
+  JP HaltTask
 
 Text_CarriageReturn:
   LD HL,TextCurPos

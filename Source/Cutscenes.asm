@@ -484,12 +484,12 @@ Cs_Forest24:
 Cs_Intro:
   CsLoadSong SongRetrib
   CsPanSong $FF,$AA
-  CsWait 45
+  CsWait 38
   CsLoadBkgColor $FE
-  CsWait 45
+  CsWait 38
   CsLoadBkgColor $FF
   CsLoadObjColor $FF,$FF
-  CsWait 45
+  CsWait 38
   ;Variable Setup
   CsSetVar 114,1    ;Reimu appears in (0,0)
   ;First Scene setup

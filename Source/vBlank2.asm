@@ -245,12 +245,12 @@ LoadRectToVRAM_Task:
   CALL MemFree
   JP EndTask
 
+-
+  CALL HaltTask
 LoadToVRAM_Task:
 ;A = No. of pages
 ;D = High byte of source
 ;E = High byte of destination
--
-  CALL HaltTask
   LD HL,OpControl
   LD H,(HL)
   INC H     ;Testing for zero, preserving A
