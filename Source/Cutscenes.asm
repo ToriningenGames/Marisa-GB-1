@@ -845,6 +845,7 @@ Cs_ReimuDone:
   CsAnimateActor 2,CsAnWalkLeft
   CsMoveActorTime 2,CsDirLeft,60,10
   CsWait 30
+  CsSetVar 114,0
   CsEnd
 
 ;Uses Var 0 for whether Marisa has shrooms or not

@@ -518,7 +518,7 @@ Text_ShowFace:
     LD BC,FaceShow_Task
     CALL NewTask
   POP BC
-  LD A,1
+  LD A,2
   JP nc,_textWaitLoop
   DEC BC        ;If not enough tasks, try again next frame
   CALL HaltTask
