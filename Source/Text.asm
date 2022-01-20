@@ -134,13 +134,13 @@
 .ENDM
 
 
-.SECTION TextControl ALIGN 256 FREE
+.SECTION TextControl BITWINDOW 8 FREE
 TextControlFunctions:
- .dw Text_EndOfText,    Text_ReturnToCorner, Text_RaiseWindow,  Text_LowerWindow
- .dw Text_SnapWindowUp, Text_SnapWindowDown, Text_LoadBorder,   Text_LoadBorder
- .dw Text_LoadBorder,   Text_LoadBorder,     Text_Newline,      Text_Pause
- .dw Text_Clear,        Text_CarriageReturn, Text_ShowFace1,    Text_ShowFace2
- .dw Text_SetSpeed,     Text_LoadFace,       Text_ShowFace0;,    Text_Error
+ .dw Text_EndOfText,    Text_Pause,          Text_RaiseWindow,  Text_LowerWindow
+ .dw Text_SnapWindowUp, Text_SnapWindowDown, Text_LoadBorder0,  Text_LoadBorder1
+ .dw Text_LoadBorder2,  Text_LoadBorder3,    Text_Newline,      Text_Pause
+ .dw Text_Clear,        Text_Pause,          Text_ShowFace1,    Text_ShowFace2
+ .dw Text_SetSpeed,     Text_ShowFace0
 
 ;Table for window Y positions during raising and lowering
 WindowLUT:
@@ -198,11 +198,11 @@ TextProcessControlReturn:
   CP $30
   JR nc,+
 ;Control character
-  CCF   ;NO CARRY!
   LD HL,TextProcessControlReturn
   PUSH HL
   LD H,>TextControlFunctions
-  RLA
+  ADD A
+  ADD <TextControlFunctions
   LD L,A
   LDI A,(HL)
   LD H,(HL)
@@ -234,28 +234,14 @@ TextProcessControlReturn:
   LD (HL),$9C   ;Window high
   LD HL,OpControl
   SET 6,(HL)
-;Text_MoveRight:
+;Move the cursor over
   LD HL,TextCurPos
   LD A,(HL)
+  INC (HL)
   AND $1F
 ;Check for potential wrapping
   CP $13
-  JR c,+
-    ;Do wrap
-  LD A,(HL)
-  ADD $0D   ;Very beginning due to later +1
-  LD (HL),A
-;Adjust offset from left if there is a face
-  LD A,(FaceState)
-  AND $03
-  JR z,+
-;Face; apply offset
-  LD A,4
-  ADD (HL)
-  LD (HL),A
-+   ;No face/no wrap
-  INC (HL)
-;  RET
+  CALL nc,Text_Newline
   JR TextProcessLoop
 
 Text_EndOfText:
@@ -265,25 +251,11 @@ Text_EndOfText:
   LD (HL),textStatus_done
   JP EndTask
 
-Text_ReturnToCorner:
-;There is difficulty in telling whether the "Corner" is b/c of faces
-;If a face is displayed, the corner is as window's (4,1)
-;If there is no face, the corner is at window's (2,1)
-;Because of this ambiguity, this command is marked "Face"
-  LD A,(FaceState)
-  OR A
-  LD A,$21  ;For no face
-  JR z,+
-  LD A,$25  ;For face
-+
-  LD (TextCurPos),A
-  RET
-
 Text_LowerWindow:
 ;Just like RaiseWindow, but in reverse!
   POP HL    ;Return
   LD A,C
-  LD (DE),A
+  LD (DE),A     ;Save BC
   INC DE
   LD A,B
   LD (DE),A
@@ -292,23 +264,28 @@ Text_LowerWindow:
 -
   CALL HaltTask
   PUSH AF
-  LD A,(BC)
-  DEC BC
-  LD (WinVertScroll),A
-  LD (LY),A     ;LY interrupt line for sprite disabling
+    LD A,(BC)
+    DEC BC
+    LD (WinVertScroll),A
+    LD (LY),A     ;LY interrupt line for sprite disabling
   POP AF
   DEC A
   JR nz,-
+  LD A,(DE)     ;Restore BC
+  LD B,A
+  DEC DE
+  LD A,(DE)
+  LD C,A
+  PUSH HL   ;Stack alignment
+Text_SnapWindowDown:
+  POP HL    ;Return
+Text_WindowSetDown:
+  XOR A
   LD (LCDCounter),A   ;Disable LY interrupt
   LD A,$90              ;Final window removal
   LD (WinVertScroll),A  ;Done here to avoid disabling sprites at top of screen
   LD HL,$FFFF
   RES 1,(HL)
-  LD A,(DE)
-  LD B,A
-  DEC DE
-  LD A,(DE)
-  LD C,A
   JP TextProcessControlReturn
 
 Text_RaiseWindow:
@@ -361,36 +338,23 @@ Text_SnapWindowUp:
   LD (LY),A     ;LY interrupt line for sprite disabling
   JP TextProcessControlReturn
 
-Text_SnapWindowDown:
-  POP HL    ;Return
-  LD A,$90      ;Lowered window position
-  LD (WinVertScroll),A
-  XOR A
-  LD (LCDCounter),A   ;Disable LY interrupt
-  LD HL,$FFFF
-  RES 1,(HL)
-  JP TextProcessControlReturn
-
-Text_Backspace:
-  LD HL,TextCurPos
-  LD L,(HL)
-  LD H,>TextData
-  DEC L
-  LD (HL),$30
-  LD A,L
-  POP HL    ;Return
-  LD (TextCurPos),A
-  LoadVRAMptA 1, 1
-  JP TextProcessLoop
-
 Text_Newline:
-  CALL Text_CarriageReturn
-;Text_MoveDown:
+;Go to beginning of line
   LD HL,TextCurPos
-  LD A,(HL)
+  LD A,(FaceState)
+  OR A
+  LD A,%11100000
+  JR z,+
+    ;Face present
+  AND (HL)
+  OR %00000101
+  JR ++
++   ;No face present
+  AND (HL)
+  INC A
+++
+;Then move down one column
   ADD 32
-  CP 160    ;Bounds: bottom of visible window
-  RET nc
   LD (HL),A
   RET
 
@@ -402,32 +366,43 @@ Text_Pause:
 ;Place icon
   LD HL,BlinkerSpot
   LD (HL),$6E
-  LD HL,VRAMBuf
-  LD D,H
-  LD E,L
-  LD A,1
-  LDI (HL),A    ;Width
-  LDI (HL),A    ;Height
-  LD (HL),<BlinkerSpot  ;Source
-  INC HL
-  LD (HL),>BlinkerSpot
-  INC HL
-  LD (HL),<BlinkerSpot  ;Destination
-  INC HL
+  LD HL,VRAMBuf+5
+  LD A,<BlinkerSpot
   LD (HL),$9C   ;Window page
+  DEC HL
+  LDD (HL),A    ;Destination
+  LD (HL),>BlinkerSpot
+  DEC HL
+  LDD (HL),A    ;Source
+  LD A,1
+  LDD (HL),A    ;Height
+  LD (HL),A    ;Width
+  LD E,L
+  LD D,H
   PUSH BC
     LD BC,LoadRectToVRAM_Task
     CALL NewTask
   POP BC
---
   LD A,32
 -
   CALL HaltTask
 ;Check for button, other than pause
   LD L,A
   LDH A,($FE)
-  AND %11110111 ;All buttons save Start
-  JP nz,TextProcessLoop
+  AND %00000111 ;All buttons save Start/Directional
+  JR z,+
+;Do we clear or newline next?
+  DEC BC    ;Get the command just ran
+  LD A,(BC)
+  INC BC
+  LD HL,TextProcessControlReturn    ;Restore return
+  PUSH HL
+  CP $01
+  JR z,Text_Newline
+  CP $0D
+  JR z,Text_Clear
+  RET
++   ;Still paused
   LD A,L
   DEC A
   JR nz,-
@@ -443,15 +418,23 @@ Text_Pause:
     LD BC,LoadRectToVRAM_Task
     CALL NewTask
   POP BC
-  JR --
+  RET   ;Try again
 
 Text_Clear:
 ;Return cursor to the upper-left corner
-  CALL Text_ReturnToCorner
-;And clear out the text input area
-;Set HL to upper left corner of text area
+;There is difficulty in telling whether the "Corner" is b/c of faces
+;If a face is displayed, the corner is at window's (6,1)
+;If there is no face, the corner is at window's (2,1)
+  LD A,(FaceState)
+  OR A
+  LD A,$21  ;For no face
+  JR z,+
+  LD A,$25  ;For face
++
   LD HL,TextCurPos
-  LD L,(HL)
+  LD (HL),A
+;And clear out the text input area
+  LD L,A
   LD H,>TextData
   DEC HL    ;Actually the column before
 ;Clear it
@@ -476,7 +459,7 @@ Text_Clear:
   LD DE,(>TextData)<<8 | $9C
   CALL NewTask
   POP BC
-  POP HL
+  POP HL    ;Return
   LD HL,TextProcessLoop
   PUSH HL
   JP HaltTask
@@ -527,12 +510,12 @@ Text_ShowFace2:
   JR -
 
 Text_LoadFace:
-  LD D,1
+  LD D,1    ;Determine which face place is being loaded to
   BIT 5,A
   JR z,+
   INC D
 +
-  AND $1F
+  AND $1F   ;Determine which face no. to load
 -
   CALL HaltTask
   PUSH BC
@@ -542,11 +525,20 @@ Text_LoadFace:
   JP nc,TextProcessControlReturn
   JR -      ;If task unavailable, try again next time
 
-Text_LoadBorder:
-  SUB 6     ;First LoadBorderID
-  RLCA  ;Transform into border tile index
-  RLCA
-  ADD $20
+Text_LoadBorder0:
+  LD A,$20
+  .db $21   ;LD HL,$xxxx
+  ;Skip the next two bytes
+Text_LoadBorder1:
+  LD A,$24
+  .db $21   ;LD HL,$xxxx
+  ;Skip the next two bytes
+Text_LoadBorder2:
+  LD A,$28
+  .db $21   ;LD HL,$xxxx
+  ;Skip the next two bytes
+Text_LoadBorder3:
+  LD A,$2C
   LD HL,TextData    ;At the top of window
   PUSH BC
   LD BC,$0504
@@ -562,8 +554,5 @@ Text_LoadBorder:
   POP BC
   LoadVRAM 20, 1, $00
   RET
-  
-Text_Error:
-  RST $38
 
 .ENDS

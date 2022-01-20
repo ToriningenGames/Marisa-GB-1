@@ -615,14 +615,16 @@ Cs_EndingC:
   CsCall Cs_ComputePlayerAndCamera+8*3*1        ;Top of map
   CsCall Cs_MapFadein
   CsRunText StringHouseBack1
-  ;Marisa doesn't recognise the house
-  ;Marisa sneaks in to the house (for perusal)
-  ;Some comments on how "Alice-like" it is
+  CsWaitText
+  CsRunText StringHouseBack2
+  CsWait 30
   ;Fairies sneak in from the front; a lot of them
-  ;Battle ensues
+  CsWaitText
   ;Fadeout... time passes
-  ;Alice comes home, is displeased at the carnage
-  ;Blames Marisa, more battle ensues
+  ;Alice comes home
+  CsRunText StringHouseBack3
+  CsWaitText
+  CsCall Cs_MapFadeout
   CsEnd
 
 ;Ending A (Found Alice's house from the front)
@@ -643,8 +645,8 @@ Cs_EndingA:
   CsAnimSpeed 1,$04
   CsAnimateActor 1,CsAnWalkUp   ;Ok now go
   CsMoveActorSpeed 1,CsDirUp,0.2,20
-  CsMoveCameraSpeed CsDirUp,1.11,111     ;Pan camera up to house
-  CsWait 200
+  CsMoveCameraSpeed CsDirUp,0.66,111     ;Pan camera up to house
+  CsWait 360
   CsSetActorY 1,170     ;Marisa made it to the house weirdly quick
   CsSetActorX 1,64
   CsAnimateActor 1,CsAnFaceUp
@@ -660,7 +662,7 @@ Cs_EndingA:
   CsNewActor 2,CsChAlice,0      ;Alice in doorway
   CsLoadMap MapForestEndA2map   ;Ready the closed door
   CsWait 1
-  CsSetActor 2,64,90
+  CsSetActor 2,64,87
   CsAnimateActor 2,CsAnFaceDown
   CsAnimateActor 1,CsAnFaceUp   ;Marisa startled
   CsMoveActorTime 1,CsDirDown,7,18
@@ -676,20 +678,20 @@ Cs_EndingA:
   CsRunText StringAliceHouse5
   CsWaitText
   CsAnimateActor 1,CsAnWalkUp   ;Marisa walks in
-  CsMoveActorTime 1,CsDirUp,50,77
-  CsWait 15
-  CsAnimateActor 2,CsAnFaceUp   ;Alice leaves from doorway
+  CsMoveActorTime 1,CsDirUp,150,33
   CsWait 20
+  CsAnimateActor 2,CsAnFaceUp   ;Alice leaves from doorway
+  CsWait 30
   CsDeleteActor 2
-  CsWait 40
+  CsWait 100
   CsAnimateActor 1,CsAnFaceUp
-  CsWait 15
+  CsWait 30
   CsAssignHat 0,0
   CsSetActor 0,200,200
+  CsWait 20
   CsRunText StringAliceHouse6
-  CsWaitText
   CsDeleteActor 1
-  CsWait 10
+  CsWait 20
   CsShowMap             ;Door close
   CsLoadSong SongNull
   CsWait 90
@@ -905,7 +907,7 @@ Cs_MushroomCollect:
   CsJumpRelVar 1,1
   CsJumpRel 2
   CsSetVar 120,1
-  CsEnd
+  CsJumpRel 9
   ;Check for map 11
   CsAddVar 0,((<MapForest30map) - (<MapForest11map)) & $FF
   CsAddVar 1,((>MapForest30map) - (>MapForest11map)) & $FF
@@ -914,7 +916,7 @@ Cs_MushroomCollect:
   CsJumpRelVar 1,1
   CsJumpRel 2
   CsSetVar 124,1
-  CsEnd
+  CsJumpRel 1
   ;Assume map 04
   CsSetVar 122,1
   ;String stuff runs last, so the player doesn't have time to switch rooms
