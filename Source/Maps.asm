@@ -93,7 +93,7 @@ MapForest01:
 .db   0 +8,   0 +16
 .db   0 +8,   0 +16
 .db 137 +8, 172 +16
-.dw Cs_CurvedTransitionA
+.dw Cs_Forest01
 MapForest02:
 .db 0
 .dw MapForest02map

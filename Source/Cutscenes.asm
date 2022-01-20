@@ -366,12 +366,6 @@ Cs_CurvedTransitionA:
   CsAddVar 32,(0 - <MapForest01map) & $FF
   CsAddVar 33,(0 - >MapForest01map) & $FF
   CsJumpRelVar 32,1
-  CsJumpRel 1
-  CsJumpRelVar 33,6
-  ;Check for exit from map 11
-  CsAddVar 32,((<MapForest01map) - (<MapForest11map)) & $FF
-  CsAddVar 33,((>MapForest01map) - (>MapForest11map)) & $FF
-  CsJumpRelVar 32,1
   CsJumpRel 5
   CsJumpRelVar 33,1
   CsJumpRel 3
@@ -398,33 +392,51 @@ Cs_CurvedTransitionA:
   CsAddVar 32,((<MapForest24map) - (<MapForest02map)) & $FF
   CsAddVar 33,((>MapForest24map) - (>MapForest02map)) & $FF
   CsJumpRelVar 32,1
-  CsJumpRel 5
-  CsJumpRelVar 33,1
-  CsJumpRel 3
-  CsSetVar 1,CsDirRight     ;Go Right
-  CsSetVar 21,(CsDirRight+3)*32
-  CsJump Cs_TransitionIn
-  ;Check for exit from map 00
-  CsAddVar 32,((<MapForest02map) - (<MapForest00map)) & $FF
-  CsAddVar 33,((>MapForest02map) - (>MapForest00map)) & $FF
-  CsJumpRelVar 32,1
   CsJump Cs_TransitionIn    ;Last check, always transition
   CsJumpRelVar 33,1
   CsJump Cs_TransitionIn
-  CsSetVar 1,CsDirUp        ;Go Up
-  CsSetVar 21,(CsDirUp+3)*32
+  CsSetVar 1,CsDirRight     ;Go Right
+  CsSetVar 21,(CsDirRight+3)*32
   CsJump Cs_TransitionIn
 
 
 ;Special loads for NPCs/Objects
+;Not a shroom room, but shares with one temporally
+Cs_Forest01:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
+  CsJumpRelVar 122,1
+  CsJumpRel 5
+  CsNewActor 2,CsChMushroom,0
+  CsWait 2
+  CsAnimateActor 2,CsAnFaceRight
+  CsSetActor 2,169,49
+;This room is also 90 degrees off from what the entrances would indicate
+  ;Check for exit from map 11
+  CsAddVar 32,(0-(<MapForest11map)) & $FF
+  CsAddVar 33,(0-(>MapForest11map)) & $FF
+  CsJumpRelVar 32,1
+  CsJumpRel 5
+  CsJumpRelVar 33,1
+  CsJumpRel 3
+  CsSetVar 1,CsDirLeft      ;Go Left
+  CsSetVar 21,(CsDirLeft+3)*32
+  CsJump Cs_TransitionIn
+;Not 11; must be 00.
+  CsSetVar 1,CsDirUp        ;Go Up
+  CsSetVar 21,(CsDirUp+3)*32
+  CsJump Cs_TransitionIn
+
 ;Shroom room
 Cs_Forest30:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
+  CsJumpRelVar 120,1
+  CsJump Cs_TransitionIn
   CsNewActor 2,CsChMushroom,0
   CsWait 2
   CsAnimateActor 2,CsAnFaceDown
-  CsSetActor 2,10,10
+  CsSetActor 2,22,105
   CsJump Cs_TransitionIn
 
 ;Shroom room
@@ -432,10 +444,12 @@ Cs_Forest11:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
   ;There's a shroom in the room
+  CsJumpRelVar 124,1
+  CsJumpRel 5
   CsNewActor 2,CsChMushroom,0
   CsWait 2
   CsAnimateActor 2,CsAnFaceLeft
-  CsSetActor 2,10,10
+  CsSetActor 2,72,62
   ;Check for exit from map 01 (to 11)
   CsAddVar 32,(0-<MapForest01map) & $FF
   CsAddVar 33,(0->MapForest01map) & $FF
@@ -451,10 +465,12 @@ Cs_Forest11:
 Cs_Forest04:
   CsCall Cs_TransitionOut
   CsCall Cs_ClearActorList
+  CsJumpRelVar 122,1
+  CsJump Cs_TransitionIn
   CsNewActor 2,CsChMushroom,0
   CsWait 2
   CsAnimateActor 2,CsAnFaceRight
-  CsSetActor 2,10,10
+  CsSetActor 2,169,49
   CsJump Cs_TransitionIn
 
 ;Reimu room
@@ -858,6 +874,36 @@ Cs_ReimuMushroomTest:
   CsSetVar 0,0
   CsRunText StringReimuFeed1
   CsWaitText
+  CsEnd
+
+Cs_MushroomCollect:
+  RET
+  CsDeleteActor 2   ;Mushroom plucked
+  CsSetVarVar 0,32
+  CsSetVarVar 1,33
+  ;Check for map 30
+  CsAddVar 0,(0 - <MapForest30map) & $FF
+  CsAddVar 1,(0 - >MapForest30map) & $FF
+  CsJumpRelVar 0,1
+  CsJumpRel 4
+  CsJumpRelVar 1,1
+  CsJumpRel 2
+  CsSetVar 120,1
+  CsEnd
+  ;Check for map 11
+  CsAddVar 0,((<MapForest30map) - (<MapForest11map)) & $FF
+  CsAddVar 1,((>MapForest30map) - (>MapForest11map)) & $FF
+  CsJumpRelVar 0,1
+  CsJumpRel 4
+  CsJumpRelVar 1,1
+  CsJumpRel 2
+  CsSetVar 124,1
+  CsEnd
+  ;Assume map 04
+  CsSetVar 122,1
+  ;String stuff runs last, so the player doesn't have time to switch rooms
+  CsWaitText
+  CsRunText StringMushroomFound
   CsEnd
 
 .ENDS

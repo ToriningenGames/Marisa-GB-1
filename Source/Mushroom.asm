@@ -8,7 +8,7 @@
 MushroomActorData:
  .db $10
  .dw $0100
- .dw NPCHitboxes
+ .dw MushroomHitboxes
  .dw MushroomFrame
  .dw _HatValues
  .dw _Animations
@@ -19,7 +19,7 @@ MushroomFrame:
 
 _LeftFace:
  .db 1
- .db -6,-4,$7D,%00000000  ;Shroom
+ .db -8,-4,$7D,%00000000  ;Shroom
 _IdleLoop:
  .db $F1
  .db $FF
@@ -27,14 +27,14 @@ _IdleLoop:
 
 _DownFace:
  .db 1
- .db -6,-4,$7E,%00000000  ;Shroom
+ .db -8,-4,$7E,%00000000  ;Shroom
  .db $F1
  .db $FF
  .dw _IdleLoop
 
 _RightFace:
  .db 1
- .db -6,-4,$7F,%00000000  ;Shroom
+ .db -9,-4,$7F,%00000000  ;Shroom
  .db $F1
  .db $FF
  .dw _IdleLoop

@@ -270,26 +270,18 @@ _nohit:     ;Result greater than zero? Didn't hit
 .ENUMID HitboxCollision
 .ENUMID HitboxTalk
 
-DefaultHitboxes:
+HatHitboxes:
  .db 1
  .dw $0000,$0000
  .db $03,HitboxNone
  .dw DefaultHitboxAction
 
+FairyHitboxes:
 NarumiHitboxes:
  .db 1
  .dw $0000,$0000
  .db $05,HitboxCollision
  .dw DefaultHitboxAction
-
-NPCHitboxes:
- .db 2
- .dw $0000,$0000
- .db $03,HitboxCollision
- .dw DefaultHitboxAction
- .dw $0000,$0000
- .db $05,HitboxTalk
- .dw Cs_NarumiFightEnd
 
 PlayerHitboxes:
  .db 2
@@ -318,6 +310,11 @@ ReimuHitboxes:
  .db $05,HitboxTalk
  .dw Cs_ReimuMeet
  
+MushroomHitboxes:
+ .db 1
+ .dw $0000,$0000
+ .db $04,HitboxTalk
+ .dw Cs_MushroomCollect
 .ENDS
 
 .SECTION "Hitbox Behaviors" FREE

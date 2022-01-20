@@ -192,7 +192,7 @@ DefaultIdleAnim:
 HatActorData:
  .db $10
  .dw 0          ;Don't let Actor Control move the hat
- .dw DefaultHitboxes
+ .dw HatHitboxes
  .dw HatFrame
  .dw HeadPosTable
  .dw _Animations

@@ -49,10 +49,16 @@
 FairyActorData:
  .db $10
  .dw 100
- .dw DefaultHitboxes
+ .dw FairyHitboxes
  .dw FairyFrame
  .dw _HatValues
  .dw _Animations
+
+FairyConstructor:
+;Takes in the Fairy Designator byte and provides the correct animation data in RAM
+;Then, it makes an instance of the fairy, which knows to free it when done
+;Of course, it provides the values from creating a fairy back to the caller.
+  RET
 
 FairyFrame:
   PUSH AF
@@ -72,12 +78,6 @@ FairyFrame:
   LD (HL),D
   LD D,B
   LD E,C
-  ;Hitbox setup
-  LD HL,_Hitbox
-  ADD HL,DE
-  LD (HL),<DefaultHitboxes
-  INC HL
-  LD (HL),>DefaultHitboxes
   ;Animation setup
   ;Animation values
   LD HL,_AnimChange

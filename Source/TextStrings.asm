@@ -285,4 +285,12 @@ StringReimuFeed6:
 .ASC "IS MINE!", CtrlPause
 .DB CtrlLower, CtrlEnd
 
+StringMushroomFound:
+.DB CtrlFaceLoad,1,$03, CtrlFaceShow,1, CtrlFaceLoad,2,$02, CtrlClear, CtrlRaise, CtrlSpeed,2
+.ASC "OOH A MUSHROOM", CtrlWait,120, CtrlClear, CtrlFaceShow,2, CtrlSpeed,4
+.ASC "LOOKS... ", CtrlWait,90, CtrlSpeed,2
+.ASC          "TASTY", CtrlLine, CtrlWait,120
+.ASC "SURE. TASTY.", CtrlWait,180
+.DB CtrlLower, CtrlEnd
+
 .ENDS
