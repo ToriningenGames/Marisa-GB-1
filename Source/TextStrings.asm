@@ -104,16 +104,41 @@ StringOpeningMessage3:
 .DB CtrlFaceShow,1, CtrlCorner
 .ASC "FIND", CtrlLine
 .ASC "ALICE'S", CtrlLine
-.ASC "HOUSE!", CtrlPause, CtrlClear
+.ASC "HOUSE!", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringNarumiStart1:
-.DB CtrlFaceLoad,1,$12, CtrlFaceLoad,2,$11, CtrlFaceShow,1, CtrlClear, CtrlBorder,1, CtrlRaise
-.ASC "TEXT", CtrlPause
+.DB CtrlFaceLoad,2,$10, CtrlFaceLoad,1,$00, CtrlFaceShow,2, CtrlClear, CtrlBorder,1, CtrlRaise
+.ASC "HEYA MARISA.", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1, CtrlFaceLoad,2,$11
+.ASC "OH, NARUMI.", CtrlPause, CtrlLine
+.ASC "DO YOU KNOW", CtrlLine
+.ASC "WHER-", CtrlClear
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$07
+.ASC "WHAT?", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1
+.ASC "I WAS LOOKIN-", CtrlClear
+.DB CtrlFaceShow,2, CtrlFaceLoad,1,$02
+.ASC "NO CHIT-CHAT?", CtrlPause, CtrlClear
+.ASC "DON'T WANNA", CtrlLine
+.ASC "SPEND TIME", CtrlLine
+.ASC "WITH YOUR", CtrlLine
+.ASC "FRIENDS?", CtrlPause, CtrlClear
+.ASC "STRAIGHTAWAY", CtrlLine
+.ASC "TO YOUR NEXT", CtrlLine
+.ASC "TARGET?", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1, CtrlFaceLoad,2,$12
+.ASC "LOOK, I-", CtrlClear
 .DB CtrlEnd
 StringNarumiStart2:
-.DB CtrlFaceShow,2, CtrlClear
-.ASC "MORE TEXT", CtrlPause
+.DB CtrlFaceShow,2
+.ASC "C'MON, MARISA!", CtrlPause, CtrlLine
+.ASC "WHY DON'T WE", CtrlLine
+.ASC "GO A ROUND?", CtrlPause, CtrlClear
+.ASC "IT'S BEEN", CtrlLine
+.ASC "SO LONG!", CtrlPause, CtrlClear
+.DB CtrlFaceShow,1
+.ASC "*SIGH*", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringNarumiEnd:
@@ -244,7 +269,7 @@ StringReimuFeed2:
 .ASC "FOUND A", CtrlLine
 .ASC "MUSHRO"   ;Interrupted
 .DB CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$03
-.ASC "(OM NOM NOM)", CtrlPause, CtrlClear
+.ASC "*OM NOM NOM*", CtrlPause, CtrlClear
 .DB CtrlFaceShow,1, CtrlFaceLoad,2,$0E
 .ASC "...BETTER?", CtrlPause, CtrlClear
 .DB CtrlEnd
