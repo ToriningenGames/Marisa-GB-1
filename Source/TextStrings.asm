@@ -10,23 +10,23 @@
 .ENUMID CtrlLower       ;None
 .ENUMID CtrlSnapUp      ;None
 .ENUMID CtrlSnapDown    ;None
-.ENUMID CtrlLeft        ;None (Do not use)
-.ENUMID CtrlRight       ;None (Do not use)
-.ENUMID CtrlDel         ;None (Do not use)
-.ENUMID CtrlTab         ;None (Do not use)
+.ENUMID CtrlBorder0     ;None
+.ENUMID CtrlBorder1     ;None
+.ENUMID CtrlBorder2     ;None
+.ENUMID CtrlBorder3     ;None
 .ENUMID CtrlLine        ;None
 .ENUMID CtrlPause       ;None
 .ENUMID CtrlClear       ;None
 .ENUMID CtrlRet         ;None
-.ENUMID Ctrl_Invalid1   ;Do not use
-.ENUMID Ctrl_Invalid2   ;Do not use
+.ENUMID CtrlFaceShow1   ;None
+.ENUMID CtrlFaceShow2   ;None
 .ENUMID CtrlSpeed       ;Text speed
-.ENUMID CtrlFaceLoad    ;Slot, Face ID
-.ENUMID CtrlFaceShow    ;Slot
-.ENUMID Ctrl_Invalid0   ;Do not use
-.ENUMID CtrlBorder      ;Border ID
-.ENUMID CtrlShake       ;Shake slowness (Do not use)
-.ENUMID CtrlWait        ;Frames to wait
+.ENUMID Ctrl_Invalid    ;Do not use
+.ENUMID CtrlFaceShow0   ;None
+
+.DEFINE CtrlFaceLoad1   %11000000
+.DEFINE CtrlFaceLoad2   %11100000
+.DEFINE CtrlWait        %10000000
 
 ;This is dependent on the tile data. Then again, this entire process is.
 .ASCIITABLE
@@ -76,49 +76,49 @@ MAP "h" = $7F
     
     ;"0123456789ABCD"
 StringOpeningMessage1:
-.DB CtrlFaceLoad,1,$03, CtrlFaceLoad,2,$01, CtrlBorder,0, CtrlSpeed,2, CtrlWait,1, CtrlFaceShow,1, CtrlClear, CtrlRaise
+.DB CtrlFaceLoad1|$03, CtrlFaceLoad2|$01, CtrlBorder0, CtrlSpeed,2, CtrlWait|1, CtrlFaceShow1, CtrlClear, CtrlRaise
 .ASC "ALL THAT", CtrlLine
 .ASC "RUCKUS OVER A", CtrlLine
 .ASC "FEW LITTLE", CtrlLine
 .ASC "BOOKS!", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$00
+.DB CtrlFaceShow2, CtrlFaceLoad1|$00
 .ASC "AT LEAST I GOT", CtrlLine
 .ASC "THE ONE ALICE", CtrlLine
 .ASC "ASKED FOR.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "BETTER GO PAY", CtrlLine
 .ASC "HER A VISIT,", CtrlLine
 .ASC "THEN.", CtrlPause
 .DB CtrlLower, CtrlEnd
 StringOpeningMessage2:
-.DB CtrlFaceLoad,1,$07, CtrlFaceLoad,2,$05, CtrlFaceShow,1, CtrlWait,1, CtrlClear, CtrlRaise
+.DB CtrlFaceLoad1|$07, CtrlFaceLoad2|$05, CtrlFaceShow1, CtrlWait|1, CtrlClear, CtrlRaise
 .ASC "...I HAVE NO", CtrlLine
 .ASC "IDEA WHERE", CtrlLine
 .ASC "SHE LIVES.", CtrlPause
-.DB CtrlFaceShow,0, CtrlClear, CtrlWait,90, CtrlFaceShow,2, CtrlCorner, CtrlFaceLoad,1,$06
+.DB CtrlFaceShow0, CtrlClear, CtrlWait|45, CtrlWait|45, CtrlFaceShow2, CtrlCorner, CtrlFaceLoad1|$06
 .ASC "THERE'S ONLY", CtrlLine
 .ASC "ONE THING", CtrlLine
 .ASC "I CAN DO...", CtrlPause, CtrlClear
 .DB CtrlEnd
 StringOpeningMessage3:
-.DB CtrlFaceShow,1, CtrlCorner
+.DB CtrlFaceShow1, CtrlCorner
 .ASC "FIND", CtrlLine
 .ASC "ALICE'S", CtrlLine
 .ASC "HOUSE!", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringNarumiStart1:
-.DB CtrlFaceLoad,2,$10, CtrlFaceLoad,1,$00, CtrlFaceShow,2, CtrlClear, CtrlBorder,1, CtrlRaise
+.DB CtrlFaceLoad2|$10, CtrlFaceLoad1|$00, CtrlFaceShow2, CtrlClear, CtrlBorder1, CtrlRaise
 .ASC "HEYA MARISA.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1, CtrlFaceLoad,2,$11
+.DB CtrlFaceShow1, CtrlFaceLoad2|$11
 .ASC "OH, NARUMI.", CtrlPause, CtrlLine
 .ASC "DO YOU KNOW", CtrlLine
 .ASC "WHER-", CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$07
+.DB CtrlFaceShow2, CtrlFaceLoad1|$07
 .ASC "WHAT?", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "I WAS LOOKIN-", CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$02
+.DB CtrlFaceShow2, CtrlFaceLoad1|$02
 .ASC "NO CHIT-CHAT?", CtrlPause, CtrlClear
 .ASC "DON'T WANNA", CtrlLine
 .ASC "SPEND TIME", CtrlLine
@@ -127,31 +127,31 @@ StringNarumiStart1:
 .ASC "STRAIGHTAWAY", CtrlLine
 .ASC "TO YOUR NEXT", CtrlLine
 .ASC "TARGET?", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1, CtrlFaceLoad,2,$12
+.DB CtrlFaceShow1, CtrlFaceLoad2|$12
 .ASC "LOOK, I-", CtrlClear
 .DB CtrlEnd
 StringNarumiStart2:
-.DB CtrlFaceShow,2
+.DB CtrlFaceShow2
 .ASC "C'MON, MARISA!", CtrlPause, CtrlLine
 .ASC "WHY DON'T WE", CtrlLine
 .ASC "GO A ROUND?", CtrlPause, CtrlClear
 .ASC "IT'S BEEN", CtrlLine
 .ASC "SO LONG!", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "*SIGH*", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringNarumiEnd:
-.DB CtrlFaceLoad,1,$13, CtrlFaceLoad,2,$04, CtrlSpeed,4, CtrlFaceShow,1, CtrlClear, CtrlRaise
+.DB CtrlFaceLoad1|$13, CtrlFaceLoad2|$04, CtrlSpeed,4, CtrlFaceShow1, CtrlClear, CtrlRaise
 .ASC "OOOHH...", CtrlLine
 .ASC "THAT FIGHT...", CtrlLine
 .ASC "TOOK MOST OF", CtrlLine
 .ASC "MY ENERGY...", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlSpeed,2
+.DB CtrlFaceShow2, CtrlSpeed,2
 .ASC "NOO!", CtrlLine
 .ASC "DON'T DIE", CtrlLine
 .ASC "ON ME, DAMNIT!", CtrlPause, CtrlClear 
-.DB CtrlFaceShow,1, CtrlSpeed,7
+.DB CtrlFaceShow1, CtrlSpeed,7
 .ASC "IT'S...", CtrlLine
 .ASC "IT'S OK...", CtrlLine
 .ASC "MARISA...", CtrlPause, CtrlClear
@@ -165,145 +165,185 @@ StringNarumiEnd:
 .ASC "WHAT WAS IT...", CtrlLine
 .ASC "YOU WERE...", CtrlLine
 .ASC "LOOKING FOR?", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlSpeed,2, CtrlWait,45
+.DB CtrlFaceShow2, CtrlSpeed,2, CtrlWait|45
 .ASC "...ALICE!", CtrlLine
 .ASC "WHERE IS", CtrlLine
 .ASC "HER HOUSE??", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1, CtrlSpeed,13, CtrlFaceLoad,2,$07
+.DB CtrlFaceShow1, CtrlSpeed,13, CtrlFaceLoad2|$07
 .ASC "WHEN...", CtrlLine
 .ASC "YOU LEAVE...", CtrlLine
-.ASC "TAKE... TWO...", CtrlWait,80, CtrlClear
-.ASC "...", CtrlLine, CtrlWait,40, "...", CtrlPause
-.DB CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$04, CtrlSpeed,5
-.ASC "...NARUMI...", CtrlWait,70, CtrlFaceShow,1, CtrlFaceLoad,2,$13, CtrlLine, "!", CtrlPause, CtrlSpeed,7
-.ASC CtrlClear, CtrlFaceShow,2, "...RIGHTS.", CtrlPause,
+.ASC "TAKE... TWO...", CtrlWait|40, CtrlWait|40, CtrlClear
+.ASC "...", CtrlLine, CtrlWait|40, "...", CtrlPause
+.DB CtrlClear, CtrlFaceShow2, CtrlFaceLoad1|$04, CtrlSpeed,5
+.ASC "...NARUMI...", CtrlWait|35, CtrlWait|35, CtrlFaceShow1, CtrlFaceLoad2|$13, CtrlLine, "!", CtrlPause, CtrlSpeed,7
+.ASC CtrlClear, CtrlFaceShow2, "...RIGHTS.", CtrlPause,
 .DB CtrlLower, CtrlEnd
 
 StringAliceEscort1:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlSpeed,4, CtrlFaceShow,1, CtrlClear
-.DB CtrlBorder,1, CtrlRaise
+.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$00, CtrlSpeed,4, CtrlFaceShow1, CtrlClear
+.DB CtrlBorder1, CtrlRaise
 .ASC "TEXT", CtrlPause          ;Marisa meet Alice
 .DB CtrlLower, CtrlEnd
 StringAliceEscort2:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlFaceShow,1, CtrlClear
+.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$00, CtrlFaceShow1, CtrlClear
 .DB CtrlRaise
 .ASC "TEXT", CtrlPause          ;Alice meet nonhouse
 .DB CtrlLower, CtrlEnd
 StringAliceEscort3:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$00, CtrlFaceShow,1, CtrlClear
+.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$00, CtrlFaceShow1, CtrlClear
 .DB CtrlRaise
 .ASC "TEXT", CtrlPause          ;Marisa now talk to Alice
 .DB CtrlClear, CtrlEnd
 StringAliceEscort4:
-.DB CtrlFaceShow,2, CtrlCorner
+.DB CtrlFaceShow2, CtrlCorner
 .ASC "TEXT", CtrlPause          ;Convo continue, song change
 .DB CtrlLower, CtrlEnd
 
 StringAliceHouse1:
-.DB CtrlFaceShow,0, CtrlClear, CtrlRaise
-.ASC ".", CtrlPause
+.DB CtrlFaceLoad1|$00, CtrlFaceShow1, CtrlFaceLoad2|$04
+.DB CtrlClear, CtrlSpeed,3, CtrlRaise
+.ASC "AHH... FINALLY.", CtrlPause
+.ASC "THE ONLY OTHER", CtrlLine
+.ASC "HOUSE IN THE", CtrlLine
+.ASC "FOREST.", CtrlPause, CtrlClear
+.ASC "SO, IT'S", CtrlLine
+.ASC "PROBABLY", CtrlLine
+.ASC "ALICE'S.", CtrlPause
 .DB CtrlLower, CtrlEnd
 StringAliceHouse2:
-.DB CtrlClear, CtrlRaise
-.ASC "!", CtrlPause
-.DB CtrlLower, CtrlEnd
+.DB CtrlFaceShow2, CtrlClear, CtrlRaise, CtrlFaceLoad1|$05
+.ASC "OH, ALICE!", CtrlPause, CtrlClear
+.ASC "DIDN'T EXPECT", CtrlLine
+.ASC "TO SEE YOU", CtrlLine
+.ASC "HERE", CtrlPause
+.DB CtrlFaceShow1, CtrlSpeed,5, CtrlFaceLoad2|$0B
+.ASC     "...AT YOUR", CtrlLine
+.ASC "HOUSE...", CtrlPause, CtrlClear, CtrlSpeed,3
+.DB CtrlFaceShow2, CtrlFaceLoad1|$00
+.ASC "HOW'D YOU KNOW", CtrlLine
+.ASC "WHERE I LIVE?", CtrlPause, CtrlClear
+.DB CtrlEnd
 StringAliceHouse3:
-.DB CtrlFaceLoad,1,$04, CtrlSpeed,2, CtrlFaceShow,1, CtrlClear
+.DB CtrlFaceShow1
+.ASC "NARUMI TOLD ME.", CtrlPause, CtrlClear
+.DB CtrlFaceShow2, CtrlFaceLoad1|$01
+.ASC "...I SEE. I'LL", CtrlLine
+.ASC "DEAL WITH HER", CtrlLine
+.ASC "LATER.", CtrlPause, CtrlClear
+.ASC "FOR NOW, YOU", CtrlLine
+.ASC "COME IN.", CtrlPause, CtrlClear
+.DB CtrlEnd
+StringAliceHouse4:
+.DB CtrlFaceShow1
+.ASC "TRIAL AND", CtrlLine
+.ASC "ERROR.", CtrlPause, CtrlClear
+.DB CtrlFaceShow2, CtrlFaceLoad1|$01
+.ASC "...I SEE.", CtrlPause, CtrlLine
+.ASC "FINE. WHATEVER."
+.ASC "COME IN,", CtrlLine
+.ASC "I GUESS.", CtrlPause, CtrlClear
+.DB CtrlEnd
+StringAliceHouse5:
+.DB CtrlFaceShow1, CtrlFaceLoad2|$04
+.ASC "OKIE-DOKIE!", CtrlPause
+.DB CtrlLower, CtrlEnd
+StringAliceHouse6:
+.DB CtrlFaceShow2, CtrlClear
 .DB CtrlSnapUp
-.ASC "WHOA"
+.ASC "WHOA!"
 .DB CtrlSnapDown, CtrlEnd
 
 StringHouseBack1:
-.DB CtrlFaceShow,0, CtrlClear, CtrlRaise
+.DB CtrlFaceShow0, CtrlClear, CtrlRaise
 .ASC ".", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringReimuMeet:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$0E, CtrlFaceShow,1, CtrlClear
-.DB CtrlSpeed,2, CtrlBorder,2, CtrlRaise
+.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$0E, CtrlFaceShow1, CtrlClear
+.DB CtrlSpeed,2, CtrlBorder2, CtrlRaise
 .ASC "HEY.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$03
+.DB CtrlFaceShow2, CtrlFaceLoad1|$03
 .ASC "OI.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "WHAT'CHA DOING", CtrlLine
 .ASC "IN THE FOREST?", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$05
+.DB CtrlFaceShow2, CtrlFaceLoad1|$05
 .ASC "HEADING TO", CtrlLine
 .ASC "KOURINDOU.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1, CtrlWait,80
+.DB CtrlFaceShow1, CtrlWait|40, CtrlWait|40
 ;   *pause*
 .ASC "...IT'S RIGHT", CtrlLine
 .ASC "THERE.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2
+.DB CtrlFaceShow2
 .ASC "TOO HUNGRY.", CtrlLine
 .ASC "CAN'T MOVE.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "THEN EAT.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$07
+.DB CtrlFaceShow2, CtrlFaceLoad1|$07
 .ASC "SHION'S BEEN", CtrlLine
 .ASC "STAYING AT THE", CtrlLine
 .ASC "SHRINE,", CtrlPause, CtrlClear
 .ASC "SO I HAVEN'T", CtrlLine
 .ASC "HAD ANY FOOD", CtrlLine
 .ASC "IN DAYS.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1, CtrlFaceLoad,2,$00
-.ASC "OUCH.", CtrlPause, CtrlFaceShow,2, "I'LL SEE", CtrlLine
+.DB CtrlFaceShow1, CtrlFaceLoad2|$00
+.ASC "OUCH.", CtrlPause, CtrlFaceShow2, "I'LL SEE", CtrlLine
 .ASC "IF I CAN FIND", CtrlLine
 .ASC "SOMETHIN'", CtrlLine
 .ASC "FOR YA.", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringReimuFeed1:
-.DB CtrlFaceLoad,1,$0C, CtrlFaceLoad,2,$01, CtrlFaceShow,1, CtrlClear
-.DB CtrlSpeed,2, CtrlBorder,2, CtrlRaise
+.DB CtrlFaceLoad1|$0C, CtrlFaceLoad2|$01, CtrlFaceShow1, CtrlClear
+.DB CtrlSpeed,2, CtrlBorder2, CtrlRaise
 .ASC "FOOD?", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$0E
+.DB CtrlFaceShow2, CtrlFaceLoad1|$0E
 .ASC "NO.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "...", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringReimuFeed2:
-.DB CtrlFaceLoad,1,$00, CtrlFaceLoad,2,$0D, CtrlFaceShow,1, CtrlClear
-.DB CtrlSpeed,2, CtrlBorder,2, CtrlRaise
+.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$0D, CtrlFaceShow1, CtrlClear
+.DB CtrlSpeed,2, CtrlBorder2, CtrlRaise
 .ASC "FOUND A", CtrlLine
 .ASC "MUSHRO"   ;Interrupted
-.DB CtrlClear, CtrlFaceShow,2, CtrlFaceLoad,1,$03
+.DB CtrlClear, CtrlFaceShow2, CtrlFaceLoad1|$03
 .ASC "*OM NOM NOM*", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1, CtrlFaceLoad,2,$0E
+.DB CtrlFaceShow1, CtrlFaceLoad2|$0E
 .ASC "...BETTER?", CtrlPause, CtrlClear
 .DB CtrlEnd
 StringReimuFeed3:
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$02
+.DB CtrlFaceShow2, CtrlFaceLoad1|$02
 .ASC "NO.", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "...", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 ;Run Feed 2 first
 StringReimuFeed4:
-.DB CtrlFaceLoad,2,$0F, CtrlWait,2, CtrlFaceShow,2, CtrlFaceLoad,1,$07, CtrlSpeed,3
+.DB CtrlFaceLoad2|$0F, CtrlWait|2, CtrlFaceShow2, CtrlFaceLoad1|$07, CtrlSpeed,3
 .ASC "...I FEEL SICK", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
+.DB CtrlFaceShow1
 .ASC "UHH...", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2
+.DB CtrlFaceShow2
 .ASC "WHAT MUSHROOMS", CtrlLine
 .ASC "HAVE YOU BEEN", CtrlLine
 .ASC "FEEDING ME?", CtrlPause, CtrlClear
-.DB CtrlFaceShow,1
-.ASC "UM...", CtrlLine, CtrlLine, CtrlWait,60
+.DB CtrlFaceShow1
+.ASC "UM...", CtrlLine, CtrlLine, CtrlWait|60
 .ASC "AMANITA?", CtrlPause, CtrlClear
-.DB CtrlFaceShow,2, CtrlFaceLoad,1,$05
+.DB CtrlFaceShow2, CtrlFaceLoad1|$05
 .ASC "WHY WOULD YOU", CtrlEnd
 StringReimuFeed5:
-.DB CtrlFaceShow,0, CtrlClear, CtrlSpeed,5
+.DB CtrlFaceShow0, CtrlClear, CtrlSpeed,5
 .ASC "  $!&\"*<+/=`#'%  ", CtrlPause
-.DB CtrlFaceShow,1, CtrlClear, CtrlSpeed,2
+.DB CtrlFaceShow1, CtrlClear, CtrlSpeed,2
 .ASC "NOT A GOOD WAY", CtrlLine
 .ASC "TO FIGHT", CtrlLine
 .ASC "HUNGER, REIMU.", CtrlPause, CtrlEnd
 StringReimuFeed6:
-.DB CtrlFaceShow,2, CtrlClear
+.DB CtrlFaceShow2, CtrlClear
 .ASC "YOU...", CtrlPause, CtrlLine
 .ASC "NEXT TIME,", CtrlLine
 .ASC "YOUR ASS", CtrlLine
@@ -311,11 +351,11 @@ StringReimuFeed6:
 .DB CtrlLower, CtrlEnd
 
 StringMushroomFound:
-.DB CtrlFaceLoad,1,$03, CtrlFaceShow,1, CtrlFaceLoad,2,$02, CtrlClear, CtrlRaise, CtrlSpeed,2
-.ASC "OOH A MUSHROOM", CtrlWait,120, CtrlClear, CtrlFaceShow,2, CtrlSpeed,4
-.ASC "LOOKS... ", CtrlWait,90, CtrlSpeed,2
-.ASC          "TASTY", CtrlLine, CtrlWait,120
-.ASC "SURE. TASTY.", CtrlWait,180
+.DB CtrlFaceLoad1|$03, CtrlFaceShow1, CtrlFaceLoad2|$02, CtrlClear, CtrlRaise, CtrlSpeed,2
+.ASC "OOH A MUSHROOM", CtrlWait|60, CtrlWait|60, CtrlClear, CtrlFaceShow2, CtrlSpeed,4
+.ASC "LOOKS... ", CtrlWait|45, CtrlWait|45, CtrlSpeed,2
+.ASC          "TASTY", CtrlLine, CtrlWait|60, CtrlWait|60
+.ASC "SURE. TASTY.", CtrlWait|60, CtrlWait|60, CtrlWait|60
 .DB CtrlLower, CtrlEnd
 
 .ENDS

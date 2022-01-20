@@ -137,11 +137,10 @@
 .SECTION TextControl ALIGN 256 FREE
 TextControlFunctions:
  .dw Text_EndOfText,    Text_ReturnToCorner, Text_RaiseWindow,  Text_LowerWindow
- .dw Text_SnapWindowUp, Text_SnapWindowDown, Text_Error,        Text_Error
- .dw Text_Error,        Text_Error,          Text_Newline,      Text_Pause
- .dw Text_Clear,        Text_CarriageReturn, Text_Error,        Text_Error
- .dw Text_SetSpeed,     Text_LoadFace,       Text_ShowFace,     Text_Error
- .dw Text_LoadBorder,   Text_Error,          Text_Wait;,         Text_Error
+ .dw Text_SnapWindowUp, Text_SnapWindowDown, Text_LoadBorder,   Text_LoadBorder
+ .dw Text_LoadBorder,   Text_LoadBorder,     Text_Newline,      Text_Pause
+ .dw Text_Clear,        Text_CarriageReturn, Text_ShowFace1,    Text_ShowFace2
+ .dw Text_SetSpeed,     Text_LoadFace,       Text_ShowFace0;,    Text_Error
 
 ;Table for window Y positions during raising and lowering
 WindowLUT:
@@ -187,12 +186,14 @@ TextProcessControlReturn:
   LD A,(BC)
   INC BC
 ;Text processing:
-  CP $80
-  JR c,+
+  BIT 7,A
+  JR z,+
 ;High character
-;There aren't any of these...
-  RST $38
-  JR TextProcessLoop
+;Check between Wait and Face Load
+  BIT 6,A
+  JP nz,Text_LoadFace
+  AND $3F   ;Wait time
+  JR _textWaitLoop
 +
   CP $30
   JR nc,+
@@ -256,12 +257,6 @@ TextProcessControlReturn:
   INC (HL)
 ;  RET
   JR TextProcessLoop
-
-Text_Wait:
-  LD A,(BC)
-  INC BC
-  POP HL    ;Return address
-  JR _textWaitLoop
 
 Text_EndOfText:
   ;Escape this prison!
@@ -509,42 +504,46 @@ Text_SetSpeed:
   LD (TextDelay),A
   RET
 
-Text_ShowFace:
+Text_ShowFace0:
+  XOR A
+  .db $21   ;LD HL,$xxxx
+  ;Skip the next two bytes
+Text_ShowFace1:
+  LD A,1
+  .db $21   ;LD HL,$xxxx
+  ;Skip the next two bytes
+Text_ShowFace2:
+  LD A,2
   POP HL    ;Return
 -
-  LD A,(BC)
-  INC BC
-  PUSH BC
-    LD BC,FaceShow_Task
-    CALL NewTask
-  POP BC
-  LD A,2
+  LD D,B
+  LD E,C
+  LD BC,FaceShow_Task
+  CALL NewTask
+  LD B,D
+  LD C,E
   JP nc,_textWaitLoop
-  DEC BC        ;If not enough tasks, try again next frame
-  CALL HaltTask
+  CALL HaltTask     ;If not enough tasks, try again next frame
   JR -
 
 Text_LoadFace:
-  POP HL        ;Return
+  LD D,1
+  BIT 5,A
+  JR z,+
+  INC D
++
+  AND $1F
 -
-  LD A,(BC)
-  INC BC
-  LD D,A
-  LD A,(BC)
-  INC BC
+  CALL HaltTask
   PUSH BC
     LD BC,FaceLoad_Task
     CALL NewTask
   POP BC
   JP nc,TextProcessControlReturn
-  DEC BC    ;If task unavailable, try again next time
-  DEC BC
-  CALL HaltTask
-  JR -
+  JR -      ;If task unavailable, try again next time
 
 Text_LoadBorder:
-  LD A,(BC)
-  INC BC
+  SUB 6     ;First LoadBorderID
   RLCA  ;Transform into border tile index
   RLCA
   ADD $20
