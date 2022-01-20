@@ -606,7 +606,15 @@ Cs_EndingAC:
   CsJump Cs_EndingA
 ;Ending C (Found Alice's house from the back)
 Cs_EndingC:
+  CsCall Cs_TransitionOut
+  CsCall Cs_ClearActorList
   CsLoadSong SongDoll
+  CsLoadMap MapForest02map
+  CsWaitReadyMap
+  CsShowMap
+  CsCall Cs_ComputePlayerAndCamera+8*3*1        ;Top of map
+  CsCall Cs_MapFadein
+  CsRunText StringHouseBack1
   ;Marisa doesn't recognise the house
   ;Marisa sneaks in to the house (for perusal)
   ;Some comments on how "Alice-like" it is
@@ -659,18 +667,26 @@ Cs_EndingA:
   CsWait 20
   CsRunText StringAliceHouse2
   CsWaitText
+  ;Narumi check
+  CsJumpRelVar 118,2
+  CsRunText StringAliceHouse3   ;Beat Narumi
+  CsJumpRel 1
+  CsRunText StringAliceHouse4   ;Narumi not met
+  CsWaitText
+  CsRunText StringAliceHouse5
+  CsWaitText
   CsAnimateActor 1,CsAnWalkUp   ;Marisa walks in
-  CsMoveActorTime 1,CsDirUp,50,47
+  CsMoveActorTime 1,CsDirUp,50,77
   CsWait 15
   CsAnimateActor 2,CsAnFaceUp   ;Alice leaves from doorway
   CsWait 20
   CsDeleteActor 2
-  CsWait 10
+  CsWait 40
   CsAnimateActor 1,CsAnFaceUp
   CsWait 15
   CsAssignHat 0,0
   CsSetActor 0,200,200
-  CsRunText StringAliceHouse3
+  CsRunText StringAliceHouse6
   CsWaitText
   CsDeleteActor 1
   CsWait 10
@@ -788,7 +804,7 @@ Cs_NarumiFightStart:
   CsLoadSong SongMagus
   CsRunText StringNarumiStart2
   CsWaitText
-  CsEnd
+  ;CsEnd
 
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
