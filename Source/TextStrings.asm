@@ -253,19 +253,22 @@ StringAliceHouse6:
 .DB CtrlSnapDown, CtrlEnd
 
 StringHouseBack1:
-.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$0A, CtrlFaceShow1, CtrlBorder0
-.db CtrlClear, CtrlRaise, CtrlSpeed,2
+.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$03, CtrlFaceShow1, CtrlBorder0
+.DB CtrlClear, CtrlRaise, CtrlSpeed,2
 .ASC "NEVER SEEN", CtrlLine
 .ASC "THIS PLACE", CtrlLine
 .ASC "BEFORE!", CtrlPauseClear
+.DB CtrlFaceShow2, CtrlFaceLoad1|$01
 .ASC "MAYBE IT'S", CtrlLine
 .ASC "A DUNGEON?", CtrlPauseClear
+.DB CtrlFaceShow1
 .ASC "THERE'S ALWAYS", CtrlLine
 .ASC "GOOD LOOT TO", CtrlLine
 .ASC "BE HAD IN", CtrlLine
 .ASC "A DUNGEON!", CtrlPauseClear
 .DB CtrlEnd
 StringHouseBack2:
+.DB CtrlFaceShow2, CtrlFaceLoad1|$04
 .ASC "SO MUCH FABRIC!", CtrlPause
 .ASC "WOODEN HEADS?", CtrlLine
 .ASC "POSEABLE ARMS?", CtrlPauseLine
@@ -277,17 +280,20 @@ StringHouseBack2:
 .ASC "HOW LIFELIKE!", CtrlPauseLine
 .ASC "IT'S EVEN", CtrlLine
 .ASC "SQUISHY~", CtrlPauseLine
+.DB CtrlFaceShow1, CtrlFaceLoad2|$00
 .ASC "OW! IT BIT ME!", CtrlPauseClear
+.DB CtrlFaceShow2, CtrlFaceLoad1|$06
 .ASC "OH!", CtrlLine
 .ASC "YOU MUST BE", CtrlLine
 .ASC "THE DUNGEON", CtrlLine
 .ASC "ENEMIES!", CtrlPauseClear
+.DB CtrlFaceShow1, CtrlFaceLoad2|$0A
 .ASC "I'LL BLOW YOU", CtrlLine
 .ASC "ALL TO", CtrlLine
 .ASC "SMITHEREENS!", CtrlPause
 .DB CtrlLower, CtrlEnd
 StringHouseBack3:
-.DB CtrlFaceShow2, CtrlClear, CtrlRaise
+.DB CtrlFaceShow2, CtrlFaceLoad1|$00 CtrlClear, CtrlRaise
 .ASC "WHAT ON EARTH", CtrlLine
 .ASC "IS GOING ON", CtrlLine
 .ASC "IN HERE?!", CtrlPauseClear
@@ -298,7 +304,7 @@ StringHouseBack3:
 .ASC "ARE YOU ALSO", CtrlLine
 .ASC "EXPLORING", CtrlLine
 .ASC "THIS DUNGEON?", CtrlPauseClear
-.DB CtrlFaceShow2
+.DB CtrlFaceShow2, CtrlFaceLoad1|$07
 .ASC "WHAT?", CtrlPauseLine
 .ASC "WHAT ARE YOU", CtrlLine
 .ASC "DOING HERE?!", CtrlPauseClear
