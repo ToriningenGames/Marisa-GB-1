@@ -90,49 +90,6 @@
 .EXPORT TextStatus
 .EXPORT TextSize
 
-.MACRO LoadVRAMptA ARGS width, height
-  LD HL,VRAMBuf
-  PUSH DE
-  LD D,H
-  LD E,L
-  LD (HL),width
-  INC HL
-  LD (HL),height
-  INC HL
-  LDI (HL),A
-  LD (HL),>TextData
-  INC HL
-  LDI (HL),A    ;Window low
-  LD (HL),$9C   ;Window high
-  PUSH BC
-  LD BC,LoadRectToVRAM_Task
-  CALL NewTask
-  POP BC
-  POP DE
-.ENDM
-.MACRO LoadVRAM ARGS width, height, point
-  LD HL,VRAMBuf
-  PUSH DE
-  LD D,H
-  LD E,L
-  LD (HL),width
-  INC HL
-  LD (HL),height
-  INC HL
-  LD (HL),point
-  INC HL
-  LD (HL),>TextData
-  INC HL
-  LD (HL),point ;Window low
-  INC HL
-  LD (HL),$9C   ;Window high
-  PUSH BC
-  LD BC,LoadRectToVRAM_Task
-  CALL NewTask
-  POP BC
-  POP DE
-.ENDM
-
 
 .SECTION TextControl BITWINDOW 8 FREE
 TextControlFunctions:
@@ -198,8 +155,6 @@ TextProcessControlReturn:
   CP $30
   JR nc,+
 ;Control character
-  LD HL,TextProcessControlReturn
-  PUSH HL
   LD H,>TextControlFunctions
   ADD A
   ADD <TextControlFunctions
@@ -207,7 +162,8 @@ TextProcessControlReturn:
   LDI A,(HL)
   LD H,(HL)
   LD L,A
-  JP HL
+  RST $30   ;CALL HL
+  JR TextProcessControlReturn
 +
 ;Normal character
   LD HL,TextCurPos
@@ -377,9 +333,10 @@ Text_Pause:
   LD A,1
   LDD (HL),A    ;Height
   LD (HL),A    ;Width
-  LD E,L
-  LD D,H
+--
   PUSH BC
+    LD D,H
+    LD E,L
     LD BC,LoadRectToVRAM_Task
     CALL NewTask
   POP BC
@@ -411,14 +368,9 @@ Text_Pause:
   LD A,1    ;Toggle b/w the two tiles
   XOR (HL)
   LD (HL),A
-  PUSH BC       ;Buffer correct from setup
-    LD HL,VRAMBuf
-    LD D,H
-    LD E,L
-    LD BC,LoadRectToVRAM_Task
-    CALL NewTask
-  POP BC
-  RET   ;Try again
+  LD HL,VRAMBuf
+  ;Buffer and registers correct from setup, reuse above code
+  JR --
 
 Text_Clear:
 ;Return cursor to the upper-left corner
@@ -541,18 +493,22 @@ Text_LoadBorder3:
   LD A,$2C
   LD HL,TextData    ;At the top of window
   PUSH BC
-  LD BC,$0504
+    LD BC,$0504
 -
-  LDI (HL),A
-  INC A
-  DEC C
-  JR nz,-
-  LD C,4
-  SUB C
-  DEC B
-  JR nz,-
+    LDI (HL),A
+    INC A
+    DEC C
+    JR nz,-
+    LD C,4
+    SUB C
+    DEC B
+    JR nz,-
+    ;Put border in vRAM
+    LD DE,TextData & $FF00 | $9C
+    LD A,1
+    LD BC,LoadToVRAM_Task
+    CALL NewTask
   POP BC
-  LoadVRAM 20, 1, $00
   RET
 
 .ENDS

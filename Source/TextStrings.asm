@@ -412,8 +412,8 @@ StringReimuFeed6:
 
 StringMushroomFound:
 .DB CtrlFaceLoad1|$03, CtrlFaceShow1, CtrlBorder2, CtrlFaceLoad2|$02, CtrlClear, CtrlRaise, CtrlSpeed,2
-.ASC "OOH A MUSHROOM!", CtrlWait|60, CtrlWait|60, CtrlFaceShow2, CtrlSpeed,4
-.ASC "LOOKS... ", CtrlWait|45, CtrlWait|45, CtrlSpeed,2
+.ASC "OOH A MUSHROOM!", CtrlWait|60, CtrlWait|60, CtrlSpeed,4
+.ASC "LOOKS... ", CtrlWait|45, CtrlFaceShow2, CtrlWait|45, CtrlSpeed,2
 .ASC          "TASTY.", CtrlWait|60, CtrlWait|60
 .ASC "SURE. TASTY.", CtrlWait|60, CtrlWait|60, CtrlWait|60
 .DB CtrlLower, CtrlEnd

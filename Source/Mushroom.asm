@@ -43,13 +43,7 @@ _Animations:
  .dw _LeftFace
  .dw _DownFace
  .dw _RightFace
- .dw _LeftFace
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _LeftFace
 
 _HatValues:
- .db 0
 
 .ENDS

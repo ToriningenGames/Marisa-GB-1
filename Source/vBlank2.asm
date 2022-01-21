@@ -245,51 +245,38 @@ LoadRectToVRAM_Task:
   CALL MemFree
   JP EndTask
 
--
-  CALL HaltTask
 LoadToVRAM_Task:
 ;A = No. of pages
 ;D = High byte of source
 ;E = High byte of destination
+  LD B,A
+  XOR A
+-
   LD HL,OpControl
-  LD H,(HL)
-  INC H     ;Testing for zero, preserving A
+  LD H,(HL)     ;Test for zero, preserve A
+  INC H
   DEC H
+  JR z,+
+  CALL HaltTask     ;Try again next time
+  JR -
++
+  LD HL,TileDataBuffer
+  LD (HL),$10
+  INC L
+  LDI (HL),A
+  LD (HL),D
+  INC L
+  LDI (HL),A
+  LD (HL),E
+  LD HL,OpControl
+  SET 7,(HL)
+  ADD $80
   JR nz,-
-  LD HL,TileDataBuffer
-  LD (HL),$10
-  INC L
-  LD (HL),$00
-  INC L
-  LD (HL),D
-  INC L
-  LD (HL),$00
-  INC L
-  LD (HL),E
-  LD HL,OpControl
-  SET 7,(HL)
---
-  CALL HaltTask
-  LD HL,OpControl
-  LD H,(HL)
-  INC H     ;Testing for zero
-  DEC H
-  JR nz,--
-  LD HL,TileDataBuffer
-  LD (HL),$10
-  INC L
-  LD (HL),$80
-  INC L
-  LD (HL),D
-  INC L
-  LD (HL),$80
-  INC L
-  LD (HL),E
-  LD HL,OpControl
-  SET 7,(HL)
+  ;Finished a page
+  DEC B
+  JP z,EndTask
   INC D
   INC E
-  DEC A
-  JR nz,-
-  JP EndTask
+  JR -
+
 .ENDS
