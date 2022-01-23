@@ -29,7 +29,7 @@ PatternFire:
   OR A
   JR z,+
   DEC A
-  CALL HaltTask
+  RST $00
   JR -
 +   ;Wait over
   LD A,(BC)   ;Danmaku

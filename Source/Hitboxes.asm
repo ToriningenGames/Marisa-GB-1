@@ -28,7 +28,7 @@
 HitboxUpdate_Task:
 ;Puts updated hitbox information in the extract area so pushing etc are up to date
 ---
-  CALL HaltTask
+  RST $00
   ;Back to front for ease of end checking
   LD A,(ObjUse)
   ADD A ;Double. affecting zero flag

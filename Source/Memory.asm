@@ -18,7 +18,7 @@ MemInitTask:
   LD (HL),E
   INC L
   LD (HL),D
-  CALL HaltTask
+  RST $00
   LD H,D
   LD L,E
   LD A,BlockSize

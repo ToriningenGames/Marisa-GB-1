@@ -5,7 +5,7 @@
 .MACRO TaskWaitForZero ARGS address, waitbit, sig
   JR TaskWaitLoopZEntry\@_\3
 TaskWaitLoopZ\@_\3:
-  CALL HaltTask
+  RST $00
 TaskWaitLoopZEntry\@_\3:
   ;Wait condition goes here
   LD HL,address
@@ -16,7 +16,7 @@ TaskWaitLoopZEntry\@_\3:
 .MACRO TaskWaitForNonzero ARGS address, waitbit, sig
   JR TaskWaitLoopEntry\@_\3
 TaskWaitLoop\@_\3:
-  CALL HaltTask
+  RST $00
 TaskWaitLoopEntry\@_\3:
   ;Wait condition goes here
   LD HL,address

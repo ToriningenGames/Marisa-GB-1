@@ -144,7 +144,7 @@ _Cutscene_ItemReturn:
   DEC BC    ;If task creation failed, try again next frame
   DEC BC
   DEC BC
-  CALL HaltTask
+  RST $00
   JR -
 +
     LDI A,(HL)
@@ -193,7 +193,7 @@ Cutscene_ObjPaletteLoad:
 Cutscene_Wait:
 ;DE=Time
 --
-  CALL HaltTask
+  RST $00
   DEC E
   JR nz,--
   DEC D
@@ -212,7 +212,7 @@ Cutscene_VarToVar:
 
 Cutscene_MapWait:
   LD DE,hotMap
-  CALL HaltTask
+  RST $00
   LD H,D
   LD L,E
   XOR (HL)
@@ -221,7 +221,7 @@ Cutscene_MapWait:
 
 Cutscene_TextWait:
   LD DE,TextStatus
-  CALL HaltTask
+  RST $00
   LD A,(DE)
   CP textStatus_done
   RET nz
@@ -236,7 +236,7 @@ Cutscene_CutsceneCall:
     LD A,B
   POP BC
   JR nc,+
-  CALL HaltTask
+  RST $00
   JR -
 +
   CALL WaitOnTask
@@ -347,7 +347,7 @@ Cutscene_CameraMove:
   LD E,A
   LD A,L
   AND $0F       ;Integer applied; only accumulate fractional
-  CALL HaltTask
+  RST $00
   JR -
 ++
   CPL       ;Correct for overshoot
@@ -373,7 +373,7 @@ Cutscene_CameraMove:
   LD E,A
   LD A,L
   AND $0F
-  CALL HaltTask
+  RST $00
   JR -
 ++
   CPL       ;Correct for overshoot
@@ -489,7 +489,7 @@ Cutscene_ActorMovement:
   LD A,(BC)
   OR A
   JR nz,+
-  CALL HaltTask ;If actor does not exist, wait for them
+  RST $00 ;If actor does not exist, wait for them
   JR -
 +   ;Set the message
   CALL Access_ActorDE
@@ -579,7 +579,7 @@ Cutscene_ActorAnimate:
   OR A
   JR nz,+
   LD E,L
-  CALL HaltTask ;If actor does not exist, wait for them
+  RST $00 ;If actor does not exist, wait for them
   LD L,E
   LD H,>Cutscene_Actors
   JR -
@@ -645,7 +645,7 @@ Cutscene_InputChange:
   LD A,(BC)
   OR A
   JR nz,+
-  CALL HaltTask
+  RST $00
   JR -
 + ;Insert new Existence status
   CALL Access_ActorDE
@@ -653,8 +653,7 @@ Cutscene_InputChange:
   ADD HL,BC
   LD (HL),E
 ;Clear out button state, if player character
-  LD A,1
-  CP D
+  DEC D
   JR nz,+
   LD BC,_ButtonState-_ControlState
   ADD HL,BC
@@ -674,7 +673,7 @@ Cutscene_HatAssign:
   LD A,(BC)
   OR A
   JR nz,+
-  CALL HaltTask
+  RST $00
   JR -
 +
   CALL Access_ActorDE
@@ -689,7 +688,7 @@ Cutscene_HatAssign:
   LD A,(BC)
   OR A
   JR nz,+
-  CALL HaltTask
+  RST $00
   JR -
 +
   CALL Access_ActorDE
@@ -711,7 +710,7 @@ Cutscene_DanmakuInit:
   LD A,(BC)
   OR A
   JR nz,+
-  CALL HaltTask
+  RST $00
   JR -
 +
   LD B,E

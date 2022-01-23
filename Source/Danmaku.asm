@@ -140,7 +140,7 @@ Danmaku_Entry:
     ;x: Destruct
   ;Carry correct b/c CMP against $FF
   CALL Actor_HighPriority
-  CALL HaltTask
+  RST $00
   LD HL,_SprCount
   ADD HL,DE
   LD A,(HL)

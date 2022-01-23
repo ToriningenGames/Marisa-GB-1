@@ -26,27 +26,27 @@ LoadMap_Task:
   LD DE,MapArea
   CALL ExtractSpec
   POP BC
-  CALL HaltTask
+  RST $00
   PUSH BC
   CALL ExtractRestoreSP
   POP BC
-  CALL HaltTask
+  RST $00
   PUSH BC
   CALL ExtractRestoreSP
   POP BC
-  CALL HaltTask
+  RST $00
   PUSH BC
   CALL ExtractRestoreSP
   POP BC
-  CALL HaltTask
+  RST $00
   PUSH BC
   CALL ExtractRestoreSP
   POP BC
-  CALL HaltTask
+  RST $00
   PUSH BC
   CALL ExtractRestoreSP ;Attribute data
   POP BC
-  CALL HaltTask
+  RST $00
 ;Place random grass in the designated areas
   LD HL,MapArea
   LD BC,1024+$100   ;Map size
@@ -60,7 +60,7 @@ LoadMap_Task:
   JR nz,-
   LD D,H
   LD E,L
-  CALL HaltTask         ;Let other things run (and conserve battery)
+  RST $00         ;Let other things run (and conserve battery)
   LD H,D
   LD L,E
   DEC B
@@ -85,7 +85,7 @@ ShowMap_Task:
   LD A,4
   LD BC,LoadToVRAM_Task
 -
-  CALL HaltTask
+  RST $00
   CALL NewTask
   JR c,-
   LD A,B

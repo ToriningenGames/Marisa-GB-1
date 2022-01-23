@@ -30,6 +30,8 @@
        ;Actor 1 is assumed to be playable,
        ;and Actor 0 is assumed to be assignable.
 
+
+
 .include "ActorData.asm"
 
 .include "mapDef.asm"
@@ -607,21 +609,36 @@ Cs_EndingAC:
 ;Ending C (Found Alice's house from the back)
 Cs_EndingC:
   CsCall Cs_TransitionOut
+  CsLoadMap MapForest02map
   CsCall Cs_ClearActorList
   CsLoadSong SongDoll
-  CsLoadMap MapForest02map
+  CsSetVar 1,CsDirDown
+  CsSetVar 21,(CsDirDown+3)*32
   CsWaitReadyMap
   CsShowMap
   CsCall Cs_ComputePlayerAndCamera+8*3*1        ;Top of map
   CsCall Cs_MapFadein
+  CsMoveActorVar 20,1   ;Enter Marisa
+  CsWait 37
+  CsAnimateActor 1,CsAnFaceDown   ;Marisa, stand still
   CsRunText StringHouseBack1
   CsWaitText
+  CsMoveActorTime 1,CsDirDown,90,48
+  CsWait 120
   CsRunText StringHouseBack2
   CsWait 30
   ;Fairies sneak in from the front; a lot of them
+  
   CsWaitText
-  ;Fadeout... time passes
-  ;Alice comes home
+  CsCall Cs_MapFadeout
+  CsNewActor 2,CsChAlice,0
+  CsWait 60*4
+  CsSetActor 2,64,124   ;Alice comes home
+  CsAnimateActor 2,CsAnWalkUp
+  CsMoveActorTime 2,CsDirUp,75,37
+  ;Door things
+  CsCall Cs_MapFadein
+  CsWait 60
   CsRunText StringHouseBack3
   CsWaitText
   CsCall Cs_MapFadeout

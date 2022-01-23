@@ -83,7 +83,7 @@ FairyFrame:
 ;  LD HL,_AnimChange
 ;  ADD HL,DE
 ;  LD (HL),1 ;Face down
-;  CALL HaltTask
+;  RST $00
 ;;Fairy specific messages
 ;    ;v: Cutscene control
 ;    ;v: Play animation

@@ -135,7 +135,7 @@ TextProcessLoop:
   JR nz,_textWaitLoop
   LD A,(TextDelay)
 _textWaitLoop:   ;Multiple entrys to here, in case something had to wait
-  CALL HaltTask
+  RST $00
   DEC A
   JR nz,_textWaitLoop
 TextProcessControlReturn:
@@ -175,7 +175,7 @@ TextProcessControlReturn:
   LD HL,OpControl
   BIT 6,(HL)
   JR z,+
-  CALL HaltTask
+  RST $00
   JR -
 +
   LD HL,TileMapBuffer
@@ -218,7 +218,7 @@ Text_LowerWindow:
   LD BC,WindowLUTEnd-1
   LD A,WindowLUTSize
 -
-  CALL HaltTask
+  RST $00
   PUSH AF
     LD A,(BC)
     DEC BC
@@ -261,7 +261,7 @@ Text_RaiseWindow:
   LD BC,WindowLUT
   LD A,WindowLUTSize
 -
-  CALL HaltTask
+  RST $00
   PUSH AF
   LD A,(BC)   ;Next frame movement delta
   INC BC
@@ -342,7 +342,7 @@ Text_Pause:
   POP BC
   LD A,32
 -
-  CALL HaltTask
+  RST $00
 ;Check for button, other than pause
   LD L,A
   LDH A,($FE)
@@ -412,9 +412,8 @@ Text_Clear:
   CALL NewTask
   POP BC
   POP HL    ;Return
-  LD HL,TextProcessLoop
-  PUSH HL
-  JP HaltTask
+  RST $00
+  JP TextProcessLoop
 
 Text_CarriageReturn:
   LD HL,TextCurPos
@@ -458,7 +457,7 @@ Text_ShowFace2:
   LD B,D
   LD C,E
   JP nc,_textWaitLoop
-  CALL HaltTask     ;If not enough tasks, try again next frame
+  RST $00     ;If not enough tasks, try again next frame
   JR -
 
 Text_LoadFace:
@@ -469,7 +468,7 @@ Text_LoadFace:
 +
   AND $1F   ;Determine which face no. to load
 -
-  CALL HaltTask
+  RST $00
   PUSH BC
     LD BC,FaceLoad_Task
     CALL NewTask

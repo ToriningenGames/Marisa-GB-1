@@ -199,15 +199,8 @@ HatActorData:
 
 HatFrame:
 ;Follow the character pointed to by DE
-;If I collide with another character, follow them instead
 ;If I collide with a danmaku, follow it instead
-;If what I'm following disappears, fall N pixels and stay put
-    ;How do I know if they die?
-    ;We'll set up the destructor to clear Hitbox
-    ;Thus, if the chara's hitbox disappears, fall
-;TODO:
-    ;Detect a change in parent
-        ;Do via collision
+;If I am following nobody, follow the next character I collide with
   ;Hat is global
   LD HL,HatSig
   LD A,E

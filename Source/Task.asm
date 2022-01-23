@@ -133,7 +133,7 @@ WaitOnTask:
   RLA
   RLA
 -
-  CALL HaltTask
+  RST $00
   LD H,>taskpointer     ;This is much slower than using BC,
   LD L,A                ;but we want the caller to be able to save SOME data
   LD A,(HL)

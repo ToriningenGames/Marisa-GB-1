@@ -136,7 +136,7 @@ Actor_FrameInit:
   LD HL,_AnimChange
   ADD HL,DE
   LD (HL),1 ;Face down
-  CALL HaltTask
+  RST $00
 ;Given an appropriate data set, runs the given actor
 Actor_Frame:
   ;Check for doing AI stuffs here
@@ -856,7 +856,7 @@ Actor_DistMove:
     LD D,A
 -
   POP AF
-  CALL HaltTask
+  RST $00
   PUSH AF
     AND 1   ;Set HL to MoveSpeed value, regarding DE's location
     XOR 1
@@ -930,7 +930,7 @@ ObjManage_Task:
   LD A,<ActiveActorArray+1
   LD (DE),A
 -   ;Frame loop
-  CALL HaltTask
+  RST $00
 ;Clear stale memory
   LD HL,$CF9F
   XOR A

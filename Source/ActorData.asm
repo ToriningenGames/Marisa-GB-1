@@ -79,17 +79,16 @@
     ;+$1E, size 1: Animation ID
     ;+$1F, size 1: Hat value
 ;Marisa
-    ;+$11, size 1: current button state
+    ;+$12, size 1: current button state
 ;Hat
-    ;+$11, size 2: current character wearing
+    ;+$12, size 2: current character wearing
 ;Fairy
-    ;+$11, size 2: Pointer to RAM holding animation data
-    ;+$13, size 1: Configuration settings
+    ;+$12, size 2: Pointer to RAM holding animation data
+    ;+$15, size 1: Configuration settings
 ;Danmaku
-    ;+$11, size 2: Pointer to RAM holding animation data
-    ;+$13, size 1: Tile animation direction setting
-    ;+$14, size 2: Pointer to data for moving danmaku
-    ;+$16, size 2: Function for moving danmaku
+    ;+$12, size 2: Pointer to RAM holding animation data
+    ;+$14, size 1: Tile animation direction setting
+    ;+$15, size 2: Pointer to data for moving danmaku
 
 ;Control bit states:
 ;%C0000OTE

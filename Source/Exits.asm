@@ -20,7 +20,7 @@
 .DEFINE Up    3
 
 ExitCheck_Task:
-  CALL HaltTask     ;Set point of return
+  RST $00     ;Set point of return
   LD A,(Cutscene_Actors+1)
   OR A
   RET z     ;No go if no Marisa

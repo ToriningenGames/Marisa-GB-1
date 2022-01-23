@@ -227,7 +227,7 @@ LoadRectToVRAM_Task:
   JR nz,-
   DEC DE
 -
-  CALL HaltTask
+  RST $00
   LD A,(OpControl)
   OR A
   JR nz,-
@@ -257,7 +257,7 @@ LoadToVRAM_Task:
   INC H
   DEC H
   JR z,+
-  CALL HaltTask     ;Try again next time
+  RST $00     ;Try again next time
   JR -
 +
   LD HL,TileDataBuffer

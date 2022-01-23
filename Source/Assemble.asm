@@ -159,8 +159,9 @@
 
 ;There are 8 RST vectors, called like CALL instructions, but in a single byte and in 2/3 the time. Each RST vector has 8 bytes to do what it needs to do; using a call would eliminate nearly any benefit RST could provide. Some vectors could remain unused so the others could get more memory. RST $38 compiles to $FF, useful for a panic function. Then, the 8 byte limit does not matter. But, the other 7 vectors could be used for quick calculations (multiplication and the like). They are used as follows.
 ;RST $00
-    ;Unsigned multiplication.
-        ;Multiplies BC and A together, and adds the result to HL. Returns 0 in A, answer in HL, BC unchanged. HL wraps around at $FFFF, carry NOT recorded!!
+    ;Pause task
+        ;Saves registers and waits a frame for a given task
+        ;HL, flags not saved
 ;RST $08
     ;Block memory move.
         ;Moves data pointed to in HL to space pointed to in DE. C indicates the amount of bytes. 0 is treated as 256. A register is used.
@@ -214,17 +215,7 @@ _local:
 
 ;RST Vectors
 .ORG $00
-;Unsigned Multiplication v3.1
-;Properly handles 0s for once.
-  AND A             ;4
-  RET z             ;20,8
-__MultLoop:
-  ADD HL,BC         ;8
-  DEC A             ;4
-  JR nz,__MultLoop  ;12,8
-Return:
-  RET               ;16
-  RST $38
+  JP HaltTask
 
 .ORG $08
 ;Block memory move - up to 256 bytes
@@ -235,7 +226,6 @@ __move:
   DEC C
   JR nz,__move
   RET
-  RST $38
 
 .ORG $10
 ;Block memory move - up to 65,536 bytes
@@ -584,7 +574,7 @@ GraphicsInit:
   JR -
 +
 -
-  CALL HaltTask
+  RST $00
   LD A,(BkgPal)
   CP $FF
   JR nz,-
