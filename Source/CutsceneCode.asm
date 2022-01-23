@@ -14,7 +14,7 @@
         ; |++--- Constant
         ; +--- Wait time posted after
 
-    ;Jump from table
+    ;Call from table
         ;%W1000VVV TTTTTTTT TTTTTTTT
         ; |||||||| ++++++++-++++++++--- Table address
         ; |||||+++--- Index
@@ -187,7 +187,7 @@
 
 ;Instruction Tables:
 _3arg:
- .dw JumpTable,   CreateFairy,  VarQuick, VarQuick
+ .dw CallTable,   CreateFairy,  VarQuick, VarQuick
 _2arg:
  .dw RunText,     AssignHat,    Breakout,  MoveActorCamera
 _0arg:
@@ -324,11 +324,18 @@ UseVar:
   JR nz,-
 ;Found open space
   INC L
+  ;Offset first
+  PUSH HL
+    CALL NextCutsceneByte
+  POP HL
+  LDI (HL),A
+  ;Var val next
   LD A,%00011111
   AND C
-  LDI (HL),A    ;Index
-  CALL NextCutsceneByte
-  LD (HL),A     ;Offset
+  LD C,A
+  LD B,varPage
+  LD A,(BC)
+  LD (HL),A
   RET
 
 ChangeControl:
@@ -365,7 +372,7 @@ ChangeControl:
   LD (HL),0
   RET
 
-JumpTable:
+CallTable:
   ;Ready index into offset
   LD A,%00000111
   AND C
@@ -381,9 +388,32 @@ JumpTable:
   LD B,0
   ADD HL,BC
   ;Get actual cutscene destination
-  LDI A,(HL)
-  LD D,(HL)
-  LD E,A
+  LD B,(HL)
+  INC HL
+  LD A,(HL)
+  ;Call this cutscene
+  JR _CallCutsceneInternal
+
+CallCutscene:
+  CALL NextCutsceneByte
+  LD B,A
+  CALL NextCutsceneByte
+_CallCutsceneInternal:
+  PUSH DE
+    LD E,B
+    LD D,A
+    LD BC,Cutscene_Task
+    CALL NewTask
+  POP DE
+  POP BC    ;Return
+  LD HL,CutsceneActiveCnt
+  LD A,(HL)
+-   ;Wait for cutscene to end
+  RST $00
+  LD HL,CutsceneActiveCnt
+  CP (HL)
+  JR nz,-
+  PUSH BC
   RET
   
 Jump:
@@ -444,6 +474,11 @@ VarQuick:
   LD L,A
   LD A,%00000111
   AND C
+  ;Sign extend
+  ;BIT 2,A
+  ;JR z,+
+  ;OR %11111000
++
   BIT 3,C
   JR z,+
   ADD (HL)
@@ -488,7 +523,6 @@ Breakout:
 BreakRet:
 ;Get next DE value from the given return value
   POP DE    ;Return/CS
-  INC DE
   RET
 
 MoveActorCamera:
@@ -639,42 +673,35 @@ Return:
 JumpVarZ:
   CALL JumpVar
   RET nz
-  JR -
+  JR +
   
 JumpVarNZ:
   CALL JumpVar
   RET z
-  JR -
++
+  LD C,B
+  ;Sign extend
+  LD B,0
+  BIT 7,C
+  JR z,+
+  LD B,$FF
++   ;Go
+  LD H,D
+  LD L,E
+  ADD HL,BC
+  LD D,H
+  LD E,L
+  RET
 
 JumpVar:
   CALL NextCutsceneByte
   LD C,A
   CALL NextCutsceneByte
+  LD B,A
   LD L,C
   LD H,varPage
   LD A,(HL)
   OR A
-  RET
-
-CallCutscene:
-  CALL NextCutsceneByte
-  LD B,A
-  CALL NextCutsceneByte
-  PUSH DE
-    LD E,B
-    LD D,A
-    LD BC,Cutscene_Task
-    CALL NewTask
-  POP DE
-  POP BC    ;Return
-  LD HL,CutsceneActiveCnt
-  LD A,(HL)
--   ;Wait for cutscene to end
-  RST $00
-  LD HL,CutsceneActiveCnt
-  CP (HL)
-  JR nz,-
-  PUSH BC
   RET
 
 LoadMap:

@@ -38,7 +38,7 @@
  .ELSE
   .db %00000000 | var
  .ENDIF
-  .db offset
+  .db offset+1
 .ENDM
 
 .MACRO ChangeActorControl ARGS actor, value, wait
@@ -53,7 +53,7 @@
   .db value
 .ENDM
 
-.MACRO IndirectJump ARGS jumpTable, index, wait
+.MACRO IndirectCallCs ARGS jumpTable, index, wait
  .IF index > %00000111
   .FAIL "Table offset out of range"
  .ENDIF
@@ -176,7 +176,7 @@
  .IF defined(wait)
   .db %11111110, wait
  .ELSE
-  .db %01111101
+  .db %01111110
  .ENDIF
  .db var, value
 .ENDM
@@ -191,7 +191,7 @@
  .IF defined(wait)
   .db %11111110, wait
  .ELSE
-  .db %01111101
+  .db %01111110
  .ENDIF
  .db $80|var
  .dw value
@@ -480,19 +480,16 @@ Cs_EndingAC:
 Cs_EndingB:
 Cs_MushroomCollect:
 Cs_NarumiFightStart:
-Cs_StraightTransition:
 Cs_CurvedTransitionA:
 Cs_Forest00:
 Cs_Forest01:
 Cs_Forest04:
 Cs_Forest11:
 Cs_Forest30:
-Cs_ClearActorList:
   Return
 
 
 Cs_MapFadeout:
-  ChangeActorControl 1,0
   LoadBackPalette %11111001
   LoadSpritePalettes %11100101,%11111001, 7
   LoadBackPalette %11111110
@@ -562,7 +559,7 @@ Cs_ComputePlayerAndCamera:
   CsEnd
 ;Complete Cutscenes
 ;These cutscenes are meant to be used in Map definitions etc.
-
+.ASM
 ;Used for when entrance direction aligns with exit direction
 ;Order:
     ;Set Marisa trotting off in the right direction
@@ -582,11 +579,11 @@ Cs_ComputePlayerAndCamera:
 Cs_StraightTransition:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
-  JumpRelZ varKeepMusic, 5
+  JumpRelNZ varKeepMusic,5
   PlaySong SongSpark        ;Change music
-  SetVar varKeepMusic, 1
+  SetVar varKeepMusic,1
   Jump Cs_TransitionIn
-
+.ENDASM
 ;Some of the non straight transitions
 Cs_CurvedTransitionA:
   CallCs Cs_TransitionOut
@@ -790,7 +787,7 @@ Cs_TransitionOut:
     CALL BreakRet
   UseVarAsVal 2,4   ;MapBackBase offset
   UseVarAsVal 3,3
-  LoadMap MapBackBase, 9
+  LoadMap MapBackBase
   UseVarAsVal 4,3   ;Map to load
   UseVarAsVal 5,2
   LoadMap 0
@@ -806,19 +803,20 @@ Cs_TransitionIn:
   UseVarAsVal 24,2    ;Animation
   MoveActor 1,0,0,30,30
   UseVarAsVal 1,0
-  IndirectJump CsTbl_ComputePlayerAndCamera,0
+  IndirectCallCs CsTbl_ComputePlayerAndCamera,0
   CallCs Cs_MapFadein, 5
   ChangeActorControl 1,$87
   Return
-.ENDASM
 
 Cs_ClearActorList:
-  CsSetVar 23,30
-  CsDeleteActorVar 23,1
-  CsAddVar 23,-1
-  ReturnVar 23
-  CsJumpRel -4
+  SetVar 23,29
+  UseVarAsVal 23,0   ;Actor
+  ChangeActorControl 2,$FF
+  AddVar8 23,-1
+  JumpRelNZ 23,-10
+  Return
 
+.ENDASM
 ;Made it to Alice's house; determine which ending to give
 Cs_EndingAC:
   ;Specifically, is she coming from the back?
