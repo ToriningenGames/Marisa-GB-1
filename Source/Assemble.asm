@@ -600,14 +600,8 @@ GraphicsInit:
 
 LoadTitle:
 ;Set up cutscene player
-  LD HL,Cutscene_Actors
-  LD C,$20
   XOR A
--
-  LDI (HL),A
-  DEC C
-  JR nz,-
-  LD HL,$C07F   ;Vars
+  LD HL,$C0CF   ;Vars
 -
   LD (HL),A
   DEC L

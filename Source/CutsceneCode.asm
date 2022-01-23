@@ -1,86 +1,200 @@
-;Cutscenes
 
-;Cutscenes are functions. Cutscenes are responsible for the following tasks:
-    ;Camera movement
-    ;Speech initiation
-    ;Automated movement
-    ;Map switching
-;Generally, gluing the various game features together
-;Every cutscene bit that may be needed:
-    ;Load a map
-    ;Load a song
-    ;Wait for time T
-    ;Move actor from point A to point B over time T
-    ;Move camera from point A to point B over time T
-    ;Change palette
-    ;Play actor animation
-    ;Open door
-    ;Stopping player controlled movement
-;Cutscenes will be responsible for tracking which character is which, and where,
-;EXCEPT for the hat and the player; IDs for those are available at $C0E9/A
-;Cutscene data is abstracted from ID juggling by using an index system;
-;more detail in the actor creation commands
-;Each cutscene piece refers to a function call
-    ;1 byte:  function to call
-    ;2 bytes: data
+;Wanted funtions:
+    ;Wait value is inserted as second byte
+    ;Use var as future value
+        ;%W00VVVVV OOOOOOOO
+        ; |||||||| ++++++++--- Offset from next instruction to overlay
+        ; |||+++++--- Variable index
+        ; |++--- Constant
+        ; +--- Wait time posted after
+    ;Control change
+        ;%W01IIIII CCCCCCCC
+        ; |||||||| ++++++++--- Control value
+        ; |||+++++--- ID
+        ; |++--- Constant
+        ; +--- Wait time posted after
 
-;IMPORTANT: Cutscene Actor 0 must always be the hat,
-       ;and Cutscene Actor 1 must always be Marisa!
-       ;Actor 1 is assumed to be playable,
-       ;and Actor 0 is assumed to be assignable.
+    ;Jump from table
+        ;%W1000VVV TTTTTTTT TTTTTTTT
+        ; |||||||| ++++++++-++++++++--- Table address
+        ; |||||+++--- Index
+        ; |++++--- Constant
+        ; +--- Wait time posted after
+    ;Make fairies
+        ;%W1001CCC
+        ; |||||+++--- Count
+        ; |++++--- Constant
+        ; +--- Wait time posted after
+    ;Set var (short)
+        ;%W1010VVV IIIIIIII
+        ; |||||||| ++++++++--- Variable index
+        ; |||||+++--- Value
+        ; |++++--- Constant
+        ; +--- Wait time posted after
+    ;Add to var (short)
+        ;%W1011VVV IIIIIIII
+        ; |||||||| ++++++++--- Variable index
+        ; |||||+++--- Value
+        ; |++++--- Constant
+        ; +--- Wait time posted after
 
+    ;Run text
+        ;%W110001P TTTTTTTT TTTTTTTT
+        ; |||||||| ++++++++-++++++++--- Text
+        ; |||||||+--- Wait for text to finish
+        ; |++++++--- Constant
+        ; +--- Wait time posted after
+    ;Wait on text
+        ;%W1100001
+        ; |||||||
+        ; |++++++--- Constant
+        ; +--- Wait time posted after
+    ;Assign Hat
+        ;%W1100111 000CCCCC 000HHHHH
+        ; ||||||   |||||||| |||+++++--- Hat ID
+        ; ||||||   |||||||| +++--- Constant
+        ; ||||||   |||+++++--- Target ID
+        ; |+++++---+++--- Constant
+        ; +--- Wait time posted after
+    ;Breakout
+        ;%W1101011 ...
+        ; |||||||  +++--- Code
+        ; |++++++--- Constant
+        ; +--- Wait time posted after
+    ;You, go here (with this animation)
+        ;%W110111Y TTTTTTTT AAAIIIII DDDDDDDD
+        ; |||||||| |||||||| |||||||| ++++++++--- X/Y dest
+        ; |||||||| |||||||| |||+++++--- Actor ID
+        ; |||||||| |||||||| +++--- Animation
+        ; |||||||| ++++++++--- Take this long to move
+        ; |||||||+--- Move on Y if set (move on X if clear)
+        ; |++++++--- Constant
+        ; +--- Wait time posted after
+    ;Camera, go here
+        ;%W110110Y TTTTTTTT DDDDDDDD
+        ; |||||||| |||||||| ++++++++--- X/Y dest
+        ; |||||||| ++++++++--- Take this long to move
+        ; |||||||+--- Move on Y if set (move on X if clear)
+        ; |++++++--- Constant
+        ; +--- Wait time posted after
+
+    ;You, exist
+        ;%W1110000 SSSIIIII XXXXXXXX YYYYYYYY
+        ; |||||||| |||||||| |||||||| ++++++++--- Y position
+        ; |||||||| |||||||| ++++++++--- X position
+        ; |||||||| |||+++++--- ID
+        ; |||||||| +++--- Species
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Danmaku Start
+        ;%W1110001
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Show this map file
+        ;%W1110010
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Load Background palette
+        ;%W1110011 PPPPPPPP
+        ; |||||||| ++++++++--- New background palette
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Load Sprite palettes
+        ;%W1110100 PPPPPPPP PPPPPPPP
+        ; |||||||| |||||||| ++++++++--- New sprite palette 1
+        ; |||||||| ++++++++--- New sprite palette 0
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Return
+        ;%W1110101
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Jump
+        ;%W1110110 DDDDDDDD DDDDDDDD
+        ; |||||||| ++++++++-++++++++--- Destination
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Jump if var zero
+        ;%W1110111 VVVVVVVV DDDDDDDD
+        ; |||||||| |||||||| ++++++++--- Distance
+        ; |||||||| ++++++++--- Var to check
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Jump if var nonzero
+        ;%W1111000 VVVVVVVV DDDDDDDD
+        ; |||||||| |||||||| ++++++++--- Distance
+        ; |||||||| ++++++++--- Var to check
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Call
+        ;%W1111001 DDDDDDDD DDDDDDDD
+        ; |||||||| ++++++++-++++++++--- Dest
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Load this map file
+        ;%W1111010 MMMMMMMM MMMMMMMM
+        ; |||||||| ++++++++-++++++++--- Map file location
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Load this object file
+        ;%W1111011 OOOOOOOO OOOOOOOO
+        ; |||||||| ++++++++-++++++++--- Object file location
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Play song
+        ;%W1111100 SSSSSSSS SSSSSSSS
+        ; |||||||| ++++++++-++++++++--- Song
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Set var
+        ;%W1111101 VVVVVVVV CCCCCCCC
+        ; |||||||| |||||||| ++++++++--- Value
+        ; |||||||| ++++++++--- Variable index
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Add to var (8 bit)
+        ;%W1111110 0VVVVVVV CCCCCCCC
+        ; |||||||| |||||||| ++++++++--- Value
+        ; |||||||| |+++++++--- Variable index
+        ; |+++++++-+--- Constant
+        ; +--- Wait time posted after
+    ;Add to var (16 bit)
+        ;%W1111110 1VVVVVVV CCCCCCCC CCCCCCCC
+        ; |||||||| |||||||| ++++++++-++++++++--- Value
+        ; |||||||| |+++++++--- Variable index
+        ; |+++++++-+--- Constant
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Compare for equality (Set var 0 to difference)
+        ;%W1111111 0VVVVVVV CCCCCCCC
+        ; |||||||| |||||||| ++++++++--- Value
+        ; |||||||| |+++++++--- Variable index
+        ; |+++++++-+--- Constant
+        ; +--- Wait time posted after
+    ;Compare (16 bit)
+        ;%W1111111 1VVVVVVV CCCCCCCC CCCCCCCC
+        ; |||||||| |||||||| ++++++++-++++++++--- Value
+        ; |||||||| |+++++++--- Variable index
+        ; |+++++++-+--- Constant
+        ; +--- Wait time posted after
+
+
+;We meddle with these structures
 .include "ActorData.asm"
-
 .include "mapDef.asm"
 
-.SECTION "Cutscene Data" ALIGN 256 FREE
+.SECTION "Cutscene Code" FREE
 
-;Attach hat to character
-;Detach hat from characters
-
-;Action IDs are indexes into this table, with the following notes:
-    ;Bit 7:
-        ;clear calls the action as a task
-        ;set set calls it as a function
-    ;Bit 6:
-        ;clear calls the action with DE as-is
-        ;set uses E as a var number.
-            ;E is replaced with the value at $C000+var,
-            ;D is replaced with the value at $C001+var
-            ;A takes on the original value of D
-Cutscene_LUT:
- .dw Cutscene_End
- .dw Cutscene_InputChange
- .dw Cutscene_CutsceneCall
- .dw TextStart
- .dw Cutscene_CameraSet
- .dw Cutscene_CameraMove
- .dw Cutscene_ActorNew
- .dw Cutscene_ActorDelete
- .dw Cutscene_ActorAnimate
- .dw Cutscene_ActorMovement
- .dw Cutscene_HatAssign
- .dw Cutscene_ObjectsLoad
- .dw LoadMap_Task       ;CsLoadMap
- .dw Cutscene_SongLoad
- .dw Cutscene_SongPan
- .dw LoadRectToVRAM_Task
- .dw Cutscene_DanmakuInit
- .dw Cutscene_VarAdd
- .dw Cutscene_Task      ;CsJump
- .dw Cutscene_VarSet
- .dw Cutscene_CameraSnap
- .dw Cutscene_RelJump
- .dw Cutscene_VarToVar  ;CsSetVarVar
- .dw Cutscene_VarMultiply
- .dw Cutscene_End
- .dw Cutscene_End
- .dw ShowMap_Task       ;CsShowMap
- .dw Cutscene_MapWait
- .dw Cutscene_Wait
- .dw Cutscene_TextWait
- .dw Cutscene_ObjPaletteLoad
- .dw Cutscene_BkgPaletteLoad
+;Instruction Tables:
+_3arg:
+ .dw JumpTable,   CreateFairy,  VarQuick, VarQuick
+_2arg:
+ .dw RunText,     AssignHat,    Breakout,  MoveActorCamera
+_0arg:
+ .dw CreateActor, WaitMap,      ShowMap,  LoadBkgCol
+ .dw LoadObjCol,  Return,       Jump,     JumpVarZ
+ .dw JumpVarNZ,   CallCutscene, LoadMap,  LoadObj
+ .dw PlaySong,    SetVar,       AddVar,   CompareVar
 
 CharaTypes:
  .dw HatActorData
@@ -91,640 +205,588 @@ CharaTypes:
  .dw FairyActorData
  .dw MushroomActorData
 
-.DEFINE Cutscene_Actors $C0A0
-.EXPORT Cutscene_Actors
+
+.DEFINE varPage             $C0
+.DEFINE TriggerSpace        $C060
+.DEFINE CutsceneActiveCnt   $C07E
+.DEFINE WaitCount           $C07F
+.DEFINE Cutscene_Actors     $C0A0
 .DEFINE Cutscene_ActorSetup $C0C0
 
-.DEFINE varPage $C0
+.EXPORT Cutscene_Actors
 .DEFINE Cutscene_VarPage varPage
 .EXPORT Cutscene_VarPage
 
-.ENDS
+.DEFINE TriggerCount 8      ;This limits how many vars can be used at once
 
-.SECTION "Cutscene Code" FREE
-;Cutscene loop
-Cutscene_Task:
-;DE->Cutscene data
-  LD B,D
-  LD C,E
-_Cutscene_ItemReturn:
--
-  LD A,(BC)
-  INC BC
-  LD H,>Cutscene_LUT
-  SLA A     ;Carry out here important (Same task cutscene item)
-  LD L,A
-  LD A,(BC)
-  INC BC
-  LD E,A
-  LD A,(BC)
-  INC BC
-  LD D,A
-  BIT 7,L   ;Var indirection indicator
-  PUSH AF
-    JR z,++
-    RES 7,L
-    PUSH HL   ;Grab DE from vars
-      LD H,varPage
-      LD L,E
-      LD E,(HL)
-      INC L
-      LD D,(HL)
-    POP HL
-++
-    JR c,+    ;Same task cutscene item
-  POP AF
+
+NextCutsceneByte:
   PUSH BC
-    LD C,(HL)
-    INC HL
-    LD B,(HL)
-    CALL NewTask
-  POP BC
-  JR nc,-
-  DEC BC    ;If task creation failed, try again next frame
-  DEC BC
-  DEC BC
-  RST $00
-  JR -
+  LD A,(DE)     ;Next byte
+  INC DE
+  ;Any substitutes trigger?
+  LD HL,TriggerSpace
+  LD C,TriggerCount     ;Trigger Count
+-
+  DEC (HL)
+  INC HL
+  JR nz,+
+  ;Sub triggered
+  ADD (HL)      ;Overlay
+  LD (HL),0     ;Deactivate
 +
-    LDI A,(HL)
-    LD H,(HL)
-    LD L,A
-  POP AF
+  INC HL
+  DEC C
+  JR nz,-
+;Triggers done
+  POP BC
+  RET
+
+Cutscene_Task:
+  ;DE->Cutscene data
+  LD HL,CutsceneActiveCnt
+  INC (HL)      ;Nest one more layer
+--
+  ;Perform an instruction
+  CALL CutsceneDecode
+  ;Wait as necessary
+  LD A,(WaitCount)
+  OR A
+  JR z,--
+-
+  RST $00
+  DEC A
+  JR nz,-
+  LD (WaitCount),A  ;Finished wait; don't wait again next frame
+  JR --
+
+CutsceneDecode:
+;Decodes and executes one instruction
+  CALL NextCutsceneByte
+  LD C,A
+  BIT 7,C
+  JR z,+
+  ;Wait time here
+  CALL NextCutsceneByte
+  LD (WaitCount),A
++
+;Decode the instruction
+  BIT 6,C
+  JR nz,+
+  ;%WxxVVVVV
+  BIT 5,C
+  JR z,UseVar
+  JR ChangeControl
++
+  BIT 5,C
+  JR nz,+
+  ;%W1xxxVVV
+  LD A,%00111000
+  AND C
+  RRCA
+  RRCA
+  LD HL,_3arg
+  JR ++
++
+  BIT 4,C
+  JR nz,+
+  ;%W11xxxVV
+  LD A,%00011100
+  AND C
+  RRCA
+  LD HL,_2arg
+  JR ++
++
+  ;%W111xxxx
+  LD A,%00001111
+  AND C
+  RLCA
+  LD HL,_0arg
+++  ;Instruction found; jump to it
+  ADD L
+  LD L,A
+  LD A,0
+  ADC H
+  LD H,A
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
   JP HL
 
-;Cutscene functions
-;These are not tasks
-
-Cutscene_CameraSnap:
-  PUSH BC
-    CALL CameraSnap
-  POP BC
-  JR _Cutscene_ItemReturn
-
-Cutscene_End:
-  CP E
-  JR nz,_Cutscene_ItemReturn
-  JP EndTask
-
-Cutscene_BkgPaletteLoad:
-;E= New background palette
-  LD HL,BkgPal
-  LD (HL),E
-  JR _Cutscene_ItemReturn
-
-Cutscene_VarSet:
-;A= variable to set
-;E= value to set to
-  LD H,varPage
-  LD L,A
-  LD (HL),E
-  JR _Cutscene_ItemReturn
-
-Cutscene_ObjPaletteLoad:
-;D= New OBJ0 palette
-;E= New OBJ1 palette
-  LD HL,SpritePal0
-  LD (HL),D
-  INC L
-  LD (HL),E
-  JR _Cutscene_ItemReturn
-
-Cutscene_Wait:
-;DE=Time
---
-  RST $00
-  DEC E
-  JR nz,--
-  DEC D
-  JR nz,--
-  JR _Cutscene_ItemReturn
-
-Cutscene_VarToVar:
-;A= dest
-;E= src
-  LD H,varPage
-  LD L,E
-  LD D,(HL)
-  LD L,A
-  LD (HL),D
-  JR _Cutscene_ItemReturn
-
-Cutscene_MapWait:
-  LD DE,hotMap
-  RST $00
-  LD H,D
-  LD L,E
-  XOR (HL)
-  RET nz
-  JR _Cutscene_ItemReturn
-
-Cutscene_TextWait:
-  LD DE,TextStatus
-  RST $00
-  LD A,(DE)
-  CP textStatus_done
-  RET nz
-  JP _Cutscene_ItemReturn
-
-Cutscene_CutsceneCall:
-;DE=Cutscene to run
+UseVar:
+;Find open trigger space
+  LD HL,TriggerSpace+TriggerCount*2-1
 -
-  PUSH BC
-    LD BC,Cutscene_Task
-    CALL NewTask
-    LD A,B
-  POP BC
-  JR nc,+
-  RST $00
-  JR -
-+
-  CALL WaitOnTask
-  JP _Cutscene_ItemReturn
-
-Cutscene_VarAdd:
-;A= variable to add to
-;E= value to add
-  LD H,varPage
-  LD L,A
-  LD A,(HL)
-  ADD E
-  LD (HL),A
-  JP _Cutscene_ItemReturn
-
-Cutscene_VarMultiply:
-;A= variable involved
-;E= multiplier
-  PUSH BC
-    LD H,varPage
-    LD L,A
-    LD B,(HL)
-    LD C,E
-    CALL Multiply
-    LD (HL),C
-    INC L
-    LD (HL),B
-  POP BC
-  JP _Cutscene_ItemReturn
-  
-Cutscene_RelJump:
-;E= 0 to go
-;A= offset
-  LD D,A
-  LD A,E
-  OR A
-  JP nz,_Cutscene_ItemReturn
-  LD A,D
-  RLCA
-  JR c,+
-  ;Positive offset
-  LD A,D
-  ADD C
-  LD C,A
-  LD A,0
-  ADC B
-  LD B,A
-  JP _Cutscene_ItemReturn
-+ ;Negative offset
-  LD A,C
-  ADD D
-  LD C,A
-  LD A,B
-  ADC -1
-  LD B,A
-  JP _Cutscene_ItemReturn
-
-
-;These are tasks
-
-Cutscene_CameraMove:
-;D= %DDSSSSSS
-    ;||++++++--- Speed (2.4)
-    ;++--------- Movement direction
-;E= Distance
-;Meanings:
-;Direction:
-    ;0, camera moves left
-    ;1, camera moves down
-    ;2, camera moves right
-    ;3, camera moves up
-;Distance:
-    ;How many pixels to move the camera
-;Speed:
-    ;Pixels/frame
-  ;Modify direction just a tad to be easier to test
-  LD A,$40
-  ADD D
-  LD D,A
-;Up down/Left right distinction
-  LD C,<BkgVertScroll
-  BIT 6,D
-  JR z,+
-  INC C
-+
-;Convert E to 4.4 format
-  LD B,D
-  LD A,$3F
-  AND D
-;  RLA  ;When speed is in 3.3
-  LD D,A
   XOR A
-  BIT 7,B
-  LD B,>BkgVertScroll
-  JR z,+
--   ;Down/Right
-  ADD D
-  LD L,A    ;Delta accumulator
-  AND $F0
-  SWAP A
-  LD H,A
-  LD A,(BC)
-  ADD H
-  LD (BC),A
-  LD A,E        ;Check if distance covered
-  SUB H
-  JR c,++
-  LD E,A
-  LD A,L
-  AND $0F       ;Integer applied; only accumulate fractional
-  RST $00
-  JR -
-++
-  CPL       ;Correct for overshoot
-  INC A
-  LD E,A
-  LD A,(BC)
-  SUB E
-  LD (BC),A
-  JP EndTask
-+
--   ;Up/Left
-  ADD D
-  LD L,A
-  AND $F0
-  SWAP A
-  LD H,A
-  LD A,(BC)
-  SUB H
-  LD (BC),A
-  LD A,E        ;Check if distance covered
-  SUB H
-  JR c,++
-  LD E,A
-  LD A,L
-  AND $0F
-  RST $00
-  JR -
-++
-  CPL       ;Correct for overshoot
-  INC A
-  LD E,A
-  LD A,(BC)
-  ADD E
-  LD (BC),A
-  JP EndTask
-
-Cutscene_CameraSet:
-;D = Camera X
-;E = Camera Y
-  LD HL,BkgVertScroll
-  LD (HL),E
+  OR (HL)
+  DEC HL
+  DEC HL    ;Do not affect zero flag
+  JR nz,-
+;Found open space
   INC L
-  LD (HL),D
-  JP EndTask
+  LD A,%00011111
+  AND C
+  LDI (HL),A    ;Index
+  CALL NextCutsceneByte
+  LD (HL),A     ;Offset
+  RET
 
-Cutscene_ActorNew:
-;D= %CCCIIIII
-    ;   +++++--- Reference ID
-    ;+++-------- Character
-;E= Character type
-;Characters:
-    ;0: Hat
-    ;1: Marisa
-    ;2: Alice
-    ;3: Reimu
-    ;4: Narumi
-    ;5: Fairy
-  LD H,>Cutscene_Actors
-  LD A,$1F
-  AND D
+ChangeControl:
+  CALL NextCutsceneByte
+  LD B,A
+  LD A,%00011111
+  AND C
+  ;Get Actor to send message to
   ADD <Cutscene_Actors
   LD L,A
-;Should the slot already be filled, do we
-    ;Delete the old one?
-    ;Forgo the new one?     v
+  LD H,>Cutscene_Actors
+  ;Are we deleting?
+  LD A,B
+  INC A
   LD A,(HL)
-  OR A
-  JP nz,EndTask
-  LD A,$E0
-  AND D
-  PUSH HL
+  JR nz,+
+  ;Delete actor
+  LD (HL),0
++
+  OR A      ;Check for empty actor
+  RET z
+  CALL Access_ActorDE
+  LD A,%00011111
+  AND C
+  DEC A         ;Ready zero flag for Player Character check here
+  LD A,B            ;Send message
+  LD BC,_ControlState
+  ADD HL,BC
+  LD (HL),A
+  RET nz
+  ;Is player character; adjust button state
+  LD BC,_ButtonState-_ControlState
+  ADD HL,BC
+  LD (HL),0
+  RET
+
+JumpTable:
+  ;Ready index into offset
+  LD A,%00000111
+  AND C
+  ADD A
+  LD C,A
+  ;Get address
+  CALL NextCutsceneByte
+  LD B,A
+  CALL NextCutsceneByte
+  LD H,A
+  LD L,B
+  ;Squish them together
+  LD B,0
+  ADD HL,BC
+  ;Get actual cutscene destination
+  LDI A,(HL)
+  LD D,(HL)
+  LD E,A
+  RET
+  
+Jump:
+  CALL NextCutsceneByte
+  LD B,A
+  CALL NextCutsceneByte
+  LD D,A
+  LD E,B
+  RET
+
+CreateActor:
+  CALL NextCutsceneByte
+  PUSH AF
+  PUSH DE
+    ;Get actor type
+    AND %11100000
     SWAP A
     ADD <CharaTypes
     LD L,A
     LD H,>CharaTypes
     LDI A,(HL)
-    LD H,(HL)
-    LD L,A
+    LD D,(HL)
+    LD E,A
+    ;Create actor in slot
     LD BC,Actor_FrameInit
-    LD A,E
-    LD D,H
-    LD E,L
-    ;Put actors in the back so any cutscenes moving them always run before they're drawn
-    ;Should also reduce priority flicker under load, since there's less space for vBlank to happen in
     CALL NewTaskLo
-++
-  POP HL
-  JP c,EndTask
+  POP DE
+  POP AF
+  ;Put new actor in slot
+  AND %00011111
+  ADD <Cutscene_Actors
+  LD L,A
+  LD H,>Cutscene_Actors
   LD (HL),B
-  JP EndTask
-
-Cutscene_ActorDelete:
-;A= Offset
-;E= %000IIIII
-    ;   +++++--- Reference ID
-  LD HL,Cutscene_Actors
-  ADD E
-  AND $1F
-  ADD L
-  LD L,A
-  ;Send deletion message
-  LD A,(HL)
-  LD (HL),0
-  OR A
-  JP z,EndTask
+  LD A,B
+  POP BC        ;Return
+  RST $00 ;Give actor a moment to initialize
+  PUSH BC       ;Return
   CALL Access_ActorDE
-  LD DE,_ControlState
-  ADD HL,DE
-  LD (HL),$FF   ;Message to self-destruct
-  JP EndTask
-
-Cutscene_ActorMovement:
-;A= %000IIIII
-    ;   +++++--- Reference ID
-;D= %DDD00000
-    ;+++-------- Action
-    ;               0: Set X position
-    ;               1: Set Y position
-    ;               2: Set actor speed
-    ;               3: Move actor left
-    ;               4: Move actor down
-    ;               5: Move actor right
-    ;               6: Move actor up
-;E= Value
-    ;Set X, Y: Position (pixels)
-    ;Actor speed: Pixels/frame (4.4)
-    ;Move actor U/L/D/R: Distance (pixels)
-    ;Anim speed: speed val
-  OR D
-  LD D,A
-  AND $1F
-  ADD A,<Cutscene_Actors
-  LD C,A
-  LD A,>Cutscene_Actors
-  ADC 0
-  LD B,A
-  ;Send the message
--
-  LD A,(BC)
-  OR A
-  JR nz,+
-  RST $00 ;If actor does not exist, wait for them
-  JR -
-+   ;Set the message
-  CALL Access_ActorDE
-  LD A,$E0
-  AND D
-  SWAP A
-  RRA
-  LD B,A
-  LD C,E
-    ;Modify the actor data
-  INC B
-  DEC B
-  JR nz,+
+  LD B,H
+  LD C,L
+  CALL NextCutsceneByte
   ;Set X
-  LD DE,_MasterX
-  XOR A
-  JR ++
-+
-  DEC B
-  JR nz,+
+  INC BC
+  INC BC
+  INC BC
+  LD (BC),A
+  CALL NextCutsceneByte
   ;Set Y
-  LD DE,_MasterY
-  XOR A
-  JR ++
-+
-  DEC B
-  JR nz,+
-  ;Set speed
-  LD DE,_MoveSpeed
-  SWAP C
-  LD A,$F0
+  INC BC
+  INC BC
+  LD (BC),A
+  RET
+
+VarQuick:
+  CALL NextCutsceneByte
+  LD H,varPage
+  LD L,A
+  LD A,%00000111
   AND C
-  LD B,A
-  LD A,$0F
-  AND C
-  LD C,A
-  LD A,B
-  LD B,0
-  JR ++
+  BIT 3,C
+  JR z,+
+  ADD (HL)
 +
-  DEC B
-  DEC B
-  DEC B
-  DEC B
-  DEC B ;Options 3-6 should now be <0
-  BIT 7,B   ;Is it now negative?
-  JR z,++
-  ;Move actor U/L/D/R
-  LD D,H
-  LD E,L
-  LD A,4
-  ADD B
-  ;Set BC
-  LD B,C
-  LD C,0
-  JP Actor_DistMove
-++
-  ADD HL,DE
-  LDI (HL),A
+  LD (HL),A
+  RET
+
+CreateFairy:
+  ;Get a random number
+  ;Make that fairy
+  ;Put it at a random spot (~0 away from the player)
+  ;Repeat for the given count
+  RET
+
+AssignHat:
+  CALL NextCutsceneByte    ;Get Target
+  ADD <Cutscene_Actors
+  LD L,A
+  LD H,>Cutscene_Actors
+  LD A,(HL)
+  CALL Access_ActorDE
+  PUSH HL
+    CALL NextCutsceneByte      ;Get Hat
+    ADD <Cutscene_Actors
+    LD L,A
+    LD H,>Cutscene_Actors
+    LD A,(HL)
+    CALL Access_ActorDE
+    LD BC,_ParentChar
+    ADD HL,BC
+  POP BC    ;Target
+  ;Put Target in Hat data
   LD (HL),C
+  INC HL
+  LD (HL),B
+  RET
+
+Breakout:
+;Call the followng code in the cutscene
+  PUSH DE
+  RET
+BreakRet:
+;Get next DE value from the given return value
+  POP DE    ;Return/CS
+  INC DE
+  RET
+
+MoveActorCamera:
+  BIT 1,C
+  JR z,MoveCamera
+  ;Fall through
+MoveActor:
+  ;Change animation when actor stops moving
+  CALL NextCutsceneByte
+  CALL NextCutsceneByte
+  CALL NextCutsceneByte
+  RET
+
+MoveCamera:
+  ;Test direction
+  LD B,<BkgVertScroll
+  BIT 0,C
+  JR nz,+
+  ;Horizontal movement
+  LD B,<BkgHortScroll
++
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  PUSH DE
+    LD D,B
+    LD E,C
+    LD BC,MoveCamera_Task
+    CALL NewTask
+  POP DE
+  RET
+
+MoveCamera_Task:
+;A= Destination
+;D= Address
+;E= Time
+  PUSH AF   ;Save the inital value of Destination each time
+    LD L,D
+    LD H,>BkgVertScroll   ;Also hort; depends on D
+    SUB (HL)
+    JP z,EndTask      ;Already there
+    PUSH HL
+      PUSH AF     ;Need the carry flag
+        PUSH BC
+          JR nc,+
+          CPL     ;Division is unsigned; negate if needed
+          INC A
++
+          LD B,0
+          LD C,A
+          PUSH DE
+            CALL Divide
+          POP DE
+        POP BC
+        ADD B         ;Accumulate remainder
+        LD B,A
+        LD A,0
+        ADC L
+        LD L,A
+      POP AF
+      LD A,L
+      JR nc,+
+      ;Value was negative; re-negate
+      CPL
+      INC A
++
+    POP HL
+    ADD (HL)
+    LD (HL),A
+  POP AF
+  LD D,L    ;Restore A and D to initial values
+  DEC E     ;...but update the frame counter
+  JP z,EndTask
+  RST $00         ;Do again next frame
+  JR MoveCamera_Task
+
+RunText:
+  ;Are we waiting for the last one to finish?
+  BIT 1,C
+  JR z,WaitText
+  LD A,C
+  PUSH AF
+    CALL NextCutsceneByte
+    LD B,A
+    CALL NextCutsceneByte
+    PUSH DE
+      LD D,A
+      LD E,B
+      LD BC,TextStart
+      CALL NewTask
+    POP DE
+  POP AF
+  ;Are we letting this one finish?
+  AND $01
+  RET z
+  ;Fall through
+WaitText:
+  POP BC    ;Return
+  RST $00
+  LD A,(TextStatus)
+  CP textStatus_done
+  RET nz    ;Not now
+  PUSH BC
+  RET
+
+WaitMap:
+  ;Wait for map loading to be ready
+  POP BC    ;Return
+-
+  RST $00
+  LD HL,hotMap
+  BIT 7,(HL)
+  JR z,-
+  PUSH BC
+  RET
+
+ShowMap:
+  ;Wait for map loading to be ready
+  POP BC    ;Return
+-
+  RST $00
+  LD HL,hotMap
+  BIT 7,(HL)
+  JR z,-
+  PUSH BC
+  LD BC,ShowMap_Task
+  JP NewTask
+
+LoadBkgCol:
+  CALL NextCutsceneByte
+  LD (BkgPal),A
+  RET
+
+LoadObjCol:
+  CALL NextCutsceneByte
+  LD (SpritePal0),A
+  CALL NextCutsceneByte
+  LD (SpritePal1),A
+  RET
+
+Return:
+  ;End this task
+  LD HL,CutsceneActiveCnt
+  DEC (HL)      ;Finish this layer
+  POP HL    ;Return
   JP EndTask
 
-Cutscene_ActorAnimate:
-;A= %DDDIIIII
-    ;|||+++++--- Reference ID
-    ;+++-------- Action
-    ;               0: Set anim speed
-    ;               1: Play animation
-;E= Value
-    ;Play animation: anim ID
-    ;Anim speed: speed val
-  LD D,A
-  LD H,>Cutscene_Actors
-  AND $1F
-  ADD A,<Cutscene_Actors
-  LD L,A
-  ;Set the message
-  LD A,$E0
-  AND D
-  SWAP A
-  RRA
-  LD B,A
-  LD C,E
-  ;Send the message
--
+JumpVarZ:
+  CALL JumpVar
+  RET nz
+  JR -
+  
+JumpVarNZ:
+  CALL JumpVar
+  RET z
+  JR -
+
+JumpVar:
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  LD L,C
+  LD H,varPage
   LD A,(HL)
   OR A
-  JR nz,+
-  LD E,L
-  RST $00 ;If actor does not exist, wait for them
-  LD L,E
-  LD H,>Cutscene_Actors
-  JR -
-+   ;Modify the actor data
-  CALL Access_ActorDE
-  INC B
-  DEC B
-  JR nz,+
-  ;Set anim speed
-  LD DE,_AnimSpeed
-+
-  DEC B
-  JR nz,+
-  ;New Animation
-  LD DE,_AnimChange
-+
-  ADD HL,DE
-  LD (HL),C
-  JP EndTask
+  RET
 
-Cutscene_ObjectsLoad:
-;DE->Objects data
-;Load in the boundaries
-  LD C,8
-  LD HL,ObjArea
--
-  LD A,(DE)
-  INC DE
-  LDI (HL),A
-  DEC C
+CallCutscene:
+  CALL NextCutsceneByte
+  LD B,A
+  CALL NextCutsceneByte
+  PUSH DE
+    LD E,B
+    LD D,A
+    LD BC,Cutscene_Task
+    CALL NewTask
+  POP DE
+  POP BC    ;Return
+  LD HL,CutsceneActiveCnt
+  LD A,(HL)
+-   ;Wait for cutscene to end
+  RST $00
+  LD HL,CutsceneActiveCnt
+  CP (HL)
   JR nz,-
-  JP EndTask
+  PUSH BC
+  RET
 
-Cutscene_SongLoad:
-;DE->Song Data
-  LD B,D
-  LD C,E
+LoadMap:
+  ;Wait for map loading to be ready
+  POP BC    ;Return
+-
+  RST $00
+  LD HL,hotMap
+  BIT 7,(HL)
+  JR z,-
+  PUSH BC   ;Return
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  PUSH DE
+    LD D,A
+    LD E,C
+    LD BC,LoadMap_Task
+    CALL NewTask
+  POP DE
+  RET
+
+LoadObj:
+  ;Wait for map loading to be ready
+  POP BC    ;Return
+-
+  RST $00
+  LD HL,hotMap
+  BIT 7,(HL)
+  JR z,-
+  PUSH BC   ;Return
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  LD B,A
+  LD HL,ObjArea
+  LD A,8
+-
+  PUSH AF
+    LD A,(BC)
+    INC BC
+    LDI (HL),A
+  POP AF
+  DEC A
+  JR nz,-
+  RET
+
+PlaySong:
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  LD B,A
   CALL MusicLoad
-  LD A,$FF
-  LD (musicglobalbase+1),A
-  LDH ($26),A
-  JP EndTask
+  LD (HL),$FF
+  RET
 
-Cutscene_SongPan:
-;D= Shadow $FF24
-;E= Shadow $FF25
-  LD A,D
-  LDH ($24),A
-  LD A,E
-  LDH ($25),A
-  JP EndTask
+SetVar:
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  LD L,C
+  LD H,varPage
+  LD (HL),A
+  RET
 
-Cutscene_InputChange:
-;A= Actor ID
-;E= New control state
-;Send message to actor that control state is now X?
-  LD D,A
-  ADD <Cutscene_Actors
+AddVar:
+  CALL NextCutsceneByte
   LD C,A
-  LD B,>Cutscene_Actors
-  ;Get the actor task, once extant
--
-  LD A,(BC)
-  OR A
-  JR nz,+
-  RST $00
-  JR -
-+ ;Insert new Existence status
-  CALL Access_ActorDE
-  LD BC,_ControlState
-  ADD HL,BC
-  LD (HL),E
-;Clear out button state, if player character
-  DEC D
-  JR nz,+
-  LD BC,_ButtonState-_ControlState
-  ADD HL,BC
-  LD (HL),0
-+
-  JP EndTask
+  CALL NextCutsceneByte
+  LD L,C
+  RES 7,L
+  LD H,varPage
+  ADD (HL)
+  LDI (HL),A
+  BIT 7,C
+  RET z
+  PUSH AF   ;We need the carry
+  PUSH HL
+    CALL NextCutsceneByte
+    LD C,A
+  POP HL
+  POP AF
+  LD A,C
+  ADC (HL)
+  LD (HL),A
+  RET
 
-Cutscene_HatAssign:
-;D= ID to assign hat to (self to unassign)
-;E= ID of hat
-  LD A,D
-  ADD <Cutscene_Actors
+CompareVar:
+  CALL NextCutsceneByte
   LD C,A
-  LD B,>Cutscene_Actors
-  ;Get actor task, once it exists
--
-  LD A,(BC)
-  OR A
-  JR nz,+
-  RST $00
-  JR -
-+
-  CALL Access_ActorDE
-  LD A,E
-  LD D,H
-  LD E,L
-  ;Get hat
-  ADD <Cutscene_Actors
-  LD C,A
-  ;Get actor task, once it exists
--
-  LD A,(BC)
-  OR A
-  JR nz,+
-  RST $00
-  JR -
-+
-  CALL Access_ActorDE
-  LD BC,_ParentChar
-  ADD HL,BC
-  LD (HL),E
-  INC HL
-  LD (HL),D
-  JP EndTask
+  CALL NextCutsceneByte
+  LD L,C
+  RES 7,L
+  LD H,varPage
+  SUB (HL)
+  INC L
+  LD (varPage*256),A
+  BIT 7,C
+  RET z
+  LD A,L
+  PUSH AF   ;Maintain add's carry
+  PUSH HL
+    CALL NextCutsceneByte
+    LD C,A
+  POP HL
+  POP AF
+  LD A,C
+  SBC (HL)
+  LD (varPage*256+1),A
+  RET
 
-Cutscene_DanmakuInit:
-;A= Actor ID
-;E= Danmaku type
-  ADD <Cutscene_Actors
-  LD C,A
-  LD B,>Cutscene_Actors
-  ;Get actor task, once it exists
--
-  LD A,(BC)
-  OR A
-  JR nz,+
-  RST $00
-  JR -
-+
-  LD B,E
-  LD C,A
-  CALL Access_ActorDE
-  INC HL
-  INC HL
-  INC HL
-  LDI A,(HL)
-  LD D,A
-  INC HL
-  LD E,(HL)
-  LD A,B
-  ;JP PatternFire
-  JP EndTask
+ShootDanmaku:
+  RET
 
 .ENDS

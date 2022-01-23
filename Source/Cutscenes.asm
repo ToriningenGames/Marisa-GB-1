@@ -1,261 +1,528 @@
-;Cutscenes
-
-;Cutscenes are functions. Cutscenes are responsible for the following tasks:
-    ;Camera movement
-    ;Speech initiation
-    ;Automated movement
-    ;Map switching
-;Generally, gluing the various game features together
-;Every cutscene bit that may be needed:
-    ;Load a map
-    ;Load a song
-    ;Wait for time T
-    ;Move actor from point A to point B over time T
-    ;Move camera from point A to point B over time T
-    ;Change palette
-    ;Play actor animation
-    ;Open door
-    ;Stopping player controlled movement
-    ;Try to never have a "Call this function" function
-;Cutscenes will be responsible for tracking which character is which, and where,
-;EXCEPT for the hat and the player; IDs for those are available at $C0E9/A
-;Cutscene data is abstracted from ID juggling by using an index system;
-;more detail in the actor creation commands
-;Each cutscene piece refers to a function call
-    ;1 byte:  function to call
-    ;2 bytes: data
-
-;IMPORTANT: Cutscene Actor 0 must always be the hat,
-       ;and Cutscene Actor 1 must always be Marisa!
-       ;Actor 1 is assumed to be playable,
-       ;and Actor 0 is assumed to be assignable.
+;Note: You are expected to know and calculate the offset values yourself
+;This is because it carries through jumps and calls,
+;and a macro is not following through all that.
 
 
+.DEFINE DirVert         0
+.DEFINE DirHort         1
 
-.include "ActorData.asm"
+.DEFINE DirLeft         0
+.DEFINE DirDown         1
+.DEFINE DirRight        2
+.DEFINE DirUp           3
 
-.include "mapDef.asm"
+.DEFINE AnimFaceLeft    0
+.DEFINE AnimFaceDown    1
+.DEFINE AnimFaceRight   2
+.DEFINE AnimFaceUp      3
+.DEFINE AnimWalkLeft    4
+.DEFINE AnimWalkDown    5
+.DEFINE AnimWalkRight   6
+.DEFINE AnimWalkUp      7
 
-.DEFINE CsChHat      0
-.DEFINE CsChMarisa   1
-.DEFINE CsChAlice    2
-.DEFINE CsChReimu    3
-.DEFINE CsChNarumi   4
-.DEFINE CsChFairy    5
-.DEFINE CsChMushroom 6
+.DEFINE ChHat           0
+.DEFINE ChMarisa        1
+.DEFINE ChAlice         2
+.DEFINE ChReimu         3
+.DEFINE ChNarumi        4
+.DEFINE ChFairy         5
+.DEFINE ChMushroom      6
 
-.DEFINE CsAnFaceLeft    0
-.DEFINE CsAnFaceDown    1
-.DEFINE CsAnFaceRight   2
-.DEFINE CsAnFaceUp      3
-.DEFINE CsAnWalkLeft    4
-.DEFINE CsAnWalkDown    5
-.DEFINE CsAnWalkRight   6
-.DEFINE CsAnWalkUp      7
 
-.DEFINE CsDirLeft   0
-.DEFINE CsDirDown   1
-.DEFINE CsDirRight  2
-.DEFINE CsDirUp     3
-
-.MACRO CsWait ARGS time
- .db $80+28
- .dw time+$100
-.ENDM
-.MACRO CsEnd
- .db $80
- .dw 0
-.ENDM
-.MACRO CsEndVar ARGS var, check
- .IF NARGS >= 2
- .db $C0,var,check
+.MACRO UseVarAsVal ARGS var, offset, wait
+ .IF var > %00011111
+  .FAIL "Var out of range"
+ .ENDIF
+ .IF defined(wait)
+  .db %10000000 | var, wait
  .ELSE
- .db $C0,var,0
+  .db %00000000 | var
+ .ENDIF
+  .db offset
+.ENDM
+
+.MACRO ChangeActorControl ARGS actor, value, wait
+ .IF actor > %00011111
+  .FAIL "Actor index out of range"
+ .ENDIF
+ .IF defined(wait)
+  .db %10100000 | actor, wait
+ .ELSE
+  .db %00100000 | actor
+ .ENDIF
+  .db value
+.ENDM
+
+.MACRO IndirectJump ARGS jumpTable, index, wait
+ .IF index > %00000111
+  .FAIL "Table offset out of range"
+ .ENDIF
+ .IF defined(wait)
+  .db %11000000 | index, wait
+ .ELSE
+  .db %01000000 | index
+ .ENDIF
+  .dw jumpTable
+.ENDM
+
+.MACRO CreateFairies ARGS count, wait
+ .IF count > %00000111
+  .FAIL "Too many fairies"
+ .ENDIF
+ .IF defined(wait)
+  .db %11001000 | count, wait
+ .ELSE
+  .db %01001000 | count
  .ENDIF
 .ENDM
-.MACRO CsWaitText
- .db $80+29
- .dw 0      ;Dummy
-.ENDM
-.MACRO CsInputChange ARGS ID, control
- .db 1,control,ID
-.ENDM
-.MACRO CsRunText ARGS TextPtr
- .db 3
- .dw TextPtr
-.ENDM
-.MACRO CsSetCamera ARGS X, Y
- .db 4,Y,X
-.ENDM
-.MACRO CsMoveCameraSpeed ARGS dir, speed, dist
-;I want to move in [dir], and go [dist] via [speed] pixels/frame
- .db 5,dist,(dir<<6) | ((speed*16) & $3F)
-.ENDM
-.MACRO CsMoveCameraTime ARGS dir, time, dist
-;I want to move in [dir], and go [dist] in exactly [time] frames
- .db 5,dist,(dir<<6) | (((dist/time)*16) & $3F)
-.ENDM
-.MACRO CsNewActor ARGS ID, species, race
- .db 6,race,(species << 5) | ID
-.ENDM
-.MACRO CsDeleteActor ARGS ID
- .db 7,ID,0
-.ENDM
-.MACRO CsDeleteActorVar ARGS var, ID
- .db $40+7,var,ID
-.ENDM
-.MACRO CsSetActorX ARGS ID, X
- .db 9,(X+8) & $FF,ID | ((0)*32)
-.ENDM
-.MACRO CsSetActorY ARGS ID, Y
- .db 9,(Y+16) & $FF,ID | ((1)*32)
-.ENDM
-.MACRO CsSetActor ARGS ID, X, Y
- .db 9,(X+8)  & $FF,ID | ((0)*32)
- .db 9,(Y+16) & $FF,ID | ((1)*32)
-.ENDM
-.MACRO CsSetActorXVar ARGS var, ID
- .db $40+9,var,ID | ((0)*32)
-.ENDM
-.MACRO CsSetActorYVar ARGS var, ID
- .db $40+9,var,ID | ((1)*32)
-.ENDM
-.MACRO CsSetActorVar ARGS varx, vary, ID
-  CsSetActorXVar varx,ID
-  CsSetActorYVar vary,ID
-.ENDM
-.MACRO CsAnimateActor ARGS ID, anim
- .db 8,anim,ID | ((1)*32)
-.ENDM
-.MACRO CsAnimateActorVar ARGS var, ID
- .db $40+8,var,ID | ((1)*32)
-.ENDM
-.MACRO CsAnimSpeed ARGS ID, animspeed
- .db 8,animspeed,ID | ((0)*32)
-.ENDM
-.MACRO CsSetActorSpeed ARGS ID, speed
- .db 9,speed*16,ID | ((2)*32)
-.ENDM
-.MACRO CsMoveActor ARGS ID, dir, dist
- .db 9,dist,ID | ((dir + 3)*32)
-.ENDM
-.MACRO CsMoveActorVar ARGS var, ID, dir
- .IF NARGS >= 3
- .db $40+9,var,ID | ((dir + 3)*32)
+
+.MACRO SetVar ARGS var, value, wait
+ .IF value <= %00000111
+  .IF defined(wait)
+   .db %11010000 | value, wait
+  .ELSE
+   .db %01010000 | value
+  .ENDIF
+  .db var
+ .ELIF value <= $FF
+  .IF defined(wait)
+   .db %11111101, wait
+  .ELSE
+   .db %01111101
+  .ENDIF
+  .db var, value
  .ELSE
- .db $40+9,var,ID
+  .FAIL "Value too large"
  .ENDIF
-.ENDM
-.MACRO CsMoveActorSpeed ARGS ID, dir, speed, dist
- .db 9,speed*16,ID | ((2)*32)
- .db 9,dist, ID | ((dir + 3)*32)
-.ENDM
-.MACRO CsMoveActorDist ARGS ID, dir, dist
- .db 9,dist,ID | ((dir + 3)*32)
-.ENDM
-.MACRO CsMoveActorTime ARGS ID, dir, time, dist
- .db 9,dist/time*16,ID | ((2)*32)
- .db 9,dist, ID | ((dir + 3)*32)
-.ENDM
-.MACRO CsLoadObjColor ARGS color0, color1
- .db $80+30,color1,color0
-.ENDM
-.MACRO CsLoadBkgColor ARGS color
- .db $80+31,color,0
-.ENDM
-.MACRO CsLoadObj ARGS objs
- .db 11
- .dw objs
-.ENDM
-.MACRO CsLoadObjVar ARGS var, objbase
- .IF NARGS >= 2
- .db $40+11,var,>objbase
- .ELSE
- .db $40+11,var,0
- .ENDIF
-.ENDM
-.MACRO CsLoadMap ARGS map
- .db 12
- .dw map
-.ENDM
-.MACRO CsLoadMapVar ARGS var, mapbase
- .IF NARGS >= 2
- .db $40+12,var,>mapbase
- .ELSE
- .db $40+12,var,0
- .ENDIF
-.ENDM
-.MACRO CsWaitReadyMap
- .db $80+27
- .db 0,$80
-.ENDM
-.MACRO CsShowMap
- .db 26,0,0
- .db $80+27,0,$FF       ;Wait on map after
-.ENDM
-.MACRO CsLoadSong ARGS song
- .db 13
- .dw song
-.ENDM
-.MACRO CsPanSong ARGS channelSelect, stereoVolume
- .db 14,channelSelect,stereoVolume
-.ENDM
-.MACRO CsAssignHat ARGS hat, ID
- .db 10,hat,ID
-.ENDM
-.MACRO CsShootDanmaku ARGS ID, type
- .db 17,type,ID
-.ENDM
-.MACRO CsCall ARGS cs
- .db $80+2
- .dw cs
-.ENDM
-.MACRO CsCallVar ARGS var, csbase
- .IF NARGS >= 2
- .db $C0+2,var,>csbase
- .ELSE
- .db $C0+2,var,0
- .ENDIF
-.ENDM
-.MACRO CsAddVar ARGS var, value
- .db $80+17,value,var
-.ENDM
-.MACRO CsAddVarVar ARGS var1, var2
- .db $C0+17,var2,var1
-.ENDM
-.MACRO CsSetVar ARGS var, value
- .db $80+19,value,var
-.ENDM
-.MACRO CsSetVarVar ARGS var1, var2
- .db $80+22,var2,var1
-.ENDM
-.MACRO CsJump ARGS cs
- .db $80+18
- .dw cs
-.ENDM
-.MACRO CsJumpVar ARGS var, csbase
- .IF NARGS >= 2
- .db $C0+18,var,>csbase
- .ELSE
- .db $C0+18,var,0
- .ENDIF
-.ENDM
-.MACRO CsJumpRel ARGS offs
- .db $80+21,0,offs*3
-.ENDM
-.MACRO CsJumpRelVar ARGS var, offs
- .db $C0+21,var,offs*3
-.ENDM
-.MACRO CsSnapCamera
- .db $80+20,0,0
-.ENDM
-.MACRO CsMultVar ARGS var, scale
- .db $80+23,scale,var
 .ENDM
 
-.SECTION "Block Cutscenes" BITWINDOW 8 FREE
+.MACRO SetVarQ ARGS var, value, wait
+ .IF value > %00000111
+  .FAIL "Value too large"
+ .ENDIF
+ .IF defined(wait)
+  .db %11010000 | value, wait
+ .ELSE
+  .db %01010000 | value
+ .ENDIF
+ .db var
+.ENDM
 
-;It is required that this pointer is page-aligned
+.MACRO SetVar8 ARGS var, value, wait
+ .IF value > $FF
+  .FAIL "Value too large"
+ .ENDIF
+ .IF defined(wait)
+  .db %11111101, wait
+ .ELSE
+  .db %01111101
+ .ENDIF
+ .db var, value
+.ENDM
+
+.MACRO AddVar ARGS var, value, wait
+ .IF value <= %00000111
+  .IF defined(wait)
+   .db %11011000 | value, wait
+  .ELSE
+   .db %01011000 | value
+  .ENDIF
+  .db var
+ .ELIF value <= $FF
+  .IF var > $7F
+   .FAIL "Var index too big for 8-bit add"
+  .ENDIF
+  .IF defined(wait)
+   .db %11111110, wait
+  .ELSE
+   .db %01111101
+  .ENDIF
+  .db var, value
+ .ELIF value <= $FFFF
+  .IF var > $7F
+   .FAIL "Var index too big for 16-bit add"
+  .ENDIF
+  .IF defined(wait)
+   .db %11111110, wait
+  .ELSE
+   .db %01111101
+  .ENDIF
+  .db $80|var
+  .dw value
+ .ELSE
+  .FAIL "Value too large"
+ .ENDIF
+.ENDM
+
+.MACRO AddVarQ ARGS var, value, wait
+ .IF value > %00000111
+  .FAIL "Value too large"
+ .ENDIF
+ .IF defined(wait)
+  .db %11011000 | value, wait
+ .ELSE
+  .db %01011000 | value
+ .ENDIF
+ .db var
+.ENDM
+
+.MACRO AddVar8 ARGS var, value, wait
+ .IF value > $FF
+  .FAIL "Value too large"
+ .ENDIF
+ .IF var > $7F
+  .FAIL "Var index too big for 8-bit add"
+ .ENDIF
+ .IF defined(wait)
+  .db %11111110, wait
+ .ELSE
+  .db %01111101
+ .ENDIF
+ .db var, value
+.ENDM
+
+.MACRO AddVar16 ARGS var, value, wait
+ .IF value > $FFFF
+  .FAIL "Value too large"
+ .ENDIF
+ .IF var > $7F
+  .FAIL "Var index too big for 16-bit add"
+ .ENDIF
+ .IF defined(wait)
+  .db %11111110, wait
+ .ELSE
+  .db %01111101
+ .ENDIF
+ .db $80|var
+ .dw value
+.ENDM
+
+.MACRO RunTextString ARGS text, wait
+.IF defined(wait)
+ .db %11100010, wait
+.ELSE
+ .db %01100010
+.ENDIF
+.dw text
+.ENDM
+
+.MACRO RunTextStringBlocking ARGS text, wait
+.IF defined(wait)
+ .db %11100011, wait
+.ELSE
+ .db %01100011
+.ENDIF
+.dw text
+.ENDM
+
+.MACRO WaitOnTextString ARGS wait
+.IF defined(wait)
+ .db %11100001, wait
+.ELSE
+ .db %01100001
+.ENDIF
+.ENDM
+
+.MACRO AssignHat ARGS hatid, charid, wait
+.IF hatid > %00011111
+ .FAIL "Hat's actor ID too large"
+.ENDIF
+.IF charid > %00011111
+ .FAIL "Target actor's actor ID too large"
+.ENDIF
+.IF defined(wait)
+ .db %11100111, wait
+.ELSE
+ .db %01100111
+.ENDIF
+.db charid, hatid
+.ENDM
+
+.MACRO MoveActor ARGS id, anim, plane, xy, time, wait
+.IF id > %00011111
+ .FAIL "Actor ID too large"
+.ENDIF
+.IF anim > %00000111
+ .FAIL "Animation value too large"
+.ENDIF
+.IF plane > 1
+ .FAIL "Invalid direction"
+.ENDIF
+.IF defined(wait)
+ .db %11101110|plane, wait
+.ELSE
+ .db %01101110|plane
+.ENDIF
+.db time, (anim*32)|id, xy
+.ENDM
+
+.MACRO MoveCamera ARGS plane, xy, time, wait
+.IF plane > 1
+ .FAIL "Invalid direction"
+.ENDIF
+.IF defined(wait)
+ .db %11101100|plane, wait
+.ELSE
+ .db %01101100|plane
+.ENDIF
+.db time, xy
+.ENDM
+
+.MACRO CreateActor ARGS id, type, x, y, wait
+.IF id > %00011111
+ .FAIL "Actor ID too large"
+.ENDIF
+.IF type > %00000111
+ .FAIL "Actor type too large"
+.ENDIF
+.IF defined(wait)
+ .db %11110000, wait
+.ELSE
+ .db %01110000
+.ENDIF
+.db (type*32)|id, x, y
+.ENDM
+
+.MACRO ShootDanmaku ARGS wait
+.IF defined(wait)
+ .db %11110001, wait
+.ELSE
+ .db %01110001
+.ENDIF
+.ENDM
+
+.MACRO ShowMap ARGS wait
+.IF defined(wait)
+ .db %11110010, wait
+.ELSE
+ .db %01110010
+.ENDIF
+.ENDM
+
+.MACRO LoadBackPalette ARGS pal, wait
+.IF defined(wait)
+ .db %11110011, wait
+.ELSE
+ .db %01110011
+.ENDIF
+.db pal
+.ENDM
+
+.MACRO LoadSpritePalettes ARGS pal0, pal1, wait
+.IF defined(wait)
+ .db %11110100, wait
+.ELSE
+ .db %01110100
+.ENDIF
+.db pal0, pal1
+.ENDM
+
+.MACRO Return ARGS wait
+.IF defined(wait)
+ .db %11110101, wait
+.ELSE
+ .db %01110101
+.ENDIF
+.ENDM
+
+.MACRO Jump ARGS dest, wait
+.IF defined(wait)
+ .db %11110110, wait
+.ELSE
+ .db %01110110
+.ENDIF
+.dw dest
+.ENDM
+
+.MACRO JumpRelZ ARGS var, offset, wait
+.IF defined(wait)
+ .db %11110111, wait
+.ELSE
+ .db %01110111
+.ENDIF
+.db var, offset
+.ENDM
+
+.MACRO JumpRelNZ ARGS var, offset, wait
+.IF defined(wait)
+ .db %11111000, wait
+.ELSE
+ .db %01111000
+.ENDIF
+.db var, offset
+.ENDM
+
+.MACRO CallCs ARGS dest, wait
+.IF defined(wait)
+ .db %11111001, wait
+.ELSE
+ .db %01111001
+.ENDIF
+.dw dest
+.ENDM
+
+.MACRO LoadMap ARGS map, wait
+.IF defined(wait)
+ .db %11111010, wait
+.ELSE
+ .db %01111010
+.ENDIF
+.dw map
+.ENDM
+
+.MACRO LoadObjects ARGS obj, wait
+.IF defined(wait)
+ .db %11111011, wait
+.ELSE
+ .db %01111011
+.ENDIF
+.dw obj
+.ENDM
+
+.MACRO PlaySong ARGS song, wait
+.IF defined(wait)
+ .db %11111100, wait
+.ELSE
+ .db %01111100
+.ENDIF
+.dw song
+.ENDM
+
+.MACRO CompareVar ARGS var, val, wait
+.IF var > $7F
+ .FAIL "Var index too large"
+.ENDIF
+.IF val <= $FF
+ .IF defined(wait)
+  .db %11111111, wait
+ .ELSE
+  .db %01111111
+ .ENDIF
+ .db var, val
+.ELIF val <= $FFFF
+ .IF defined(wait)
+  .db %11111111, wait
+ .ELSE
+  .db %01111111
+ .ENDIF
+ .db $80|var
+ .dw val
+.ELSE
+ .FAIL "Value too large"
+.ENDIF
+.ENDM
+
+.MACRO CompareVar8 ARGS var, val, wait
+ .IF var > $7F
+  .FAIL "Var index too large"
+ .ENDIF
+ .IF val > $FF
+  .FAIL "Value too large"
+ .ENDIF
+ .IF defined(wait)
+  .db %11111111, wait
+ .ELSE
+  .db %01111111
+ .ENDIF
+ .db var, val
+.ENDM
+
+.MACRO CompareVar16 ARGS var, val, wait
+ .IF var > $7F
+  .FAIL "Var index too large"
+ .ENDIF
+ .IF val > $FFFF
+  .FAIL "Value too large"
+ .ENDIF
+ .IF defined(wait)
+  .db %11111111, wait
+ .ELSE
+  .db %01111111
+ .ENDIF
+ .db $80|var
+ .dw val
+.ENDM
+
+.MACRO Break ARGS wait
+ .IF defined(wait)
+ .db %11101011, wait
+ .ELSE
+ .db %01101011
+ .ENDIF
+.ENDM
+
+
+.SECTION "Cutscene Data" FREE
+
+;Var list
+.DEFINE varReimuFull        16
+.DEFINE varReimuMet         17
+.DEFINE varNarumiBeat       18
+.DEFINE varShroomA          19
+.DEFINE varShroomB          20
+.DEFINE varShroomC          21
+.DEFINE varKeepMusic        22
+
+;Var definitions on map changes
+    ;1: Entry facing direction
+    ;3: Map backing type
+    ;4: Map data
+    ;6: Object data
+    ;8: entry pos left side
+    ;10: entry pos down side
+    ;12: entry pos right side
+    ;14: entry pos up side
+
+
+;Unimplemented, here for linking reasons
+Cs_ReimuMeet:
+Cs_EndingAC:
+Cs_EndingB:
+Cs_MushroomCollect:
+Cs_NarumiFightStart:
+Cs_StraightTransition:
+Cs_CurvedTransitionA:
+Cs_Forest00:
+Cs_Forest01:
+Cs_Forest04:
+Cs_Forest11:
+Cs_Forest30:
+Cs_ClearActorList:
+  Return
+
+
+Cs_MapFadeout:
+  ChangeActorControl 1,0
+  LoadBackPalette %11111001
+  LoadSpritePalettes %11100101,%11111001, 7
+  LoadBackPalette %11111110
+  LoadSpritePalettes %11111010,%11111110, 7
+  LoadBackPalette %11111111
+  LoadSpritePalettes %11111111,%11111111
+  Return
+
+Cs_MapFadein:
+  LoadBackPalette %11111110
+  LoadSpritePalettes %11111010,%11111110, 5
+  LoadBackPalette %11111001
+  LoadSpritePalettes %11100101,%11111001, 5
+  LoadBackPalette %11100100
+  LoadSpritePalettes %11010000,%11100100
+  Return
+
+CsTbl_ComputePlayerAndCamera:
+ .dw Cs_ComputePlayerAndCameraRight
+ .dw Cs_ComputePlayerAndCameraUp
+ .dw Cs_ComputePlayerAndCameraLeft
+ .dw Cs_ComputePlayerAndCameraDown
+
+Cs_ComputePlayerAndCameraRight:
+Cs_ComputePlayerAndCameraUp:
+Cs_ComputePlayerAndCameraLeft:
+Cs_ComputePlayerAndCameraDown:
+  Return
+
+.ENDASM
 Cs_ComputePlayerAndCamera:
   ;Come in from right
   CsSetVarVar 16,8      ;bytes to shorts
@@ -293,45 +560,6 @@ Cs_ComputePlayerAndCamera:
   CsSnapCamera
   CsSetActorYVar 18,1
   CsEnd
-
-.ENDS
-
-.SECTION "Cutscenes" FREE
-
-;Var definitions on map changes
-    ;1: Entry facing direction
-    ;3: Map backing type
-    ;4: Map data
-    ;6: Object data
-    ;8: entry pos left side
-    ;10: entry pos down side
-    ;12: entry pos right side
-    ;14: entry pos up side
-
-Cs_MapFadeout:
-  CsInputChange 1,0
-  CsLoadBkgColor %11111001
-  CsLoadObjColor %11100101,%11111001
-  CsWait 7
-  CsLoadBkgColor %11111110
-  CsLoadObjColor %11111010,%11111110
-  CsWait 7
-  CsLoadBkgColor %11111111
-  CsLoadObjColor %11111111,%11111111
-  CsEnd
-
-Cs_MapFadein:
-  CsWait 5
-  CsLoadBkgColor %11111110
-  CsLoadObjColor %11111010,%11111110
-  CsWait 5
-  CsLoadBkgColor %11111001
-  CsLoadObjColor %11100101,%11111001
-  CsWait 5
-  CsLoadBkgColor %11100100
-  CsLoadObjColor %11010000,%11100100
-  CsEnd
-
 ;Complete Cutscenes
 ;These cutscenes are meant to be used in Map definitions etc.
 
@@ -352,18 +580,17 @@ Cs_MapFadein:
     ;Fade in
     ;Control
 Cs_StraightTransition:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
-  CsJumpRelVar 126,1
-  CsJump Cs_TransitionIn
-  CsLoadSong SongSpark         ;Change music
-  CsSetVar 126,1
-  CsJump Cs_TransitionIn
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
+  JumpRelZ varKeepMusic, 5
+  PlaySong SongSpark        ;Change music
+  SetVar varKeepMusic, 1
+  Jump Cs_TransitionIn
 
 ;Some of the non straight transitions
 Cs_CurvedTransitionA:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
   ;Check for exit from map 01 (to map 00)
   CsAddVar 32,(0 - <MapForest01map) & $FF
   CsAddVar 33,(0 - >MapForest01map) & $FF
@@ -405,8 +632,8 @@ Cs_CurvedTransitionA:
 ;Special loads for NPCs/Objects
 ;Not a shroom room, but shares with one temporally
 Cs_Forest01:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
   CsJumpRelVar 122,1
   CsJumpRel 5
   CsNewActor 2,CsChMushroom,0
@@ -431,8 +658,8 @@ Cs_Forest01:
 
 ;Shroom room
 Cs_Forest30:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
   CsJumpRelVar 120,1
   CsJump Cs_TransitionIn
   CsNewActor 2,CsChMushroom,0
@@ -443,8 +670,8 @@ Cs_Forest30:
 
 ;Shroom room
 Cs_Forest11:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
   ;There's a shroom in the room
   CsJumpRelVar 124,1
   CsJumpRel 5
@@ -465,8 +692,8 @@ Cs_Forest11:
 
 ;Shroom room
 Cs_Forest04:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
   CsJumpRelVar 122,1
   CsJump Cs_TransitionIn
   CsNewActor 2,CsChMushroom,0
@@ -477,124 +704,119 @@ Cs_Forest04:
 
 ;Reimu room
 Cs_Forest00:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
   CsJumpRelVar 114,5
   CsNewActor 2,CsChReimu,0
   CsWait 2
   CsAnimateActor 2,CsAnFaceDown
   CsSetActor 2,104,88
-  CsInputChange 2,2     ;Interact!
+  ChangeActorControl 2,2     ;Interact!
   CsJump Cs_CurvedTransitionA+6
-
+.ASM
 ;Alice room
 Cs_Forest24:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
-  CsNewActor 2,CsChAlice,0
-  CsWait 2
-  CsAnimateActor 2,CsAnFaceDown
-  CsSetActor 2,$4D,$32
-  CsInputChange 2,2     ;Interactable
-  CsJump Cs_TransitionIn
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
+  CreateActor 2,ChAlice,$55,$42
+  MoveActor 2,AnimFaceDown,0,0,1
+  ChangeActorControl 2,2     ;Interactable
+  Jump Cs_TransitionIn
 
 ;New setup
 Cs_Intro:
-  CsLoadSong SongRetrib
-  CsPanSong $FF,$AA
-  CsWait 38
-  CsLoadBkgColor $FE
-  CsWait 38
-  CsLoadBkgColor $FF
-  CsLoadObjColor $FF,$FF
-  CsWait 38
-  ;Variable Setup
-  CsSetVar 114,1    ;Reimu appears in (0,0)
+;Data control things
+  SetVar $90,$FF    ;Map byte
+;Opening
+  PlaySong SongRetrib, 38
+  LoadBackPalette $FE, 38
+  LoadBackPalette $FF
+  LoadSpritePalettes $FF,$FF, 38
   ;First Scene setup
-  CsLoadMap MapForestBKG03
-  CsNewActor 0,CsChHat,0
-  CsNewActor 1,CsChMarisa,0
-  CsWait 2
-  CsInputChange 1,0     ;Cutscene control of Marisa
-  CsAnimateActor 1,CsAnFaceDown
-  CsAssignHat 0,1
-  CsWaitReadyMap
-  CsLoadMap MapForest23map
-  CsSetActor 1,130,70
-  CsWaitReadyMap
-  CsLoadObj MapForest23obj
-  CsShowMap
-  CsInputChange 1,$80   ;Camera follow
+  LoadMap MapForestBKG03
+  CreateActor 0,ChHat,0,0
+  CreateActor 1,ChMarisa,138,85
+  AssignHat 0,1
+  ChangeActorControl 1,0     ;Cutscene control of Marisa
+  MoveActor 1,AnimFaceDown,0,0,1
+  LoadMap MapForest23map
+  LoadObjects MapForest23obj
+  ShowMap
+  ChangeActorControl 1,$80   ;Camera follow
   ;Marisa walk into scene here
-  CsCall Cs_MapFadein
-  CsRunText StringOpeningMessage1
-  CsWait 1
-  CsWaitText
+  CallCs Cs_MapFadein, 5
+  RunTextStringBlocking StringOpeningMessage1
   ;Marisa does a shuffle here
-  CsRunText StringOpeningMessage2
-  CsWait 1
-  CsWaitText
-  CsLoadSong SongMagus  ;Load main actioney song
-  CsRunText StringOpeningMessage3
-  CsWait 1
-  CsWaitText
-  CsSetActorSpeed 1,0.9
-  CsAnimSpeed 1,10
-  CsInputChange 1,$87   ;Playable
-  CsEnd
+  RunTextStringBlocking StringOpeningMessage2
+  PlaySong SongMagus  ;Load main actioney song
+  RunTextStringBlocking StringOpeningMessage3
+  ChangeActorControl 1,$87   ;Playable
+  Return
 
 ;Component Transitions
 ;These are just called by the above. Not to be used alone.
 
-Cs_TransitionOut:
-  CsInputChange 1,0
-  CsAddVar 1,CsAnWalkLeft
-  CsAnimateActorVar 1,1
-  CsAddVar 1,-CsAnWalkLeft
-  CsSetVar 20,30    ;Distance
-  CsSetVarVar 21,1
-  CsAddVar 21,3
-  CsMultVar 21,32   ;put the dir part in its place in the byte
-  CsMoveActorVar 20,1
-  CsCall Cs_MapFadeout
-  CsSetVarVar 2,3   ;Convert backing to short and index into back maps (26 bytes per item)
-  CsMultVar 2,26
-  CsAddVar 2,<MapBackBase
-  CsAddVar 3,>MapBackBase
-  CsLoadMapVar 2
-  CsWaitReadyMap
-  CsLoadMapVar 4
-  CsWaitReadyMap
-  CsLoadObjVar 6
-  CsShowMap
-  CsEnd
+Cs_DirToAnimAndPlane:
+  Break
+    ;Split Var 1 to get plane; put in Var 23
+    ;Turn Var 1 into animation value
+    LD HL,$C001
+    LD A,(HL)
+    AND 1
+    LD L,23
+    LDI (HL),A
+    LD A,($C001)
+    ADD AnimWalkLeft
+    LD (HL),A
+    CALL BreakRet
+  Return
 
+Cs_TransitionOut:
+  ChangeActorControl 1,0
+  CallCs Cs_DirToAnimAndPlane
+  UseVarAsVal 23,4    ;X/Y Plane
+  UseVarAsVal 24,2    ;Animation
+  MoveActor 1,0,0,30,30
+  CallCs Cs_MapFadeout, 7
+  Break
+    ;Multiply Var 3 by 26
+    LD HL,$C003
+    LD B,(HL)
+    LD C,26
+    CALL Multiply
+    LD (HL),B
+    DEC L
+    LD (HL),C
+    CALL BreakRet
+  UseVarAsVal 2,4   ;MapBackBase offset
+  UseVarAsVal 3,3
+  LoadMap MapBackBase, 9
+  UseVarAsVal 4,3   ;Map to load
+  UseVarAsVal 5,2
+  LoadMap 0
+  UseVarAsVal 6,3   ;Objects to load
+  UseVarAsVal 7,2
+  LoadObjects 0
+  ShowMap
+  Return
+  
 Cs_TransitionIn:
-  CsAddVar 1,CsAnWalkLeft   ;In case fancing changed
-  CsAnimateActorVar 1,1
-  CsAddVar 1,-CsAnWalkLeft
-  CsSetVarVar 6,1   ;Index into ComputePlayerAndCamera list (24 bytes per item)
-  CsSetVar 7,0
-  CsMultVar 6,24
-  CsAddVar 6,<Cs_ComputePlayerAndCamera
-  CsAddVar 7,>Cs_ComputePlayerAndCamera
-  CsSetVar 17,0
-  CsSetVar 19,0
-  CsCallVar 6
-  CsCall Cs_MapFadein
-  CsMoveActorVar 20,1
-  CsWait 37
-  CsAnimateActorVar 1,1     ;Marisa, stand still
-  CsInputChange 1,$87
-  CsSetVarVar 32,4
-  CsSetVarVar 33,5
-  CsEnd
+  CallCs Cs_DirToAnimAndPlane
+  UseVarAsVal 23,4    ;X/Y Plane
+  UseVarAsVal 24,2    ;Animation
+  MoveActor 1,0,0,30,30
+  UseVarAsVal 1,0
+  IndirectJump CsTbl_ComputePlayerAndCamera,0
+  CallCs Cs_MapFadein, 5
+  ChangeActorControl 1,$87
+  Return
+.ENDASM
 
 Cs_ClearActorList:
   CsSetVar 23,30
   CsDeleteActorVar 23,1
   CsAddVar 23,-1
-  CsEndVar 23
+  ReturnVar 23
   CsJumpRel -4
 
 ;Made it to Alice's house; determine which ending to give
@@ -608,16 +830,16 @@ Cs_EndingAC:
   CsJump Cs_EndingA
 ;Ending C (Found Alice's house from the back)
 Cs_EndingC:
-  CsCall Cs_TransitionOut
-  CsLoadMap MapForest02map
-  CsCall Cs_ClearActorList
-  CsLoadSong SongDoll
+  CallCs Cs_TransitionOut
+  LoadMap MapForest02map
+  CallCs Cs_ClearActorList
+  PlaySong SongDoll
   CsSetVar 1,CsDirDown
   CsSetVar 21,(CsDirDown+3)*32
   CsWaitReadyMap
-  CsShowMap
-  CsCall Cs_ComputePlayerAndCamera+8*3*1        ;Top of map
-  CsCall Cs_MapFadein
+  ShowMap
+  CallCs Cs_ComputePlayerAndCamera+8*3*1        ;Top of map
+  CallCs Cs_MapFadein, 5
   CsMoveActorVar 20,1   ;Enter Marisa
   CsWait 37
   CsAnimateActor 1,CsAnFaceDown   ;Marisa, stand still
@@ -630,31 +852,31 @@ Cs_EndingC:
   ;Fairies sneak in from the front; a lot of them
   
   CsWaitText
-  CsCall Cs_MapFadeout
+  CallCs Cs_MapFadeout
   CsNewActor 2,CsChAlice,0
   CsWait 60*4
   CsSetActor 2,64,124   ;Alice comes home
   CsAnimateActor 2,CsAnWalkUp
   CsMoveActorTime 2,CsDirUp,75,37
   ;Door things
-  CsCall Cs_MapFadein
+  CallCs Cs_MapFadein, 5
   CsWait 60
   CsRunText StringHouseBack3
   CsWaitText
-  CsCall Cs_MapFadeout
-  CsEnd
+  CallCs Cs_MapFadeout
+  Return
 
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
-  CsLoadSong SongDoll
-  CsLoadMap MapForest02map
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
+  PlaySong SongDoll
+  LoadMap MapForest02map
   CsWaitReadyMap
-  CsShowMap
-  CsLoadMap MapForestEndA1map   ;Ready the open door
-  CsCall Cs_ComputePlayerAndCamera+8*3*3        ;Bottom of map
-  CsCall Cs_MapFadein
+  ShowMap
+  LoadMap MapForestEndA1map   ;Ready the open door
+  CallCs Cs_ComputePlayerAndCamera+8*3*3        ;Bottom of map
+  CallCs Cs_MapFadein, 5
   CsMoveActorVar 20,1   ;Enter Marisa
   CsWait 37
   CsAnimateActor 1,CsAnFaceUp     ;Marisa, stand still
@@ -675,9 +897,9 @@ Cs_EndingA:
   CsAnimateActor 1,CsAnWalkUp   ;Walk up to door
   CsMoveActorTime 1,CsDirUp,190,72
   CsWait 190
-  CsShowMap             ;Door opens
+  ShowMap             ;Door opens
   CsNewActor 2,CsChAlice,0      ;Alice in doorway
-  CsLoadMap MapForestEndA2map   ;Ready the closed door
+  LoadMap MapForestEndA2map   ;Ready the closed door
   CsWait 1
   CsSetActor 2,64,87
   CsAnimateActor 2,CsAnFaceDown
@@ -703,34 +925,34 @@ Cs_EndingA:
   CsWait 100
   CsAnimateActor 1,CsAnFaceUp
   CsWait 30
-  CsAssignHat 0,0
+  AssignHat 0,0
   CsSetActor 0,200,200
   CsWait 20
   CsRunText StringAliceHouse6
   CsDeleteActor 1
   CsWait 20
-  CsShowMap             ;Door close
-  CsLoadSong SongNull
+  ShowMap             ;Door close
+  PlaySong SongNull
   CsWait 90
-  CsLoadBkgColor %11111001
-  CsLoadObjColor %11100101,%11111001
+  LoadBackPalette %11111001
+  LoadSpritePalettes %11100101,%11111001
   CsWait 90
-  CsLoadBkgColor %11111110
-  CsLoadObjColor %11111010,%11111110
+  LoadBackPalette %11111110
+  LoadSpritePalettes %11111010,%11111110
   CsWait 90
-  CsLoadBkgColor %11111111
-  CsLoadObjColor %11111111,%11111111
-  CsEnd
+  LoadBackPalette %11111111
+  LoadSpritePalettes %11111111,%11111111
+  Return
 
 ;Ending B (Escorted by Alice)
 Cs_EndingB:
   RET   ;Used as interaction function
   ;Marisa, Alice, don't move anymore, and no camera tracking
-  CsInputChange 1,0
-  CsInputChange 2,0
+  ChangeActorControl 1,0
+  ChangeActorControl 2,0
   CsRunText StringAliceEscort1
   CsWaitText
-  CsLoadSong SongDoll
+  PlaySong SongDoll
   CsSetActorSpeed 2,60/(50+110)
   CsSetActorSpeed 1,60/(50+110)
   CsAnimSpeed 2,$08
@@ -749,10 +971,10 @@ Cs_EndingB:
   CsAnimateActor 1,CsAnWalkRight
   CsMoveActorDist 1,CsDirRight,(190+50)*(60/(50+110))
   CsWait 170
-  CsCall Cs_MapFadeout
-  CsLoadMap MapForestBKG01
+  CallCs Cs_MapFadeout
+  LoadMap MapForestBKG01
   CsWaitReadyMap
-  CsLoadMap MapForest02map
+  LoadMap MapForest02map
   ;Bottom entrance
   CsSetActor 2,100,240
   CsSetActor 1,98,250
@@ -760,11 +982,11 @@ Cs_EndingB:
   CsAnimateActor 1,CsAnWalkUp
   CsSetCamera 0,111
   CsWaitReadyMap
-  CsLoadMap MapForestEndBmap
+  LoadMap MapForestEndBmap
   CsWaitReadyMap
-  CsShowMap
+  ShowMap
   ;Camera follows Alice
-  CsCall Cs_MapFadein
+  CallCs Cs_MapFadein, 5
   ;Alice moves up
   CsMoveCameraTime CsDirUp,400,101
   CsMoveActorTime 2,CsDirUp,400,130
@@ -789,14 +1011,14 @@ Cs_EndingB:
   CsAnimateActor 1,CsAnFaceDown
   CsRunText StringAliceEscort3
   CsWaitText
-  CsLoadSong SongMagus
+  PlaySong SongMagus
   CsRunText StringAliceEscort4
   CsWaitText
   ;Danmaku
   
   ;Fade to black
-  CsCall Cs_MapFadeout
-  CsEnd
+  CallCs Cs_MapFadeout
+  Return
 
 ;Bad insult lines:
   ;I'm gonna hang you with your own apron!
@@ -806,53 +1028,53 @@ Cs_EndingB:
 
 ;Narumi Fight intro
 Cs_NarumiFightStart:
-  CsCall Cs_TransitionOut
-  CsCall Cs_ClearActorList
-  CsLoadSong SongNull   ;No song plays if the fight is finished
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
+  PlaySong SongNull   ;No song plays if the fight is finished
   CsSetVar 126,0        ;Change music on exit
   CsNewActor 2,CsChNarumi,0
   CsWait 2
   CsSetActor 2,56,72
   CsAnimateActor 2,CsAnFaceDown
-  CsCall Cs_TransitionIn
-  CsInputChange 1,$87
-  CsEndVar 118,1        ;No text etc if the fight already happened
-  CsInputChange 1,$80   ;Camera follow, but sit still
+  CallCs Cs_TransitionIn
+  ChangeActorControl 1,$87
+  ReturnVar 118,1        ;No text etc if the fight already happened
+  ChangeActorControl 1,$80   ;Camera follow, but sit still
   CsRunText StringNarumiStart1
   CsWaitText
-  CsLoadSong SongMagus
+  PlaySong SongMagus
   CsRunText StringNarumiStart2
   CsWaitText
-  ;CsEnd
+  ;Return
 
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
-  CsLoadSong SongDoll
+  PlaySong SongDoll
   CsRunText StringNarumiEnd
   CsWaitText
   CsSetVar 118,1        ;Narumi is beaten
-  CsInputChange 1,$87   ;Marisa may leave
-  CsEnd
+  ChangeActorControl 1,$87   ;Marisa may leave
+  Return
 
 ;Feeding Reimu Shrooms
 Cs_ReimuMeet:
   RET
-  CsInputChange 1,0
-  CsCall Cs_ReimuFeed
-  CsInputChange 1,$87
-  CsEndVar 116,1
-  CsInputChange 1,0
+  ChangeActorControl 1,0
+  CallCs Cs_ReimuFeed
+  ChangeActorControl 1,$87
+  ReturnVar 116,1
+  ChangeActorControl 1,0
   CsRunText StringReimuMeet
   CsWaitText
   CsSetVar 116,1
-  CsInputChange 1,$87
-  CsEnd
+  ChangeActorControl 1,$87
+  Return
   
 Cs_ReimuFeed:
-  CsEndVar 116
+  ReturnVar 116
   ;Does Marisa have mushrooms?
-  CsCall Cs_ReimuMushroomTest
-  CsEndVar 0
+  CallCs Cs_ReimuMushroomTest
+  ReturnVar 0
   ;Marisa has mushrooms
   CsRunText StringReimuFeed2
   ;Those mushrooms are gone now
@@ -870,7 +1092,7 @@ Cs_ReimuFeed:
   CsJump Cs_ReimuDone
   CsRunText StringReimuFeed3
   CsWaitText
-  CsEnd
+  Return
 
 Cs_ReimuDone:
   CsRunText StringReimuFeed4
@@ -897,19 +1119,19 @@ Cs_ReimuDone:
   CsMoveActorTime 2,CsDirLeft,60,10
   CsWait 30
   CsSetVar 114,0
-  CsEnd
+  Return
 
 ;Uses Var 0 for whether Marisa has shrooms or not
 Cs_ReimuMushroomTest:
   CsSetVar 0,1
-  CsEndVar 120,1
-  CsEndVar 122,1
-  CsEndVar 124,1
+  ReturnVar 120,1
+  ReturnVar 122,1
+  ReturnVar 124,1
   ;No mushrooms collected
   CsSetVar 0,0
   CsRunText StringReimuFeed1
   CsWaitText
-  CsEnd
+  Return
 
 Cs_MushroomCollect:
   RET
@@ -939,6 +1161,6 @@ Cs_MushroomCollect:
   ;String stuff runs last, so the player doesn't have time to switch rooms
   CsWaitText
   CsRunText StringMushroomFound
-  CsEnd
-
+  Return
+.ASM
 .ENDS
