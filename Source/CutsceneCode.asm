@@ -46,15 +46,27 @@
         ; +--- Wait time posted after
     ;Wait on text
         ;%W1100001
-        ; |||||||
-        ; |++++++--- Constant
+        ; ||||||||
+        ; |+++++++--- Constant
+        ; +--- Wait time posted after
+    ;Wait on map to be shown
+        ;%W1100000
+        ; ||||||||
+        ; |+++++++--- Constant
         ; +--- Wait time posted after
     ;Assign Hat
         ;%W1100111 000CCCCC 000HHHHH
-        ; ||||||   |||||||| |||+++++--- Hat ID
-        ; ||||||   |||||||| +++--- Constant
-        ; ||||||   |||+++++--- Target ID
-        ; |+++++---+++--- Constant
+        ; |||||||  |||||||| |||+++++--- Hat ID
+        ; |||||||  |||||||| +++--- Constant
+        ; |||||||  |||+++++--- Target ID
+        ; |++++++--+++--- Constant
+        ; +--- Wait time posted after
+    ;Camera, go here
+        ;%W110010Y TTTTTTTT DDDDDDDD
+        ; |||||||| |||||||| ++++++++--- X/Y dest
+        ; |||||||| ++++++++--- Take this long to move
+        ; |||||||+--- Move on Y if set (move on X if clear)
+        ; |++++++--- Constant
         ; +--- Wait time posted after
     ;Breakout
         ;%W1101011 ...
@@ -62,20 +74,14 @@
         ; |++++++--- Constant
         ; +--- Wait time posted after
     ;You, go here (with this animation)
-        ;%W110111Y TTTTTTTT AAAIIIII DDDDDDDD
+        ;%W11011RY TTTTTTTT AAAIIIII DDDDDDDD
         ; |||||||| |||||||| |||||||| ++++++++--- X/Y dest
         ; |||||||| |||||||| |||+++++--- Actor ID
         ; |||||||| |||||||| +++--- Animation
         ; |||||||| ++++++++--- Take this long to move
         ; |||||||+--- Move on Y if set (move on X if clear)
-        ; |++++++--- Constant
-        ; +--- Wait time posted after
-    ;Camera, go here
-        ;%W110110Y TTTTTTTT DDDDDDDD
-        ; |||||||| |||||||| ++++++++--- X/Y dest
-        ; |||||||| ++++++++--- Take this long to move
-        ; |||||||+--- Move on Y if set (move on X if clear)
-        ; |++++++--- Constant
+        ; ||||||+--- Move relative to current position if set (absolute if clear)
+        ; |+++++--- Constant
         ; +--- Wait time posted after
 
     ;You, exist
@@ -187,14 +193,14 @@
 
 ;Instruction Tables:
 _3arg:
- .dw CallTable,   CreateFairy,  VarQuick, VarQuick
+ .dw CallTable,   CreateFairy,       VarQuick, VarQuick
 _2arg:
- .dw RunText,     AssignHat,    Breakout,  MoveActorCamera
+ .dw RunText,     AssignHatOrCamera, Breakout,  MoveActor
 _0arg:
- .dw CreateActor, WaitMap,      ShowMap,  LoadBkgCol
- .dw LoadObjCol,  Return,       Jump,     JumpVarZ
- .dw JumpVarNZ,   CallCutscene, LoadMap,  LoadObj
- .dw PlaySong,    SetVar,       AddVar,   CompareVar
+ .dw CreateActor, ShootDanmaku,      ShowMap,  LoadBkgCol
+ .dw LoadObjCol,  Return,            Jump,     JumpVarZ
+ .dw JumpVarNZ,   CallCutscene,      LoadMap,  LoadObj
+ .dw PlaySong,    SetVar,            AddVar,   CompareVar
 
 CharaTypes:
  .dw HatActorData
@@ -493,6 +499,9 @@ CreateFairy:
   ;Repeat for the given count
   RET
 
+AssignHatOrCamera:
+  BIT 1,C
+  JR z,MoveCamera
 AssignHat:
   CALL NextCutsceneByte    ;Get Target
   ADD <Cutscene_Actors
@@ -516,26 +525,6 @@ AssignHat:
   LD (HL),B
   RET
 
-Breakout:
-;Call the followng code in the cutscene
-  PUSH DE
-  RET
-BreakRet:
-;Get next DE value from the given return value
-  POP DE    ;Return/CS
-  RET
-
-MoveActorCamera:
-  BIT 1,C
-  JR z,MoveCamera
-  ;Fall through
-MoveActor:
-  ;Change animation when actor stops moving
-  CALL NextCutsceneByte
-  CALL NextCutsceneByte
-  CALL NextCutsceneByte
-  RET
-
 MoveCamera:
   ;Test direction
   LD B,<BkgVertScroll
@@ -555,11 +544,183 @@ MoveCamera:
   POP DE
   RET
 
+Breakout:
+;Call the followng code in the cutscene
+  PUSH DE
+  RET
+BreakRet:
+;Get next DE value from the given return value
+  POP DE    ;Return/CS
+  RET
+
+MoveActorAnim_Task:
+;Handle the actor animations here
+;A= MoveActor_Task ID
+;D= Actor ID
+;E= Animation
+  PUSH AF
+    LD A,D
+    ADD <Cutscene_Actors
+    LD L,A
+    LD H,>Cutscene_Actors
+    LD A,(HL)
+    LD D,A
+    CALL Access_ActorDE
+    LD BC,_AnimChange
+    ADD HL,BC
+    LD (HL),E
+  POP AF
+  LD B,E
+  LD C,D
+  CALL WaitOnTask
+  LD A,C
+  CALL Access_ActorDE
+  LD DE,_AnimChange
+  ADD HL,DE
+  LD A,B
+  AND $03
+  LD (HL),A
+  JP EndTask
+
+MoveActor_Task:
+;A= %D00AAAAA
+    ;|  +++++--- Actor ID
+    ;+--- Set for Y movement
+;D= Destination
+;E= Time
+  LD C,A
+  AND %00011111
+  ADD <Cutscene_Actors
+  LD L,A
+  LD H,>Cutscene_Actors
+  LD A,(HL)
+  CALL Access_ActorDE
+  INC HL
+  INC HL    ;Go to X lo position
+  BIT 6,C
+  JR z,+
+  INC HL    ;Go to Y lo position
+  INC HL
++   ;HL now pointing to the correct dimension
+  LD B,H
+  LD C,L
+  LD A,D
+  ;Move actor blindly as distance over time,
+  ;and we're guaranteed to end up in the right spot when time == 1
+-
+  RST $00
+  ;Perform movement for this frame
+  LD H,B
+  LD L,C
+  PUSH HL
+    BIT 7,A
+    PUSH AF     ;Need the zero flag
+      JR z,+
+      CPL     ;Division is unsigned; negate if needed
+      INC A
++
+      LD B,A
+      LD C,0
+      PUSH DE
+        CALL Divide
+      POP DE
+    POP AF
+    JR z,+
+    ;Value was negative; re-negate
+    LD A,L
+    CPL
+    LD L,A
+    LD A,H
+    CPL
+    LD H,A
+    INC HL
++
+    LD B,H
+    LD A,L
+  POP HL
+  ;Move character
+  ADD (HL)
+  LDI (HL),A
+  LD A,B
+  ADC (HL)
+  LDD (HL),A
+  ;We moved an amount; subtract it
+  LD A,D
+  SUB B
+  LD D,A
+  ;Restore BC to their initial values
+  LD B,H
+  LD C,L
+  ;...but update frame counter
+  DEC E
+  JR nz,-
+  JP EndTask
+
+MoveActor:
+  LD A,$03      ;Dir bit, Rel bit
+  AND C
+  RRCA
+  RRCA
+  LD C,A
+  CALL NextCutsceneByte
+  LD B,A
+  CALL NextCutsceneByte
+  PUSH AF
+    AND %00011111
+    OR C
+    LD C,A
+    CALL NextCutsceneByte
+    PUSH DE
+      BIT 7,C
+      JR nz,++      ;Rel bit?
+      ;Absolute position; make relative
+      LD D,A
+      LD A,%00011111
+      AND C
+      ADD <Cutscene_Actors
+      LD L,A
+      LD H,>Cutscene_Actors
+      LD A,(HL)
+      CALL Access_ActorDE
+      INC HL
+      INC HL
+      INC HL
+      BIT 6,C
+      LD A,D
+      JR z,+
+      ;Go to Y
+      INC HL
+      INC HL
++
+      SUB (HL)
+++
+      LD D,A      ;Destination
+      LD E,B      ;Time
+      LD A,C      ;Actor, plane
+      LD BC,MoveActor_Task
+      CALL NewTask
+    POP DE
+  POP AF
+  PUSH DE
+    LD D,A
+    AND %11100000
+    SWAP A
+    RRCA
+    LD E,A    ;Anim
+    LD A,%00011111
+    AND D
+    LD D,A    ;Actor ID
+    LD A,B    ;Task ID
+    LD BC,MoveActorAnim_Task
+    CALL NewTask
+  POP DE
+  RET
+
 MoveCamera_Task:
 ;A= Destination
 ;D= Address
 ;E= Time
-  PUSH AF   ;Save the inital value of Destination each time
+  PUSH AF   ;Save the initial value of Destination each time
     LD L,D
     LD H,>BkgVertScroll   ;Also hort; depends on D
     SUB (HL)
@@ -595,14 +756,13 @@ MoveCamera_Task:
   POP AF
   LD D,L    ;Restore A and D to initial values
   DEC E     ;...but update the frame counter
-  JP z,EndTask
   RST $00         ;Do again next frame
   JR MoveCamera_Task
 
 RunText:
-  ;Are we waiting for the last one to finish?
+  ;Are we waiting for the last one to finish? (Or a map wait)
   BIT 1,C
-  JR z,WaitText
+  JR z,WaitTextOrMap
   LD A,C
   PUSH AF
     CALL NextCutsceneByte
@@ -628,25 +788,26 @@ WaitText:
   PUSH BC
   RET
 
-WaitMap:
-  ;Wait for map loading to be ready
+WaitTextOrMap:
+  BIT 0,C
+  JR nz,WaitText
+  ;Wait for map showing to be done
   POP BC    ;Return
--
   RST $00
   LD HL,hotMap
-  BIT 7,(HL)
-  JR z,-
-  PUSH BC
+  LD A,(HL)
+  INC A
+  RET nz
+  PUSH BC   ;Return
   RET
 
 ShowMap:
   ;Wait for map loading to be ready
   POP BC    ;Return
--
   RST $00
   LD HL,hotMap
   BIT 7,(HL)
-  JR z,-
+  RET z
   PUSH BC
   LD BC,ShowMap_Task
   JP NewTask
@@ -707,11 +868,10 @@ JumpVar:
 LoadMap:
   ;Wait for map loading to be ready
   POP BC    ;Return
--
   RST $00
   LD HL,hotMap
   BIT 7,(HL)
-  JR z,-
+  RET z
   PUSH BC   ;Return
   CALL NextCutsceneByte
   LD C,A
@@ -727,11 +887,10 @@ LoadMap:
 LoadObj:
   ;Wait for map loading to be ready
   POP BC    ;Return
--
   RST $00
   LD HL,hotMap
   BIT 7,(HL)
-  JR z,-
+  RET z
   PUSH BC   ;Return
   CALL NextCutsceneByte
   LD C,A

@@ -181,7 +181,7 @@ NewTask:
 ;DE = Data
 ;Carry set if all tasks in use
 ;Returns Child Task ID in B
-;Returns Parent Task ID in C
+;DE preserved
 ;Tasks start with value of BC as above
   PUSH AF
   LD HL,taskpointer

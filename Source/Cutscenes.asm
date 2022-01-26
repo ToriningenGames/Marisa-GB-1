@@ -3,8 +3,8 @@
 ;and a macro is not following through all that.
 
 
-.DEFINE DirVert         0
-.DEFINE DirHort         1
+.DEFINE DirHort         0
+.DEFINE DirVert         1
 
 .DEFINE DirLeft         0
 .DEFINE DirDown         1
@@ -249,6 +249,24 @@
  .FAIL "Invalid direction"
 .ENDIF
 .IF defined(wait)
+ .db %11101100|plane, wait
+.ELSE
+ .db %01101100|plane
+.ENDIF
+.db time, (anim*32)|id, xy
+.ENDM
+
+.MACRO MoveActorRel ARGS id, anim, plane, xy, time, wait
+.IF id > %00011111
+ .FAIL "Actor ID too large"
+.ENDIF
+.IF anim > %00000111
+ .FAIL "Animation value too large"
+.ENDIF
+.IF plane > 1
+ .FAIL "Invalid direction"
+.ENDIF
+.IF defined(wait)
  .db %11101110|plane, wait
 .ELSE
  .db %01101110|plane
@@ -261,9 +279,9 @@
  .FAIL "Invalid direction"
 .ENDIF
 .IF defined(wait)
- .db %11101100|plane, wait
+ .db %11100100|plane, wait
 .ELSE
- .db %01101100|plane
+ .db %01100100|plane
 .ENDIF
 .db time, xy
 .ENDM
@@ -451,10 +469,25 @@
  .ENDIF
 .ENDM
 
+.MACRO WaitOnMap ARGS wait
+ .IF defined(wait)
+ .db %11100000, wait
+ .ELSE
+ .db %01100000
+ .ENDIF
+.ENDM
 
 .SECTION "Cutscene Data" FREE
 
 ;Var list
+.DEFINE varEntryDir         1
+.DEFINE varMapBack          3
+.DEFINE varMapPtr           4
+.DEFINE varObjPtr           6
+.DEFINE varEnterPosRight    8
+.DEFINE varEnterPosUp       10
+.DEFINE varEnterPosLeft     12
+.DEFINE varEnterPosDown     14
 .DEFINE varReimuFull        16
 .DEFINE varReimuMet         17
 .DEFINE varNarumiBeat       18
@@ -468,10 +501,10 @@
     ;3: Map backing type
     ;4: Map data
     ;6: Object data
-    ;8: entry pos left side
-    ;10: entry pos down side
-    ;12: entry pos right side
-    ;14: entry pos up side
+    ;8: entry pos right
+    ;10: entry pos top
+    ;12: entry pos left
+    ;14: entry pos bottom
 
 
 ;Unimplemented, here for linking reasons
@@ -505,18 +538,6 @@ Cs_MapFadein:
   LoadSpritePalettes %11100101,%11111001, 5
   LoadBackPalette %11100100
   LoadSpritePalettes %11010000,%11100100
-  Return
-
-CsTbl_ComputePlayerAndCamera:
- .dw Cs_ComputePlayerAndCameraRight
- .dw Cs_ComputePlayerAndCameraUp
- .dw Cs_ComputePlayerAndCameraLeft
- .dw Cs_ComputePlayerAndCameraDown
-
-Cs_ComputePlayerAndCameraRight:
-Cs_ComputePlayerAndCameraUp:
-Cs_ComputePlayerAndCameraLeft:
-Cs_ComputePlayerAndCameraDown:
   Return
 
 .ENDASM
@@ -735,18 +756,19 @@ Cs_Intro:
   CreateActor 1,ChMarisa,138,85
   AssignHat 0,1
   ChangeActorControl 1,0     ;Cutscene control of Marisa
-  MoveActor 1,AnimFaceDown,0,0,1
+  MoveActorRel 1,AnimWalkDown,0,0,1
   LoadMap MapForest23map
   LoadObjects MapForest23obj
   ShowMap
   ChangeActorControl 1,$80   ;Camera follow
+  WaitOnMap
   ;Marisa walk into scene here
   CallCs Cs_MapFadein, 5
-  RunTextStringBlocking StringOpeningMessage1
+  ;RunTextStringBlocking StringOpeningMessage1
   ;Marisa does a shuffle here
-  RunTextStringBlocking StringOpeningMessage2
+  ;RunTextStringBlocking StringOpeningMessage2
   PlaySong SongMagus  ;Load main actioney song
-  RunTextStringBlocking StringOpeningMessage3
+  ;RunTextStringBlocking StringOpeningMessage3
   ChangeActorControl 1,$87   ;Playable
   Return
 
@@ -756,7 +778,9 @@ Cs_Intro:
 Cs_DirToAnimAndPlane:
   Break
     ;Split Var 1 to get plane; put in Var 23
-    ;Turn Var 1 into animation value
+    ;Turn Var 1 into animation value in Var 24
+    ;Put an appropriate distance in Var 25
+    ;Put its inverse in Var 26
     LD HL,$C001
     LD A,(HL)
     AND 1
@@ -764,7 +788,21 @@ Cs_DirToAnimAndPlane:
     LDI (HL),A
     LD A,($C001)
     ADD AnimWalkLeft
-    LD (HL),A
+    SWAP A  ;Get it in the right spot
+    ADD A
+    LDI (HL),A
+    ADD %00100000
+    AND %01000000
+    LD A,30
+    JR nz,+  ;Positive or negative?
+    ;Move Up/Left (Negative)
+    CPL
+    INC A
++
+    LDI (HL),A
+    CPL
+    INC A
+    LDI (HL),A
     CALL BreakRet
   Return
 
@@ -772,8 +810,9 @@ Cs_TransitionOut:
   ChangeActorControl 1,0
   CallCs Cs_DirToAnimAndPlane
   UseVarAsVal 23,4    ;X/Y Plane
-  UseVarAsVal 24,2    ;Animation
-  MoveActor 1,0,0,30,30
+  UseVarAsVal 24,4    ;Animation
+  UseVarAsVal 25,3    ;Distance
+  MoveActorRel 1,0,0,0,30
   CallCs Cs_MapFadeout, 7
   Break
     ;Multiply Var 3 by 26
@@ -785,8 +824,8 @@ Cs_TransitionOut:
     DEC L
     LD (HL),C
     CALL BreakRet
-  UseVarAsVal 2,4   ;MapBackBase offset
-  UseVarAsVal 3,3
+  UseVarAsVal 2,3   ;MapBackBase offset
+  UseVarAsVal 3,2
   LoadMap MapBackBase
   UseVarAsVal 4,3   ;Map to load
   UseVarAsVal 5,2
@@ -799,11 +838,28 @@ Cs_TransitionOut:
   
 Cs_TransitionIn:
   CallCs Cs_DirToAnimAndPlane
-  UseVarAsVal 23,4    ;X/Y Plane
-  UseVarAsVal 24,2    ;Animation
-  MoveActor 1,0,0,30,30
+  ;Get Marisa to her final position
   UseVarAsVal 1,0
-  IndirectCallCs CsTbl_ComputePlayerAndCamera,0
+  AddVarQ 1,0
+  UseVarAsVal 1,0
+  UseVarAsVal varEnterPosRight+1,3
+  MoveActor 1,AnimWalkRight,DirVert,0,1
+  UseVarAsVal 1,0
+  UseVarAsVal varEnterPosRight,4
+  MoveActor 1,AnimWalkRight,DirHort,0,1, 1
+  ;Get Camera to update
+  ChangeActorControl 1,$80, 1
+  ChangeActorControl 1,0
+  ;Get her in place to have her walk on screen
+  UseVarAsVal 23,2    ;X/Y Plane
+  UseVarAsVal 26,4    ;Inverted Distance
+  MoveActorRel 1,AnimWalkRight,0,0,1, 1
+  ;Walk in
+  UseVarAsVal 23,4    ;X/Y Plane
+  UseVarAsVal 24,5    ;Animation
+  UseVarAsVal 25,4    ;Distance
+  MoveActorRel 1,0,0,0,30, 15
+  WaitOnMap
   CallCs Cs_MapFadein, 5
   ChangeActorControl 1,$87
   Return
