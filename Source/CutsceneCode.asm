@@ -588,7 +588,7 @@ MoveActor_Task:
 ;A= %D00AAAAA
     ;|  +++++--- Actor ID
     ;+--- Set for Y movement
-;D= Destination
+;D= Distance
 ;E= Time
   LD C,A
   AND %00011111
@@ -644,7 +644,9 @@ MoveActor_Task:
   ADD (HL)
   LDI (HL),A
   LD A,B
-  ADC (HL)
+  ADC 0
+  LD B,A    ;Store the carry in B
+  ADD (HL)
   LDD (HL),A
   ;We moved an amount; subtract it
   LD A,D
@@ -975,17 +977,14 @@ CompareVar:
   SUB (HL)
   INC L
   LD B,A
+  LD (varPage*256),A    ;Hardcoded results register
   BIT 7,C
   RET z
-  PUSH AF   ;Maintain add's carry
   PUSH HL
     CALL NextCutsceneByte
-    LD C,A
   POP HL
-  POP AF
-  LD A,C
-  SBC (HL)
-  XOR B     ;Combine results to one register
+  SUB (HL)
+  OR B      ;Combine results to one register, for zero/nonzero comparisons
   LD (varPage*256),A
   RET
 

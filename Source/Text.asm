@@ -210,28 +210,18 @@ Text_EndOfText:
 Text_LowerWindow:
 ;Just like RaiseWindow, but in reverse!
   POP HL    ;Return
-  LD A,C
-  LD (DE),A     ;Save BC
-  INC DE
-  LD A,B
-  LD (DE),A
-  LD BC,WindowLUTEnd-1
+  LD DE,WindowLUTEnd-1
   LD A,WindowLUTSize
 -
   RST $00
   PUSH AF
-    LD A,(BC)
-    DEC BC
+    LD A,(DE)
+    DEC DE
     LD (WinVertScroll),A
     LD (LY),A     ;LY interrupt line for sprite disabling
   POP AF
   DEC A
   JR nz,-
-  LD A,(DE)     ;Restore BC
-  LD B,A
-  DEC DE
-  LD A,(DE)
-  LD C,A
   PUSH HL   ;Stack alignment
 Text_SnapWindowDown:
   POP HL    ;Return
@@ -253,28 +243,18 @@ Text_RaiseWindow:
 
   POP HL    ;Return
   CALL Text_WindowSetUp
-  LD A,C
-  LD (DE),A
-  INC DE
-  LD A,B
-  LD (DE),A
-  LD BC,WindowLUT
+  LD DE,WindowLUT
   LD A,WindowLUTSize
 -
   RST $00
   PUSH AF
-  LD A,(BC)   ;Next frame movement delta
-  INC BC
+  LD A,(DE)   ;Next frame movement delta
+  INC DE
   LD (WinVertScroll),A
   LD (LY),A     ;LY interrupt line for sprite disabling
   POP AF
   DEC A
   JR nz,-
-  LD A,(DE)
-  LD B,A
-  DEC DE
-  LD A,(DE)
-  LD C,A
   JP TextProcessControlReturn
 
 Text_WindowSetUp:

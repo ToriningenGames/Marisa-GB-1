@@ -53,6 +53,18 @@
   .db value
 .ENDM
 
+.MACRO DeleteActor ARGS actor, wait
+ .IF actor > %00011111
+  .FAIL "Actor index out of range"
+ .ENDIF
+ .IF defined(wait)
+  .db %10100000 | actor, wait
+ .ELSE
+  .db %00100000 | actor
+ .ENDIF
+  .db $FF   ;Deletion
+.ENDM
+
 .MACRO IndirectCallCs ARGS jumpTable, index, wait
  .IF index > %00000111
   .FAIL "Table offset out of range"
@@ -506,9 +518,7 @@
 
 
 ;Unimplemented, here for linking reasons
-Cs_ReimuMeet:
 Cs_EndingB:
-Cs_MushroomCollect:
   RET
 Cs_EndingAC:
 Cs_NarumiFightStart:
@@ -672,12 +682,12 @@ Cs_Intro:
   ChangeActorControl 1,$80   ;Camera follow
   WaitOnMap
   ;Marisa walk into scene here
-  CallCs Cs_MapFadein, 5
-  ;RunTextStringBlocking StringOpeningMessage1
+  CallCs Cs_MapFadein
+ ;RunTextStringBlocking StringOpeningMessage1
   ;Marisa does a shuffle here
-  ;RunTextStringBlocking StringOpeningMessage2
+ ;RunTextStringBlocking StringOpeningMessage2
   PlaySong SongMagus  ;Load main actioney song
-  ;RunTextStringBlocking StringOpeningMessage3
+ ;RunTextStringBlocking StringOpeningMessage3
   ChangeActorControl 1,$87   ;Playable
   Return
 
@@ -722,7 +732,7 @@ Cs_TransitionOut:
   UseVarAsVal 24,4    ;Animation
   UseVarAsVal 25,3    ;Distance
   MoveActorRel 1,0,0,0,30
-  CallCs Cs_MapFadeout, 7
+  CallCs Cs_MapFadeout
   Break
     ;Multiply Var 3 by 26
     LD HL,$C003
@@ -756,7 +766,7 @@ Cs_TransitionIn:
   UseVarAsVal 1,0
   UseVarAsVal varEnterPosRight,4
   MoveActor 1,AnimWalkRight,DirHort,0,1, 1
-  ;Get Camera to update
+  ;Get Camera to update, then not follow her off screen
   ChangeActorControl 1,$80, 1
   ChangeActorControl 1,0
   ;Get her in place to have her walk on screen
@@ -769,7 +779,7 @@ Cs_TransitionIn:
   UseVarAsVal 25,4    ;Distance
   MoveActorRel 1,0,0,0,30, 15
   WaitOnMap
-  CallCs Cs_MapFadein, 5
+  CallCs Cs_MapFadein
   ChangeActorControl 1,$87
   UseVarAsVal varMapPtr,2
   SetVar8 varOldMap,0
@@ -780,7 +790,7 @@ Cs_TransitionIn:
 Cs_ClearActorList:
   SetVar 23,30
   UseVarAsVal 23,0   ;Actor
-  ChangeActorControl 1,$FF
+  DeleteActor 1
   AddVar8 23,-1
   JumpRelNZ 23,-10
   Return
@@ -809,7 +819,7 @@ Cs_EndingC:
   CallCs Cs_MapFadein, 5
   CsMoveActorVar 20,1   ;Enter Marisa
   CsWait 37
-  CsAnimateActor 1,CsAnFaceDown   ;Marisa, stand still
+  AnimimateActor 1,AnimFaceDown   ;Marisa, stand still
   CsRunText StringHouseBack1
   CsWaitText
   CsMoveActorTime 1,CsDirDown,90,48
@@ -823,7 +833,7 @@ Cs_EndingC:
   CsNewActor 2,CsChAlice,0
   CsWait 60*4
   CsSetActor 2,64,124   ;Alice comes home
-  CsAnimateActor 2,CsAnWalkUp
+  AnimimateActor 2,AnimWalkUp
   CsMoveActorTime 2,CsDirUp,75,37
   ;Door things here
   CallCs Cs_MapFadein, 5
@@ -846,22 +856,22 @@ Cs_EndingA:
   CallCs Cs_MapFadein, 5
   CsMoveActorVar 20,1   ;Enter Marisa
   CsWait 37
-  CsAnimateActor 1,CsAnFaceUp     ;Marisa, stand still
+  AnimimateActor 1,AnimFaceUp     ;Marisa, stand still
   CsWait 50
-  CsAnimSpeed 1,$04
-  CsAnimateActor 1,CsAnWalkUp   ;Ok now go
+  AnimimSpeed 1,$04
+  AnimimateActor 1,AnimWalkUp   ;Ok now go
   CsMoveActorSpeed 1,CsDirUp,0.2,20
   CsMoveCameraSpeed CsDirUp,0.66,111     ;Pan camera up to house
   CsWait 360
   CsSetActorY 1,170     ;Marisa made it to the house weirdly quick
   CsSetActorX 1,64
-  CsAnimateActor 1,CsAnFaceUp
+  AnimimateActor 1,AnimFaceUp
   CsMoveCameraTime CsDirDown,80,40      ;Pan down to Marisa
   CsWait 80
   CsRunText StringAliceHouse1
   CsWaitText
-  CsAnimSpeed 1,$06
-  CsAnimateActor 1,CsAnWalkUp   ;Walk up to door
+  AnimimSpeed 1,$06
+  AnimimateActor 1,AnimWalkUp   ;Walk up to door
   CsMoveActorTime 1,CsDirUp,190,72
   CsWait 190
   ShowMap             ;Door opens
@@ -869,8 +879,8 @@ Cs_EndingA:
   LoadMap MapForestEndA2map   ;Ready the closed door
   CsWait 1
   CsSetActor 2,64,87
-  CsAnimateActor 2,CsAnFaceDown
-  CsAnimateActor 1,CsAnFaceUp   ;Marisa startled
+  AnimimateActor 2,AnimFaceDown
+  AnimimateActor 1,AnimFaceUp   ;Marisa startled
   CsMoveActorTime 1,CsDirDown,7,18
   CsWait 20
   CsRunText StringAliceHouse2
@@ -883,14 +893,14 @@ Cs_EndingA:
   CsWaitText
   CsRunText StringAliceHouse5
   CsWaitText
-  CsAnimateActor 1,CsAnWalkUp   ;Marisa walks in
+  AnimimateActor 1,AnimWalkUp   ;Marisa walks in
   CsMoveActorTime 1,CsDirUp,150,33
   CsWait 20
-  CsAnimateActor 2,CsAnFaceUp   ;Alice leaves from doorway
+  AnimimateActor 2,AnimFaceUp   ;Alice leaves from doorway
   CsWait 30
   CsDeleteActor 2
   CsWait 100
-  CsAnimateActor 1,CsAnFaceUp
+  AnimimateActor 1,AnimFaceUp
   CsWait 30
   AssignHat 0,0
   CsSetActor 0,200,200
@@ -922,20 +932,20 @@ Cs_EndingB:
   PlaySong SongDoll
   CsSetActorSpeed 2,60/(50+110)
   CsSetActorSpeed 1,60/(50+110)
-  CsAnimSpeed 2,$08
+  AnimimSpeed 2,$08
   ;Marisa scoots to the side, Alice moves down
-  CsAnimateActor 2,CsAnWalkDown
+  AnimimateActor 2,AnimWalkDown
   CsMoveActorDist 2,CsDirDown,60
   ;Marisa tails behind Alice
   CsWait 50
-  CsAnimateActor 1,CsAnWalkDown
+  AnimimateActor 1,AnimWalkDown
   CsMoveActorDist 1,CsDirDown,60
   CsWait 110
   ;Alice moves right
-  CsAnimateActor 2,CsAnWalkRight
+  AnimimateActor 2,AnimWalkRight
   CsMoveActorDist 2,CsDirRight,(190+50)*(60/(50+110))
   CsWait 50
-  CsAnimateActor 1,CsAnWalkRight
+  AnimimateActor 1,AnimWalkRight
   CsMoveActorDist 1,CsDirRight,(190+50)*(60/(50+110))
   CsWait 170
   CallCs Cs_MapFadeout
@@ -945,8 +955,8 @@ Cs_EndingB:
   ;Bottom entrance
   CsSetActor 2,100,240
   CsSetActor 1,98,250
-  CsAnimateActor 2,CsAnWalkUp
-  CsAnimateActor 1,CsAnWalkUp
+  AnimimateActor 2,AnimWalkUp
+  AnimimateActor 1,AnimWalkUp
   CsSetCamera 0,111
   CsWaitReadyMap
   LoadMap MapForestEndBmap
@@ -960,22 +970,22 @@ Cs_EndingB:
   CsMoveActorTime 1,CsDirUp,400,120
   ;Camera stops at top of map (Alice stops at same time)
   CsWait 400
-  CsAnimateActor 1,CsAnFaceUp
-  CsAnimateActor 2,CsAnFaceUp
+  AnimimateActor 1,AnimFaceUp
+  AnimimateActor 2,AnimFaceUp
   CsRunText StringAliceEscort2
   CsWaitText
   ;Marisa moves around Alice to closer to house
-  CsAnimateActor 1,CsAnWalkLeft
+  AnimimateActor 1,AnimWalkLeft
   CsMoveActorTime 1,CsDirLeft,50,28
   CsWait 50
-  CsAnimateActor 1,CsAnWalkUp
+  AnimimateActor 1,AnimWalkUp
   CsMoveActorTime 1,CsDirUp,80,44
   CsWait 80
-  CsAnimateActor 1,CsAnWalkRight
+  AnimimateActor 1,AnimWalkRight
   CsMoveActorTime 1,CsDirRight,30,12
   CsWait 30
   ;Marisa faces Alice
-  CsAnimateActor 1,CsAnFaceDown
+  AnimimateActor 1,AnimFaceDown
   CsRunText StringAliceEscort3
   CsWaitText
   PlaySong SongMagus
@@ -987,12 +997,6 @@ Cs_EndingB:
   CallCs Cs_MapFadeout
   Return
 
-;Bad insult lines:
-  ;I'm gonna hang you with your own apron!
-  ;Not if I garotte you with your own dollstrings first!
-  ;I'm gonna shove so much gunpowder down your throat, it explodes out your ass!
-  ;Not if I shove so many mushrooms down your throat, they sprout our your cro-
-
 ;Narumi Fight intro
 Cs_NarumiFightStart:
   CallCs Cs_TransitionOut
@@ -1002,7 +1006,7 @@ Cs_NarumiFightStart:
   CsNewActor 2,CsChNarumi,0
   CsWait 2
   CsSetActor 2,56,72
-  CsAnimateActor 2,CsAnFaceDown
+  AnimimateActor 2,AnimFaceDown
   CallCs Cs_TransitionIn
   ChangeActorControl 1,$87
   ReturnVar 118,1        ;No text etc if the fight already happened
@@ -1023,111 +1027,84 @@ Cs_NarumiFightEnd:
   ChangeActorControl 1,$87   ;Marisa may leave
   Return
 
+.ASM
+
 ;Feeding Reimu Shrooms
 Cs_ReimuMeet:
   RET
   ChangeActorControl 1,0
-  CallCs Cs_ReimuFeed
-  ChangeActorControl 1,$87
-  ReturnVar 116,1
-  ChangeActorControl 1,0
-  CsRunText StringReimuMeet
-  CsWaitText
-  CsSetVar 116,1
+  ;First meet?
+  JumpRelNZ varReimuMet,__csReimuNotFirst-CADDR-1
+  ;Run the first meet stuff
+  SetVar varReimuMet,1
+  RunTextStringBlocking StringReimuMeet
   ChangeActorControl 1,$87
   Return
-  
-Cs_ReimuFeed:
-  ReturnVar 116
-  ;Does Marisa have mushrooms?
-  CallCs Cs_ReimuMushroomTest
-  ReturnVar 0
-  ;Marisa has mushrooms
-  CsRunText StringReimuFeed2
-  ;Those mushrooms are gone now
-  CsJumpRelVar 120,1
-  CsSetVar 120,2
-  CsJumpRelVar 122,1
-  CsSetVar 122,2
-  CsJumpRelVar 124,1
-  CsSetVar 124,2
-  ;Are there any left?
-  CsWaitText
-  CsJumpRelVar 120,3
-  CsJumpRelVar 122,2
-  CsJumpRelVar 124,1
-  CsJump Cs_ReimuDone
-  CsRunText StringReimuFeed3
-  CsWaitText
+__csReimuNotFirst:
+  ;Have mushrooms?
+  CompareVar varShroomA,1
+  JumpRelZ varAns,__csReimuHasMushrooms-CADDR-1
+  CompareVar varShroomB,1
+  JumpRelZ varAns,__csReimuHasMushrooms-CADDR-1
+  CompareVar varShroomC,1
+  JumpRelZ varAns,__csReimuHasMushrooms-CADDR-1
+  ;No mushrooms
+  RunTextStringBlocking StringReimuFeed1
+  ChangeActorControl 1,$87
   Return
-
-Cs_ReimuDone:
-  CsRunText StringReimuFeed4
-  CsWaitText
-  CsAnimateActor 2,CsAnFaceUp
-  CsRunText StringReimuFeed5
-  CsWaitText
-  CsAnimateActor 2,CsAnFaceDown
-  CsRunText StringReimuFeed6
-  CsWaitText
-  CsAnimateActor 2,CsAnFaceLeft
-  CsWait 20
-  CsAnimateActor 2,CsAnWalkLeft
-  CsMoveActorTime 2,CsDirLeft,40,6
-  CsWait 40
-  CsAnimateActor 2,CsAnFaceLeft
-  CsWait 70
-  CsAnimateActor 2,CsAnWalkLeft
-  CsMoveActorTime 2,CsDirLeft,40,6
-  CsWait 40
-  CsAnimateActor 2,CsAnFaceLeft
-  CsWait 70
-  CsAnimateActor 2,CsAnWalkLeft
-  CsMoveActorTime 2,CsDirLeft,60,10
-  CsWait 30
-  CsSetVar 114,0
+__csReimuHasMushrooms:
+  ;Yes mushrooms
+  RunTextStringBlocking StringReimuFeed2
+  ;Disappear the mushrooms
+  JumpRelZ varShroomA,__csReimuNoA-CADDR-1
+  SetVar varShroomA,2
+__csReimuNoA:
+  JumpRelZ varShroomB,__csReimuNoB-CADDR-1
+  SetVar varShroomB,2
+__csReimuNoB:
+  JumpRelZ varShroomC,__csReimuNoC-CADDR-1
+  SetVar varShroomC,2
+__csReimuNoC:
+  ;All shrooms given?
+  JumpRelZ varShroomA,__csReimuStillShrooms-CADDR-1
+  JumpRelZ varShroomB,__csReimuStillShrooms-CADDR-1
+  JumpRelZ varShroomC,__csReimuStillShrooms-CADDR-1
+  ;No shrooms left
+  RunTextStringBlocking StringReimuFeed4
+  AnimateActor 2,AnimFaceUp
+  RunTextStringBlocking StringReimuFeed5
+  AnimateActor 2,AnimFaceDown
+  RunTextStringBlocking StringReimuFeed6
+  AnimateActor 2,AnimFaceLeft, 20
+  MoveActorRel 2,AnimWalkLeft,DirHort,-6,40, 110
+  MoveActorRel 2,AnimWalkLeft,DirHort,-6,40, 110
+  MoveActorRel 2,AnimWalkLeft,DirHort,-10,60, 30
+  SetVar varReimuFull,1
+  ChangeActorControl 1,$87
   Return
-
-;Uses Var 0 for whether Marisa has shrooms or not
-Cs_ReimuMushroomTest:
-  CsSetVar 0,1
-  ReturnVar 120,1
-  ReturnVar 122,1
-  ReturnVar 124,1
-  ;No mushrooms collected
-  CsSetVar 0,0
-  CsRunText StringReimuFeed1
-  CsWaitText
+__csReimuStillShrooms:
+  ;Still shrooms left
+  RunTextStringBlocking StringReimuFeed3
+  ChangeActorControl 1,$87
   Return
 
 Cs_MushroomCollect:
   RET
-  CsDeleteActor 2   ;Mushroom plucked
-  CsSetVarVar 0,32
-  CsSetVarVar 1,33
+  DeleteActor 2   ;Mushroom plucked
   ;Check for map 30
-  CsAddVar 0,(0 - <MapForest30map) & $FF
-  CsAddVar 1,(0 - >MapForest30map) & $FF
-  CsJumpRelVar 0,1
-  CsJumpRel 4
-  CsJumpRelVar 1,1
-  CsJumpRel 2
-  CsSetVar 120,1
-  CsJumpRel 9
+  CompareVar16 varOldMap,MapForest30map
+  JumpRelNZ varAns,2
+  SetVar varShroomA,1
   ;Check for map 11
-  CsAddVar 0,((<MapForest30map) - (<MapForest11map)) & $FF
-  CsAddVar 1,((>MapForest30map) - (>MapForest11map)) & $FF
-  CsJumpRelVar 0,1
-  CsJumpRel 4
-  CsJumpRelVar 1,1
-  CsJumpRel 2
-  CsSetVar 124,1
-  CsJumpRel 1
-  ;Assume map 04
-  CsSetVar 122,1
-  ;String stuff runs last, so the player doesn't have time to switch rooms
-  CsWaitText
-  CsRunText StringMushroomFound
+  CompareVar16 varOldMap,MapForest11map
+  JumpRelNZ varAns,2
+  SetVar varShroomC,1
+  ;Check for map 04
+  CompareVar16 varOldMap,MapForest04map
+  JumpRelNZ varAns,2
+  SetVar varShroomB,1
+  ;String stuff runs last, so player doesn't run off into another room first
+  RunTextString StringMushroomFound
   Return
-.ASM
+
 .ENDS
