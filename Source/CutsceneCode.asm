@@ -38,21 +38,28 @@
         ; |++++--- Constant
         ; +--- Wait time posted after
 
-    ;Run text
-        ;%W110001P TTTTTTTT TTTTTTTT
-        ; |||||||| ++++++++-++++++++--- Text
-        ; |||||||+--- Wait for text to finish
-        ; |++++++--- Constant
+    ;Wait on map to be shown
+        ;%W1100000
+        ; ||||||||
+        ; |+++++++--- Constant
         ; +--- Wait time posted after
     ;Wait on text
         ;%W1100001
         ; ||||||||
         ; |+++++++--- Constant
         ; +--- Wait time posted after
-    ;Wait on map to be shown
-        ;%W1100000
-        ; ||||||||
-        ; |+++++++--- Constant
+    ;Run text
+        ;%W110001P TTTTTTTT TTTTTTTT
+        ; |||||||| ++++++++-++++++++--- Text
+        ; |||||||+--- Wait for text to finish
+        ; |++++++--- Constant
+        ; +--- Wait time posted after
+    ;Camera, go here
+        ;%W110010Y TTTTTTTT DDDDDDDD
+        ; |||||||| |||||||| ++++++++--- X/Y dest
+        ; |||||||| ++++++++--- Take this long to move
+        ; |||||||+--- Move on Y if set (move on X if clear)
+        ; |++++++--- Constant
         ; +--- Wait time posted after
     ;Assign Hat
         ;%W1100111 000CCCCC 000HHHHH
@@ -61,11 +68,10 @@
         ; |||||||  |||+++++--- Target ID
         ; |++++++--+++--- Constant
         ; +--- Wait time posted after
-    ;Camera, go here
-        ;%W110010Y TTTTTTTT DDDDDDDD
-        ; |||||||| |||||||| ++++++++--- X/Y dest
-        ; |||||||| ++++++++--- Take this long to move
-        ; |||||||+--- Move on Y if set (move on X if clear)
+    ;Change actor animation
+        ;%W1101001 AAAIIIII
+        ; |||||||  |||+++++--- Actor ID
+        ; |||||||  +++--- Animation
         ; |++++++--- Constant
         ; +--- Wait time posted after
     ;Breakout
@@ -193,14 +199,15 @@
 
 ;Instruction Tables:
 _3arg:
- .dw CallTable,   CreateFairy,       VarQuick, VarQuick
-_2arg:
- .dw RunText,     AssignHatOrCamera, Breakout,  MoveActor
+ .dw CallTable,     CreateFairy,  VarQuick,   VarQuick
+_1arg:
+ .dw WaitTextOrMap, RunText,      MoveCamera, AssignHat
+ .dw ChangeAnim,    Breakout,     MoveActor,  MoveActor
 _0arg:
- .dw CreateActor, ShootDanmaku,      ShowMap,  LoadBkgCol
- .dw LoadObjCol,  Return,            Jump,     JumpVarZ
- .dw JumpVarNZ,   CallCutscene,      LoadMap,  LoadObj
- .dw PlaySong,    SetVar,            AddVar,   CompareVar
+ .dw CreateActor,   ShootDanmaku, ShowMap,    LoadBkgCol
+ .dw LoadObjCol,    Return,       Jump,       JumpVarZ
+ .dw JumpVarNZ,     CallCutscene, LoadMap,    LoadObj
+ .dw PlaySong,      SetVar,       AddVar,     CompareVar
 
 CharaTypes:
  .dw HatActorData
@@ -279,14 +286,14 @@ CutsceneDecode:
 ;Decode the instruction
   BIT 6,C
   JR nz,+
-  ;%WxxVVVVV
+  ;%W0xVVVVV
   BIT 5,C
   JR z,UseVar
   JR ChangeControl
 +
   BIT 5,C
   JR nz,+
-  ;%W1xxxVVV
+  ;%W10xxVVV
   LD A,%00111000
   AND C
   RRCA
@@ -296,11 +303,10 @@ CutsceneDecode:
 +
   BIT 4,C
   JR nz,+
-  ;%W11xxxVV
-  LD A,%00011100
+  ;%W110xxxV
+  LD A,%00011110
   AND C
-  RRCA
-  LD HL,_2arg
+  LD HL,_1arg
   JR ++
 +
   ;%W111xxxx
@@ -496,12 +502,8 @@ CreateFairy:
   ;Get a random number
   ;Make that fairy
   ;Put it at a random spot (~0 away from the player)
-  ;Repeat for the given count
   RET
 
-AssignHatOrCamera:
-  BIT 1,C
-  JR z,MoveCamera
 AssignHat:
   CALL NextCutsceneByte    ;Get Target
   ADD <Cutscene_Actors
@@ -716,6 +718,24 @@ MoveActor:
   POP DE
   RET
 
+ChangeAnim:
+  CALL NextCutsceneByte
+  LD C,A
+  AND $1F   ;Get this actor
+  ADD <Cutscene_Actors
+  LD L,A
+  LD H,>Cutscene_Actors
+  LD A,(HL)
+  CALL Access_ActorDE
+  LD A,C
+  LD BC,_AnimChange
+  ADD HL,BC
+  AND $E0   ;Get new animation
+  SWAP A
+  RRCA
+  LD (HL),A
+  RET
+
 MoveCamera_Task:
 ;A= Destination
 ;D= Address
@@ -760,9 +780,6 @@ MoveCamera_Task:
   JR MoveCamera_Task
 
 RunText:
-  ;Are we waiting for the last one to finish? (Or a map wait)
-  BIT 1,C
-  JR z,WaitTextOrMap
   LD A,C
   PUSH AF
     CALL NextCutsceneByte
@@ -957,10 +974,9 @@ CompareVar:
   LD H,varPage
   SUB (HL)
   INC L
-  LD (varPage*256),A
+  LD B,A
   BIT 7,C
   RET z
-  LD A,L
   PUSH AF   ;Maintain add's carry
   PUSH HL
     CALL NextCutsceneByte
@@ -969,7 +985,8 @@ CompareVar:
   POP AF
   LD A,C
   SBC (HL)
-  LD (varPage*256+1),A
+  XOR B     ;Combine results to one register
+  LD (varPage*256),A
   RET
 
 ShootDanmaku:

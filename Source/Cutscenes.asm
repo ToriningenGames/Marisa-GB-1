@@ -449,9 +449,6 @@
  .IF var > $7F
   .FAIL "Var index too large"
  .ENDIF
- .IF val > $FFFF
-  .FAIL "Value too large"
- .ENDIF
  .IF defined(wait)
   .db %11111111, wait
  .ELSE
@@ -477,9 +474,19 @@
  .ENDIF
 .ENDM
 
+.MACRO AnimateActor ARGS id, anim, wait
+ .IF defined(wait)
+ .db %11101001, wait
+ .ELSE
+ .db %01101001
+ .ENDIF
+ .db id | (anim * 32)
+.ENDM
+
 .SECTION "Cutscene Data" FREE
 
 ;Var list
+.DEFINE varAns              0
 .DEFINE varEntryDir         1
 .DEFINE varMapBack          3
 .DEFINE varMapPtr           4
@@ -495,30 +502,16 @@
 .DEFINE varShroomB          20
 .DEFINE varShroomC          21
 .DEFINE varKeepMusic        22
-
-;Var definitions on map changes
-    ;1: Entry facing direction
-    ;3: Map backing type
-    ;4: Map data
-    ;6: Object data
-    ;8: entry pos right
-    ;10: entry pos top
-    ;12: entry pos left
-    ;14: entry pos bottom
+.DEFINE varOldMap           32
 
 
 ;Unimplemented, here for linking reasons
 Cs_ReimuMeet:
-Cs_EndingAC:
 Cs_EndingB:
 Cs_MushroomCollect:
+  RET
+Cs_EndingAC:
 Cs_NarumiFightStart:
-Cs_CurvedTransitionA:
-Cs_Forest00:
-Cs_Forest01:
-Cs_Forest04:
-Cs_Forest11:
-Cs_Forest30:
   Return
 
 
@@ -563,140 +556,97 @@ Cs_StraightTransition:
   PlaySong SongSpark        ;Change music
   SetVar varKeepMusic,1
   Jump Cs_TransitionIn
-.ENDASM
+
 ;Some of the non straight transitions
 Cs_CurvedTransitionA:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
-  ;Check for exit from map 01 (to map 00)
-  CsAddVar 32,(0 - <MapForest01map) & $FF
-  CsAddVar 33,(0 - >MapForest01map) & $FF
-  CsJumpRelVar 32,1
-  CsJumpRel 5
-  CsJumpRelVar 33,1
-  CsJumpRel 3
-  CsSetVar 1,CsDirLeft      ;Go Left
-  CsSetVar 21,(CsDirLeft+3)*32
-  CsJump Cs_TransitionIn
-  ;Check for exit from map 04   fix
-  CsAddVar 32,((<MapForest11map) - (<MapForest04map)) & $FF
-  CsAddVar 33,((>MapForest11map) - (>MapForest04map)) & $FF
-  CsJumpRelVar 32,1
-  CsJumpRel 1
-  CsJumpRelVar 33,6
+  ;Check for exit from map 04
+  CompareVar16 varOldMap,MapForest04map
+  JumpRelNZ varAns,5
+  SetVar varEntryDir,DirRight
+  Jump Cs_TransitionIn
   ;Check for exit from map 24
-  CsAddVar 32,((<MapForest04map) - (<MapForest24map)) & $FF
-  CsAddVar 33,((>MapForest04map) - (>MapForest24map)) & $FF
-  CsJumpRelVar 32,1
-  CsJumpRel 5
-  CsJumpRelVar 33,1
-  CsJumpRel 3
-  CsSetVar 1,CsDirDown      ;Go Down
-  CsSetVar 21,(CsDirDown+3)*32
-  CsJump Cs_TransitionIn
+  CompareVar16 varOldMap,MapForest24map
+  JumpRelNZ varAns,5
+  SetVar varEntryDir,DirDown
+  Jump Cs_TransitionIn
   ;Check for exit from map 02
-  CsAddVar 32,((<MapForest24map) - (<MapForest02map)) & $FF
-  CsAddVar 33,((>MapForest24map) - (>MapForest02map)) & $FF
-  CsJumpRelVar 32,1
-  CsJump Cs_TransitionIn    ;Last check, always transition
-  CsJumpRelVar 33,1
-  CsJump Cs_TransitionIn
-  CsSetVar 1,CsDirRight     ;Go Right
-  CsSetVar 21,(CsDirRight+3)*32
-  CsJump Cs_TransitionIn
+  CompareVar16 varOldMap,MapForest02map
+  JumpRelNZ varAns,2     ;Always transition
+  SetVar varEntryDir,DirRight
+  Jump Cs_TransitionIn
 
 
-;Special loads for NPCs/Objects
+;Maps that contain NPCs/Objects
+
 ;Not a shroom room, but shares with one temporally
 Cs_Forest01:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
-  CsJumpRelVar 122,1
-  CsJumpRel 5
-  CsNewActor 2,CsChMushroom,0
-  CsWait 2
-  CsAnimateActor 2,CsAnFaceRight
-  CsSetActor 2,169,49
-;This room is also 90 degrees off from what the entrances would indicate
-  ;Check for exit from map 11
-  CsAddVar 32,(0-(<MapForest11map)) & $FF
-  CsAddVar 33,(0-(>MapForest11map)) & $FF
-  CsJumpRelVar 32,1
-  CsJumpRel 5
-  CsJumpRelVar 33,1
-  CsJumpRel 3
-  CsSetVar 1,CsDirLeft      ;Go Left
-  CsSetVar 21,(CsDirLeft+3)*32
-  CsJump Cs_TransitionIn
-;Not 11; must be 00.
-  CsSetVar 1,CsDirUp        ;Go Up
-  CsSetVar 21,(CsDirUp+3)*32
-  CsJump Cs_TransitionIn
+  JumpRelNZ varShroomB,6
+  CreateActor 2,ChMushroom,177,65
+  AnimateActor 2,AnimFaceRight
+;This room is also 90 degrees off from what the neighbors would indicate
+;Check for exit from map 11 (Enter left if so, up if not, since only 00 is left)
+  CompareVar16 varOldMap,MapForest11map
+  SetVar varEntryDir,DirUp
+  JumpRelNZ varAns,2
+  SetVar varEntryDir,DirLeft
+  Jump Cs_TransitionIn
 
 ;Shroom room
 Cs_Forest30:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
-  CsJumpRelVar 120,1
-  CsJump Cs_TransitionIn
-  CsNewActor 2,CsChMushroom,0
-  CsWait 2
-  CsAnimateActor 2,CsAnFaceDown
-  CsSetActor 2,22,105
-  CsJump Cs_TransitionIn
+  JumpRelNZ varShroomA,6
+  CreateActor 2,ChMushroom,30,121
+  AnimateActor 2,AnimFaceDown
+  Jump Cs_TransitionIn
+
+;Shroom room
+Cs_Forest04:
+  CallCs Cs_TransitionOut
+  CallCs Cs_ClearActorList
+  JumpRelNZ varShroomB,6
+  CreateActor 2,ChMushroom,177,65
+  AnimateActor 2,AnimFaceRight
+  Jump Cs_TransitionIn
 
 ;Shroom room
 Cs_Forest11:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
   ;There's a shroom in the room
-  CsJumpRelVar 124,1
-  CsJumpRel 5
-  CsNewActor 2,CsChMushroom,0
-  CsWait 2
-  CsAnimateActor 2,CsAnFaceLeft
-  CsSetActor 2,72,62
-  ;Check for exit from map 01 (to 11)
-  CsAddVar 32,(0-<MapForest01map) & $FF
-  CsAddVar 33,(0->MapForest01map) & $FF
-  CsJumpRelVar 32,1
-  CsJump Cs_TransitionIn    ;Last check, always transition
-  CsJumpRelVar 33,1
-  CsJump Cs_TransitionIn    ;Last check, always transition
-  CsSetVar 1,CsDirDown      ;Go Down
-  CsSetVar 21,(CsDirDown+3)*32
-  CsJump Cs_TransitionIn
-
-;Shroom room
-Cs_Forest04:
-  CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
-  CsJumpRelVar 122,1
-  CsJump Cs_TransitionIn
-  CsNewActor 2,CsChMushroom,0
-  CsWait 2
-  CsAnimateActor 2,CsAnFaceRight
-  CsSetActor 2,169,49
-  CsJump Cs_TransitionIn
+  JumpRelNZ varShroomC,6
+  CreateActor 2,ChMushroom,80,78
+  AnimateActor 2,AnimFaceLeft
+  ;Check for exit from map 01
+  CompareVar16 varOldMap,MapForest01map
+  JumpRelNZ varAns,2
+  SetVar varEntryDir,DirDown
+  Jump Cs_TransitionIn
 
 ;Reimu room
 Cs_Forest00:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
-  CsJumpRelVar 114,5
-  CsNewActor 2,CsChReimu,0
-  CsWait 2
-  CsAnimateActor 2,CsAnFaceDown
-  CsSetActor 2,104,88
+  JumpRelNZ varReimuFull,8
+  CreateActor 2,ChReimu,112,104
+  AnimateActor 2,AnimFaceDown
   ChangeActorControl 2,2     ;Interact!
-  CsJump Cs_CurvedTransitionA+6
-.ASM
+  ;Check for exit from map 01
+  CompareVar16 varOldMap,MapForest01map
+  JumpRelNZ varAns,2
+  SetVar varEntryDir,DirLeft
+  Jump Cs_TransitionIn
+
 ;Alice room
 Cs_Forest24:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
   CreateActor 2,ChAlice,$55,$42
-  MoveActor 2,AnimFaceDown,0,0,1
+  AnimateActor 2,AnimFaceDown
   ChangeActorControl 2,2     ;Interactable
   Jump Cs_TransitionIn
 
@@ -715,7 +665,7 @@ Cs_Intro:
   CreateActor 1,ChMarisa,138,85
   AssignHat 0,1
   ChangeActorControl 1,0     ;Cutscene control of Marisa
-  MoveActorRel 1,AnimWalkDown,0,0,1
+  AnimateActor 1,AnimFaceDown
   LoadMap MapForest23map
   LoadObjects MapForest23obj
   ShowMap
@@ -821,12 +771,16 @@ Cs_TransitionIn:
   WaitOnMap
   CallCs Cs_MapFadein, 5
   ChangeActorControl 1,$87
+  UseVarAsVal varMapPtr,2
+  SetVar8 varOldMap,0
+  UseVarAsVal varMapPtr+1,2
+  SetVar8 varOldMap+1,0
   Return
 
 Cs_ClearActorList:
-  SetVar 23,29
+  SetVar 23,30
   UseVarAsVal 23,0   ;Actor
-  ChangeActorControl 2,$FF
+  ChangeActorControl 1,$FF
   AddVar8 23,-1
   JumpRelNZ 23,-10
   Return
@@ -871,7 +825,7 @@ Cs_EndingC:
   CsSetActor 2,64,124   ;Alice comes home
   CsAnimateActor 2,CsAnWalkUp
   CsMoveActorTime 2,CsDirUp,75,37
-  ;Door things
+  ;Door things here
   CallCs Cs_MapFadein, 5
   CsWait 60
   CsRunText StringHouseBack3
