@@ -540,47 +540,6 @@ Cs_MapFadein:
   LoadSpritePalettes %11010000,%11100100
   Return
 
-.ENDASM
-Cs_ComputePlayerAndCamera:
-  ;Come in from right
-  CsSetVarVar 16,8      ;bytes to shorts
-  CsSetVarVar 18,9
-  CsSetActorYVar 18,1
-  CsSetActorX 1,255
-  CsWait 1
-  CsSnapCamera
-  CsSetActorXVar 16,1
-  CsEnd
-  ;Come in from top
-  CsSetVarVar 16,10     ;bytes to shorts
-  CsSetVarVar 18,11
-  CsSetActorXVar 16,1
-  CsSetActorY 1,1
-  CsWait 1
-  CsSnapCamera
-  CsSetActorYVar 18,1
-  CsEnd
-  ;Come in from left
-  CsSetVarVar 16,12     ;bytes to shorts
-  CsSetVarVar 18,13
-  CsSetActorYVar 18,1
-  CsSetActorX 1,1
-  CsWait 1
-  CsSnapCamera
-  CsSetActorXVar 16,1
-  CsEnd
-  ;Come in from bottom
-  CsSetVarVar 16,14     ;bytes to shorts
-  CsSetVarVar 18,15
-  CsSetActorXVar 16,1
-  CsSetActorY 1,255
-  CsWait 1
-  CsSnapCamera
-  CsSetActorYVar 18,1
-  CsEnd
-;Complete Cutscenes
-;These cutscenes are meant to be used in Map definitions etc.
-.ASM
 ;Used for when entrance direction aligns with exit direction
 ;Order:
     ;Set Marisa trotting off in the right direction
