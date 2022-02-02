@@ -179,23 +179,53 @@ StringNarumiEnd:
 .DB CtrlLower, CtrlEnd
 
 StringAliceEscort1:
-.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$00, CtrlSpeed,4, CtrlFaceShow1, CtrlClear
+.DB CtrlSpeed,4, CtrlFaceLoad1|$00, CtrlFaceLoad2|$08, CtrlFaceShow1, CtrlClear
 .DB CtrlBorder3, CtrlRaise
-.ASC "TEXT", CtrlPause          ;Marisa meet Alice
+.ASC "AH,", CtrlLine
+.ASC "THERE YOU ARE!", CtrlPauseClear
+.DB CtrlFaceShow2
+.ASC "YES, I AM HERE."
+.ASC "SO WHAT?", CtrlPauseClear
+.DB CtrlFaceShow1, CtrlFaceLoad2|$09
+.ASC "I GOT THE BOOK", CtrlLine
+.ASC "YOU WANTED.", CtrlPauseClear
+.DB CtrlFaceShow2, CtrlFaceLoad1|$01
+.ASC "OH?", CtrlPauseLine
+.ASC "WELL, WE", CtrlLine
+.ASC "BETTER HEAD TO", CtrlLine
+.ASC "MY PLACE, THEN.", CtrlPauseClear
+.ASC "(HOW IS SHE", CtrlLine
+.ASC "STILL ALIVE?)", CtrlPauseClear
+.DB CtrlFaceShow1, CtrlFaceLoad2|$0B
+.ASC "LEAD THE WAY!", CtrlPause
 .DB CtrlLower, CtrlEnd
 StringAliceEscort2:
-.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$00, CtrlFaceShow1, CtrlClear
-.DB CtrlRaise
-.ASC "TEXT", CtrlPause          ;Alice meet nonhouse
-.DB CtrlLower, CtrlEnd
+.DB CtrlFaceShow2, CtrlFaceLoad1|$05, CtrlClear, CtrlRaise
+.ASC "...WHERE IS", CtrlLine
+.ASC "MY HOUSE?", CtrlPauseClear
+.ASC "WHAT DID", CtrlLine
+.ASC "YOU DO WITH", CtrlLine
+.ASC "MY HOUSE?", CtrlPauseClear
+.DB CtrlFaceShow0, CtrlEnd
 StringAliceEscort3:
-.DB CtrlFaceLoad1|$00, CtrlFaceLoad2|$00, CtrlFaceShow1, CtrlClear
-.DB CtrlRaise
-.ASC "TEXT", CtrlPause          ;Marisa now talk to Alice
-.DB CtrlClear, CtrlEnd
+.DB CtrlFaceShow1, CtrlFaceLoad2|$0A
+.ASC "I DON'T EVEN", CtrlLine
+.ASC "KNOW WHERE", CtrlLine
+.ASC "YOU LIVE!", CtrlPauseClear
+.ASC "AND HOW DO YOU", CtrlLine
+.ASC "EXPECT ME TO", CtrlLine
+.ASC "MOVE A", CtrlLine
+.ASC "WHOLE HOUSE?!", CtrlPauseClear
+.DB CtrlEnd
 StringAliceEscort4:
-.DB CtrlFaceShow2, CtrlClear
-.ASC "TEXT", CtrlPause          ;Convo continue, song change
+.DB CtrlFaceShow2, CtrlFaceLoad1|$06
+.ASC "I- WH-", CtrlPauseLine
+.ASC "DON'T STAND", CtrlLine
+.ASC "THERE!", CtrlPauseClear
+.DB CtrlFaceShow1
+.ASC "IT'S NOT A", CtrlLine
+.ASC "BURIAL SITE!", CtrlLine
+.ASC "CALM DOWN!", CtrlPause
 .DB CtrlLower, CtrlEnd
 
 StringAliceHouse1:
