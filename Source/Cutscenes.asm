@@ -517,13 +517,6 @@
 .DEFINE varOldMap           32
 
 
-;Unimplemented, here for linking reasons
-Cs_EndingB:
-  RET
-Cs_EndingAC:
-Cs_NarumiFightStart:
-  Return
-
 
 Cs_MapFadeout:
   LoadBackPalette %11111001
@@ -683,7 +676,7 @@ Cs_Intro:
   WaitOnMap
   ;Marisa walk into scene here
   CallCs Cs_MapFadein
- ;RunTextStringBlocking StringOpeningMessage1
+  RunTextStringBlocking StringOpeningMessage1
   ;Marisa does a shuffle here
  ;RunTextStringBlocking StringOpeningMessage2
   PlaySong SongMagus  ;Load main actioney song
@@ -795,128 +788,127 @@ Cs_ClearActorList:
   JumpRelNZ 23,-10
   Return
 
-.ENDASM
+Cs_CloseDoor:
+  Break
+    LD HL,$D127     ;Start of door on map
+    LD BC,$001E     ;Next line of door
+    LD A,$DA        ;Door tiles
+    LDI (HL),A
+    INC A
+    LDI (HL),A
+    ADD HL,BC
+    LD A,$E0
+    LDI (HL),A
+    INC A
+    LDI (HL),A
+    ADD HL,BC
+    LD A,$E6
+    LDI (HL),A
+    INC A
+    LDI (HL),A
+    CALL BreakRet
+  Return
+
+Cs_OpenDoor:
+  Break
+    LD HL,$D127     ;Start of door on map
+    LD BC,$001E     ;Next line of door
+    LD A,$84        ;Door tiles
+    LDI (HL),A
+    INC A
+    LDI (HL),A
+    ADD HL,BC
+    DEC A
+    LDI (HL),A
+    INC A
+    LDI (HL),A
+    ADD HL,BC
+    INC A
+    LDI (HL),A
+    INC A
+    LDI (HL),A
+    CALL BreakRet
+  Return
+
 ;Made it to Alice's house; determine which ending to give
 Cs_EndingAC:
   ;Specifically, is she coming from the back?
-  CsAddVar 32,(0-<MapForest24map) & $FF
-  CsJumpRelVar 32,1
-  CsJump Cs_EndingA
-  CsAddVar 33,(0->MapForest24map) & $FF
-  CsJumpRelVar 33,1
-  CsJump Cs_EndingA
+  CompareVar16 varOldMap,MapForest24map
+  JumpRelZ varAns,Cs_EndingC-CADDR-1
+  Jump Cs_EndingA
 ;Ending C (Found Alice's house from the back)
 Cs_EndingC:
   CallCs Cs_TransitionOut
-  LoadMap MapForest02map
   CallCs Cs_ClearActorList
   PlaySong SongDoll
-  CsSetVar 1,CsDirDown
-  CsSetVar 21,(CsDirDown+3)*32
-  CsWaitReadyMap
-  ShowMap
-  CallCs Cs_ComputePlayerAndCamera+8*3*1        ;Top of map
-  CallCs Cs_MapFadein, 5
-  CsMoveActorVar 20,1   ;Enter Marisa
-  CsWait 37
-  AnimimateActor 1,AnimFaceDown   ;Marisa, stand still
-  CsRunText StringHouseBack1
-  CsWaitText
-  CsMoveActorTime 1,CsDirDown,90,48
-  CsWait 120
-  CsRunText StringHouseBack2
-  CsWait 30
+  SetVar varEntryDir,DirDown
+  CallCs Cs_TransitionIn
+  ChangeActorControl 1,0    ;No moving
+  CallCs Cs_OpenDoor
+  RunTextStringBlocking StringHouseBack1
+  MoveActor 1,AnimWalkDown,DirVert,70,90, 120
+  RunTextString StringHouseBack2, 120
   ;Fairies sneak in from the front; a lot of them
+  ShowMap       ;Open door
   
-  CsWaitText
+  WaitOnTextString
+  CallCs Cs_CloseDoor
   CallCs Cs_MapFadeout
-  CsNewActor 2,CsChAlice,0
-  CsWait 60*4
-  CsSetActor 2,64,124   ;Alice comes home
-  AnimimateActor 2,AnimWalkUp
-  CsMoveActorTime 2,CsDirUp,75,37
-  ;Door things here
-  CallCs Cs_MapFadein, 5
-  CsWait 60
-  CsRunText StringHouseBack3
-  CsWaitText
-  CallCs Cs_MapFadeout
-  Return
+  ;Alice comes home
+  CreateActor 2,ChAlice,72,140, 60*4
+  MoveActor 2,AnimWalkUp,DirVert,123,75
+  CallCs Cs_MapFadein
+  ;Alice pauses before door
+  SetVarQ 0,0, 115   ;nop
+  MoveActor 2,AnimWalkUp,DirVert,103,50, 50
+  ;Closes door behind her
+  DeleteActor 2
+  ShowMap       ;Close door
+  PlaySong SongMagus
+  RunTextStringBlocking StringHouseBack3
+  Jump Cs_MapFadeout
 
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
   PlaySong SongDoll
-  LoadMap MapForest02map
-  CsWaitReadyMap
-  ShowMap
-  LoadMap MapForestEndA1map   ;Ready the open door
-  CallCs Cs_ComputePlayerAndCamera+8*3*3        ;Bottom of map
-  CallCs Cs_MapFadein, 5
-  CsMoveActorVar 20,1   ;Enter Marisa
-  CsWait 37
-  AnimimateActor 1,AnimFaceUp     ;Marisa, stand still
-  CsWait 50
-  AnimimSpeed 1,$04
-  AnimimateActor 1,AnimWalkUp   ;Ok now go
-  CsMoveActorSpeed 1,CsDirUp,0.2,20
-  CsMoveCameraSpeed CsDirUp,0.66,111     ;Pan camera up to house
-  CsWait 360
-  CsSetActorY 1,170     ;Marisa made it to the house weirdly quick
-  CsSetActorX 1,64
-  AnimimateActor 1,AnimFaceUp
-  CsMoveCameraTime CsDirDown,80,40      ;Pan down to Marisa
-  CsWait 80
-  CsRunText StringAliceHouse1
-  CsWaitText
-  AnimimSpeed 1,$06
-  AnimimateActor 1,AnimWalkUp   ;Walk up to door
-  CsMoveActorTime 1,CsDirUp,190,72
-  CsWait 190
+  CallCs Cs_TransitionIn
+  CallCs Cs_OpenDoor
+  ChangeActorControl 1,0, 80    ;No moving
+  ;Paused, then go
+  MoveActorRel 1,AnimWalkUp,DirVert,-20,90
+  MoveCamera DirVert,0,240, 240
+  MoveActor 1,AnimWalkUp,DirVert,186,1, 120
+  MoveCamera DirVert,40,80, 80
+  RunTextStringBlocking StringAliceHouse1
+  ;Go to door
+  MoveActor 1,AnimWalkUp,DirVert,106,190, 190
   ShowMap             ;Door opens
-  CsNewActor 2,CsChAlice,0      ;Alice in doorway
-  LoadMap MapForestEndA2map   ;Ready the closed door
-  CsWait 1
-  CsSetActor 2,64,87
-  AnimimateActor 2,AnimFaceDown
-  AnimimateActor 1,AnimFaceUp   ;Marisa startled
-  CsMoveActorTime 1,CsDirDown,7,18
-  CsWait 20
-  CsRunText StringAliceHouse2
-  CsWaitText
-  ;Narumi check
-  CsJumpRelVar 118,2
-  CsRunText StringAliceHouse3   ;Beat Narumi
-  CsJumpRel 1
-  CsRunText StringAliceHouse4   ;Narumi not met
-  CsWaitText
-  CsRunText StringAliceHouse5
-  CsWaitText
-  AnimimateActor 1,AnimWalkUp   ;Marisa walks in
-  CsMoveActorTime 1,CsDirUp,150,33
-  CsWait 20
-  AnimimateActor 2,AnimFaceUp   ;Alice leaves from doorway
-  CsWait 30
-  CsDeleteActor 2
-  CsWait 100
-  AnimimateActor 1,AnimFaceUp
-  CsWait 30
-  AssignHat 0,0
-  CsSetActor 0,200,200
-  CsWait 20
-  CsRunText StringAliceHouse6
-  CsDeleteActor 1
-  CsWait 20
+  MoveActor 1,AnimFaceUp,DirVert,147,20, 2        ;Marisa startled
+  CreateActor 2,ChAlice,72,103      ;Alice in doorway
+  AnimateActor 2,AnimFaceDown, 28
+  CallCs Cs_CloseDoor
+  RunTextStringBlocking StringAliceHouse2
+  ;Narumi Check
+  JumpRelZ varNarumiBeat,3
+  RunTextStringBlocking StringAliceHouse3   ;Beat Narumi
+  JumpRelNZ varNarumiBeat,3
+  RunTextStringBlocking StringAliceHouse4   ;Narumi not met
+  RunTextStringBlocking StringAliceHouse5
+  ;Proceed inside
+  MoveActor 1,AnimWalkUp,DirVert,98,150, 20
+  AnimateActor 2,AnimFaceUp, 30     ;Alice leaves from doorway
+  DeleteActor 2, 130
+  DeleteActor 0, 20
+  RunTextString StringAliceHouse6, 10
+  DeleteActor 1, 20
   ShowMap             ;Door close
-  PlaySong SongNull
-  CsWait 90
+  PlaySong SongNull, 90
   LoadBackPalette %11111001
-  LoadSpritePalettes %11100101,%11111001
-  CsWait 90
+  LoadSpritePalettes %11100101,%11111001, 90
   LoadBackPalette %11111110
-  LoadSpritePalettes %11111010,%11111110
-  CsWait 90
+  LoadSpritePalettes %11111010,%11111110, 90
   LoadBackPalette %11111111
   LoadSpritePalettes %11111111,%11111111
   Return
@@ -924,73 +916,51 @@ Cs_EndingA:
 ;Ending B (Escorted by Alice)
 Cs_EndingB:
   RET   ;Used as interaction function
-  ;Marisa, Alice, don't move anymore, and no camera tracking
   ChangeActorControl 1,0
-  ChangeActorControl 2,0
-  CsRunText StringAliceEscort1
-  CsWaitText
+  RunTextStringBlocking StringAliceEscort1
   PlaySong SongDoll
-  CsSetActorSpeed 2,60/(50+110)
-  CsSetActorSpeed 1,60/(50+110)
-  AnimimSpeed 2,$08
-  ;Marisa scoots to the side, Alice moves down
-  AnimimateActor 2,AnimWalkDown
-  CsMoveActorDist 2,CsDirDown,60
+  ;Step aside, Marisa
+  MoveActor 1,AnimWalkLeft,DirHort,$45,50, 30
+  MoveActor 1,AnimWalkLeft,DirVert,$42,40, 50
+  MoveActorRel 2,AnimWalkDown,DirVert,60,110, 50
   ;Marisa tails behind Alice
-  CsWait 50
-  AnimimateActor 1,AnimWalkDown
-  CsMoveActorDist 1,CsDirDown,60
-  CsWait 110
+  MoveActorRel 1,AnimWalkDown,DirVert,60,110, 60
   ;Alice moves right
-  AnimimateActor 2,AnimWalkRight
-  CsMoveActorDist 2,CsDirRight,(190+50)*(60/(50+110))
-  CsWait 50
-  AnimimateActor 1,AnimWalkRight
-  CsMoveActorDist 1,CsDirRight,(190+50)*(60/(50+110))
-  CsWait 170
+  MoveActor 2,AnimWalkRight,DirHort,200,230, 50
+  MoveActor 1,AnimWalkRight,DirHort,160,180, 170
   CallCs Cs_MapFadeout
   LoadMap MapForestBKG01
-  CsWaitReadyMap
   LoadMap MapForest02map
   ;Bottom entrance
-  CsSetActor 2,100,240
-  CsSetActor 1,98,250
-  AnimimateActor 2,AnimWalkUp
-  AnimimateActor 1,AnimWalkUp
-  CsSetCamera 0,111
-  CsWaitReadyMap
+  CreateActor 2,ChAlice,108,0
+  MoveActor 1,AnimWalkUp,DirHort,106,1
+  MoveActor 1,AnimWalkUp,DirVert,11,1
+  MoveCamera DirHort,0,1
+  MoveCamera DirVert,111,1
   LoadMap MapForestEndBmap
-  CsWaitReadyMap
   ShowMap
-  ;Camera follows Alice
-  CallCs Cs_MapFadein, 5
-  ;Alice moves up
-  CsMoveCameraTime CsDirUp,400,101
-  CsMoveActorTime 2,CsDirUp,400,130
-  CsMoveActorTime 1,CsDirUp,400,120
-  ;Camera stops at top of map (Alice stops at same time)
-  CsWait 400
-  AnimimateActor 1,AnimFaceUp
-  AnimimateActor 2,AnimFaceUp
-  CsRunText StringAliceEscort2
-  CsWaitText
+  ;The two walk up
+  MoveActorRel 1,AnimWalkUp,DirVert,-60,200
+  MoveActorRel 2,AnimWalkUp,DirVert,-65,200
+  MoveCamera DirVert,61,200
+  WaitOnMap
+  CallCs Cs_MapFadein
+  ;Camera follows
+  SetVarQ 0,0, 180      ;nop
+  MoveActorRel 1,AnimWalkUp,DirVert,-60,200
+  MoveActorRel 2,AnimWalkUp,DirVert,-65,200
+  MoveCamera DirVert,11,200, 200
+  ;Camera et al stop at top of map
+  RunTextStringBlocking StringAliceEscort2
   ;Marisa moves around Alice to closer to house
-  AnimimateActor 1,AnimWalkLeft
-  CsMoveActorTime 1,CsDirLeft,50,28
-  CsWait 50
-  AnimimateActor 1,AnimWalkUp
-  CsMoveActorTime 1,CsDirUp,80,44
-  CsWait 80
-  AnimimateActor 1,AnimWalkRight
-  CsMoveActorTime 1,CsDirRight,30,12
-  CsWait 30
+  MoveActorRel 1,AnimWalkLeft,DirHort,-17,35, 30
+  MoveActorRel 1,AnimWalkUp,DirVert,-44,80, 70
+  MoveActorRel 1,AnimWalkRight,DirHort,12,30, 31
   ;Marisa faces Alice
-  AnimimateActor 1,AnimFaceDown
-  CsRunText StringAliceEscort3
-  CsWaitText
+  AnimateActor 1,AnimFaceDown
+  RunTextStringBlocking StringAliceEscort3
   PlaySong SongMagus
-  CsRunText StringAliceEscort4
-  CsWaitText
+  RunTextStringBlocking StringAliceEscort4
   ;Danmaku
   
   ;Fade to black
@@ -1002,32 +972,28 @@ Cs_NarumiFightStart:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
   PlaySong SongNull   ;No song plays if the fight is finished
-  CsSetVar 126,0        ;Change music on exit
-  CsNewActor 2,CsChNarumi,0
-  CsWait 2
-  CsSetActor 2,56,72
-  AnimimateActor 2,AnimFaceDown
+  SetVar varKeepMusic,0
+  CreateActor 2,ChNarumi,64,88
+  AnimateActor 2,AnimFaceDown
   CallCs Cs_TransitionIn
   ChangeActorControl 1,$87
-  ReturnVar 118,1        ;No text etc if the fight already happened
+  JumpRelNZ varNarumiBeat,__csNarumiEnd-CADDR-1     ;No text etc if the fight already happened
   ChangeActorControl 1,$80   ;Camera follow, but sit still
-  CsRunText StringNarumiStart1
-  CsWaitText
+  RunTextStringBlocking StringNarumiStart1
   PlaySong SongMagus
-  CsRunText StringNarumiStart2
-  CsWaitText
+  RunTextStringBlocking StringNarumiStart2
+  ChangeActorControl 1,$83  ;No leaving the room
   ;Return
 
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
+  ChangeActorControl 1,0
   PlaySong SongDoll
-  CsRunText StringNarumiEnd
-  CsWaitText
-  CsSetVar 118,1        ;Narumi is beaten
-  ChangeActorControl 1,$87   ;Marisa may leave
+  RunTextStringBlocking StringNarumiEnd
+  SetVar varNarumiBeat,1
+  ChangeActorControl 1,$87
+__csNarumiEnd:
   Return
-
-.ASM
 
 ;Feeding Reimu Shrooms
 Cs_ReimuMeet:

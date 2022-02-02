@@ -527,25 +527,6 @@ AssignHat:
   LD (HL),B
   RET
 
-MoveCamera:
-  ;Test direction
-  LD B,<BkgVertScroll
-  BIT 0,C
-  JR nz,+
-  ;Horizontal movement
-  LD B,<BkgHortScroll
-+
-  CALL NextCutsceneByte
-  LD C,A
-  CALL NextCutsceneByte
-  PUSH DE
-    LD D,B
-    LD E,C
-    LD BC,MoveCamera_Task
-    CALL NewTask
-  POP DE
-  RET
-
 Breakout:
 ;Call the followng code in the cutscene
   PUSH DE
@@ -571,17 +552,29 @@ MoveActorAnim_Task:
     LD BC,_AnimChange
     ADD HL,BC
     LD (HL),E
+    LD A,$03
+    AND E
+    LD BC,_CutsceneLocal-_AnimChange
+    ADD HL,BC
+    LD (HL),A
+    LD B,A
   POP AF
-  LD B,E
   LD C,D
   CALL WaitOnTask
   LD A,C
   CALL Access_ActorDE
-  LD DE,_AnimChange
+  LD DE,_CutsceneLocal
   ADD HL,DE
   LD A,B
-  AND $03
+  ;Only change actor animation if it wasn't changed by something else
+  CP (HL)
+  JP nz,EndTask
+  LD DE,_AnimChange-_CutsceneLocal
+  ADD HL,DE
   LD (HL),A
+  ;Flash the buttons so Marisa's animations work properly
+  XOR A
+  LDH ($FE),A
   JP EndTask
 
 MoveActor_Task:
@@ -738,6 +731,25 @@ ChangeAnim:
   LD (HL),A
   RET
 
+MoveCamera:
+  ;Test direction
+  LD B,<BkgVertScroll
+  BIT 0,C
+  JR nz,+
+  ;Horizontal movement
+  LD B,<BkgHortScroll
++
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  PUSH DE
+    LD D,B
+    LD E,C
+    LD BC,MoveCamera_Task
+    CALL NewTask
+  POP DE
+  RET
+
 MoveCamera_Task:
 ;A= Destination
 ;D= Address
@@ -746,7 +758,6 @@ MoveCamera_Task:
     LD L,D
     LD H,>BkgVertScroll   ;Also hort; depends on D
     SUB (HL)
-    JP z,EndTask      ;Already there
     PUSH HL
       PUSH AF     ;Need the carry flag
         PUSH BC
@@ -754,19 +765,20 @@ MoveCamera_Task:
           CPL     ;Division is unsigned; negate if needed
           INC A
 +
-          LD B,0
-          LD C,A
+          LD B,A
+          LD C,0
           PUSH DE
             CALL Divide
           POP DE
         POP BC
+        LD A,L
         ADD B         ;Accumulate remainder
         LD B,A
         LD A,0
-        ADC L
-        LD L,A
+        ADC H
+        LD H,A
       POP AF
-      LD A,L
+      LD A,H
       JR nc,+
       ;Value was negative; re-negate
       CPL
@@ -778,6 +790,7 @@ MoveCamera_Task:
   POP AF
   LD D,L    ;Restore A and D to initial values
   DEC E     ;...but update the frame counter
+  JP z,EndTask
   RST $00         ;Do again next frame
   JR MoveCamera_Task
 

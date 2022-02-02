@@ -75,7 +75,7 @@ MAP "h" = $7F
     
     ;"0123456789ABCD"
 StringOpeningMessage1:
-.DB CtrlSpeed,2, CtrlFaceLoad1|$03, CtrlFaceLoad2|$01, CtrlBorder0, CtrlWait|1, CtrlFaceShow1, CtrlClear, CtrlRaise
+.DB CtrlSpeed,2, CtrlEnd, CtrlFaceLoad1|$03, CtrlFaceLoad2|$01, CtrlBorder0, CtrlWait|1, CtrlFaceShow1, CtrlClear, CtrlRaise
 .ASC "ALL THAT", CtrlLine
 .ASC "RUCKUS OVER A", CtrlLine
 .ASC "FEW LITTLE", CtrlLine
@@ -107,7 +107,7 @@ StringOpeningMessage3:
 .DB CtrlLower, CtrlEnd
 
 StringNarumiStart1:
-.DB CtrlFaceLoad2|$10, CtrlFaceLoad1|$00, CtrlFaceShow2, CtrlClear, CtrlBorder1, CtrlRaise
+.DB CtrlSpeed,2, CtrlFaceLoad2|$10, CtrlFaceLoad1|$00, CtrlFaceShow2, CtrlClear, CtrlBorder1, CtrlRaise
 .ASC "HEYA MARISA.", CtrlPauseClear
 .DB CtrlFaceShow1, CtrlFaceLoad2|$11
 .ASC "OH, NARUMI.", CtrlPauseLine

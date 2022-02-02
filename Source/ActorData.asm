@@ -70,6 +70,7 @@
     ;+$10, size 1: Visible on screen
     ;+$11, size 1: Cardinal direction most recently moving/facing
     
+    ;+$14, size 1: Actor specific value used in cutscenes
     ;+$15, size 1: Actor specific setting
     ;+$16, size 2: AI Movement function
     ;+$18, size 2: Hat value list
@@ -150,6 +151,7 @@
 .DEFINE _Visible $10
 .DEFINE _LastFacing $11
 
+.DEFINE _CutsceneLocal $14
 .DEFINE _Settings $15
 .DEFINE _AIMovement $16
 .DEFINE _HatValList $18
