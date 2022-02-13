@@ -28,6 +28,41 @@
                 ;Bit 2: Y mirror
         ;If target is loop, two bytes for loop destination address follow
 
+;Packed idea:
+
+;Note to self: load sprites back to front
+
+;Base part:
+;Header:
+;%TTTTPCCC
+; |||||+++--- Sprite Count
+; ||||+--- Always on top
+; ++++--- Starting tile
+
+;For each sprite:
+;%YYYYXXXX YXPOOOOO
+; |||||||| |||+++++--- Tile offset (signed)
+; |||||||| ||+--- Palette choice
+; |||||||| |+--- X mirror
+; |||||||| +--- Y mirror
+; ||||++++--- signed X offset from previous sprite (-1 for movement by 8)
+; ++++--- signed Y offset from previous sprite (-1 for movement by 8)
+
+;Tailer?: pointer to animation stream
+
+;Active part:
+;%E0654321
+; | ++++++--- Set if sprite changes this frame
+; +--- End of animation
+;For each sprite set (lo to hi)
+;%YYYYXXXX YXPOOOOO
+; |||||||| |||+++++--- Tile change (signed)
+; |||||||| ||+--- Palette choice toggle
+; |||||||| |+--- X mirror toggle
+; |||||||| +--- Y mirror toggle
+; ||||++++--- X movement
+; ++++--- Y movement
+
 ;Attribute bit reminder:
     ;%PYXC0000
     ; |||||||+--- (Used for forcing priority)
@@ -63,8 +98,8 @@
     ;+$04, size 2: Master Y
     ;+$06, size 2: Subsprite relational data (to RAM)
     ;+$08, size 2: current animation pointer (to ROM)
-    ;+$0A, size 1: current animation wait (4.4)
-    ;+$0B, size 1: current animation speed (per frame, 4.4)
+    ;+$0A, size 1: current animation wait
+    ;+$0B, size 1: current animation ID
     ;+$0C, size 2: Movement Speed (pixels, 8.8)
     ;+$0E, size 2: Hitbox data
     ;+$10, size 1: Visible on screen
@@ -77,7 +112,7 @@
     ;+$1A, size 2: Animation pointer list
     ;+$1C, size 1: Animation sprite count
     ;+$1D, size 1: Control state
-    ;+$1E, size 1: Animation ID
+    ;+$1E, size 1: New animation ID
     ;+$1F, size 1: Hat value
 ;Marisa
     ;+$12, size 1: current button state
@@ -145,7 +180,7 @@
 .DEFINE _RelData $06
 .DEFINE _AnimPtr $08
 .DEFINE _AnimWait $0A
-.DEFINE _AnimSpeed $0B
+.DEFINE _AnimID $0B
 .DEFINE _MoveSpeed $0C
 .DEFINE _Hitbox $0E
 .DEFINE _Visible $10

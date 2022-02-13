@@ -5,7 +5,6 @@
 .SECTION "Reimu" FREE
 
 ReimuActorData:
- .db $10
  .dw $0100
  .dw ReimuHitboxes
  .dw ReimuFrame
@@ -58,14 +57,10 @@ _LeftWalk:
  .dw _IdleLoop
 
 _Animations:
- .dw _LeftFace
- .dw _DownFace
- .dw _LeftFace
- .dw _UpFace
- .dw _LeftWalk
- .dw _DownFace
- .dw _LeftWalk
- .dw _UpFace
+ .dw ReimuLeft
+ .dw ReimuDown
+ .dw ReimuRight
+ .dw ReimuUp
 
 _HatValues:
  .db 5

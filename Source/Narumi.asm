@@ -7,8 +7,7 @@
 .SECTION "Narumi" FREE
 
 NarumiActorData:
- .db $10
- .dw $0100
+ .dw 0
  .dw NarumiHitboxes
  .dw NarumiFrame
  .dw _HatValues
@@ -60,14 +59,10 @@ _RightFace:
  .dw _Idle
 
 _Animations:
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _UpFace
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _UpFace
+ .dw NarumiLeft
+ .dw NarumiDown
+ .dw NarumiRight
+ .dw NarumiUp
 
 _HatValues:
  .db 3

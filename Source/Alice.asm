@@ -5,7 +5,6 @@
 .SECTION "Alice" FREE
 
 AliceActorData:
- .db $10
  .dw $0100
  .dw AliceHitboxes
  .dw AliceFrame
@@ -142,14 +141,10 @@ _LeftWalk:
  .dw _WalkHortLoop
 
 _Animations:
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _UpFace
- .dw _LeftWalk
- .dw _DownWalk
- .dw _RightWalk
- .dw _UpWalk
+ .dw AliceLeft
+ .dw AliceDown
+ .dw AliceRight
+ .dw AliceUp
 
 _HatValues:
  .db 4

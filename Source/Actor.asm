@@ -93,11 +93,11 @@ Actor_FrameInit:
       LD (HL),0     ;Initially never moved
     POP BC
     ;Initial data copy
-    LD HL,_AnimSpeed
+    LD HL,_AnimWait
     ADD HL,DE
-    LD A,(BC)     ;Anim Speed
-    INC BC
-    LDI (HL),A
+    LD A,$01
+    LDI (HL),A    ;Anim speed
+    INC HL        ;Anim ID
     LD A,(BC)     ;Move Speed lo
     INC BC
     LDI (HL),A
@@ -290,24 +290,12 @@ Actor_Frame:
   LD HL,_HatVal
   ADD HL,DE
   LD (HL),A
-  ;Send new anim pointer
-  LD HL,_AnimPtrList
+  ;Change stored anim ID
+  LD HL,_AnimID
   ADD HL,DE
-  LD A,C
-  ADD A
-  ADD (HL)
-  INC HL
-  LD H,(HL)
-  LD L,A
-  JR nc,++
-  INC H
-++
-  LDI A,(HL)
-  LD B,(HL)
-  LD C,A
-  SCF   ;New animation
+  LD (HL),C
+  CALL Actor_LoadAnim
 +++
-  ;Carry correct b/c CMP with $FF always yields no carry (as do carries with a zero result)
   JP Actor_Draw
 
 Access_ActorDE:
@@ -374,170 +362,221 @@ Actor_Delete:
   CALL MemFree  ;Free the RAM anim area
   JP EndTask
 
-Actor_Draw:
-;DE-> Actor data
-;If carry set, new animation in BC
-;Destroys all
+Actor_MoveSprite:
+;Moves this one sprite by the given anim data
+;BC->Anim data
+;HL->Sprite info
+;Returns:
+;BC->Next anim data
+;HL->Next sprite info
+  LD A,(BC)     ;Y movement
+  AND $F0
+  SWAP A
+  BIT 3,A       ;Sign extend
+  JR z,+
+  OR $F0
++
+  ADD (HL)
+  LDI (HL),A
+  LD A,(BC)     ;X movement
+  AND $0F
+  BIT 3,A       ;Sign extend
+  JR z,+
+  OR $F0
++
+  ADD (HL)
+  LDI (HL),A
+  INC BC        ;Tile change
+  LD A,(BC)
+  AND $1F
+  BIT 4,A       ;Sign extend
+  JR z,+
+  OR $E0
++
+  ADD (HL)
+  LDI (HL),A
+  LD A,(BC)     ;Attributes
+  INC BC
+  AND $E0
+  RRCA
+  XOR (HL)
+  LDI (HL),A
+  RET
+
+Actor_Animate:
+;Perform animation frame
+;Are we even walking?
+  LD HL,_AnimID
+  ADD HL,DE
+  LDD A,(HL)
+  BIT 2,A
+  RET z
+;Is the anim frame finished?
+  DEC (HL)
+  RET nz
+  LD (HL),$05   ;Debug value
+;Grab the pointers for animating
+  DEC HL
+  LDD A,(HL)    ;Anim data
+  LD C,A
+  LDD A,(HL)
+  LD B,A
+;Are we looking at the end?
+  LD A,(BC)
+  ADD A
   JR nc,+
-;Initial
+;End of animation; go back to start
+  JR Actor_LoadAnim
++   ;Real animation; go animate!
+  LDD A,(HL)    ;Rel data
+  LD L,(HL)
+  LD H,A
+  LD A,(BC)     ;Sprite change bitfield
+  INC BC
+;Move each sprite
+-
+  RRA
+  JR c,+
+    ;this sprite did not change
+  INC HL
+  INC HL
+  INC HL
+  INC HL
+  JR ++
++   ;this sprite changed
+  PUSH AF
+    CALL Actor_MoveSprite
+  POP AF
+++
+  OR A  ;End check
+  JR nz,-
+;Put the anim pointer back
+  LD HL,_AnimPtr
+  ADD HL,DE
+  LD (HL),B
+  INC HL
+  LD (HL),C
+  RET
+
+Actor_LoadAnim:
+;DE-> Actor data
+;Go get the animation
+  LD HL,_AnimID
+  ADD HL,DE
+  LD A,(HL)
+  AND $03
+  ADD A     ;Turn into table offset
+  LD HL,_AnimPtrList
+  ADD HL,DE
+  ADD (HL)
+  INC HL
+  LD H,(HL)
+  LD L,A
+  JR nc,+
+  INC H
++
+  LDI A,(HL)    ;Get initial anim data pointer
+  LD B,(HL)
+  LD C,A
+;Load sprite count
   LD HL,_SprCount
   ADD HL,DE
-  LD A,(BC) ;Sprite counter
+  LD A,(BC)
+  AND $07
   LD (HL),A
+;Load initial data into anim ram
   LD HL,_RelData
   ADD HL,DE
   LDI A,(HL)
   LD H,(HL)
   LD L,A
-  LD A,(BC) ;Sprite counter
+  LD A,(BC)
   INC BC
   PUSH DE
-    RLA
-    RLA
-    LD D,A
+    PUSH BC
+      LD D,A
+      AND $F0
+      RRCA
+      LD E,A    ;Starting tile
+      LD A,$07
+      AND D
+      LD C,A    ;Sprite count
+      LD A,$08
+      AND D
+      RRCA
+      RRCA
+      RRCA
+      LD B,A    ;Starting Attribute
+      XOR A     ;Starting Y, X
 -
-    LD A,(BC)
-    INC BC
-    LDI (HL),A
-    DEC D
-    JR nz,-
-  POP DE
-;Store anim ptr & count
-  LD HL,_AnimPtr
-  ADD HL,DE
-  LD A,C
-  LDI (HL),A
-  LD A,B
-  LDI (HL),A
-  LD A,(BC)
-  AND $F0
-  LD (HL),A
-+   ;Perform animation timer
-  LD HL,_AnimWait
-  ADD HL,DE
-  LDI A,(HL)
-  SUB (HL)
-  DEC HL
-  LDD (HL),A
-  JP nc,+
-;Change visual
-  LD HL,_AnimPtr+1
-  ADD HL,DE
-  LDD A,(HL)
-  LD B,A
-  LD A,(HL)
-  LD C,A
-  PUSH DE
-  ;Update anim pointer here
-    LD A,(BC)
-    INC BC
-    AND $0F
-    INC A
+      LDI (HL),A    ;Y
+      LDI (HL),A    ;X
+      LD (HL),E     ;Tile
+      INC HL
+      LD (HL),B     ;Attribute
+      INC HL
+      DEC C
+      JR nz,-
+;Run first frame of animation, correcting X and Y
+      LD A,$07
+      AND D     ;Sprite count
+      LD DE,0   ;Initial X,Y
+    POP BC
+-
     PUSH AF
-      ADD (HL)
-      LDI (HL),A
-      LD A,0
-      ADC (HL)
-      LDD (HL),A
+      DEC HL    ;moving backwards
       DEC HL
-      LDD A,(HL)
-      LD L,(HL)
-      LD H,A
-      PUSH HL
-;Act on each edit
---
-      POP HL
+      DEC HL
+      DEC HL
+      CALL Actor_MoveSprite
+      ;Correct X and Y
+      DEC HL
+      DEC HL
+      DEC HL    ;To X
+      LD A,(HL)
+      INC A
+      JR nz,+
+      ;Actually 8
+      LD (HL),8
++
+      LD A,D
+      ADD (HL)
+      LDD (HL),A
+      LD D,A
+      LD A,(HL)
+      INC A
+      JR nz,+
+      ;Actually 8
+      LD (HL),8
++
+      LD A,E
+      ADD (HL)
+      LD (HL),A
+      LD E,A
     POP AF
     DEC A
-    JR z,++++
-    PUSH AF
-      LD A,(BC)
-      INC BC
-      LD E,A
-      INC A     ;Test for end of animation
-      JR z,++
-      PUSH HL
-;Do change sprite
-;Detect all sprite/Perform load
-        LD D,1    ;General case
-        LD A,$1C
-        AND E
-        JR nz,+++
-;All sprites affected
-        LD A,$04  ;Adjust E so position hits right
-        ADD E
-        LD E,A
-        LD D,6
-+++ ;Go to position
-        LD A,E
-        AND $1F
-        SUB $04
-        ADD L
-        LD L,A
-        LD A,0
-        ADC H
-        LD H,A
-;Detect Attribute change
-        LD A,$03
-        AND E
-        XOR $03
-        JR z,+++
-;General change
-;Sign extend the 3 bit value
-        SRA E
-        SRA E
-        SRA E
-        SRA E
-        SRA E
--
-        LD A,E
-        ADD (HL)
-        LDI (HL),A
-        INC HL
-        INC HL
-        INC HL
-        DEC D
-        JR nz,-
-        JR --
-+++
-;Attribute change
-        LD A,$E0
-        AND E
-        RRCA
-        LD E,A
--
-        LD A,E
-        XOR (HL)
-        LDI (HL),A
-        INC HL
-        INC HL
-        INC HL
-        DEC D
-        JR nz,-
-        JR --
-++  ;End of animation
-    POP AF
+    JR nz,-
+;Chase tail for subsequent animation data
+    LD A,(BC)
+    INC BC
+    LD D,A
+    LD A,(BC)
+    LD C,A
+    LD B,D
   POP DE
-  LD HL,_AnimPtr
+;Load animation pointer
+  LD HL,_AnimPtr+1
   ADD HL,DE
-  LD A,(BC)
-  INC BC
-  LDI (HL),A
-  LD A,(BC)
-  LDD (HL),A
-  LD B,A
-  LD C,(HL)
-  JR ++
-++++    ;End of anim edits
-  POP DE
-++  ;New wait
-  LD A,(BC)
-  LD HL,_AnimWait
-  ADD HL,DE
-  AND $F0
-  ADD (HL)
-  LD (HL),A
-+   ;Move visual data to shadow OAM
+  LD (HL),B
+  DEC HL
+  LD (HL),C
+  RET
+
+Actor_Draw:
+;DE-> Actor data
+;Destroys all
+  CALL Actor_Animate
+;Move visual data to shadow OAM
   LD HL,_SprCount
   ADD HL,DE
   LD A,(HL) ;No. of sprites

@@ -47,7 +47,6 @@
 ;All UDLR designations are screen-based
 
 FairyActorData:
- .db $10
  .dw 100
  .dw FairyHitboxes
  .dw FairyFrame
@@ -324,14 +323,10 @@ _HortWalkLoop
  .dw _HortWalkLoop
 
 _Animations:
- .dw _LeftFace
- .dw _DownFace
- .dw _RightFace
- .dw _UpFace
- .dw _LeftWalk
- .dw _DownWalk
- .dw _RightWalk
- .dw _UpWalk
+ .dw FairyLeft
+ .dw FairyDown
+ .dw FairyRight
+ .dw FairyUp
 
 _HatValues:
  .db 2
