@@ -228,7 +228,7 @@ MapForest31:
 .db   0 +8,   0 +16
 .db  90 +8,  28 +16
 .db   0 +8,   0 +16
-.dw Cs_CurvedTransitionA
+.dw Cs_Forest31
 MapForest32:
 .db 1
 .dw MapForest32map

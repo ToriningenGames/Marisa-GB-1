@@ -520,9 +520,9 @@
 
 Cs_MapFadeout:
   LoadBackPalette %11111001
-  LoadSpritePalettes %11100101,%11111001, 7
+  LoadSpritePalettes %11100101,%11111001, 11
   LoadBackPalette %11111110
-  LoadSpritePalettes %11111010,%11111110, 7
+  LoadSpritePalettes %11111010,%11111110, 11
   LoadBackPalette %11111111
   LoadSpritePalettes %11111111,%11111111
   Return
@@ -561,25 +561,14 @@ Cs_StraightTransition:
   Jump Cs_TransitionIn
 
 ;Some of the non straight transitions
-Cs_CurvedTransitionA:
+Cs_Forest31:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
   ;Check for exit from map 04
   CompareVar16 varOldMap,MapForest04map
-  JumpRelNZ varAns,5
-  SetVar varEntryDir,DirRight
-  Jump Cs_TransitionIn
-  ;Check for exit from map 24
-  CompareVar16 varOldMap,MapForest24map
-  JumpRelNZ varAns,5
-  SetVar varEntryDir,DirDown
-  Jump Cs_TransitionIn
-  ;Check for exit from map 02
-  CompareVar16 varOldMap,MapForest02map
   JumpRelNZ varAns,2     ;Always transition
   SetVar varEntryDir,DirRight
   Jump Cs_TransitionIn
-
 
 ;Maps that contain NPCs/Objects
 
@@ -724,7 +713,7 @@ Cs_TransitionOut:
   UseVarAsVal 23,4    ;X/Y Plane
   UseVarAsVal 24,4    ;Animation
   UseVarAsVal 25,3    ;Distance
-  MoveActorRel 1,0,0,0,30
+  MoveActorRel 1,0,0,0,50
   CallCs Cs_MapFadeout
   Break
     ;Multiply Var 3 by 26
@@ -770,7 +759,7 @@ Cs_TransitionIn:
   UseVarAsVal 23,4    ;X/Y Plane
   UseVarAsVal 24,5    ;Animation
   UseVarAsVal 25,4    ;Distance
-  MoveActorRel 1,0,0,0,30, 15
+  MoveActorRel 1,0,0,0,50, 35
   WaitOnMap
   CallCs Cs_MapFadein
   ChangeActorControl 1,$87
