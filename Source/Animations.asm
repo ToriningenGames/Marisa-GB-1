@@ -153,14 +153,14 @@ AliceUp:
 AliceWalkLeft:
 AliceWalkRight:
 ;Arm back
- .db %00000001
+ .db %00000100
   SpriteItem +0,+0,+$2, %000
  .db 0
 ;Arm center
- .db %00000001
+ .db %00000100
   SpriteItem +0,+0,-$2, %000
 ;Arm forward
- .db %00000001
+ .db %00000100
   SpriteItem +0,+0,+$2, %010
  .db 0
 ;(Implied) Arm center
@@ -233,20 +233,20 @@ ReimuWalkRight:
  .db $FF
 ReimuWalkDown:
 ReimuWalkUp:
+ .db 0
 ;Left arm forward, right arm back
  .db %00001100
   SpriteItem +0,+0,+$2, %000
   SpriteItem +0,+0,+$1, %000
- .db 0
 ;Center arms
  .db %00001100
   SpriteItem +0,+0,-$2, %000
   SpriteItem +0,+0,-$1, %000
+ .db 0
 ;Left arm back, right arm forward
  .db %00001100
   SpriteItem +0,+0,+$1, %000
   SpriteItem +0,+0,+$2, %000
- .db 0
 ;(Implied) Center arms
  .db $FF
 
@@ -328,10 +328,59 @@ FairyUp:
  .dw FairyWalkUp
 
 FairyWalkLeft:
-FairyWalkDown:
+;Wings in
+ .db %00001100
+  SpriteItem +1,-1,+$0, %000
+  SpriteItem -1,-1,+$0, %000
+;Up
+ .db %00000111
+  SpriteItem -1,+0,+$0, %000
+  SpriteItem -1,+0,+$0, %000
+  SpriteItem -1,+0,+$0, %000
+;Wings out
+ .db %00001100
+  SpriteItem +0,+1,+$0, %000
+  SpriteItem +0,+1,+$0, %000
+;(Implied) Down
+ .db $FF
 FairyWalkRight:
+;Wings in
+ .db %00000011
+  SpriteItem +1,+1,+$0, %000
+  SpriteItem -1,+1,+$0, %000
+;Up
+ .db %00001101
+  SpriteItem -1,+0,+$0, %000
+  SpriteItem -1,+0,+$0, %000
+  SpriteItem -1,+0,+$0, %000
+;Wings out
+ .db %00000011
+  SpriteItem +0,-1,+$0, %000
+  SpriteItem +0,-1,+$0, %000
+;(Implied) Down
+ .db $FF
+FairyWalkDown:
 FairyWalkUp:
-.DB $FF
+;Wings in
+ .db %00101101
+  SpriteItem +1,-1,+$0, %000
+  SpriteItem +1,+1,+$0, %000
+  SpriteItem -1,+1,+$0, %000
+  SpriteItem -1,-1,+$0, %000
+;Up
+ .db %00010111
+  SpriteItem -1,+0,+$0, %000
+  SpriteItem -1,+0,+$0, %000
+  SpriteItem -1,+0,+$0, %000
+  SpriteItem -1,+0,+$0, %000
+;Wings out
+ .db %00101101
+  SpriteItem +0,+1,+$0, %000
+  SpriteItem +0,-1,+$0, %000
+  SpriteItem +0,-1,+$0, %000
+  SpriteItem +0,+1,+$0, %000
+;(Implied) Down
+ .db $FF
 
 MushroomLeft:
   SpriteHeader 1,$78,0
