@@ -5,32 +5,6 @@
     ;Two parts: Base and Active
     ;Base determines the default state to display when animation is off
     ;Active determines the actions to go through when animation is on
-;Base part:
-    ;1 byte: Sprite count (up to 6)
-    ;<=24 bytes: Sprite data state
-;Active part:
-    ;1 byte: Counts
-        ;%WWWWCCCC
-        ; ||||++++--- Change counts
-        ; ++++------- Wait time (Loaded hi)
-    ;N bytes: Sprite Changes
-        ;%VVVTTTPP
-        ; ||||||++--- Portion (Y val, X val, Tile, Attr, 3 if loop)
-        ; |||+++----- Target (Sprite #1-6, 0 for all, 7 for loop instead)
-        ; +++-------- Value (7 if loop)
-        ;Meaning of Value:
-            ;If selected byte is Y val, X val, or Tile:
-                ;Value=Two's Compliment signed value to be added to selection
-            ;If selected byte is Attribute:
-                ;Value=XOR mask for attribute values
-                ;Bit 0: Palette choice
-                ;Bit 1: X mirror
-                ;Bit 2: Y mirror
-        ;If target is loop, two bytes for loop destination address follow
-
-;Packed idea:
-
-;Note to self: load sprites back to front
 
 ;Base part:
 ;Header:
@@ -48,7 +22,7 @@
 ; ||||++++--- signed X offset from previous sprite (-1 for movement by 8)
 ; ++++--- signed Y offset from previous sprite (-1 for movement by 8)
 
-;Tailer?: pointer to animation stream
+;Tailer: pointer to animation stream
 
 ;Active part:
 ;%E0654321

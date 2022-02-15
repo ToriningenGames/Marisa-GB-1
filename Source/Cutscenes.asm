@@ -520,20 +520,20 @@
 
 Cs_MapFadeout:
   LoadBackPalette %11111001
-  LoadSpritePalettes %11100101,%11111001, 11
+  LoadSpritePalettes %11100101,%11110101, 11
   LoadBackPalette %11111110
-  LoadSpritePalettes %11111010,%11111110, 11
+  LoadSpritePalettes %11111010,%11111010, 11
   LoadBackPalette %11111111
   LoadSpritePalettes %11111111,%11111111
   Return
 
 Cs_MapFadein:
   LoadBackPalette %11111110
-  LoadSpritePalettes %11111010,%11111110, 5
+  LoadSpritePalettes %11111010,%11111010, 5
   LoadBackPalette %11111001
-  LoadSpritePalettes %11100101,%11111001, 5
+  LoadSpritePalettes %11100101,%11110101, 5
   LoadBackPalette %11100100
-  LoadSpritePalettes %11010000,%11100100
+  LoadSpritePalettes %11010000,%11100000
   Return
 
 ;Used for when entrance direction aligns with exit direction
@@ -624,7 +624,7 @@ Cs_Forest00:
   CallCs Cs_TransitionOut
   CallCs Cs_ClearActorList
   JumpRelNZ varReimuFull,8
-  CreateActor 2,ChReimu,112,104
+  CreateActor 2,ChReimu,112,106
   AnimateActor 2,AnimFaceDown
   ChangeActorControl 2,2     ;Interact!
   ;Check for exit from map 01
