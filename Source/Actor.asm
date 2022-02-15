@@ -362,47 +362,6 @@ Actor_Delete:
   CALL MemFree  ;Free the RAM anim area
   JP EndTask
 
-Actor_MoveSprite:
-;Moves this one sprite by the given anim data
-;BC->Anim data
-;HL->Sprite info
-;Returns:
-;BC->Next anim data
-;HL->Next sprite info
-  LD A,(BC)     ;Y movement
-  AND $F0
-  SWAP A
-  BIT 3,A       ;Sign extend
-  JR z,+
-  OR $F0
-+
-  ADD (HL)
-  LDI (HL),A
-  LD A,(BC)     ;X movement
-  AND $0F
-  BIT 3,A       ;Sign extend
-  JR z,+
-  OR $F0
-+
-  ADD (HL)
-  LDI (HL),A
-  INC BC        ;Tile change
-  LD A,(BC)
-  AND $1F
-  BIT 4,A       ;Sign extend
-  JR z,+
-  OR $E0
-+
-  ADD (HL)
-  LDI (HL),A
-  LD A,(BC)     ;Attributes
-  INC BC
-  AND $E0
-  RRCA
-  XOR (HL)
-  LDI (HL),A
-  RET
-
 Actor_Animate:
 ;Perform animation frame
 ;Are we even walking?
@@ -445,7 +404,43 @@ Actor_Animate:
   JR ++
 +   ;this sprite changed
   PUSH AF
-    CALL Actor_MoveSprite
+    LD A,(BC)
+    RLA
+    JR nc,+
+    INC (HL)
++
+    RLA
+    JR nc,+
+    DEC (HL)
++
+    INC HL
+    RLA
+    JR nc,+
+    INC (HL)
++
+    RLA
+    JR nc,+
+    DEC (HL)
++
+    INC HL
+    LD A,(BC)
+    AND $07
+    BIT 2,A
+    JR z,+  ;Sign extend
+    OR $F8
++
+    ADD (HL)
+    LDI (HL),A
+    LD A,(BC)
+    INC BC
+    AND %00001000
+    JR z,+
+    RLCA
+    RLCA
+    XOR (HL)
+    LD (HL),A
++
+    INC HL
   POP AF
 ++
   OR A  ;End check
@@ -525,34 +520,57 @@ Actor_LoadAnim:
 -
     PUSH AF
       DEC HL    ;moving backwards
-      DEC HL
-      DEC HL
-      DEC HL
-      CALL Actor_MoveSprite
-      ;Correct X and Y
-      DEC HL
-      DEC HL
-      DEC HL    ;To X
-      LD A,(HL)
-      INC A
-      JR nz,+
-      ;Actually 8
-      LD (HL),8
+      INC BC
+      LD A,(BC)     ;Attributes
+      RRCA
+      AND %01110000
+      XOR (HL)
+      LDD (HL),A
+      LD A,(BC)     ;Tile change
+      AND $1F
+      BIT 4,A
+      JR z,+
+      ;Sign extend
+      OR $E0
 +
-      LD A,D
       ADD (HL)
       LDD (HL),A
-      LD D,A
-      LD A,(HL)
+      DEC BC
+      LD A,(BC)     ;X movement
+      AND $0F
+      BIT 3,A
+      JR z,+
+      ;Sign extend
+      OR $F0
++
       INC A
       JR nz,+
-      ;Actually 8
-      LD (HL),8
+      ;Sentinel for 8
+      LD A,9
 +
-      LD A,E
-      ADD (HL)
-      LD (HL),A
+      DEC A
+      ADD D
+      LD D,A
+      LDD (HL),A
+      LD A,(BC)     ;Y movement
+      AND $F0
+      SWAP A
+      BIT 3,A
+      JR z,+
+      ;Sign extend
+      OR $F0
++
+      INC A
+      JR nz,+
+      ;Sentinel for 8
+      LD A,9
++
+      DEC A
+      ADD E
       LD E,A
+      LD (HL),A
+      INC BC
+      INC BC
     POP AF
     DEC A
     JR nz,-

@@ -13,13 +13,40 @@
 .ENDIF
 .DB (attr*32)|(tileoffs & $1F)
 .ENDM
+.MACRO SpriteAnimItem ARGS yoffs,xoffs,tileoffs,xflip
+.IF     yoffs < 0
+    .IF     xoffs < 0
+  .db %01010000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ELIF   xoffs > 0
+  .db %01100000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ELSE
+  .db %01000000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ENDIF
+.ELIF   yoffs > 0
+    .IF     xoffs < 0
+  .db %10010000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ELIF   xoffs > 0
+  .db %10100000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ELSE
+  .db %10000000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ENDIF
+.ELSE
+    .IF     xoffs < 0
+  .db %00010000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ELIF   xoffs > 0
+  .db %00100000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ELSE
+  .db %00000000 | ((xflip&1)<<3) | (tileoffs&7)
+    .ENDIF
+.ENDIF
+.ENDM
 
 .SECTION "Animations" FREE
 
 MarisaLeft:
   SpriteHeader 4,$40,0
-  SpriteItem +2,+0, $6, %010    ;Leg right
-  SpriteItem +0,-8, $7, %010    ;Leg left
+  SpriteItem +2,+0, $8, %010    ;Leg right
+  SpriteItem +0,-8, $9, %010    ;Leg left
   SpriteItem -8,+3, $D, %000    ;Shoulder
   SpriteItem -2,+1, $1, %010    ;Head
  .dw MarisaWalkLeft
@@ -34,8 +61,8 @@ MarisaDown:
  .dw MarisaWalkDown
 MarisaRight:
   SpriteHeader 4,$40,0
-  SpriteItem +2,+0, $7, %000    ;Leg right
-  SpriteItem +0,-8, $6, %000    ;Leg left
+  SpriteItem +2,+0, $9, %000    ;Leg right
+  SpriteItem +0,-8, $8, %000    ;Leg left
   SpriteItem -8,+3, $D, %000    ;Shoulder
   SpriteItem -2,+1, $C, %010    ;Head
  .dw MarisaWalkRight
@@ -52,37 +79,38 @@ MarisaUp:
 MarisaWalkRight:
 MarisaWalkLeft:
  .db %00001100  ;Arm back
-  SpriteItem +0,+0,+$2, %000
-  SpriteItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,-$2, %000
+  SpriteAnimItem +0,+0,-$2, %000
  .db 0
  .db %00111111  ;Arm neutral, all 1px down
-  SpriteItem +1,+0,+$0, %000
-  SpriteItem +1,+0,+$0, %000
-  SpriteItem +1,+0,-$2, %000
-  SpriteItem +1,+0,-$2, %000
-  SpriteItem +1,+0,+$0, %000
-  SpriteItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$2, %000
+  SpriteAnimItem +1,+0,+$2, %000
+  SpriteAnimItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$0, %000
  .db %00001100  ;Arm forward
-  SpriteItem +0,+0,+$4, %000
-  SpriteItem +0,+0,+$4, %000
+  SpriteAnimItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$2, %000
  .db 0
  .db $FF    ;(Implied) Arm neutral, all 1px up
 MarisaWalkDown:
 MarisaWalkUp:
  .db %00010000        ;Left arm forward , no xy
-  SpriteItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$2, %000
  .db 0
  .db %00111111        ;Left arm back    , all 1px up
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,-$2, %000
-  SpriteItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,-$2, %000
+  SpriteAnimItem -1,+0,+$0, %000
  .db %00100000        ;Right arm forward, no xy
-  SpriteItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$2, %000
  .db 0
  .db $FF    ;(Implied) Right arm back   , all 1px down
+
 
 HatLeft:
   SpriteHeader 4,$00,0
@@ -119,15 +147,16 @@ HatWalkUp:
 IdleAnim:
 .DB $FF
 
+
 AliceLeft:
   SpriteHeader 3,$10,0
-  SpriteItem +0,-3, $7, %010    ;Leg
+  SpriteItem +0,-3, $9, %010    ;Leg
   SpriteItem -8,+0,-$1, %010    ;Shoulder
   SpriteItem -3,+0,-$5, %010    ;Head
  .dw AliceWalkLeft
 AliceDown:
   SpriteHeader 6,$08,0
-  SpriteItem +0,+0, $9, %000    ;Leg right
+  SpriteItem +0,+0, $B, %000    ;Leg right
   SpriteItem +0,-8, $8, %000    ;Leg left
   SpriteItem -8,+8, $5, %000    ;Shoulder right
   SpriteItem +0,-8, $4, %000    ;Shoulder left
@@ -136,7 +165,7 @@ AliceDown:
  .dw AliceWalkDown
 AliceRight:
   SpriteHeader 3,$10,0
-  SpriteItem +0,-3, $7, %000    ;Leg
+  SpriteItem +0,-3, $9, %000    ;Leg
   SpriteItem -8,+0,-$1, %000    ;Shoulder
   SpriteItem -3,+0,-$5, %000    ;Head
  .dw AliceWalkRight
@@ -154,14 +183,14 @@ AliceWalkLeft:
 AliceWalkRight:
 ;Arm back
  .db %00000100
-  SpriteItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$1, %000
  .db 0
 ;Arm center
  .db %00000100
-  SpriteItem +0,+0,-$2, %000
+  SpriteAnimItem +0,+0,-$1, %000
 ;Arm forward
  .db %00000100
-  SpriteItem +0,+0,+$2, %010
+  SpriteAnimItem +0,+0,+$1, 1
  .db 0
 ;(Implied) Arm center
  .db $FF
@@ -169,20 +198,21 @@ AliceWalkUp:
 AliceWalkDown:
 ;Left arm up, Right foot up
  .db %00110000
-  SpriteItem +0,+0,+$2, %000
-  SpriteItem +0,+0,+$4, %000
+  SpriteAnimItem +0,+0,+$1, %000
+  SpriteAnimItem +0,+0,+$2, %000
  .db 0
 ;Left arm down, Right foot down
  .db %00110000
-  SpriteItem +0,+0,-$2, %000
-  SpriteItem +0,+0,-$4, %000
+  SpriteAnimItem +0,+0,-$1, %000
+  SpriteAnimItem +0,+0,-$2, %000
 ;Left foot up, Right arm up
  .db %00110000
-  SpriteItem +0,+0,+$4, %000
-  SpriteItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$1, %000
  .db 0
 ;(Implied) Left foot down, Right arm down
  .db $FF
+
 
 ReimuLeft:
   SpriteHeader 4,$20,0
@@ -217,17 +247,17 @@ ReimuWalkLeft:
 ReimuWalkRight:
 ;Head down 1px, arm forward
  .db %00001100
-  SpriteItem -1,+0,+$1, %000
-  SpriteItem -1,+0,+$3, %000
+  SpriteAnimItem -1,+0,+$1, %000
+  SpriteAnimItem -1,+0,+$3, %000
  .db 0
 ;Head up 1px, arm center
  .db %00001100
-  SpriteItem +1,+0,-$1, %000
-  SpriteItem +1,+0,-$3, %000
+  SpriteAnimItem +1,+0,-$1, %000
+  SpriteAnimItem +1,+0,-$3, %000
 ;Head down 1px, arm back
  .db %00001100
-  SpriteItem -1,+0,+$3, %000
-  SpriteItem -1,+0,+$2, %000
+  SpriteAnimItem -1,+0,+$3, %000
+  SpriteAnimItem -1,+0,+$2, %000
  .db 0
 ;(Implied) Head up 1px, arm center
  .db $FF
@@ -236,19 +266,20 @@ ReimuWalkUp:
  .db 0
 ;Left arm forward, right arm back
  .db %00001100
-  SpriteItem +0,+0,+$2, %000
-  SpriteItem +0,+0,+$1, %000
+  SpriteAnimItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$1, %000
 ;Center arms
  .db %00001100
-  SpriteItem +0,+0,-$2, %000
-  SpriteItem +0,+0,-$1, %000
+  SpriteAnimItem +0,+0,-$2, %000
+  SpriteAnimItem +0,+0,-$1, %000
  .db 0
 ;Left arm back, right arm forward
  .db %00001100
-  SpriteItem +0,+0,+$1, %000
-  SpriteItem +0,+0,+$2, %000
+  SpriteAnimItem +0,+0,+$1, %000
+  SpriteAnimItem +0,+0,+$2, %000
 ;(Implied) Center arms
  .db $FF
+
 
 NarumiLeft:
   SpriteHeader 4,$30,0
@@ -286,12 +317,13 @@ NarumiWalkRight:
 NarumiWalkUp:
  .db 0,0,0
  .db %00001111
-  SpriteItem +1,+0,+$0, %000
-  SpriteItem +1,+0,+$0, %000
-  SpriteItem +1,+0,+$0, %000
-  SpriteItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$0, %000
+  SpriteAnimItem +1,+0,+$0, %000
  .db 0,0,0
  .db $FF
+
 
 ;Use zombie fairy as starter, other fairies made by adding
 FairyLeft:
@@ -330,55 +362,55 @@ FairyUp:
 FairyWalkLeft:
 ;Wings in
  .db %00001100
-  SpriteItem +1,-1,+$0, %000
-  SpriteItem -1,-1,+$0, %000
+  SpriteAnimItem +1,-1,+$0, %000
+  SpriteAnimItem -1,-1,+$0, %000
 ;Up
  .db %00000111
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
 ;Wings out
  .db %00001100
-  SpriteItem +0,+1,+$0, %000
-  SpriteItem +0,+1,+$0, %000
+  SpriteAnimItem +0,+1,+$0, %000
+  SpriteAnimItem +0,+1,+$0, %000
 ;(Implied) Down
  .db $FF
 FairyWalkRight:
 ;Wings in
  .db %00000011
-  SpriteItem +1,+1,+$0, %000
-  SpriteItem -1,+1,+$0, %000
+  SpriteAnimItem +1,+1,+$0, %000
+  SpriteAnimItem -1,+1,+$0, %000
 ;Up
  .db %00001101
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
 ;Wings out
  .db %00000011
-  SpriteItem +0,-1,+$0, %000
-  SpriteItem +0,-1,+$0, %000
+  SpriteAnimItem +0,-1,+$0, %000
+  SpriteAnimItem +0,-1,+$0, %000
 ;(Implied) Down
  .db $FF
 FairyWalkDown:
 FairyWalkUp:
 ;Wings in
  .db %00101101
-  SpriteItem +1,-1,+$0, %000
-  SpriteItem +1,+1,+$0, %000
-  SpriteItem -1,+1,+$0, %000
-  SpriteItem -1,-1,+$0, %000
+  SpriteAnimItem +1,-1,+$0, %000
+  SpriteAnimItem +1,+1,+$0, %000
+  SpriteAnimItem -1,+1,+$0, %000
+  SpriteAnimItem -1,-1,+$0, %000
 ;Up
  .db %00010111
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
-  SpriteItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
+  SpriteAnimItem -1,+0,+$0, %000
 ;Wings out
  .db %00101101
-  SpriteItem +0,+1,+$0, %000
-  SpriteItem +0,-1,+$0, %000
-  SpriteItem +0,-1,+$0, %000
-  SpriteItem +0,+1,+$0, %000
+  SpriteAnimItem +0,+1,+$0, %000
+  SpriteAnimItem +0,-1,+$0, %000
+  SpriteAnimItem +0,-1,+$0, %000
+  SpriteAnimItem +0,+1,+$0, %000
 ;(Implied) Down
  .db $FF
 

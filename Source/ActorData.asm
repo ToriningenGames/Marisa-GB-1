@@ -29,13 +29,13 @@
 ; | ++++++--- Set if sprite changes this frame
 ; +--- End of animation
 ;For each sprite set (lo to hi)
-;%YYYYXXXX YXCOOOOO
-; |||||||| |||+++++--- Tile change (signed)
-; |||||||| ||+--- Palette choice toggle
-; |||||||| |+--- X mirror toggle
-; |||||||| +--- Y mirror toggle
-; ||||++++--- X movement (signed)
-; ++++--- Y movement (signed)
+;%YyXxMTTT
+; |||||+++--- Tile change (signed)
+; ||||+--- flip mirror horizontally
+; |||+--- move left
+; ||+--- move right
+; |+--- move up
+; +--- move down
 
 ;Attribute bit reminder:
     ;%PYXC0000
