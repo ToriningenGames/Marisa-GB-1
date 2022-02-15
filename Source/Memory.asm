@@ -1,5 +1,5 @@
 ;Memory management
-    ;Fixed block of 32 bytes each
+    ;Fixed block of 32 bytes each, adjustable at assembly time
     ;Free all allocated blocks
     ;Do not free nonallocated blocks, unless you want them part of the pool!
 
@@ -8,7 +8,7 @@
 .DEFINE RingStart $C0FB
 .DEFINE MemStart $D600
 .DEFINE MemEnd $E000
-.DEFINE BlockSize 32
+.DEFINE BlockSize 64
 
 .SECTION "MemAlloc" FREE
 MemInitTask:
