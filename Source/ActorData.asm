@@ -70,7 +70,7 @@
     ;+$00, size 2: Sprite pointer (to shadow OAM)
     ;+$02, size 2: Master X
     ;+$04, size 2: Master Y
-    ;+$06, size 2: Subsprite relational data (to RAM)
+    ;+$06, size 2: ?
     ;+$08, size 2: current animation pointer (to ROM)
     ;+$0A, size 1: current animation wait
     ;+$0B, size 1: current animation ID
@@ -88,6 +88,7 @@
     ;+$1D, size 1: Control state
     ;+$1E, size 1: New animation ID
     ;+$1F, size 1: Hat value
+    ;+$20, size 32: Animation Relation Data
 ;Marisa
     ;+$12, size 1: current button state
 ;Hat
@@ -151,7 +152,6 @@
 .DEFINE _SprPtr $00
 .DEFINE _MasterX $02
 .DEFINE _MasterY $04
-.DEFINE _RelData $06
 .DEFINE _AnimPtr $08
 .DEFINE _AnimWait $0A
 .DEFINE _AnimID $0B
@@ -169,6 +169,7 @@
 .DEFINE _ControlState $1D
 .DEFINE _AnimChange $1E
 .DEFINE _HatVal $1F
+.DEFINE _RelData $20
 
 ;Marisa
 .DEFINE _ButtonState $12

@@ -66,25 +66,6 @@ Actor_FrameInit:
       LDI (HL),A
       DEC C
       JR nz,-
-    ;Set up Actor Draw
-    ;DE=Actor Data
-      LD B,D    ;Save to BC due to next alloc
-      LD C,E
-      INC DE    ;Set up inital OAM dummy pointer
-      LD A,1
-      LD (DE),A
-      LD HL,_SprCount
-      ADD HL,BC
-      LD (HL),0
-    ;Allocate relational data memory
-      CALL MemAlloc ;Subsprite
-      LD HL,_RelData
-      ADD HL,BC
-      LD (HL),E
-      INC HL
-      LD (HL),D
-      LD D,B
-      LD E,C
       ;Set up control values
       LD HL,_ControlState
       ADD HL,DE
@@ -317,49 +298,21 @@ Actor_Delete:
 ;DE-> Actor data
 ;Does not return
   CALL Actor_Hide
-  LD HL,_RelData
-  ADD HL,DE
-  LDI A,(HL)
-  LD B,(HL)
-  LD C,A
   LD HL,_AnimPtrList
   ADD HL,DE
   LDI A,(HL)
   LD H,(HL)
   LD L,A
   PUSH HL
-    CALL MemFree        ;Free Sprite Relative Data
-    LD D,B
-    LD E,C
     CALL MemFree        ;Free Actor Data
   POP HL
   LD A,$80      ;Test for RAM animations
   CP H
   JP nc,EndTask
-  ;Free the eight pointers in the RAM anim area
-  LD C,8
-  LD A,L
-  ADD 16
-  LD L,A
-  JR nc,+
-  INC H
-+
--
-  DEC HL
-  LDD A,(HL)
-  LD E,(HL)
-  CP $80
-  JR c,+        ;Don't free if it's a ROM pointer
-  LD D,A
-  PUSH HL
-    CALL MemFree
-  POP HL
-+
-  DEC C
-  JR nz,-
+  ;Free the animations stored in RAM
   LD D,H
   LD E,L
-  CALL MemFree  ;Free the RAM anim area
+  CALL MemFree
   JP EndTask
 
 Actor_Animate:
@@ -387,9 +340,8 @@ Actor_Animate:
 ;End of animation; go back to start
   JR Actor_LoadAnim
 +   ;Real animation; go animate!
-  LDD A,(HL)    ;Rel data
-  LD L,(HL)
-  LD H,A
+  LD HL,_RelData
+  ADD HL,DE
   LD A,(BC)     ;Sprite change bitfield
   INC BC
 ;Move each sprite
@@ -482,9 +434,6 @@ Actor_LoadAnim:
 ;Load initial data into anim ram
   LD HL,_RelData
   ADD HL,DE
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
   LD A,(BC)
   INC BC
   PUSH DE
@@ -612,43 +561,39 @@ Actor_Draw:
       INC HL
       LDI A,(HL)    ;_MasterY hi
       LD C,A
-      LDI A,(HL)    ;_RelData
-      LD H,(HL)
-      LD L,A
-      PUSH HL
-        CALL ObjOffset
-        JR nc,+
-        ;Object not visible
-        LD HL,_Visible
-        ADD HL,DE
-        LD A,(HL) ;Test and reset bit 0
-        RRCA
-        SCF
-        CCF
-        RLA
-        LD (HL),A
-        CALL c,Actor_Hide
-      POP HL
+      CALL ObjOffset
+      JR nc,+
+      ;Object not visible
+      LD HL,_Visible
+      ADD HL,DE
+      LD A,(HL) ;Test and reset bit 0
+      RRCA
+      SCF
+      CCF
+      RLA
+      LD (HL),A
+      CALL c,Actor_Hide
     POP BC
   POP AF
   RET
 +
 ;Object visible
-  LD HL,_Visible
-  ADD HL,DE
-  LD A,(HL) ;Test and set bit 0
-  RRCA
-  SCF
-  RLA
-  LD (HL),A
-  PUSH BC
-  PUSH AF
-  CALL nc,Actor_Show
-  POP AF
-  POP DE
-  POP HL
-  POP BC
-  JR c,+
+      LD HL,_Visible
+      ADD HL,DE
+      LD A,(HL) ;Test and set bit 0
+      RRCA
+      SCF
+      RLA
+      LD (HL),A
+      PUSH BC
+        PUSH AF
+          CALL nc,Actor_Show
+          LD HL,_RelData
+          ADD HL,DE
+        POP AF
+      POP DE
+    POP BC
+    JR c,+
   POP AF
   RET       ;Don't draw this frame
 ;BC->OAM shadow
@@ -837,9 +782,6 @@ Actor_HighPriority:
   LD B,(HL)
   LD HL,_RelData
   ADD HL,DE
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
 -
   INC HL
   INC HL
@@ -860,11 +802,8 @@ Actor_LowPriority:
   LD B,(HL)
   LD HL,_RelData
   ADD HL,DE
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
-  INC HL
 -
+  INC HL
   INC HL
   INC HL
   LD A,$FE
@@ -883,11 +822,8 @@ Actor_NormalPriority:
   LD B,(HL)
   LD HL,_RelData
   ADD HL,DE
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
-  INC HL
 -
+  INC HL
   INC HL
   INC HL
   LD A,$7E
