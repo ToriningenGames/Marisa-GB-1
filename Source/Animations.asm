@@ -325,14 +325,14 @@ NarumiWalkUp:
  .db $FF
 
 
-;Use zombie fairy as starter, other fairies made by adding
-FairyLeft:
-  SpriteHeader 4,$50,0
-  SpriteItem +0,+4, $4, %010    ;Lower wing
-  SpriteItem -8,+0, $7, %010    ;Upper wing
-  SpriteItem +8,-8, $1, %000    ;Body
-  SpriteItem -8,+0,-$2, %000    ;Head
- .dw FairyWalkLeft
+;Use zombie fairy as starter, other fairies made by adding to tile no.
+;Order of starting anims is important!
+
+FairyAnimations:
+ .dw FairyLeft -CADDR
+ .dw FairyDown -CADDR
+ .dw FairyRight-CADDR
+ .dw FairyUp   -CADDR
 FairyDown:
   SpriteHeader 6,$58,0
   SpriteItem +0,+5,-$4, %010    ;Lower right wing
@@ -342,13 +342,6 @@ FairyDown:
   SpriteItem +0,+8, $2, %000    ;Head
   SpriteItem +0,+8,-$1, %010    ;Upper right wing
  .dw FairyWalkDown
-FairyRight:
-  SpriteHeader 4,$50,0
-  SpriteItem +0,-4, $1, %010    ;Body
-  SpriteItem -8,+0,-$2, %010    ;Head
-  SpriteItem +8,-8, $4, %000    ;Lower wing
-  SpriteItem -8,+0, $7, %000    ;Upper wing
- .dw FairyWalkRight
 FairyUp:
   SpriteHeader 6,$58,0
   SpriteItem +0,+5,-$4, %010    ;Lower right wing
@@ -358,6 +351,23 @@ FairyUp:
   SpriteItem +0,+8, $8, %000    ;Head
   SpriteItem +0,+8,-$1, %010    ;Upper right wing
  .dw FairyWalkUp
+FairyLeft:
+  SpriteHeader 4,$50,0
+  SpriteItem +0,+4, $4, %010    ;Lower wing
+  SpriteItem -8,+0, $7, %010    ;Upper wing
+  SpriteItem +8,-8, $1, %000    ;Body
+  SpriteItem -8,+0,-$2, %000    ;Head
+ .dw FairyWalkLeft
+FairyRight:
+  SpriteHeader 4,$50,0
+  SpriteItem +0,-4, $1, %010    ;Body
+  SpriteItem -8,+0,-$2, %010    ;Head
+  SpriteItem +8,-8, $4, %000    ;Lower wing
+  SpriteItem -8,+0, $7, %000    ;Upper wing
+ .dw FairyWalkRight
+
+.DEFINE FairyAnimSize 2*4+2*4*4+2*2*2+2*4+4
+.EXPORT FairyAnimSize
 
 FairyWalkLeft:
 ;Wings in

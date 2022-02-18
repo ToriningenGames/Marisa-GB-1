@@ -46,14 +46,6 @@
     ; |+--------- Y mirror
     ; +---------- Hide behind BKG
 
-.MACRO Animate ARGS sprite, attr, val
- .db ((val & $07) << 5) | ((sprite & $07) << 2) | (attr & $03)
-.ENDM
-.DEFINE AnimY 0
-.DEFINE AnimX 1
-.DEFINE AnimTile 2
-.DEFINE AnimAttr 3
-
 ;Hitbox data format:
 ;All actor hitboxes are squares
     ;1 byte: hitbox count
@@ -118,10 +110,6 @@
 ;5:   Walk Down
 ;6:   Walk Right
 ;7:   Walk Up
-;8:   Idle Left
-;9:   Idle Down
-;10:  Idle Right
-;11:  Idle Up
 ;255: No anim change
 
 ;Hat values:
@@ -152,6 +140,7 @@
 .DEFINE _SprPtr $00
 .DEFINE _MasterX $02
 .DEFINE _MasterY $04
+;.DEFINE _ $06
 .DEFINE _AnimPtr $08
 .DEFINE _AnimWait $0A
 .DEFINE _AnimID $0B

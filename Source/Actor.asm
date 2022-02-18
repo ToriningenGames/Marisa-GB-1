@@ -35,7 +35,6 @@
 ;Given a pointer to an actor specification, sets up and runs said actor
 ;A-> Actor specific setting
 ;DE->Actor specification data
-        ;1 byte:  Anim speed
         ;2 bytes: Move speed (8.8)
         ;2 bytes: Hitboxes
         ;2 bytes: AI movement function
@@ -92,9 +91,9 @@ Actor_FrameInit:
     INC BC
     LDI (HL),A
     LD (HL),0     ;Initially invisible
-    LD HL,_Settings
-    ADD HL,DE
   POP AF
+  LD HL,_Settings
+  ADD HL,DE
   LDI (HL),A    ;Actor setting
   LD A,(BC)     ;AI movement lo
   INC BC
@@ -113,6 +112,17 @@ Actor_FrameInit:
   LDI (HL),A
   LD A,(BC)     ;Anim list hi
   LDI (HL),A
+  BIT 7,B
+  JR z,+
+  ;Free RAM based actor data
+  PUSH DE
+    LD HL,-9
+    ADD HL,BC
+    LD D,H
+    LD E,L
+    CALL MemFree
+  POP DE
++
   ;Animation values
   LD HL,_AnimChange
   ADD HL,DE

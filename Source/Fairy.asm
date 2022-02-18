@@ -14,24 +14,12 @@
 
 .SECTION "Fairy" FREE
 
-;Animation:
-    ;Take the upper wings, and move them down one tile
-    ;Take the lower wings, and move them up one tile
-    ;Wait
-    ;Take the upper wings, and move them up one tile
-    ;Take the lower wings, and move them down one tile
-    ;Wait
-    ;Repeat
-    
-    ;Head bob optional
-    ;Move the wings inwards too?
 
 ;Fairy Types:
     ;%AAHHBBWW
     ;       ++--- Wing type
     ;     ++----- Body type
     ;   ++------- Hair type
-    ; ++--------- AI type
   ;Values:
     ;0: Zombie part
     ;1: Prim part
@@ -51,23 +39,120 @@ FairyActorData:
  .dw FairyHitboxes
  .dw FairyFrame
  .dw _HatValues
- .dw _Animations
+ .dw FairyAnimations
 
 FairyConstructor:
 ;Takes in the Fairy Designator byte and provides the correct animation data in RAM
 ;Then, it makes an instance of the fairy, which knows to free it when done
 ;Of course, it provides the values from creating a fairy back to the caller.
-  RET
+  PUSH AF
+    CALL MemAlloc     ;Animations
+    PUSH DE
+      LD HL,FairyAnimations
+      LD C,FairyAnimSize
+      RST $08
+      ;Correct for fairy type
+    POP HL
+  POP AF
+  PUSH HL
+    LD D,A
+    ;Correct pointers
+    LD C,4
+-
+    LD A,L
+    ADD (HL)
+    LDI (HL),A
+    LD A,H      ;This relies on all alloc'd addresses being even
+    ADC (HL)
+    LDI (HL),A
+    DEC C
+    JR nz,-
+    ;Correct tiles
+    LD A,$03
+    AND D       ;Wing
+    LD E,A
+    LD A,$0C
+    AND D       ;Body
+    RRCA
+    RRCA
+    LD C,A
+    LD A,$30
+    AND D       ;Hair
+    SWAP A
+    ;right
+    LD D,E
+    PUSH DE     ;Wing, Wing
+    LD B,A
+    PUSH BC     ;Hair, Body
+    LD A,2
+    PUSH AF     ;Count
+    ;left
+    PUSH BC     ;Hair, Body
+    PUSH DE     ;Wing, Wing
+    PUSH AF     ;Count
+    ;up
+    LD E,B
+    PUSH DE     ;Wing, Hair
+    LD E,D
+    PUSH DE     ;Wing, Wing
+    LD D,C
+    PUSH DE     ;Body, Wing
+    LD A,3
+    PUSH AF     ;Count
+    ;down
+    LD D,E
+    LD E,B
+    PUSH DE     ;Wing, Hair
+    LD E,D
+    PUSH DE     ;Wing, Wing
+    LD D,C
+    PUSH DE     ;Body, Wing
+    PUSH AF     ;Count
+    ;Execute changes
+    LD B,4
+--
+    POP AF      ;Count
+    LD C,A
+    INC HL      ;Skip header
+-
+    POP DE
+    INC HL
+    LD A,(HL)
+    ADD E
+    AND %11011111   ;Do not affect palette
+    LDI (HL),A
+    INC HL
+    LD A,(HL)
+    ADD D
+    AND %11011111   ;Do not affect palette
+    LDI (HL),A
+    DEC C
+    JR nz,-
+    INC HL      ;Skip tail
+    INC HL
+    DEC B
+    JR nz,--
+    CALL MemAlloc     ;Actor header
+    PUSH DE
+      LD HL,FairyActorData
+      LD C,8
+      RST $08
+      LD H,D
+      LD L,E
+    POP DE
+  POP BC
+  LD (HL),C
+  INC HL
+  LD (HL),B
+  LD BC,Actor_FrameInit
+  JP NewTask
 
 FairyFrame:
   XOR A
   RET
 
-_Animations:
- .dw FairyLeft
- .dw FairyDown
- .dw FairyRight
- .dw FairyUp
+;This is in Animations.asm, adjacent to the animations proper
+;_Animations:
 
 _HatValues:
  .db 2
