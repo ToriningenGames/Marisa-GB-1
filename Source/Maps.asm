@@ -59,7 +59,7 @@ MapForestBKG04:
 .db $00,$40,$00
 
 MapForestN23:
-.db 1           ;background type
+.db $00|$1              ;fairy count, background type
 .dw MapForestN23map
 .dw MapForestN23obj
 .db   0 +8,   0 +16     ;right side start
@@ -68,7 +68,7 @@ MapForestN23:
 .db  56 +8, 127 +16     ;down side start
 .dw Cs_NarumiFightStart
 MapForestN13:
-.db 0
+.db $00|$0
 .dw MapForestN13map
 .dw MapForestN13obj
 .db   0 +8,   0 +16     ;-25 on X
@@ -77,7 +77,7 @@ MapForestN13:
 .db  48 +8,  71 +16     ;-25 on Y
 .dw Cs_StraightTransition
 MapForest00:
-.db 2
+.db $00|$2
 .dw MapForest00map
 .dw MapForest00obj
 .db 135 +8, 114 +16
@@ -86,7 +86,7 @@ MapForest00:
 .db 116 +8, 119 +16
 .dw Cs_Forest00
 MapForest01:
-.db 3
+.db $00|$3
 .dw MapForest01map
 .dw MapForest01obj
 .db 199 +8, 108 +16
@@ -95,7 +95,7 @@ MapForest01:
 .db 137 +8, 147 +16
 .dw Cs_Forest01
 MapForest02:
-.db 0
+.db $00|$0
 .dw MapForest02map
 .dw MapForest02obj
 .db   0 +8,   0 +16
@@ -104,7 +104,7 @@ MapForest02:
 .db  64 +8, -14 +16
 .dw Cs_EndingAC
 MapForest03:
-.db 0
+.db $00|$0
 .dw MapForest03map
 .dw MapForest03obj
 .db 209 +8, 116 +16
@@ -113,7 +113,7 @@ MapForest03:
 .db 131 +8, 209 +16
 .dw Cs_StraightTransition
 MapForest04:
-.db 3
+.db $00|$3
 .dw MapForest04map
 .dw MapForest04obj
 .db   0 +8,   0 +16
@@ -122,7 +122,7 @@ MapForest04:
 .db  64 +8, 153 +16
 .dw Cs_Forest04
 MapForest10:
-.db 1
+.db $00|$1
 .dw MapForest10map
 .dw MapForest10obj
 .db   0 +8,   0 +16
@@ -131,7 +131,7 @@ MapForest10:
 .db  40 +8, 129 +16
 .dw Cs_StraightTransition
 MapForest11:
-.db 1
+.db $00|$1
 .dw MapForest11map
 .dw MapForest11obj
 .db 145 +8, 114 +16
@@ -140,7 +140,7 @@ MapForest11:
 .db 125 +8, 193 +16
 .dw Cs_Forest11
 MapForest12:
-.db 1
+.db $00|$1
 .dw MapForest12map
 .dw MapForest12obj
 .db 225 +8,  68 +16
@@ -149,7 +149,7 @@ MapForest12:
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest13:
-.db 0
+.db $30|$0
 .dw MapForest13map
 .dw MapForest13obj
 .db 225 +8,  99 +16
@@ -158,7 +158,7 @@ MapForest13:
 .db 126 +8, 225 +16
 .dw Cs_StraightTransition
 MapForest14:
-.db 2
+.db $00|$2
 .dw MapForest14map
 .dw MapForest14obj
 .db   0 +8,   0 +16
@@ -167,7 +167,7 @@ MapForest14:
 .db  69 +8, 137 +16
 .dw Cs_StraightTransition
 MapForest20:
-.db 1
+.db $00|$1
 .dw MapForest20map
 .dw MapForest20obj
 .db   0 +8,   0 +16
@@ -176,7 +176,7 @@ MapForest20:
 .db  40 +8, 129 +16
 .dw Cs_StraightTransition
 MapForest21:
-.db 0
+.db $00|$0
 .dw MapForest21map
 .dw MapForest21obj
 .db 145 +8,  29 +16
@@ -185,7 +185,7 @@ MapForest21:
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest22:
-.db 0
+.db $00|$0
 .dw MapForest22map
 .dw MapForest22obj
 .db 177 +8, 116 +16
@@ -194,7 +194,7 @@ MapForest22:
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest23:
-.db 2
+.db $00|$2
 .dw MapForest23map
 .dw MapForest23obj
 .db   0 +8,   0 +16
@@ -203,7 +203,7 @@ MapForest23:
 .db 100 +8, 129 +16
 .dw Cs_StraightTransition
 MapForest24:
-.db 2
+.db $00|$2
 .dw MapForest24map
 .dw MapForest24obj
 .db   0 +8,   0 +16
@@ -212,7 +212,7 @@ MapForest24:
 .db   0 +8,   0 +16
 .dw Cs_Forest24
 MapForest30:
-.db 1
+.db $00|$1
 .dw MapForest30map
 .dw MapForest30obj
 .db   0 +8,   0 +16
@@ -221,7 +221,7 @@ MapForest30:
 .db  70 +8, 129 +16
 .dw Cs_Forest30
 MapForest31:
-.db 0
+.db $00|$0
 .dw MapForest31map
 .dw MapForest31obj
 .db 145 +8,  49 +16
@@ -230,7 +230,7 @@ MapForest31:
 .db   0 +8,   0 +16
 .dw Cs_Forest31
 MapForest32:
-.db 1
+.db $00|$1
 .dw MapForest32map
 .dw MapForest32obj
 .db 145 +8,  72 +16
@@ -239,7 +239,7 @@ MapForest32:
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest33:
-.db 0
+.db $00|$0
 .dw MapForest33map
 .dw MapForest33obj
 .db 145 +8,  63 +16
@@ -248,7 +248,7 @@ MapForest33:
 .db 135 +8, 193 +16
 .dw Cs_StraightTransition
 MapForest34:
-.db 0
+.db $00|$0
 .dw MapForest34map
 .dw MapForest34obj
 .db   0 +8,   0 +16
@@ -256,6 +256,10 @@ MapForest34:
 .db  15 +8,  65 +16
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
+
+.ENDS
+
+.SECTION "Map Data" FREE
 
 MapForestN23map:
 .incbin "rsc/Forest_(-2~3).gbm"
@@ -358,6 +362,7 @@ MapForest13obj:
 .dw MapForest23     ;down
 .dw 0               ;right
 .dw MapForest03     ;up
+.dw $3030,$3040,$3050 ;Fairies
 MapForest14obj:
 .dw MapForest13     ;left
 .dw MapForest24     ;down

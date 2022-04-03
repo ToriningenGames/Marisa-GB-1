@@ -21,7 +21,8 @@
         ; |++++--- Constant
         ; +--- Wait time posted after
     ;Make fairies
-        ;%W1001CCC
+        ;%W1001CCC LLLLLLLL LLLLLLLL
+        ; |||||||| ++++++++-++++++++--- Location list
         ; |||||+++--- Count
         ; |++++--- Constant
         ; +--- Wait time posted after
@@ -359,14 +360,7 @@ ChangeControl:
   ADD <Cutscene_Actors
   LD L,A
   LD H,>Cutscene_Actors
-  ;Are we deleting?
-  LD A,B
-  INC A
   LD A,(HL)
-  JR nz,+
-  ;Delete actor
-  LD (HL),0
-+
   OR A      ;Check for empty actor
   RET z
   CALL Access_ActorDE
@@ -499,10 +493,55 @@ VarQuick:
   RET
 
 CreateFairy:
-  ;Get a random number
-  ;Make that fairy
-  ;Put it at a random spot (~0 away from the player)
-  RET
+  ;Get the fairy count
+  LD A,%00000111
+  AND C
+  JR z,+    ;No fairies; make none
+  LD B,A
+  ;Make that many fairies
+  PUSH DE
+-
+    LD A,B
+    ADD <Cutscene_Actors+1    ;Count is one-based
+    LD L,A
+    LD H,>Cutscene_Actors
+    PUSH BC
+      PUSH HL
+        CALL FairyConstructorRandom
+      POP HL
+      LD (HL),B
+    POP BC
+    DEC B
+    JR nz,-
+  POP DE
+  ;Put them at designated spots
+  POP BC    ;Return
+  RST $00   ;Initialize
+  PUSH BC
++   ;Always get the following bytes
+  CALL NextCutsceneByte
+  LD C,A
+  CALL NextCutsceneByte
+  LD B,A
+  LD HL,Cutscene_Actors+2
+-
+  LDI A,(HL)
+  OR A
+  RET z
+  PUSH HL
+    CALL Access_ActorDE
+    INC HL
+    INC HL
+    INC HL
+    LD A,(BC)
+    INC BC
+    LDI (HL),A    ;X pos
+    INC HL
+    LD A,(BC)
+    INC BC
+    LD (HL),A     ;Y pos
+  POP HL
+  JR -
 
 AssignHat:
   CALL NextCutsceneByte    ;Get Target

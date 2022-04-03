@@ -32,9 +32,6 @@ BANKS 2
 
 ;Nonstandard 32KiB memory map
 ;This is completely functional, but allows banks to cross the $4000 mark
-;Because wla-gb doesn't allow only one bank, a dummy bank of one byte is added.
-;The main Assemble file ensures this won't break the checksum
-;The makefile removes it after the ROM file is made
 
 .MEMORYMAP          ;Memory Map (For wla-gb)
 SLOTSIZE $8000
@@ -43,10 +40,8 @@ SLOT 0 $0000
 .ENDME
 
 .ROMBANKMAP         ;ROM Bank Map (no mapping)
-BANKSTOTAL 2
+BANKSTOTAL 1
 BANKSIZE $8000
-BANKS 1
-BANKSIZE $1
 BANKS 1
 .ENDRO
 

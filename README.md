@@ -105,7 +105,7 @@ Inside game:
 <li />[x] Script and write the last half-dozen text blobs
 <li />[x] Tie the cutscenes into the game at their intended points
 <li />[x] Rewrite Love-Colored Master Spark to be more fitting and smaller
-<li />[ ] Rewrite the fairy behavior to be more RAM based and modular
+<li />[x] Rewrite the fairy behavior to be more RAM based and modular
 <li />[ ] Reimplement danmaku
 <li />[ ] Write up patterns for the fairies
 <li />[ ] Write up patterns for Narumi

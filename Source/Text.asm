@@ -89,6 +89,7 @@
 .EXPORT TextData
 .EXPORT TextStatus
 .EXPORT TextSize
+.EXPORT TextDelay
 
 
 .SECTION TextControl BITWINDOW 8 FREE

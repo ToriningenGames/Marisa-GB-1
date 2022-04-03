@@ -16,7 +16,6 @@ QUIET = @
 GREP = findstr /v " SECTION" $(SYM)
 MV = move >NUL
 WHICH = where 2>NUL
-TRIM = fsutil file seteof bin\Assemble.gb 32768
 
 #Source files
 vpath %.asm .\Source
@@ -65,7 +64,6 @@ include $(addprefix Submakes\,$(addsuffix .d,$(OBJ)))
 
 $(OUT) : $(OBJ) $(LIB0) $(LIB1) $(LINK) | bin
 	$(WLALINK) -v -S -r $(LINK) $(OUT)
-	$(TRIM)
 #Prettify the symbol output (No section boundry labels!)
 	$(QUIET)$(GREP) > ~tempsym
 	$(QUIET)$(RM) $(SYM)

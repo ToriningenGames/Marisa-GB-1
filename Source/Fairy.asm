@@ -41,6 +41,28 @@ FairyActorData:
  .dw _HatValues
  .dw FairyAnimations
 
+_FairyVals:                                                                                           ;Padded to 16
+ .db %010100,%010101,%010110,%011000,%011001,%011010,%100100,%100101,%100110,%101000,%101001,%101010, %010101,%101010,%010101,%101010
+;Zombie fairies
+ .db %000000,%000001,%000010,%000100,%000101,%000110,%001000,%001001,%001010,%010000,%010001,%010010,%100000,%100001,%100010, %000000
+
+
+FairyConstructorRandom:
+;Creates a fairy (like below) but uses a random value
+;Avoids zombie parts when Narumi is defeated
+  RST $18
+  AND $1F
+  LD HL,$C000+18
+  BIT 0,(HL)
+  JR z,+
+  RRA   ;carry 0 from AND
++
+  ADD <_FairyVals
+  LD L,A
+  LD A,0
+  ADC >_FairyVals
+  LD H,A
+  LD A,(HL)
 FairyConstructor:
 ;Takes in the Fairy Designator byte and provides the correct animation data in RAM
 ;Then, it makes an instance of the fairy, which knows to free it when done
@@ -145,7 +167,7 @@ FairyConstructor:
   INC HL
   LD (HL),B
   LD BC,Actor_FrameInit
-  JP NewTask
+  JP NewTaskLo
 
 FairyFrame:
   XOR A

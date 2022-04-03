@@ -11,22 +11,7 @@
 ;WRAM:
 ;$C000 - $C07F:
     ;Cutscene User variables
-    ;Generally used short layout
-      ;0-30: Cutscene local
-        ;Use for weird parameter passing, locals, temporaries, what have you
-      ;32: Current map data pointer
-        ;Used in unusual transitions to check Marisa's origin (since one could enter the map from another angle)
-      
-      ;114: Reimu Hungry (boolean)
-      ;116: Met Reimu (boolean)
-      ;118: Beat Narumi (boolean)
-      ;120: Shroom A
-        ;0: Ground
-        ;1: Collected
-        ;2: Fed
-      ;122: Shroom B (ditto)
-      ;124: Shroom C (ditto)
-      ;126: Maintain Music between rooms (boolean)
+    ;See Cutscenes.asm
 ;$C080 - $C08F:
     ;Button data area
 ;$C090 - $C09E:
@@ -186,10 +171,6 @@
 .include "macros.asm"
 
 .IF defined(ALTMAP)
-;Fill in the dummy bank with a value that won't break the checksum
-.BANK 1 SLOT 0
-.ORG 0
-.db 0
 
 .BANK 0 SLOT 0
 .ORG $7FF8
@@ -589,6 +570,9 @@ GraphicsInit:
 ;Clear FaceState
   XOR A
   LD (FaceState),A
+;Run next command ASAP
+  INC A
+  LD (TextDelay),A
 ;Put window in right spot
   LD HL,WinHortScroll
   LD (HL),7

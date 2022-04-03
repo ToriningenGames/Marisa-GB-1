@@ -732,10 +732,14 @@ Actor_Move:
 
 ;Remove from sprite viewing order
 Actor_Hide:
+;Is it already hidden?
+  LD A,$05
 ;Null the object pointer
   LD HL,_SprPtr+1
   ADD HL,DE
-  LD (HL),$05
+  CP (HL)
+  RET z
+  LD (HL),A
 ;Find this actor in viewing order
   LD HL,ActiveActorArray
 -

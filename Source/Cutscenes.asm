@@ -77,7 +77,7 @@
   .dw jumpTable
 .ENDM
 
-.MACRO CreateFairies ARGS count, wait
+.MACRO CreateFairies ARGS count, locs, wait
  .IF count > %00000111
   .FAIL "Too many fairies"
  .ENDIF
@@ -86,6 +86,7 @@
  .ELSE
   .db %01001000 | count
  .ENDIF
+ .dw locs
 .ENDM
 
 .MACRO SetVar ARGS var, value, wait
@@ -514,6 +515,8 @@
 .DEFINE varShroomB          20
 .DEFINE varShroomC          21
 .DEFINE varKeepMusic        22
+
+.DEFINE varFairyCount       27
 .DEFINE varOldMap           32
 
 
@@ -554,7 +557,7 @@ Cs_MapFadein:
     ;Control
 Cs_StraightTransition:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   JumpRelNZ varKeepMusic,5
   PlaySong SongSpark        ;Change music
   SetVar varKeepMusic,1
@@ -563,7 +566,7 @@ Cs_StraightTransition:
 ;Some of the non straight transitions
 Cs_Forest31:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   ;Check for exit from map 04
   CompareVar16 varOldMap,MapForest04map
   JumpRelNZ varAns,2     ;Always transition
@@ -575,7 +578,7 @@ Cs_Forest31:
 ;Not a shroom room, but shares with one temporally
 Cs_Forest01:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   JumpRelNZ varShroomB,6
   CreateActor 2,ChMushroom,177,65
   AnimateActor 2,AnimFaceRight
@@ -590,7 +593,7 @@ Cs_Forest01:
 ;Shroom room
 Cs_Forest30:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   JumpRelNZ varShroomA,6
   CreateActor 2,ChMushroom,30,121
   AnimateActor 2,AnimFaceDown
@@ -599,7 +602,7 @@ Cs_Forest30:
 ;Shroom room
 Cs_Forest04:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   JumpRelNZ varShroomB,6
   CreateActor 2,ChMushroom,177,65
   AnimateActor 2,AnimFaceRight
@@ -608,7 +611,7 @@ Cs_Forest04:
 ;Shroom room
 Cs_Forest11:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   ;There's a shroom in the room
   JumpRelNZ varShroomC,6
   CreateActor 2,ChMushroom,80,78
@@ -622,7 +625,7 @@ Cs_Forest11:
 ;Reimu room
 Cs_Forest00:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   JumpRelNZ varReimuFull,8
   CreateActor 2,ChReimu,112,106
   AnimateActor 2,AnimFaceDown
@@ -636,7 +639,7 @@ Cs_Forest00:
 ;Alice room
 Cs_Forest24:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   CreateActor 2,ChAlice,$55,$42
   AnimateActor 2,AnimFaceDown
   ChangeActorControl 2,2     ;Interactable
@@ -716,23 +719,31 @@ Cs_TransitionOut:
   MoveActorRel 1,0,0,0,50
   CallCs Cs_MapFadeout
   Break
-    ;Multiply Var 3 by 26
+    ;Multiply Var 3 (lo nibble) by 26
+    ;Hi nibble to Fairy count
     LD HL,$C003
-    LD B,(HL)
+    LD A,(HL)
+    AND $0F
+    LD B,A
     LD C,26
     CALL Multiply
+    LD A,(HL)
     LD (HL),B
     DEC L
     LD (HL),C
+    AND $70
+    SWAP A
+    LD L,varFairyCount
+    LD (HL),A
     CALL BreakRet
   UseVarAsVal 2,3   ;MapBackBase offset
   UseVarAsVal 3,2
   LoadMap MapBackBase
-  UseVarAsVal 4,3   ;Map to load
-  UseVarAsVal 5,2
+  UseVarAsVal varMapPtr,3   ;Map to load
+  UseVarAsVal varMapPtr+1,2
   LoadMap 0
-  UseVarAsVal 6,3   ;Objects to load
-  UseVarAsVal 7,2
+  UseVarAsVal varObjPtr,3   ;Objects to load
+  UseVarAsVal varObjPtr+1,2
   LoadObjects 0
   ShowMap
   Return
@@ -755,12 +766,17 @@ Cs_TransitionIn:
   UseVarAsVal 23,2    ;X/Y Plane
   UseVarAsVal 26,4    ;Inverted Distance
   MoveActorRel 1,AnimWalkRight,0,0,1, 1
+  WaitOnMap
+  ;Create the relevant number of fairies
+  UseVarAsVal varObjPtr,5
+  UseVarAsVal varObjPtr+1,4
+  UseVarAsVal varFairyCount,0
+  CreateFairies 0,8
   ;Walk in
   UseVarAsVal 23,4    ;X/Y Plane
   UseVarAsVal 24,5    ;Animation
   UseVarAsVal 25,4    ;Distance
   MoveActorRel 1,0,0,0,50, 35
-  WaitOnMap
   CallCs Cs_MapFadein
   ChangeActorControl 1,$87
   UseVarAsVal varMapPtr,2
@@ -769,12 +785,13 @@ Cs_TransitionIn:
   SetVar8 varOldMap+1,0
   Return
 
-Cs_ClearActorList:
-  SetVar 23,30
-  UseVarAsVal 23,0   ;Actor
+Cs_ResetFairies:
+  ;Clear out all extra actors
+  SetVar varAns,30
+  UseVarAsVal varAns,0   ;Actor
   DeleteActor 1
-  AddVar8 23,-1
-  JumpRelNZ 23,-10
+  AddVar8 varAns,-1
+  JumpRelNZ varAns,-10
   Return
 
 Cs_CloseDoor:
@@ -828,7 +845,7 @@ Cs_EndingAC:
 ;Ending C (Found Alice's house from the back)
 Cs_EndingC:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   PlaySong SongDoll
   SetVar varEntryDir,DirDown
   CallCs Cs_TransitionIn
@@ -860,7 +877,7 @@ Cs_EndingC:
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   PlaySong SongDoll
   CallCs Cs_TransitionIn
   CallCs Cs_OpenDoor
@@ -959,7 +976,7 @@ Cs_EndingB:
 ;Narumi Fight intro
 Cs_NarumiFightStart:
   CallCs Cs_TransitionOut
-  CallCs Cs_ClearActorList
+  CallCs Cs_ResetFairies
   PlaySong SongNull   ;No song plays if the fight is finished
   SetVar varKeepMusic,0
   CreateActor 2,ChNarumi,64,88
