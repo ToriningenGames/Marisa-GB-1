@@ -426,19 +426,19 @@ FairyWalkUp:
 
 MushroomLeft:
   SpriteHeader 1,$78,0
-  SpriteItem -7,-4, $1, %000
+  SpriteItem -7,-4, $4, %000
  .dw IdleAnim
 MushroomDown:
   SpriteHeader 1,$78,0
-  SpriteItem -7,-4, $2, %000
+  SpriteItem -7,-4, $5, %000
  .dw IdleAnim
 MushroomRight:
   SpriteHeader 1,$78,0
-  SpriteItem -7,-4, $3, %000
+  SpriteItem -7,-4, $6, %000
  .dw IdleAnim
 MushroomUp:
   SpriteHeader 1,$78,0
-  SpriteItem -2,-2, $4, %000
+  SpriteItem -2,-2, $7, %000
  .dw IdleAnim
 
 .ENDS

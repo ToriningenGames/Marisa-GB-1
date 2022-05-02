@@ -14,324 +14,194 @@
     ;A = Animation ID
     ;DE = Initial placement
 
+;Lifetime
+;Movement function
+;Hardcode 3
+;How hit detect?
+    ;Maintain distance to player, trigger when value gets too low
+    ;This requires updating from the danmaku and looking at the player delta
+;Can't use existing actor infrastructure due to the anim and collision reqs
+
 .include "ActorData.asm"
 
 .SECTION "Danmaku" FREE
 
-Danmaku_Entry:
+.DEFINE SpinSpeed 2
+
+NewDanmaku:
+;A =Type
+;DE=Source Actor
   PUSH AF
-    CALL Actor_New
-    PUSH DE
-      CALL MemAlloc   ;Set up AnimRAM
-      LD C,E
-      LD B,D
-    POP DE
-    LD HL,_AnimRAM
+  PUSH DE
+    CALL MemAlloc   ;Basic Actor
+  POP DE
+  POP AF
+  ;Type needs to provide
+    ;Movement
+    ;Visual
+    ;Anim type
+  ;Do the standard Actor fills (but no Collision boxes)
+    ;Load Anim wait (with SpinSpeed)
+    ;Empty Hitbox data
+    ;Clear Visibility value
+    ;Fill AI movement
+    ;Use sane hat val
+    ;Init anim relation data
+  ;Copy starting location from source actor THIS FRAME!
+  ;Fill in type correctly based on whether we be spinnin' or directin'
+  ;Fill _Lifetime
+;Frame
+  RST $00
+  ;Age
+  LD HL,_Lifetime
+  ADD HL,DE
+  DEC (HL)
+  JP z,Actor_Delete
+  ;Collision
+  
+  ;Do collision here
+  
+  ;Movement...
+  ;...which is updating the sprite visual block
+  ;Calculate one the hard way...
+  ;First delta
+  LD HL,_AIMovement
+  ADD HL,DE
+  PUSH DE
+    RST $30
+    LD HL,_RelData
     ADD HL,DE
-    LD (HL),C
-    INC HL
-    LD (HL),B
-    PUSH DE
-      CALL MemAlloc   ;Set up Movement Data
-      LD C,E
-      LD B,D
-    POP DE
-    LD HL,_MovementData
-    ADD HL,DE
-    LD (HL),C
-    INC HL
-    LD (HL),B
+    ;BC=Delta (X,Y)
+    LD D,H
+    LD E,L
     LD H,B
     LD L,C
-    LD C,32
-    XOR A
+    LD B,3      ;No. of danmaku
+    JR +
+    ;...and do the Minsky Circle Algorithm for the rest
+    ;More iterations is more accurate- within the bounds of fixed point precision
+    ;Subsequent delta
+    ;HL=Delta temp (X,Y)
+--
+    LD C,8    ;For more accuracy, shift more and double C
+    LD A,L
 -
-    LDI (HL),A  ;Clear out Movement Data
+    RRCA
+    RRCA
+    AND $3F
+    ADD H
+    LD H,A
+    RRCA
+    RRCA
+    AND $3F
+    CPL
+    ADC L
+    LD L,A
     DEC C
     JR nz,-
-  POP AF
-  LD C,A
-  RLCA  ;Index into patterns
-  RLCA  ;(11 bytes per entry)
-  ADD C
-  RLCA
-  ADD C
-  ADD <_Patterns
-  LD C,A
-  LD A,0
-  ADC >_Patterns
-  LD B,A
-  PUSH DE
-    LD HL,_AnimRAM
-    ADD HL,DE
-    LDI A,(HL)
-    LD H,(HL)
-    LD L,A
-    PUSH BC
-      LD A,(BC)     ;Load (BC) into BC
-      INC BC
-      LD E,A
-      LD A,(BC)
-      LD C,E
-      LD B,A
-      ;BC -> Anim Template
-      ;HL -> Anim RAM
-      ;(SP) -> Danmaku Pattern
-      ;(SP+2) -> Actor RAM
-      LD E,32
--
-      LD A,(BC)     ;Copy template to RAM
-      INC BC
-      LDI (HL),A
-      DEC E
-      JR nz,-
-    POP BC
-  POP DE
-  LD HL,_IsDirected
-  ADD HL,DE
-  INC BC
-  INC BC
-  LD A,(BC)     ;Directed value
-  LDI (HL),A
-  INC BC
-  LD A,(BC)     ;Movement Function lo
-  LDI (HL),A
-  INC BC
-  LD A,(BC)     ;Movement Function hi
-  LDI (HL),A
-  INC BC
-  LDI A,(HL)    ;Go to Movement Data area
-  LD H,(HL)
-  LD L,A
-  LD A,(BC)     ;Movement Data 0
-  LDI (HL),A
-  INC BC
-  LD A,(BC)     ;Movement Data 1
-  LDI (HL),A
-  INC BC
-  LD A,(BC)     ;Movement Data 2
-  LDI (HL),A
-  INC BC
-  LD A,(BC)     ;Movement Data 3
-  LDI (HL),A
-  INC BC
-  LD HL,_Hitbox ;TODO: Make a deep copy later
-  ADD HL,DE
-  LD A,(BC)     ;Hitbox lo
-  LDI (HL),A
-  INC BC
-  LD A,(BC)     ;Hitbox hi
-  LDI (HL),A
-  LD HL,_AnimRAM
-  ADD HL,DE
-  LDI A,(HL)    ;Ready BC with animation pointer
-  LD B,(HL)
-  LD C,A
-  ;Animation values
-  LD HL,_AnimSpeed
-  ADD HL,DE
-  LD (HL),$06
-  SCF
-  PUSH DE
-    CALL Actor_Draw
-  POP DE
-;Danmaku specific messages
-    ;x: Hits
-    ;x: Destruct
-  ;Carry correct b/c CMP against $FF
-  CALL Actor_HighPriority
-  RST $00
-  LD HL,_SprCount
-  ADD HL,DE
-  LD A,(HL)
-  INC A
-  PUSH AF
--   ;For each danmaku
-  POP AF
-  DEC A
-  JR nz,+
-  ;Bail out to draw
-  LD HL,_AnimRAM
-  ADD HL,DE
-  LDI A,(HL)    ;Load Anim pointer
-  LD B,(HL)
-  LD C,A
-  LD HL,_IsDirected
-  ADD HL,DE
-  LD A,(HL)
-  OR A  ;Unset carry
-  JP Actor_Draw
 +
-  PUSH AF
+    ;Apply delta
+    ;DE=Rel Data for this danmaku
+    LD A,L
+    ADD -4    ;Center of tile, visually
+    LD (DE),A
+    INC DE
+    LD A,H
+    ADD -4    ;Ditto
+    LD (DE),A
+    INC DE
+    ;If directed danmaku, tile/attribute is dependent on movement delta
+    ;Check for direction
+    ;Preserve BC,DE,HL
+    ;...but the value on stack is needed?
+    PUSH BC
+    PUSH HL
     PUSH DE
-      LD HL,_MovementData+1
-      ADD HL,DE
+      LD HL,SP-6
+      LDI A,(HL)
       LD D,(HL)
-      DEC HL
-      LD E,(HL)
-      DEC HL
-      LD B,(HL)
-      DEC HL
-      LD L,(HL)
-      LD H,B
-      RST $30
-    POP DE
-  ;Move sprite
-  POP AF
-  PUSH AF
-    PUSH BC
-      LD HL,_RelData    ;Go to this sprite in the RelData
+      LD E,A
+      LD HL,_IsDirected
       ADD HL,DE
+      LD A,(HL)
+      OR A
+      JR z,+
+      INC A
+      JR z,+++
       DEC A
-      RLCA
-      RLCA
-      ADD (HL)
-      LD C,A
-      INC HL
-      LD A,0
-      ADC (HL)
-      LD H,A
-      LD L,C
-    POP BC
-    LD A,(HL)
-    ADD B
-    LDI (HL),A
-    LD A,(HL)
-    ADD C
-    LD (HL),A
-    ;TODO: Move hitbox here
-    LD HL,_IsDirected
-    ADD HL,DE
-    LD A,(HL)
-    OR A  ;Zero if undirected
-    JR z,-
-    ;Determine majority direction
-      ;Right majority:        |X| > |Y|*2, 0 < X    ,     Y    
-      ;Left majority:         |X| > |Y|*2,     X < 0,     Y    
-      ;Up majority:           |X|*2 < |Y|,     X    ,     Y < 0
-      ;Down majority:         |X|*2 < |Y|,     X    , 0 < Y    
-      ;Up Right majority:     |X| < |Y|*2, 0 < X    ,     Y < 0
-      ;Up Left majority:      |X| < |Y|*2,     X < 0,     Y < 0
-      ;Down Right majority:   |X| < |Y|*2, 0 < X    , 0 < Y    
-      ;Down Left majority:    |X| < |Y|*2,     X < 0, 0 < Y    
-    LD A,B
-    OR C
-    JR z,-      ;No discernable movement, stay the same
-  POP AF
-  PUSH AF
-    LD L,A
-    PUSH BC
-      LD A,B
-      BIT 7,B   ;Place abs of each in BC
-      JR z,+
-      CPL
-      INC A
-      LD B,A
-+
-      LD A,C
-      BIT 7,C
-      JR z,+
-      CPL
-      INC A
-      LD C,A
-+
-      LD A,L
-      PUSH AF
-        LD HL,_IsDirected ;Grab tile base; update RelData
-        ADD HL,DE
-        LD A,(HL)
-      POP HL
-      PUSH AF
-        PUSH HL
-          LD HL,_RelData
-          ADD HL,DE
-          LDI A,(HL)
-          LD H,(HL)
-          LD L,A
-        POP AF
-        DEC A
-        INC HL
-        INC HL
-        RLCA
-        RLCA
-        ADD L
-        LD L,A
-        LD A,0
-        ADC H
-        LD H,A
-      POP AF
+      ;Directed. Adjust heading based on delta
+      POP HL    ;Current danmaku under consideration
+      PUSH HL
       LD (HL),A
-      LD A,B    ;Detect diagonal vs cardinal
-      SRA A
+      ;Tile. Dependent on whether movement is predominantly vert or hort, or neither
+      ;Diag if 2*H>V && 2*V>H
+      ;Also works comparing against the linear equations defining the regions
+      LD A,B
+      RRA
       CP C
-      JR nc,++
-      ;Possible diagonal
-      LD A,C
-      SRA A
-      CP B
+      JR nc,++  ;Y <= X * 0.5
+      INC (HL)  ;Diagonal or vertical
+++
+      LD B,A
+      ADD A
+      CP C
+      JR nc,++  ;X * 2 > Y
+      INC (HL)  ;Vertical
+++
+      ;Attribute. Choose correctly for the quadrant movement is in/towards
+      ;Pos Y -> no Y flip
+      ;Pos X -> no X flip
+      INC HL
+      LD A,%10011111
+      AND (HL)
+      BIT 7,B
+      JR z,++
+      OR %00100000
+++
+      BIT 7,C
+      JR z,++
+      OR %01000000
+++
+      LD (HL),A
+      JP +
+
++++     ;Spinny danmaku
+      ;Spinning looks better done every few frames (avoids too much blurring)
+      LD HL,_AnimWait
+      ADD HL,DE
+      DEC (HL)
+      JR nz,+
+      LD (HL),SpinSpeed
+      POP HL    ;Danmaku under consideration
+      PUSH HL
+      ;4 tiles' spin, whose values are aligned
+      LD A,(HL)
+      LD B,A
+      AND %11111100
+      LD C,A
+      LD A,B
+      INC A
+      AND %00000011
+      OR C
+      LDI (HL),A
+      ;Mirroring changes once a tile loop
+      AND %00000011
+      JR z,+
+      LD A,%01100000
+      XOR (HL)
+      LD (HL),A
+
++       ;Undirected danmaku; do nothing
+    POP DE
+    POP HL
     POP BC
-    JR nc,+
-    ;Is diagonal
-    INC (HL)  ;Select diagonal tile
-    INC HL
-    BIT 7,B
-    JR z,+++
-    ;Up Right/Up Left detect
-    BIT 7,C
-    JR z,++++
-          ;Face Up Left
-    LD A,%10011111
-    AND (HL)
-    OR %01100000
-    JR _FacingDetectionEnd
-++++    ;Face Up Right
-    LD A,%10011111
-    AND (HL)
-    OR %01000000
-    JR _FacingDetectionEnd
-+++ ;Down Right/Down Left detect
-    BIT 7,C
-    JR z,+++
-          ;Face Down Left
-    LD A,%10011111
-    AND (HL)
-    OR %00100000
-    JR _FacingDetectionEnd
-+++     ;Face Down Right
-    LD A,%10011111
-    AND (HL)
-    JR _FacingDetectionEnd
-++  ;Up down detect
-    POP BC
-    INC (HL)  ;Select Up/down tile
-    INC (HL)
-    INC HL
-    BIT 7,B
-    JR z,++
-        ;Face Up
-    LD A,%10011111
-    AND (HL)
-    OR %01000000
-    JR _FacingDetectionEnd
-++      ;Face Down
-    LD A,%10011111
-    AND (HL)
-    JR _FacingDetectionEnd
-+   ;Right left detect
-    INC HL      ;Left/right tile already selected
-    BIT 7,C
-    JR z,+
-          ;Face Left
-    LD A,%10011111
-    AND (HL)
-    OR %00100000
-    JR _FacingDetectionEnd
-+       ;Face Right
-    LD A,%10011111
-    AND (HL)
-_FacingDetectionEnd:
-    LD (HL),A
-    JP -
+    INC DE      ;Point to next danmaku
+    INC DE
+    DEC B
+    JR nz,--
+  POP DE
+  ;Visuals
+  JP Danmaku_Draw
 
 ;Display
 

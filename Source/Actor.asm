@@ -553,6 +553,7 @@ Actor_Draw:
 ;DE-> Actor data
 ;Destroys all
   CALL Actor_Animate
+Danmaku_Draw:
 ;Move visual data to shadow OAM
   LD HL,_SprCount
   ADD HL,DE

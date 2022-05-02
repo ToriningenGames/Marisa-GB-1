@@ -85,13 +85,9 @@
     ;+$12, size 1: current button state
 ;Hat
     ;+$12, size 2: current character wearing
-;Fairy
-    ;+$12, size 2: Pointer to RAM holding animation data
-    ;+$15, size 1: Configuration settings
 ;Danmaku
-    ;+$12, size 2: Pointer to RAM holding animation data
-    ;+$14, size 1: Tile animation direction setting
-    ;+$15, size 2: Pointer to data for moving danmaku
+    ;+$12, size 1: Danmaku anim type
+    ;+$13, size 1: Remaining number of frames to execute
 
 ;Control bit states:
 ;%C0000OTE
@@ -166,12 +162,7 @@
 ;Hat
 .DEFINE _ParentChar $12
 
-;Fairy
-.DEFINE _AnimRAM $12
-
 ;Danmaku
-;.DEFINE _AnimRAM $11
-.DEFINE _IsDirected $12         ;0 if undirected. Holds base tile if directed
-.DEFINE _MovementData $13       ;Pointer to data for moving danmaku
-.DEFINE _MovementFunction $16   ;Function for moving danmaku
+.DEFINE _IsDirected $12     ;0 if undirected. $FF if spinny. Holds base tile if directed
+.DEFINE _Lifetime $13
 
