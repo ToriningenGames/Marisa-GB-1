@@ -26,38 +26,118 @@
 
 .SECTION "Danmaku" FREE
 
-.DEFINE SpinSpeed 2
+;Animation speed for spinning
+;Also a multiplier for lifetime (to make maximum time longer)
+.DEFINE SpinSpeed 3
 
 NewDanmaku:
-;A =Type
-;DE=Source Actor
+;A= Type
+;D= Starting X
+;E= Starting Y
   PUSH AF
-  PUSH DE
-    CALL MemAlloc   ;Basic Actor
-  POP DE
+    PUSH DE
+      CALL MemAlloc
+      LD H,D
+      LD L,E
+    POP DE
+    PUSH HL
+      LD A,$05
+      LDI (HL),A    ;Sprite pointer
+      LDI (HL),A
+      LDI (HL),A    ;Master X
+      LD (HL),D
+      INC HL
+      LDI (HL),A    ;Master Y
+      LD (HL),E
+    POP DE
+    LD HL,_AnimPtr
+    ADD HL,DE
+    XOR A
+    LDI (HL),A  ;Dummy ROM AnimPtr
+    LDI (HL),A
+    LD (HL),SpinSpeed   ;AnimWait (for spinny)
+    LD HL,_SprCount
+    ADD HL,DE
+    LD (HL),3   ;Hardcoded 3 danmaku
+    LD HL,_Hitbox
+    ADD HL,DE
+    LD (HL),<DanmakuHitboxes    ;Don't use hitboxes (since updating them is a hassle)
+    INC HL
+    LD (HL),>DanmakuHitboxes
+    INC HL
+    LDI (HL),A      ;Invisible, at least for now
+    INC HL
   POP AF
-  ;Type needs to provide
-    ;Movement
-    ;Visual
-    ;Anim type
-  ;Do the standard Actor fills (but no Collision boxes)
-    ;Load Anim wait (with SpinSpeed)
-    ;Empty Hitbox data
-    ;Clear Visibility value
-    ;Fill AI movement
-    ;Use sane hat val
-    ;Init anim relation data
-  ;Copy starting location from source actor THIS FRAME!
-  ;Fill in type correctly based on whether we be spinnin' or directin'
-  ;Fill _Lifetime
+  ;Check type data
+  ADD A     ;Entries 4 in size
+  ADD A
+  ADD <DanmakuList
+  LD C,A
+  LD A,0
+  ADC >DanmakuList
+  LD B,A
+  LD A,(BC)     ;Tile
+  INC BC
+  LDI (HL),A
+  LD A,(BC)     ;Lifetime
+  AND $3F
+  LDD (HL),A
+  LD A,(HL)
+  ;Initialize Relational Data (and Hat Val)
+  LD HL,_HatVal
+  ADD HL,DE
+  PUSH DE
+    LD D,A
+    XOR A
+    LDI (HL),A  ;Hatval
+    LDI (HL),A  ;One
+    LDI (HL),A
+    LD (HL),D
+    INC HL
+    LDI (HL),A
+    LDI (HL),A  ;Two
+    LDI (HL),A
+    LD (HL),D
+    INC HL
+    LDI (HL),A
+    LDI (HL),A  ;Three
+    LDI (HL),A
+    LD (HL),D
+    INC HL
+    LDI (HL),A
+  POP DE
+  LD HL,_IsDirected
+  ADD HL,DE
+  LD A,(BC)     ;Check for direction type
+  AND $C0
+  JR nz,+
+  LD (HL),0     ;Undirected
++
+  XOR $C0
+  JR z,+
+  LD (HL),$FF   ;Spinny
++
+  LD HL,_AIMovement
+  ADD HL,DE
+  INC BC
+  LD A,(BC)
+  INC BC
+  LDI (HL),A
+  LD A,(BC)
+  LDI (HL),A
 ;Frame
   RST $00
   ;Age
+  LD HL,_AnimWait
+  ADD HL,DE
+  DEC (HL)
+  JR nz,+
+  LD (HL),SpinSpeed
   LD HL,_Lifetime
   ADD HL,DE
   DEC (HL)
   JP z,Actor_Delete
-  ;Collision
++ ;Collision
   
   ;Do collision here
   
@@ -67,8 +147,13 @@ NewDanmaku:
   ;First delta
   LD HL,_AIMovement
   ADD HL,DE
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
   PUSH DE
     RST $30
+  POP DE
+  PUSH DE
     LD HL,_RelData
     ADD HL,DE
     ;BC=Delta (X,Y)
@@ -169,9 +254,9 @@ NewDanmaku:
       ;Spinning looks better done every few frames (avoids too much blurring)
       LD HL,_AnimWait
       ADD HL,DE
-      DEC (HL)
+      LD A,(HL)
+      DEC A
       JR nz,+
-      LD (HL),SpinSpeed
       POP HL    ;Danmaku under consideration
       PUSH HL
       ;4 tiles' spin, whose values are aligned
@@ -203,479 +288,50 @@ NewDanmaku:
   ;Visuals
   JP Danmaku_Draw
 
-;Display
+;Danmaku Definitions
 
-;_DirectedStarts:
-; .db $40    ;(Directed): Orb
-; .db $43    ;(Directed): Ofuda
-; .db $46    ;(Directed): Bullet
-; .db $7A    ;(Directed): Star
+DanmakuList:
+;1 byte:  Base tile
+;1 byte: %TTLLLLLL
+         ;||++++++--- Lifetime (frames/anim cycle)
+         ;++--- Animation Type
+                ;0 = Undirected
+                ;1 = Spinny
+                ;3 = Directed
+;2 bytes: Movement function
+;Reimu orbs
+.db $68,%01000000
+.dw DanmakuMove_Orbs
 
-;_DirectedTemplate
-; .db 1
-; .db -4,-4,$00,%00000000
-; .db $11,$FF
-; .dw _Still
-;
-;_DarkBubble:
-; .db 1
-; .db -4,-4,$02,%00000000
-; .db $F1,$FF
-; .dw _Still
-;_LightBubble:
-; .db 1
-; .db -4,-4,$49,%00000000
-; .db $F1,$FF
-; .dw _Still
-;_MenuBubble:
-; .db 1
-; .db -4,-4,$00,%00000000
-;_Still:
-; .db $F1,$FF
-; .dw _Still
-;
-_YinYang:
- .db 2
- .db -4,12,$09,%00000000
- .db  4,12,$09,%00000000
-_YinYangSpin:               ;Enter with Down
- .db $11
- Animate 0,AnimTile,+1      ;Down left, or Up right
- .db $12
- Animate 0,AnimAttr,%110
- Animate 0,AnimTile,-3      ;Left, or Right
- .db $11
- Animate 0,AnimTile,+1      ;Down right, or Up left
- .db $12
- Animate 0,AnimTile,+1      ;Down, or Up
- .db $FF
- .dw _YinYangSpin
-
-_ReimuOptions:
- .db 2
- .db -1, -3,$09,%00000000
- .db -1, -4,$09,%00000000
- .db $11,$FF
- .dw _YinYangSpin
-
-_StarType:
- .db 6
- .db -4, -4,$7C,%01000000   ;Vertical mirror
- .db -4, -4,$7C,%01000000
- .db -4, -4,$7C,%01000000
- .db -4, -4,$7C,%01000000
- .db -4, -4,$7C,%01000000
- .db -4, -4,$7C,%01000000
-_StarSpin:
- .db $41
- Animate 0,AnimTile,-1
- .db $42
- Animate 0,AnimTile,-1
- Animate 0,AnimAttr,%100
- .db $41
- Animate 0,AnimTile,+1
- .db $43
- Animate 0,AnimTile,+1
- Animate 0,AnimAttr,%010
- .db $FF
- .dw _StarSpin
-
-_DirectedOrb:
- .db 6
- .db -4, -4,$46,%00000000
- .db -4, -4,$46,%00000000
- .db -4, -4,$46,%00000000
- .db -4, -4,$46,%00000000
- .db -4, -4,$46,%00000000
- .db -4, -4,$46,%00000000
-_Idle:
- .db $F1
- .db $FF
- .dw _Idle
-
-_Ofuda:
- .db 3
- .db -4, -4,$43,%00000000
- .db -4, -4,$43,%00000000
- .db -4, -4,$43,%00000000
- .db $F1
- .db $FF
- .dw _Idle
-
-;Movement functions
-;Arguments:
-    ;A  =  Sprite Number
-    ;DE -> Actor Data
-;Returns:
-    ;DE -> Actor Data
-    ;BC == Y, X integer movement
-;Only the numerics need be provided, danmaku function handles actor updates
-;Called for each danmaku, back to front
-
-;Idea: Have danmaku destory itself after a small set timespan:
-    ;Reduces sprite load
-    ;Still indicates danmaku firing
-    ;Doesn't clutter screen
-    ;Frees actors, memory, and tasks
-    ;Configurable timespan could destory real danmaku after leaving screen
-
-;Does nothing
-_DanmakuFunction_Dummy:
+;Danmaku Actions
+DanmakuMove_Orbs:
   LD BC,0
   RET
+
 
 ;Deploys options, sits there
 ;Data option 0: Distance to move, x2
 _DanmakuFunction_ReimuOptions:
-  LD BC,0
-  LD HL,0
-  ADD HL,DE
-  LD A,(HL)
-  OR A
-  RET z
-  DEC A
-  LD (HL),A
-  RRCA
-  LD C,1    ;First orb
-  RET c
-  LD C,-1   ;Second orb
-  RET
 
-;Data option 0: Lifetime
-;Data option 1: Speed
-;Data option 2: Angle
-;Data option 16: Fractional locations
-    ;Sprite 0 Y fraction
-    ;Sprite 0 X fraction
-    ;Sprite 1 Y fraction
-    ;Sprite 1 X fraction
-    ;etc...
 _DanmakuFunction_ReimuDanmaku:
   ;Directed ofuda
   ;3 streams, laserlike, waving back and forth
   ;Implement: 3 equidistant sprites, moving outward, direction set via data
     ;Fire repeatedly, and quickly, with slightly changing data values
-  DEC A     ;Only tick life on danmaku 1
-  JR nz,+
-  LD H,D
-  LD L,E
-  DEC (HL)
-  JP z,_Danmaku_Die
-+
-  INC A
-  LD B,A
-  PUSH AF
-    LD C,256/6    ;Rotate to this sprite
-    LD H,D
-    CALL Multiply
-    LD D,H
-    LD A,C
-    LD HL,2
-    ADD HL,DE
-    ADD (HL)
-    LD C,A    ;Angle
-    DEC HL
-    LD B,(HL) ;Speed
-  POP AF
-  RLCA
-  PUSH BC
-    PUSH AF
-      LD H,>SinCosTable ;Sin
-      LD L,C
-      LD C,(HL)
-      LD A,C
-      XOR B
-      LD L,A    ;Calculate resultant sign
-      BIT 7,B   ;Unnegate everything
-      JR z,+
-      LD A,B
-      CPL
-      INC A
-      LD B,A
-+
-      BIT 7,C
-      JR z,+
-      LD A,C
-      CPL
-      INC A
-      LD C,A
-+
-      LD H,D
-      CALL Multiply
-      LD D,H
-      BIT 7,L   ;Set sign of result
-      JR z,+
-      LD A,C
-      CPL
-      LD C,A
-      LD A,B
-      CPL
-      LD B,A
-      INC BC
-+
-      SRA B
-      RR C
-      SRA B
-      RR C
-      LD L,16 ;Go to this sprite's Y fractional
-    POP AF
-    ADD L
-    LD L,A
-    LD H,0
-    ADD HL,DE
-    LD A,(HL)
-    ADD C
-    LDI (HL),A
-    LD A,0
-    ADC B
-  POP BC
-  PUSH AF   ;Y get!
-    PUSH HL
-      LD A,C
-      ADD $40 ;Cos
-      LD H,>SinCosTable
-      LD L,A
-      LD C,(HL)
-      LD A,C
-      XOR B
-      LD L,A    ;Calculate resultant sign
-      BIT 7,B   ;Unnegate everything
-      JR z,+
-      LD A,B
-      CPL
-      INC A
-      LD B,A
-+
-      BIT 7,C
-      JR z,+
-      LD A,C
-      CPL
-      INC A
-      LD C,A
-+
-      LD H,D
-      CALL Multiply
-      LD D,H
-      BIT 7,L   ;Set sign of result
-      JR z,+
-      LD A,C
-      CPL
-      LD C,A
-      LD A,B
-      CPL
-      LD B,A
-      INC BC
-+
-      SRA B
-      RR C
-      SRA B
-      RR C
-    POP HL
-    LD A,(HL)
-    ADD C
-    LD (HL),A
-    LD A,0
-    ADC B
-    LD C,A  ;X get!
-  POP AF
-  LD B,A
-  RET
 
-;Data option 0: Lifetime
-;Data option 1: Speed
-;Data option 2: Base angle
-;Data option 3: Turn speed
 _DanmakuFunction_MarisaDanmaku:
   ;Undirected Star-like
   ;6 streams spiraling outwards, all equidistant
   ;Implement: 6 equidistant sprites, moving outward, curving
-    ;Fire repeatedly, precisely
-;  LD HL,0
-;  ADD HL,DE
-;  DEC (HL)
-;  JP z,_Danmaku_Die
-;  ;Multiply sprite no. by constant angle
-;  PUSH AF
-;    LD B,A
-;    LD C,256/6
-;    LD H,D
-;    CALL Multiply
-;    LD D,H
-;    ;Current angle is base angle
-;    ;Add sprite no. angle adjustment to current angle
-;    LD HL,2
-;    ADD HL,DE
-;    LD A,(HL)
-;    ADD C
-;  ;If sprite == 0:
-;  POP AF
-;  OR A
-;  JR nz,+
-;  ;Add constant to base angle
-;  LDI A,(HL)     ;HL at correct location
-;  ADD (HL)
-;  DEC HL
-;  LD (HL),A
-;+
-;  ;Create vector from current angle and speed
-;  LD HL,1
-;  ADD HL,DE
-;  LD B,(HL)
-;  PUSH BC   ;Speed, angle
-;    LD H,>SinCosTable   ;Get sin
-;    LD L,C
-;    LD C,(HL)
-;    LD H,D
-;    CALL Multiply
-;    LD D,H
-;    ;Adjusting for decimal point:
-;    ;00.000000
-;    ;0000.0000
-;    ;000000.00 00000000
-;    SRA B
-;    SRA B
-;    LD A,B
-;  POP BC
-;  PUSH AF   ;Y get!
-;    LD A,C
-;    ADD $40     ;Get cos
-;    LD H,>SinCosTable
-;    LD L,A
-;    LD C,(HL)
-;    LD H,D
-;    CALL Multiply
-;    LD D,H
-;    SRA B
-;    SRA B
-;    LD C,B  ;X get!
-;  POP AF
-;  LD B,A
-;  ;Return current direction vector
-;  RET
 
-;Data option 0: Lifetime
-;Data option 1: Speed
 _DanmakuFunction_AliceDanmaku:
   ;Directed orblike
   ;Two circles, and 3 swirling lines outward
   ;Implement: Lines are each fired straight, but direction changes for each fire
   ;Circles are circles
   ;If necessary, remove the swirls
-  LD HL,0
-  ADD HL,DE
-  DEC (HL)
-  JP z,_Danmaku_Die
-  DEC A
-  JR nz,+
-  LD BC,$0100
-  RET
-+
-  DEC A
-  JR nz,+
-  LD BC,$0101
-  RET
-+
-  DEC A
-  JR nz,+
-  LD BC,$01FF
-  RET
-+
-  DEC A
-  JR nz,+
-  LD BC,$FE00
-  RET
-+
-  DEC A
-  JR nz,+
-  LD BC,$FF01
-  RET
-+
-  LD BC,$FFFF
-  RET
 
-;Data option 0: X change
-;Data option 1: Y change
-;Data option 2: Lifetime
 _DanmakuFunction_StraightShot:
-  LD HL,0
-  ADD HL,DE
-  LD C,(HL)
-  INC HL
-  LD B,(HL)
-  INC HL
-  DEC (HL)
-  RET nz
 
-_Danmaku_Die:
-  ;Die
-  CALL MemFree  ;Free Movement Data
-  POP HL    ;Return
-  POP DE    ;Actor Data
-  POP HL    ;Parent AF
-  LD HL,_AnimRAM
-  ADD HL,DE
-  LD B,D
-  LD C,E
-  LD D,H
-  LD E,L
-  CALL MemFree
-  LD D,B
-  LD E,C
-  JP Actor_Delete
-
-;Spin positions:
-;Down:          Tile: $48, Attr: %0x v
-;Down Left:     Tile: $47, Attr: %01 x
-;Left:          Tile: $46, Attr: %x1 x
-;Up Left:       Tile: $47, Attr: %11 v
-;Up:            Tile: $48, Attr: %1x v
-;Up Right:      Tile: $47, Attr: %10 x
-;Right:         Tile: $46, Attr: %x0 x
-;Down Right:    Tile: $47, Attr: %00 v
-
-;Pattern
-    ;2 bytes: Template pointer
-    ;1 byte:  Directed Value    (0 for undirected, tile base for directed)
-    ;2 bytes: Movement Function
-    ;4 bytes: Movement Data
-    ;2 bytes: Hitbox pointer
-_Patterns:
-;Test pattern
- .dw _YinYang
- .db 0
- .dw _DanmakuFunction_StraightShot
- .db   0,  2,  0,  0
- .dw _DanmakuHitboxes
-;Reimu's accompaying options
- .dw _ReimuOptions
- .db 0
- .dw _DanmakuFunction_ReimuOptions
- .db  21,  0,  0,  0
- .dw _DanmakuHitboxes
-;Marisa's "Astral Sign: Milky Way"
- .dw _StarType
- .db 0
- .dw _DanmakuFunction_MarisaDanmaku
- .db   0,  4,  0,  3
- .dw _DanmakuHitboxes
-;Some spell card I made up for Reimu
- .dw _Ofuda
- .db $43
- .dw _DanmakuFunction_ReimuDanmaku
- .db   0,  4,  0,  0
- .dw _DanmakuHitboxes
-;Alice's "Doll Mystery"
- .dw _DirectedOrb
- .db $46
- .dw _DanmakuFunction_ReimuDanmaku
- .db  20, 20,  0,  0
- .dw _DanmakuHitboxes
-;Hitboxes
-_DanmakuHitboxes:
- .db 1
- .dw $0000,$0000,$0202
- .dw _DanmakuHitboxAction
-_DanmakuHitboxAction:
-  RET
 
 .ENDS

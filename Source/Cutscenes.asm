@@ -314,12 +314,13 @@
 .db (type*32)|id, x, y
 .ENDM
 
-.MACRO ShootDanmaku ARGS wait
+.MACRO ShootDanmaku ARGS type, wait
 .IF defined(wait)
  .db %11110001, wait
 .ELSE
  .db %01110001
 .ENDIF
+.db type
 .ENDM
 
 .MACRO ShowMap ARGS wait
@@ -990,7 +991,7 @@ Cs_NarumiFightStart:
   RunTextStringBlocking StringNarumiStart2
   ChangeActorControl 1,$83  ;No leaving the room
   ;Return
-
+  ;ShootDanmaku 0
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
   ChangeActorControl 1,0

@@ -496,13 +496,18 @@ CreateFairy:
   ;Get the fairy count
   LD A,%00000111
   AND C
-  JR z,+    ;No fairies; make none
+  JR nz,+
+    ;No fairies; make none
+    ;Always get following bytes
+    CALL NextCutsceneByte
+    JP NextCutsceneByte
++
   LD B,A
   ;Make that many fairies
   PUSH DE
 -
     LD A,B
-    ADD <Cutscene_Actors+1    ;Count is one-based
+    ADD <Cutscene_Actors+2    ;Count is one-based
     LD L,A
     LD H,>Cutscene_Actors
     PUSH BC
@@ -518,12 +523,12 @@ CreateFairy:
   POP BC    ;Return
   RST $00   ;Initialize
   PUSH BC
-+   ;Always get the following bytes
++
   CALL NextCutsceneByte
   LD C,A
   CALL NextCutsceneByte
   LD B,A
-  LD HL,Cutscene_Actors+2
+  LD HL,Cutscene_Actors+3
 -
   LDI A,(HL)
   OR A
@@ -1041,6 +1046,12 @@ CompareVar:
   RET
 
 ShootDanmaku:
+  CALL NextCutsceneByte
+  PUSH DE
+    LD BC,NewDanmaku
+    LD DE,$4040
+    CALL NewTask
+  POP DE
   RET
 
 .ENDS

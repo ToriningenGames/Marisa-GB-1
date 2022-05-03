@@ -271,6 +271,7 @@ _nohit:     ;Result greater than zero? Didn't hit
 .ENUMID HitboxTalk
 
 HatHitboxes:
+DanmakuHitboxes:
  .db 1
  .dw $0000,$0000
  .db $03,HitboxNone

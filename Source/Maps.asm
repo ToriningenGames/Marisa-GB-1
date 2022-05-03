@@ -11,7 +11,7 @@
 .include "macros.asm"
 
 
-.SECTION "Maps" FREE
+.SECTION "Map backs" BITWINDOW 8 FREE
 
 MapBackBase:
 MapForestBKG01:
@@ -57,6 +57,10 @@ MapForestBKG04:
 .db $00,$40,$00
 .db $00,$40,$00
 .db $00,$40,$00
+
+.ENDS
+
+.SECTION "Maps" FREE
 
 MapForestN23:
 .db $00|$1              ;fairy count, background type
