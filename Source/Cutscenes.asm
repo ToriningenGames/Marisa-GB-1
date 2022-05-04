@@ -991,7 +991,7 @@ Cs_NarumiFightStart:
   RunTextStringBlocking StringNarumiStart2
   ChangeActorControl 1,$83  ;No leaving the room
   ;Return
-  ;ShootDanmaku 0
+  ShootDanmaku 0
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
   ChangeActorControl 1,0

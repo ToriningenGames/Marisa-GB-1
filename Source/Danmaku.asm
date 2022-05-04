@@ -117,14 +117,18 @@ NewDanmaku:
   JR z,+
   LD (HL),$FF   ;Spinny
 +
-  LD HL,_AIMovement
-  ADD HL,DE
+  INC HL
+  INC HL
+  XOR A
+  LDI (HL),A    ;Move data
+  LDI (HL),A
   INC BC
-  LD A,(BC)
+  LD A,(BC)     ;Move function
   INC BC
   LDI (HL),A
   LD A,(BC)
   LDI (HL),A
+  CALL Actor_HighPriority
 ;Frame
   RST $00
   ;Age
@@ -136,7 +140,21 @@ NewDanmaku:
   LD HL,_Lifetime
   ADD HL,DE
   DEC (HL)
-  JP z,Actor_Delete
+  JR nz,+
+  ;Die
+  PUSH DE
+    INC HL
+    LDI A,(HL)    ;Move Data
+    LD E,A
+    LDI A,(HL)
+    LD D,A
+    LDI A,(HL)    ;Move Func
+    LD H,(HL)
+    LD L,A
+    OR D          ;If the function has data to free, D is nonzero
+    RST $30       ;Otherwise, finals don't matter
+  POP DE
+  JP Actor_Delete
 + ;Collision
   
   ;Do collision here
@@ -145,13 +163,23 @@ NewDanmaku:
   ;...which is updating the sprite visual block
   ;Calculate one the hard way...
   ;First delta
-  LD HL,_AIMovement
+  LD HL,_MoveData
   ADD HL,DE
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
   PUSH DE
-    RST $30
+    PUSH HL
+      LDI A,(HL)
+      LD E,A
+      LDI A,(HL)
+      LD D,A
+      LDI A,(HL)
+      LD H,(HL)
+      LD L,A
+      XOR A
+      RST $30
+    POP HL
+    LD A,E
+    LDI (HL),A
+    LD (HL),D
   POP DE
   PUSH DE
     LD HL,_RelData
@@ -171,28 +199,32 @@ NewDanmaku:
     LD C,8    ;For more accuracy, shift more and double C
     LD A,L
 -
-    RRCA
-    RRCA
-    AND $3F
+    SRA A
+    SRA A
     ADD H
     LD H,A
-    RRCA
-    RRCA
-    AND $3F
+    SRA A
+    SRA A
     CPL
+    INC A
     ADC L
     LD L,A
     DEC C
     JR nz,-
 +
     ;Apply delta
+    ;TODO: Make this accept (4.4). Accumulate the fractional. We need it.
+        ;If danmaku movement still isn't accurate enough, try (2.6).
+        ;(8.8) would have a grave performance penalty, but if the precision's needed...
+    ;Idea: Store the fractional in the unused RelData space
+        ;With careful placement, future danmaku can still allow 1-4 bullets per actor
     ;DE=Rel Data for this danmaku
-    LD A,L
-    ADD -4    ;Center of tile, visually
+    LD A,(DE)
+    ADD L
     LD (DE),A
     INC DE
-    LD A,H
-    ADD -4    ;Ditto
+    LD A,(DE)
+    ADD H
     LD (DE),A
     INC DE
     ;If directed danmaku, tile/attribute is dependent on movement delta
@@ -202,7 +234,7 @@ NewDanmaku:
     PUSH BC
     PUSH HL
     PUSH DE
-      LD HL,SP-6
+      LD HL,SP+6
       LDI A,(HL)
       LD D,(HL)
       LD E,A
@@ -271,7 +303,7 @@ NewDanmaku:
       LDI (HL),A
       ;Mirroring changes once a tile loop
       AND %00000011
-      JR z,+
+      JR nz,+
       LD A,%01100000
       XOR (HL)
       LD (HL),A
@@ -304,8 +336,46 @@ DanmakuList:
 .dw DanmakuMove_Orbs
 
 ;Danmaku Actions
+    ;DE=Move Data
+    ;A!=0 if being destroyed
+;Return
+    ;B=Move X (4.4)
+    ;C=Move Y (4.4)
+    ;DE=Move Data
+    ;Move data is private to each Danmaku; edit it as you please
 DanmakuMove_Orbs:
-  LD BC,0
+;2 phases:
+    ;Extend
+    ;Speen
+  LD A,D
+  OR E
+  JR nz,+
+;Init
+  CALL MemAlloc
+  LD A,$10
+  LD (DE),A
++
+  LD HL,DE
+  DEC (HL)
+  LD BC,$00F0
+  RET nz    ;Extend phase
+;Spin phase
+  INC HL
+  LDI A,(HL)    ;Y (4.4)
+  LD B,(HL)     ;X (4.4)
+  SRA A
+  SRA A
+  ADD B
+  LD B,A
+  SRA A
+  SRA A
+  CPL
+  INC A
+  ADD C
+  LD C,A
+  LD (HL),B
+  DEC HL
+  LDI (HL),A
   RET
 
 
