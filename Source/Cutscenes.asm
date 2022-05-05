@@ -675,6 +675,7 @@ Cs_Intro:
   PlaySong SongMagus  ;Load main actioney song
  ;RunTextStringBlocking StringOpeningMessage3
   ChangeActorControl 1,$87   ;Playable
+  ShootDanmaku 0
   Return
 
 ;Component Transitions

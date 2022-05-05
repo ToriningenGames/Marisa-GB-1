@@ -163,7 +163,7 @@
 .DEFINE _ParentChar $12
 
 ;Danmaku
+.DEFINE _FracMove $0C
 .DEFINE _IsDirected $12     ;0 if undirected. $FF if spinny. Holds base tile if directed
 .DEFINE _Lifetime $13
 .DEFINE _MoveData $14
-.DEFINE _FracMove $38

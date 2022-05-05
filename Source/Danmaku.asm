@@ -59,8 +59,10 @@ NewDanmaku:
     LD HL,_SprCount
     ADD HL,DE
     LD (HL),3   ;Hardcoded 3 danmaku
-    LD HL,_Hitbox
+    LD HL,_FracMove
     ADD HL,DE
+    LDI (HL),A
+    LDI (HL),A
     LD (HL),<DanmakuHitboxes    ;Don't use hitboxes (since updating them is a hassle)
     INC HL
     LD (HL),>DanmakuHitboxes
@@ -141,6 +143,7 @@ NewDanmaku:
   ADD HL,DE
   DEC (HL)
   JR nz,+
+  JR +
   ;Die
   PUSH DE
     INC HL
@@ -156,9 +159,9 @@ NewDanmaku:
   POP DE
   JP Actor_Delete
 + ;Collision
-  
+
   ;Do collision here
-  
+
   ;Movement...
   ;...which is updating the sprite visual block
   ;Calculate one the hard way...
@@ -184,141 +187,161 @@ NewDanmaku:
   PUSH DE
     LD HL,_RelData
     ADD HL,DE
+    PUSH HL
+      LD HL,_FracMove
+      ADD HL,DE
+    POP DE
     ;BC=Delta (X,Y)
-    LD D,H
-    LD E,L
-    LD H,B
-    LD L,C
-    LD B,3      ;No. of danmaku
-    JR +
-    ;...and do the Minsky Circle Algorithm for the rest
+    ;Apply delta
+    LD A,(HL)
+    ADD C
+    LD C,A
+    AND $3F
+    LDI (HL),A
+    SRA C
+    SRA C
+    SRA C
+    SRA C
+    SRA C
+    SRA C
+    LD A,(DE)
+    ADD C
+    LD (DE),A
+    LD C,A
+    INC DE
+    LD A,(HL)
+    ADD B
+    LD B,A
+    AND $3F
+    LD (HL),A
+    SRA B
+    SRA B
+    SRA B
+    SRA B
+    SRA B
+    SRA B
+    LD A,(DE)
+    ADD B
+    LD (DE),A
+    LD B,A
+    LD H,2      ;Remaining danmaku count
+    ;Do the Minsky Circle Algorithm for the rest
     ;More iterations is more accurate- within the bounds of fixed point precision
     ;Subsequent delta
-    ;HL=Delta temp (X,Y)
+    ;BC=Position (X,Y)
 --
-    LD C,8    ;For more accuracy, shift more and double C
-    LD A,L
+    INC DE
+    INC DE
+    INC DE
+    LD L,8    ;For more accuracy, shift more and double 
+    LD A,C
 -
     SRA A
     SRA A
-    ADD H
-    LD H,A
+    ADD B
+    LD B,A
     SRA A
     SRA A
     CPL
     INC A
-    ADC L
-    LD L,A
-    DEC C
+    ADD C
+    LD C,A
+    DEC L
     JR nz,-
-+
-    ;Apply delta
-    ;TODO: Make this accept (4.4). Accumulate the fractional. We need it.
-        ;If danmaku movement still isn't accurate enough, try (2.6).
-        ;(8.8) would have a grave performance penalty, but if the precision's needed...
-    ;Idea: Store the fractional in the unused RelData space
-        ;With careful placement, future danmaku can still allow 1-4 bullets per actor
-    ;DE=Rel Data for this danmaku
-    LD A,(DE)
-    ADD L
+    ;Apply
+    LD A,C
     LD (DE),A
     INC DE
-    LD A,(DE)
-    ADD H
+    LD A,B
     LD (DE),A
-    INC DE
-    ;If directed danmaku, tile/attribute is dependent on movement delta
-    ;Check for direction
-    ;Preserve BC,DE,HL
-    ;...but the value on stack is needed?
-    PUSH BC
-    PUSH HL
-    PUSH DE
-      LD HL,SP+6
-      LDI A,(HL)
-      LD D,(HL)
-      LD E,A
-      LD HL,_IsDirected
-      ADD HL,DE
-      LD A,(HL)
-      OR A
-      JR z,+
-      INC A
-      JR z,+++
-      DEC A
-      ;Directed. Adjust heading based on delta
-      POP HL    ;Current danmaku under consideration
-      PUSH HL
-      LD (HL),A
-      ;Tile. Dependent on whether movement is predominantly vert or hort, or neither
-      ;Diag if 2*H>V && 2*V>H
-      ;Also works comparing against the linear equations defining the regions
-      LD A,B
-      RRA
-      CP C
-      JR nc,++  ;Y <= X * 0.5
-      INC (HL)  ;Diagonal or vertical
-++
-      LD B,A
-      ADD A
-      CP C
-      JR nc,++  ;X * 2 > Y
-      INC (HL)  ;Vertical
-++
-      ;Attribute. Choose correctly for the quadrant movement is in/towards
-      ;Pos Y -> no Y flip
-      ;Pos X -> no X flip
-      INC HL
-      LD A,%10011111
-      AND (HL)
-      BIT 7,B
-      JR z,++
-      OR %00100000
-++
-      BIT 7,C
-      JR z,++
-      OR %01000000
-++
-      LD (HL),A
-      JP +
-
-+++     ;Spinny danmaku
-      ;Spinning looks better done every few frames (avoids too much blurring)
-      LD HL,_AnimWait
-      ADD HL,DE
-      LD A,(HL)
-      DEC A
-      JR nz,+
-      POP HL    ;Danmaku under consideration
-      PUSH HL
-      ;4 tiles' spin, whose values are aligned
-      LD A,(HL)
-      LD B,A
-      AND %11111100
-      LD C,A
-      LD A,B
-      INC A
-      AND %00000011
-      OR C
-      LDI (HL),A
-      ;Mirroring changes once a tile loop
-      AND %00000011
-      JR nz,+
-      LD A,%01100000
-      XOR (HL)
-      LD (HL),A
-
-+       ;Undirected danmaku; do nothing
-    POP DE
-    POP HL
-    POP BC
-    INC DE      ;Point to next danmaku
-    INC DE
-    DEC B
+    DEC H
     JR nz,--
   POP DE
-  ;Visuals
+  LD HL,_IsDirected
+  ADD HL,DE
+  LD A,(HL)
+  OR A
+  JR z,++
+  INC A
+  JR z,+
+  DEC A
+  ;Directed. Adjust headings based on delta
+  ;???
++
+  ;Spinny danmaku. Spin at a reasonable rate
+  LD HL,_AnimWait
+  ADD HL,DE
+  LD A,(HL)
+  DEC A
+  JR nz,++
+  LD (HL),SpinSpeed
+  LD HL,_RelData+2
+  ADD HL,DE
+  LD B,3    ;Danmaku count
+-
+  LD A,(HL)
+  AND %11111100
+  LD C,A
+  LD A,(HL)
+  INC A
+  AND %00000011
+  OR C
+  LDI (HL),A
+  ;Mirroring changes once a tile loop
+  AND %00000011
+  JR nz,+
+  LD A,%01100000
+  XOR (HL)
+  LD (HL),A
++
+  INC HL
+  INC HL
+  INC HL
+  DEC B
+  JR nz,-
+++
+  ;Undirected danmaku. Do nothing
   JP Danmaku_Draw
+  
+  
+      ;If directed danmaku, tile/attribute is dependent on movement delta
+      ;Check for direction
+        ;Directed. Adjust heading based on delta
+        POP HL    ;Current danmaku under consideration
+        PUSH HL
+        LD (HL),A   ;Base tile
+        ;Tile. Dependent on whether movement is predominantly vert or hort, or neither
+        ;Diag if 2*H>V && 2*V>H
+        ;Also works comparing against the linear equations defining the regions
+        LD A,B
+        RRA
+        CP C
+        JR nc,++  ;Y <= X * 0.5
+        INC (HL)  ;Diagonal or vertical
+++
+        LD B,A
+        ADD A
+        CP C
+        JR nc,++  ;X * 2 > Y
+        INC (HL)  ;Vertical
+++
+        ;Attribute. Choose correctly for the quadrant movement is in/towards
+        ;Pos Y -> no Y flip
+        ;Pos X -> no X flip
+        INC HL
+        LD A,%10011111
+        AND (HL)
+        BIT 7,B
+        JR z,++
+        OR %00100000
+++
+        BIT 7,C
+        JR z,++
+        OR %01000000
+++
+        LD (HL),A
+        JP +
+
 
 ;Danmaku Definitions
 
@@ -339,8 +362,8 @@ DanmakuList:
     ;DE=Move Data
     ;A!=0 if being destroyed
 ;Return
-    ;B=Move X (4.4)
-    ;C=Move Y (4.4)
+    ;B=Move X (2.6)
+    ;C=Move Y (2.6)
     ;DE=Move Data
     ;Move data is private to each Danmaku; edit it as you please
 DanmakuMove_Orbs:
@@ -353,20 +376,30 @@ DanmakuMove_Orbs:
 ;Init
   CALL MemAlloc
   LD A,$10
-  LD (DE),A
+  LD H,D
+  LD L,E
+  LDI (HL),A
+  XOR A
+  LDI (HL),A
+  LD (HL),$C0
 +
-  LD HL,DE
+  LD H,D
+  LD L,E
   DEC (HL)
   LD BC,$00F0
   RET nz    ;Extend phase
 ;Spin phase
+  INC (HL)
   INC HL
   LDI A,(HL)    ;Y (4.4)
+  LD C,A
   LD B,(HL)     ;X (4.4)
+  SRA A
   SRA A
   SRA A
   ADD B
   LD B,A
+  SRA A
   SRA A
   SRA A
   CPL
