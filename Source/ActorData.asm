@@ -86,8 +86,10 @@
 ;Hat
     ;+$12, size 2: current character wearing
 ;Danmaku
+    ;+$0C, size 2: Fractional movement data for principle danmaku
     ;+$12, size 1: Danmaku anim type
     ;+$13, size 1: Remaining number of frames to execute
+    ;+$14, size 2: Data for danmaku movement function
 
 ;Control bit states:
 ;%C0000OTE
@@ -167,4 +169,3 @@
 .DEFINE _IsDirected $12     ;0 if undirected. $FF if spinny. Holds base tile if directed
 .DEFINE _Lifetime $13
 .DEFINE _MoveData $14
-.DEFINE _OldPos $30

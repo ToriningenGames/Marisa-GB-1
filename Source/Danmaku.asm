@@ -82,7 +82,7 @@ NewDanmaku:
   INC BC
   LDI (HL),A
   LD A,(BC)     ;Lifetime
-  AND $3F
+  AND $7F
   LDD (HL),A
   LD A,(HL)
   ;Initialize Relational Data (and Hat Val)
@@ -111,13 +111,10 @@ NewDanmaku:
   LD HL,_IsDirected
   ADD HL,DE
   LD A,(BC)     ;Check for direction type
-  AND $C0
-  JR nz,+
-  LD (HL),0     ;Undirected
-+
-  XOR $C0
-  JR z,+
   LD (HL),$FF   ;Spinny
+  AND $80
+  JR nz,+
+  LD (HL),A     ;Undirected
 +
   INC HL
   INC HL
@@ -153,7 +150,7 @@ NewDanmaku:
     LDI A,(HL)    ;Move Func
     LD H,(HL)
     LD L,A
-    OR D          ;If the function has data to free, D is nonzero
+    LD A,D        ;If the function has data to free, D is nonzero
     RST $30       ;Otherwise, finals don't matter
   POP DE
   JP Actor_Delete
@@ -261,95 +258,6 @@ NewDanmaku:
   LD A,(HL)
   OR A
   JP z,++
-  INC A
-  JR z,+
-  DEC A
-  ;Directed. Adjust headings based on delta
-  PUSH DE
-    LD B,3    ;Danmaku count
-    LD C,A    ;Base tile
-    PUSH BC
-      LD HL,_OldPos
-      ADD HL,DE
-      PUSH HL
-        LD HL,_RelData
-        ADD HL,DE
-      POP BC
-    POP DE
--
-    LD A,E
-    PUSH DE
-      PUSH AF
-        ;Calculate delta from current and last position
-        ;And update last position with current
-        LD A,(BC)     ;Old Y
-        CPL
-        INC A
-        ADD (HL)
-        LD D,A
-        LDI A,(HL)
-        LD (BC),A
-        INC BC
-        LD A,(BC)     ;Old X
-        CPL
-        INC A
-        ADD (HL)
-        LD E,A
-        LDI A,(HL)
-        LD (BC),A
-        INC BC
-        ;Adjust tile and attributes based on delta
-      POP AF
-      LD (HL),A   ;Base tile
-      ;Tile. Dependent on whether movement is predominantly vert or hort, or neither
-      ;Diag if 2*H>V && 2*V>H
-      ;Also works comparing against the linear equations defining the regions
-      PUSH DE
-        BIT 7,E
-        JR z,+++
-        LD A,E
-        CPL
-        INC A
-        LD E,A
-+++
-        LD A,D
-        BIT 7,A
-        JR z,+++
-        CPL
-        INC A
-+++
-        ADD A
-        CP E
-        JR c,+++    ;Y * 2 < X
-        INC (HL)    ;Diagonal or vertical
-        LD A,E
-        ADD A
-        CP D
-        JR nc,+++  ;X * 2 >= Y
-        INC (HL)  ;Vertical
-+++
-      POP DE
-      ;Attribute. Choose correctly for the quadrant movement is in/towards
-      ;Pos Y -> no Y flip
-      ;Pos X -> no X flip
-      INC HL
-      LD A,%10011111
-      AND (HL)
-      BIT 7,D
-      JR z,+++
-      OR %00100000
-+++
-      BIT 7,E
-      JR z,+++
-      OR %01000000
-+++
-      LDI (HL),A
-    POP DE
-    DEC D
-    JR nz,-
-  POP DE
-  JR ++
-+
   ;Spinny danmaku. Spin at a reasonable rate
   LD HL,_AnimWait
   ADD HL,DE
@@ -390,18 +298,17 @@ NewDanmaku:
 
 DanmakuList:
 ;1 byte:  Base tile
-;1 byte: %TTLLLLLL
-         ;||++++++--- Lifetime (frames/anim cycle)
-         ;++--- Animation Type
+;1 byte: %TLLLLLLL
+         ;|+++++++--- Lifetime (frames/anim cycle)
+         ;+--- Animation Type
                 ;0 = Undirected
                 ;1 = Spinny
-                ;3 = Directed
 ;2 bytes: Movement function
 ;Reimu orbs
-.db $68,%01000000
+.db $68,%10000000
 .dw DanmakuMove_Orbs
 ;Reimu ofuda
-.db $79,%11000000
+.db $79,%00000000
 .dw DanmakuMove_Ofuda
 
 ;Danmaku Actions
@@ -462,9 +369,37 @@ DanmakuMove_Orbs:
   RET
 
 DanmakuMove_Ofuda:
-  LD C,$10
-  LD B,0;D
+  LD A,D
+  OR E
+  JR nz,+
+  ;First run; "correct" the heading data
   INC D
+  LD HL,SP+$04
+  LDI A,(HL)
+  LD D,(HL)
+  LD E,A
+  LD HL,_RelData+2
+  ADD HL,DE
+  INC (HL)      ;First sprite: face down
+  INC (HL)
+  INC HL
+  INC HL
+  INC HL        ;Second sprite: go up-right
+  INC HL
+  INC (HL)
+  INC HL
+  LD A,%01000000
+  OR (HL)
+  LDI (HL),A
+  INC HL        ;Third sprite: go up-left
+  INC HL
+  INC (HL)
+  INC HL
+  LD A,%01100000
+  OR (HL)
+  LD (HL),A
++
+  LD BC,$0080
   RET
 
 
