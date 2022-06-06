@@ -143,7 +143,6 @@ NewDanmaku:
   ADD HL,DE
   DEC (HL)
   JR nz,+
-  JR +
   ;Die
   PUSH DE
     INC HL
@@ -261,12 +260,95 @@ NewDanmaku:
   ADD HL,DE
   LD A,(HL)
   OR A
-  JR z,++
+  JP z,++
   INC A
   JR z,+
   DEC A
   ;Directed. Adjust headings based on delta
-  ;???
+  PUSH DE
+    LD B,3    ;Danmaku count
+    LD C,A    ;Base tile
+    PUSH BC
+      LD HL,_OldPos
+      ADD HL,DE
+      PUSH HL
+        LD HL,_RelData
+        ADD HL,DE
+      POP BC
+    POP DE
+-
+    LD A,E
+    PUSH DE
+      PUSH AF
+        ;Calculate delta from current and last position
+        ;And update last position with current
+        LD A,(BC)     ;Old Y
+        CPL
+        INC A
+        ADD (HL)
+        LD D,A
+        LDI A,(HL)
+        LD (BC),A
+        INC BC
+        LD A,(BC)     ;Old X
+        CPL
+        INC A
+        ADD (HL)
+        LD E,A
+        LDI A,(HL)
+        LD (BC),A
+        INC BC
+        ;Adjust tile and attributes based on delta
+      POP AF
+      LD (HL),A   ;Base tile
+      ;Tile. Dependent on whether movement is predominantly vert or hort, or neither
+      ;Diag if 2*H>V && 2*V>H
+      ;Also works comparing against the linear equations defining the regions
+      PUSH DE
+        BIT 7,E
+        JR z,+++
+        LD A,E
+        CPL
+        INC A
+        LD E,A
++++
+        LD A,D
+        BIT 7,A
+        JR z,+++
+        CPL
+        INC A
++++
+        ADD A
+        CP E
+        JR c,+++    ;Y * 2 < X
+        INC (HL)    ;Diagonal or vertical
+        LD A,E
+        ADD A
+        CP D
+        JR nc,+++  ;X * 2 >= Y
+        INC (HL)  ;Vertical
++++
+      POP DE
+      ;Attribute. Choose correctly for the quadrant movement is in/towards
+      ;Pos Y -> no Y flip
+      ;Pos X -> no X flip
+      INC HL
+      LD A,%10011111
+      AND (HL)
+      BIT 7,D
+      JR z,+++
+      OR %00100000
++++
+      BIT 7,E
+      JR z,+++
+      OR %01000000
++++
+      LDI (HL),A
+    POP DE
+    DEC D
+    JR nz,-
+  POP DE
+  JR ++
 +
   ;Spinny danmaku. Spin at a reasonable rate
   LD HL,_AnimWait
@@ -302,45 +384,6 @@ NewDanmaku:
 ++
   ;Undirected danmaku. Do nothing
   JP Danmaku_Draw
-  
-  
-      ;If directed danmaku, tile/attribute is dependent on movement delta
-      ;Check for direction
-        ;Directed. Adjust heading based on delta
-        POP HL    ;Current danmaku under consideration
-        PUSH HL
-        LD (HL),A   ;Base tile
-        ;Tile. Dependent on whether movement is predominantly vert or hort, or neither
-        ;Diag if 2*H>V && 2*V>H
-        ;Also works comparing against the linear equations defining the regions
-        LD A,B
-        RRA
-        CP C
-        JR nc,++  ;Y <= X * 0.5
-        INC (HL)  ;Diagonal or vertical
-++
-        LD B,A
-        ADD A
-        CP C
-        JR nc,++  ;X * 2 > Y
-        INC (HL)  ;Vertical
-++
-        ;Attribute. Choose correctly for the quadrant movement is in/towards
-        ;Pos Y -> no Y flip
-        ;Pos X -> no X flip
-        INC HL
-        LD A,%10011111
-        AND (HL)
-        BIT 7,B
-        JR z,++
-        OR %00100000
-++
-        BIT 7,C
-        JR z,++
-        OR %01000000
-++
-        LD (HL),A
-        JP +
 
 
 ;Danmaku Definitions
@@ -357,6 +400,9 @@ DanmakuList:
 ;Reimu orbs
 .db $68,%01000000
 .dw DanmakuMove_Orbs
+;Reimu ofuda
+.db $79,%11000000
+.dw DanmakuMove_Ofuda
 
 ;Danmaku Actions
     ;DE=Move Data
@@ -370,6 +416,10 @@ DanmakuMove_Orbs:
 ;2 phases:
     ;Extend
     ;Speen
+  OR A
+  LD H,D
+  LD L,E
+  JP nz,MemFree
   LD A,D
   OR E
   JR nz,+
@@ -409,6 +459,12 @@ DanmakuMove_Orbs:
   LD (HL),B
   DEC HL
   LDI (HL),A
+  RET
+
+DanmakuMove_Ofuda:
+  LD C,$10
+  LD B,0;D
+  INC D
   RET
 
 
