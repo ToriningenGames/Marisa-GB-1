@@ -170,7 +170,82 @@ FairyConstructor:
   JP NewTaskLo
 
 FairyFrame:
+  LD HL,$C0A1
+  LD A,(HL)
+  CALL Access_ActorDE
+  ;If Marisa under cutscene control, sit tight
+  LD B,H
+  LD C,L
+  LD HL,_ControlState
+  ADD HL,BC
   XOR A
+  BIT 0,(HL)
+  RET z
+  ;Get delta of Marisa Pos
+  LD HL,_MasterX+1
+  ADD HL,DE
+  INC BC
+  INC BC
+  INC BC
+  PUSH DE
+    LD A,(BC)
+    SUB (HL)
+    LD E,A
+    INC HL
+    INC HL
+    INC BC
+    INC BC
+    LD A,(BC)
+    SUB (HL)
+    LD D,A
+    ;Can we see Marisa?
+      ;step through map visibility; ensure 1s
+    ;Marisa invisible; sit here.
+    ;LD DE,0
+    ;Marisa visible; approach
+    LD A,$11
+    BIT 7,E
+    JR z,+
+    ;Left instead of right
+    XOR $03
+    PUSH AF
+      LD A,E
+      CPL
+      INC A
+      LD E,A
+    POP AF
++
+    BIT 7,D
+    JR z,+
+    ;Up instead of down
+    XOR $30
+    PUSH AF
+      LD A,D
+      CPL
+      INC A
+      LD D,A
+    POP AF
++
+    PUSH DE
+      LD D,A
+      LD A,E
+      SWAP A
+      AND $0F
+      LD A,D
+      JR nz,+
+      AND $F0   ;No X movement
++
+    POP DE
+    LD E,A
+    LD A,D
+    SWAP A
+    AND $0F
+    LD A,E
+    JR nz,+
+    AND $0F     ;No Y movement
++
+  POP DE
+  ;Do we shoot?
   RET
 
 ;This is in Animations.asm, adjacent to the animations proper
