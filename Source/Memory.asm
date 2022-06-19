@@ -4,9 +4,9 @@
     ;Do not free nonallocated blocks, unless you want them part of the pool!
 
 ;Memory for use:
-    ;$D600-$DFFF: 2560 bytes
+    ;$D500-$DFFF: 2816 bytes
 .DEFINE RingStart $C0FB
-.DEFINE MemStart $D600
+.DEFINE MemStart $D500
 .DEFINE MemEnd $E000
 .DEFINE BlockSize 64
 

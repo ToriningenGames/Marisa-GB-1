@@ -1,7 +1,3 @@
-;Exit Format:
-;To be decided...
-;Will contain cutscenes, which will contain actor lists
-    ;Want/need some way to specify different exits upon loading room
 
 
 ;Map format inspiration:
@@ -76,8 +72,8 @@
 .DEFINE MapArea $D000
 .DEFINE PriArea $D400
 .DEFINE ColArea $D480
-.DEFINE VisArea $D500
-.DEFINE ObjArea $D580
+;.DEFINE VisArea $D500
+.DEFINE ObjArea $C1AA
 .ENUM ObjArea
     exitLeftMap    DW
     exitDownMap    DW

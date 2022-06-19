@@ -42,16 +42,18 @@
     ;Memory ring starting point
 ;$C0FD,$C0FE,$C0FF
     ;Storage place for tea while working.
-;$C100 - $C19F:   |||                |||
-    ;Text Data    |||                |||
-;$C1A0 - $C1A9:   |||                |||
-    ;Text Control |||                |||
-;$C1AA - $C3FF:   |||                |||
-    ;Free         |||                |||
+;$C100 - $C19F:    |||                |||
+    ;Text Data     |||                |||
+;$C1A0 - $C1A9:    |||                |||
+    ;Text Control  |||                |||
+;$C1AA - $C1FF:    |||                |||
+    ;Map Supp Area |||                |||
+;$C200 - $C3FF:    |||                |||
+    ;Free          |||                |||
 ;$C400 - $CCFF: Initial decompression zone
-;$C400 - $C8FF    |||    Overlaps    |||
-    ;Hitbox data  |||                |||
-;$C900 - $CCFF    |||                |||
+;$C400 - $C8FF     |||    Overlaps    |||
+    ;Hitbox data   |||                |||
+;$C900 - $CCFF     |||                |||
     ;Facedata
 ;$CD00 - $CDFF
     ;Task data area
@@ -114,10 +116,10 @@
         ;Incremented each frame when vBlank interrupts are enabled.
 ;$CFAC - $CFFF:
     ;Active object index
-;$D000 - $D5FF
-    ;Map & Exit Data
-        ;See "Maps.asm"
-;$D600 - $DFFF
+;$D000 - $D4FF
+    ;Map Data
+        ;See "mapDef.asm"
+;$D500 - $DFFF
     ;Dynamically Allocated Memory
 
 ;HRAM:

@@ -40,10 +40,6 @@ LoadMap_Task:
   POP BC
   RST $00
   PUSH BC
-  CALL ExtractRestoreSP
-  POP BC
-  RST $00
-  PUSH BC
   CALL ExtractRestoreSP ;Attribute data
   POP BC
   RST $00
@@ -101,9 +97,9 @@ ShowMap_Task:
 GetPriAtBC:
   LD HL,PriArea
   JR _GetItmAtBC
-GetVisAtBC:
-  LD HL,VisArea
-  JR _GetItmAtBC
+;GetVisAtBC:
+;  LD HL,VisArea
+;  JR _GetItmAtBC
 GetColAtBC:
   LD HL,ColArea
 _GetItmAtBC:
