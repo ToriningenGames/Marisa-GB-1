@@ -67,7 +67,7 @@ Things I didn't know what to do with ended up here. Other than administrata, the
 The Storyline.txt is not engine, data, or art related, so it doesn't have a home
 
 ## Building
-- If you're not on Win64, build the tools in Tools (currently impossible sorry)
+- If you're not on Win64, build the tools in Tools (tools not included sorry)
 - Run `make` in the root folder
     - WLA not in your path? Use `make WLADIR=path/to/wla/dir`
     - Running Unix? Crack open the Makefile, do a find-replace from `\` to `/`. Also redefine the commands specified near line 10
@@ -77,6 +77,7 @@ The Storyline.txt is not engine, data, or art related, so it doesn't have a home
     - The Makefile has a few memory maps available for you. Building alone may not leave enough space, but using `make MAP=ALTMAP` ekes out a few extra bytes. If you're adding things in and know it's over size, use `make MAP=FATMAP`. *The game will not run using this map!*
 
 For right now, the Tools folder contains win64 versions of tools I writ. `make` and `wla` will have to be provided by you.
+The tools' sources are available in other repositories.
 
 ## Tips When Editiing
 - The Makefile autogenerates the WLA linkfile as Link.link, adds all the pieces where they need to be, and throws it together.
@@ -106,7 +107,7 @@ Inside game:
 <li />[x] Tie the cutscenes into the game at their intended points
 <li />[x] Rewrite Love-Colored Master Spark to be more fitting and smaller
 <li />[x] Rewrite the fairy behavior to be more RAM based and modular
-<li />[ ] Reimplement danmaku
+<li />[x] Reimplement danmaku
 <li />[ ] Write up patterns for the fairies
 <li />[ ] Write up patterns for Narumi
 <li />[ ] Tie the patterns to their characters
