@@ -90,6 +90,8 @@
     ;+$12, size 1: Danmaku anim type
     ;+$13, size 1: Remaining number of frames to execute
     ;+$14, size 2: Data for danmaku movement function
+;Fairy
+    ;+$12, size 2: Delay timer for danmaku firing
 
 ;Control bit states:
 ;%C0000OTE
@@ -169,3 +171,6 @@
 .DEFINE _IsDirected $12     ;0 if undirected. $FF if spinny. Holds base tile if directed
 .DEFINE _Lifetime $13
 .DEFINE _MoveData $14
+
+;Fairy
+.DEFINE _ShootTimer $12
