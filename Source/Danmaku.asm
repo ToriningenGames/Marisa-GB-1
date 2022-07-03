@@ -63,9 +63,7 @@ NewDanmaku:
     ADD HL,DE
     LDI (HL),A
     LDI (HL),A
-    LD (HL),<DanmakuHitboxes    ;Don't use hitboxes (since updating them is a hassle)
-    INC HL
-    LD (HL),>DanmakuHitboxes
+    LDI (HL),A    ;Don't use hitboxes (since updating them is a hassle)
     INC HL
     LDI (HL),A      ;Invisible, at least for now
     INC HL

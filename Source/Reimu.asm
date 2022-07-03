@@ -6,7 +6,7 @@
 
 ReimuActorData:
  .dw $0100
- .dw ReimuHitboxes
+ .dw %011
  .dw ReimuFrame
  .dw _HatValues
  .dw _Animations

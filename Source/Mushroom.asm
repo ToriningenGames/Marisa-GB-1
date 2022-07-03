@@ -7,7 +7,7 @@
 
 MushroomActorData:
  .dw 0
- .dw MushroomHitboxes
+ .dw %010
  .dw MushroomFrame
  .dw _HatValues
  .dw _Animations

@@ -84,7 +84,7 @@ Actor_FrameInit:
     LD A,(BC)     ;Move Speed hi
     INC BC
     LDI (HL),A
-    LD A,$FF      ;Hitbox lo
+    LD A,(BC)     ;Hitbox lo
     INC BC
     LDI (HL),A
     LD A,(BC)     ;Hitbox hi

@@ -59,7 +59,7 @@ HitboxUpdate_Task:
   LD A,(ObjUse)
   ADD A     ;2 bytes per actor
   RET z     ;0 actors. No hitboxes
-  ADD <ActiveActorArray+2
+  ADD <ActiveActorArray
   LD C,A
   LD B,>ActiveActorArray
 -
@@ -68,7 +68,7 @@ HitboxUpdate_Task:
   DEC BC
   LD A,C
   CP <ActiveActorArray
-  RET c     ;Hit end of effective list with "first" actor, due to no seconds
+  RET z     ;Hit end of effective list with "first" actor, due to no seconds
   ;Does the actor collide?
   LD A,(BC)
   INC BC
@@ -129,44 +129,34 @@ HitboxUpdate_Task:
     LD L,A
     LD A,(DE)
     SUB L
-    PUSH AF     ;save directionality
-      JR nc,+
-      ;Positive delta only
-      CPL
-      INC A
+    JR nc,+
+    ;Positive delta only
+    CPL
+    INC A
 +
-      LD H,A
-      INC BC
-      INC BC
-      INC DE
-      INC DE  ;Master Y int parts
-      LD A,(BC)
-      LD L,A
-      LD A,(DE)
-      SUB L
-      PUSH AF     ;save directionality
-        JR nc,+
-        ;Positive delta only
-        CPL
-        INC A
+    LD H,A
+    INC BC
+    INC BC
+    INC DE
+    INC DE  ;Master Y int parts
+    LD A,(BC)
+    LD L,A
+    LD A,(DE)
+    SUB L
+    JR nc,+
+    ;Positive delta only
+    CPL
+    INC A
 +
-        ADD H
-        SUB MasterHitboxSize
-      POP HL
-    POP DE
-    LD L,D
+    ADD H
+    SUB MasterHitboxSize
   POP DE
   POP BC
   JR nc,--
   ;Collided, move them apart
-  CPL   ;Distance to move: max - current distance
-  INC A
-  PUSH DE
   PUSH BC
-    OR A    ;Clear carry flag
-    RRA  ;Each moves half distance
+  PUSH DE
     PUSH AF
-    PUSH HL
       ;Get from actor slots to actual data
       LD A,(BC)
       INC BC
@@ -180,79 +170,94 @@ HitboxUpdate_Task:
       LD A,(DE)
       LD D,A
       LD E,L
-      INC BC
-      INC BC
-      INC BC
-      INC DE
-      INC DE
-      INC DE    ;Master X int
-    POP HL
-    POP AF
-    PUSH HL
-      ;BC actor
-      ;Can this actor be pushed?
-      LD HL,_Hitbox-3
+      ;Can these actors be pushed?
+      LD HL,_Hitbox
       ADD HL,BC
-      BIT 2,(HL)
-      JR z,++
-      PUSH AF
-        ;Move them in... some direction
-        ;Wherever one moves, the other moves exactly opposite (full negation, both directions)
-        ;Negative X delta -> move right (BC was bigger; make bigger)
-        BIT 7,H
-        JR nz,+
-        ;Positive X; lessen BC
-        CPL
-        INC A
-+
-        LD H,A
-        LD A,(BC)
-        ADD H
-        LD (BC),A
-        INC BC
-        INC BC    ;Master Y int
-      POP AF
-      PUSH AF
-        ;Negative Y delta -> move down (BC was bigger; make bigger)
-        BIT 7,L
-        JR nz,+
-        ;Positive Y; lessen BC
-        CPL
-        INC A
-+
-        LD H,A
-        LD A,(BC)
-        ADD H
-        LD (BC),A
-      POP AF
-++
-      ;DE actor
-      ;Can this actor be pushed?
-      LD HL,_Hitbox-3
+      LD A,(HL)
+      LD HL,_Hitbox
       ADD HL,DE
-      BIT 2,(HL)
-      JR z,++
-    POP HL
-    PUSH AF
-      ;Opposite BC
-      BIT 7,H
-      JR z,+
-      CPL
-      INC A
+      LD L,(HL)
+      SWAP A
+      OR L
+      LD L,A
+      AND %01000100
+      JR z,++   ;Neither actor can be pushed
+      PUSH HL
+        ;Get deltas
+        INC BC
+        INC BC
+        INC BC
+        INC DE
+        INC DE
+        INC DE    ;Master X int
+        LD A,(BC)
+        LD H,A
+        LD A,(DE)
+        SUB H
+        LD L,A
+        INC BC
+        INC BC
+        INC DE
+        INC DE
+        LD A,(BC)
+        LD H,A
+        LD A,(DE)
+        SUB H
+        LD H,A
+        ;Wherever one moves, the other moves exactly opposite (full negation, both directions)
+        ;Move along the greater axis such that |dX| + |dY| = HitSize
+        LD A,H
+        CP L
+        JR nc,+
+        ;Moving along X instead
+        DEC BC
+        DEC BC
+        DEC DE
+        DEC DE
+        LD A,L
 +
-      LD H,A
-      LD A,(DE)
-      ADD H
-      LD (DE),A
-      INC DE
-      INC DE
+        ;Delta movement is on stack, negated
+      POP HL
+      LD H,A    ;Save present delta to determine sign later
     POP AF
-    BIT 7,L
-    JR z,+
+    CPL     ;absolute value
+    INC A
+    OR A  ;No carry
+    RRA
+    ADC 0 ;Err to larger movements
+    BIT 7,H
+    JR nz,+
+    ;Moving up/left, make movement negative
     CPL
     INC A
 +
+    ;Apply delta to BC actor, if it can be pushed
     LD H,A
+    BIT 6,L
+    JR z,+
+    LD A,(BC)
+    ADD H
+    LD (BC),A
+    ;Apply it twice if the other actor can't be pushed
+    BIT 2,L
+    JR nz,+
+    LD A,(BC)
+    ADD H
+    LD (BC),A
+    ;This is the only code path where the second actor is not pushable
+    JR ++
++   ;Second actor can be pushed
+    ;DE moves in other direction
+    LD A,H
+    CPL
+    INC A
+    LD H,A
+    LD A,(DE)
+    ADD H
+    LD (DE),A
+    ;If first actor couldn't be pushed, apply twice
+    BIT 6,L
+    JR nz,++
     LD A,(DE)
     ADD H
     LD (DE),A
@@ -263,243 +268,6 @@ HitboxUpdate_Task:
 
 ;Like hitboxes, but only against 1 actor, and only when A is freshly pressed
 InteractUpdate_Task:
-
-;HitboxUpdate_Task:
-;Puts updated hitbox information in the extract area so pushing etc are up to date
----
-  RST $00
-  ;Back to front for ease of end checking
-  LD A,(ObjUse)
-  ADD A ;Double. affecting zero flag
-  RET z ;No actors; nothing to do
-  ADD <ActiveActorArray
-  LD C,A
-  LD B,>ActiveActorArray
-  ;Point HL to beginning of Hitbox Data Collection
-  LD HL,HitboxStart
--
-  ;For each actor
-  ;Don't edit HL
-  ;Get actor in DE
-  DEC C
-  LD A,(BC)
-  LD D,A
-  DEC C
-  LD A,(BC)
-  ADD _Hitbox
-  LD E,A
-  LD A,0
-  ADC D
-  LD D,A
-  PUSH BC
-    ;Get hitbox data in BC
-    LD A,(DE)
-    INC DE
-    LD C,A
-    LD A,(DE)
-    LD B,A
-    LD A,-(_Hitbox+1)
-    ADD E       ;Back to base
-    LD E,A
-    LD A,-1
-    ADC D
-    LD D,A
-    ;Get no. of hitboxes
-    LD A,(BC)
-    INC BC
---
-;BC->Actor Hitbox Data
-;DE->Actor Data
-;HL->Hitbox Data Collection
-    ;For each hitbox
-    PUSH AF
-      ;Get absolute hitbox position
-      INC DE
-      INC DE
-      INC DE    ;Only high bytes
-      INC BC
-      LD A,(BC)       ;X offset
-      INC BC
-      INC BC
-      LD (HL),A
-      LD A,(DE)
-      INC DE
-      INC DE
-      ADD (HL)
-      LDI (HL),A
-      LD A,(BC)       ;Y offset
-      INC BC
-      LD (HL),A
-      LD A,(DE)
-      ADD (HL)
-      LDI (HL),A
-      DEC DE          ;Return DE to start of actor
-      DEC DE
-      DEC DE
-      DEC DE
-      DEC DE
-      LD A,(BC)       ;Radius
-      INC BC
-      LDI (HL),A
-      LD A,(BC)       ;type
-      INC BC
-      LDI (HL),A
-      LD A,E
-      LDI (HL),A      ;Owning actor
-      LD A,D
-      LDI (HL),A
-      LD A,(BC)       ;Action
-      INC BC
-      LDI (HL),A
-      LD A,(BC)
-      INC BC
-      LDI (HL),A
-    POP AF
-    DEC A
-    JR nz,--
-  POP BC
-  LD A,<ActiveActorArray
-  CP C
-  JR nz,-
-
-;DoPush_Task:
-;Checks all actors and hits them as necessary
-;For each actor
-    ;Check against subsequent actors
-  LD E,L
-  LD D,H
-  LD L,E
-  LD H,D
-  ;Back to front for ease of end checking
-  ;HL contains the end of hitbox array
-  ;Compare every hitbox with every other hitbox
-  ;(This grows half as fast as O(n^2), best case if most hitboxes are moving)
--
-  LD A,L    ;Go to beginning of next hitboxes
-  SUB 8
-  LD L,A
-  LD A,H
-  SBC 0
-  LD H,A
-  LD A,L    ;Don't compare hitboxes to themselves
-  SUB 8
-  LD C,A
-  LD A,H
-  SBC 0
-  LD B,A
-  SUB (>HitboxStart)-1  ;When HL is the last, BC underflows
-  JP z,---
---
-  ;Hit check:
-  ;Circles:
-  ;sqrt((X2 - X1)^2 + (Y2 - Y1)^2) - R1 - R2 < 0
-  ;sqrt((X2 - X1)^2 + Y2^2 - Y2Y1 + Y1^2) - (R1 + R2) < 0
-  ;(X2 - X1)^2 + Y2^2 - Y2Y1 + Y1^2 - (R1 + R2)^2 < 0
-  ;(X2 - X1)^2 + (Y2 - Y1)^2 - (R2 + R1)^2 < 0
-  ;Circles are computationally expensive, so use squares instead:
-  ;(X2 + R2) < (X1 - R1) || (X2 - R2) > (X1 + R1)
-  ;X2 + R2 + R1 < X1 || X2 - R2 - R1 > X1
-  ;X2 + R2 + R1 - X1 < 0 || X2 - R2 - R1 - X1 > 0
-  ;abs(X2 - X1) - (R2 + R1) < 0
-  LD A,(BC)     ;D = abs(X2 - X1)
-  INC BC
-  SUB (HL)
-  INC HL
-  JR nc,+
-  CPL
-  INC A
-+
-  LD D,A
-  LD A,(BC)     ;E = abs(Y2 - Y1)
-  INC BC
-  SUB (HL)
-  INC HL
-  JR nc,+
-  CPL
-  INC A
-+
-  LD E,A
-  LD A,(BC)     ;A = -(R2 + R1)
-  INC BC
-  INC BC
-  ADD (HL)
-  INC HL    ;Skip type
-  INC HL
-  CPL
-  INC A
-  PUSH AF
-    ADD D       ;R + X, R + Y staying negative indicates hit (No carry, b/c R is negative)
-    LD A,E
-  POP DE    ;Rotate around D, A, E so we can clear the stack
-  JR c,_nohit
-  ADD D
-  JR c,_nohit
-;Hit. Call hit actions
-  LD A,D    ;Place collective radius back on stack... but positive
-  CPL
-  INC A
-  PUSH AF
-  PUSH HL   ;The order of the next four push/pop pairs is important
-  PUSH BC   ;The called-on hitbox is always top of the stack
-    ;Call the actions on BC and HL if they are different actors
-    LDI A,(HL)  ;DE->Touching actor
-    LD E,A
-    LD D,(HL)
-    LD H,B  ;Copy this actor to HL
-    LD L,C
-    LDI A,(HL)  ;BC->Owning actor
-    LD C,A
-    LDI A,(HL)
-    LD B,A
-    LDI A,(HL)  ;HL->Action
-    LD H,(HL)
-    LD L,A
-    LD A,B      ;Make sure they're different (WARNING: clever!)
-    XOR C       ;By a wonder of the addresses MemAlloc returns, this will always work
-    XOR D       ;Specifically, they are all $DXX0, so the only varied bits don't overlap in XORs
-    XOR E       ;If and only if the addresses are the same will the result be 0
-    CALL nz,$0030
-  POP BC
-  POP HL
-  ;Call HL's action too
-  PUSH BC
-  PUSH HL
-    LD A,(BC) ;DE->Touching actor
-    INC BC
-    LD E,A
-    LD A,(BC)
-    LD D,A
-    LDI A,(HL)    ;BC->Owning actor
-    LD C,A
-    LDI A,(HL)
-    LD B,A
-    LDI A,(HL)    ;HL->Action
-    LD H,(HL)
-    LD L,A
-    LD A,B      ;Make sure they're different
-    XOR C       ;As above.
-    XOR D       ;Should MemAlloc change to return more addresses, a few false positives would occur.
-    XOR E       ;A reasonable alternative could be adding them instead
-    CALL nz,$0030
-  POP HL
-  POP BC
-  ADD SP,+2 ;Take the collective radius off the stack
-_nohit:     ;Result greater than zero? Didn't hit
-  DEC HL    ;Realign HL to this hitbox
-  DEC HL
-  DEC HL
-  DEC HL
-  LD A,C
-  SUB 8+4   ;Next hitbox
-  LD C,A
-  LD A,B
-  SBC 0
-  LD B,A
-;Check for end of loop
-  SUB (>HitboxStart)-1
-  JP nz,--
-  JP -
-
 .ENDS
 
 .SECTION "Hitbox Definitions" FREE

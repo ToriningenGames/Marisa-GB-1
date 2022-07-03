@@ -36,7 +36,7 @@
 
 CharaActorData:
  .dw 120*3
- .dw PlayerHitboxes
+ .dw %101
  .dw CharaFrame
  .dw _HatValues
  .dw _Animations
@@ -80,7 +80,7 @@ _HatValues:
 
 HatActorData:
  .dw 0          ;Don't let Actor Control move the hat
- .dw HatHitboxes
+ .dw %000
  .dw HatFrame
  .dw HeadPosTable
  .dw _Animations
