@@ -8,6 +8,9 @@
 
 .DEFINE PlayerButtonBuf $C0E6
 
+;This is size of BOTH hiboxes together when colliding!
+.DEFINE MasterHitboxSize $08
+
 .SECTION "Collision" FREE
 ;Hitbox memory format:
     ;2 bytes: X position (8.8)
@@ -25,7 +28,243 @@
     ;Hit detection only uses integer positions. Close actors as above
     ;Streamline data organization for execution speed
     ;TODO: Detect against Marisa only
+    
+;TODO: convert actor hitbox data to a bit array of allowable actions,
+    ;and assume size+location from actor data itself
+    ;After all, no meaningful actor has a disjoint hibox (save the interactor)
+;;
+;Bit assignments:
+;%000000PIC
+;       ||+--- Can collide
+;       |+--- Can be interacted with
+;       +--- Can be pushed
+
+;Get last actor
+;For each actor
+        ;If this actor does not collide, go to next actor
+    ;Get the next actor
+        ;If next actor is invalid, done
+        ;If next actor does not collide, go to next actor
+    ;Get distance
+        ;If distance > a value, go to next actor
+    ;Push away from each other
+        ;(figure out a good algo for this)
+;If A not pressed this frame, done.
+    ;Else, get interactivity point
+    ;Check interactivity point against each actor for
+        ;interactivity
+        ;position
 HitboxUpdate_Task:
+  ;Number of actors (and thus location of last actor)
+  LD A,(ObjUse)
+  ADD A     ;2 bytes per actor
+  RET z     ;0 actors. No hitboxes
+  ADD <ActiveActorArray+2
+  LD C,A
+  LD B,>ActiveActorArray
+-
+  ;Next "first" actor
+  DEC BC
+  DEC BC
+  LD A,C
+  CP <ActiveActorArray
+  RET c     ;Hit end of effective list with "first" actor, due to no seconds
+  ;Does the actor collide?
+  LD A,(BC)
+  INC BC
+  LD L,A
+  LD A,(BC)
+  DEC BC
+  LD H,A
+  LD DE,_Hitbox
+  ADD HL,DE
+  BIT 0,(HL)
+  JR z,-
+  ;Actor can collide; compare to the rest
+  LD D,B
+  LD E,C
+--
+  ;Next "second" actor
+  DEC DE
+  DEC DE
+  LD A,E
+  CP <ActiveActorArray
+  JR c,-    ;Hit end of list
+  LD A,(DE)
+  INC DE
+  LD L,A
+  LD A,(DE)
+  DEC DE
+  LD H,A
+  PUSH DE
+    LD DE,_Hitbox
+    ADD HL,DE
+  POP DE
+  BIT 0,(HL)
+  JR z,--
+  PUSH BC
+  PUSH DE
+    ;Get from actor slots to actual data
+    LD A,(BC)
+    INC BC
+    LD L,A
+    LD A,(BC)
+    LD B,A
+    LD C,L
+    LD A,(DE)
+    INC DE
+    LD L,A
+    LD A,(DE)
+    LD D,A
+    LD E,L
+    ;Compare distances
+    ;Manhattan is cheaper
+    INC BC
+    INC BC
+    INC BC
+    INC DE
+    INC DE
+    INC DE  ;Master X int parts
+    LD A,(BC)
+    LD L,A
+    LD A,(DE)
+    SUB L
+    PUSH AF     ;save directionality
+      JR nc,+
+      ;Positive delta only
+      CPL
+      INC A
++
+      LD H,A
+      INC BC
+      INC BC
+      INC DE
+      INC DE  ;Master Y int parts
+      LD A,(BC)
+      LD L,A
+      LD A,(DE)
+      SUB L
+      PUSH AF     ;save directionality
+        JR nc,+
+        ;Positive delta only
+        CPL
+        INC A
++
+        ADD H
+        SUB MasterHitboxSize
+      POP HL
+    POP DE
+    LD L,D
+  POP DE
+  POP BC
+  JR nc,--
+  ;Collided, move them apart
+  CPL   ;Distance to move: max - current distance
+  INC A
+  PUSH DE
+  PUSH BC
+    OR A    ;Clear carry flag
+    RRA  ;Each moves half distance
+    PUSH AF
+    PUSH HL
+      ;Get from actor slots to actual data
+      LD A,(BC)
+      INC BC
+      LD L,A
+      LD A,(BC)
+      LD B,A
+      LD C,L
+      LD A,(DE)
+      INC DE
+      LD L,A
+      LD A,(DE)
+      LD D,A
+      LD E,L
+      INC BC
+      INC BC
+      INC BC
+      INC DE
+      INC DE
+      INC DE    ;Master X int
+    POP HL
+    POP AF
+    PUSH HL
+      ;BC actor
+      ;Can this actor be pushed?
+      LD HL,_Hitbox-3
+      ADD HL,BC
+      BIT 2,(HL)
+      JR z,++
+      PUSH AF
+        ;Move them in... some direction
+        ;Wherever one moves, the other moves exactly opposite (full negation, both directions)
+        ;Negative X delta -> move right (BC was bigger; make bigger)
+        BIT 7,H
+        JR nz,+
+        ;Positive X; lessen BC
+        CPL
+        INC A
++
+        LD H,A
+        LD A,(BC)
+        ADD H
+        LD (BC),A
+        INC BC
+        INC BC    ;Master Y int
+      POP AF
+      PUSH AF
+        ;Negative Y delta -> move down (BC was bigger; make bigger)
+        BIT 7,L
+        JR nz,+
+        ;Positive Y; lessen BC
+        CPL
+        INC A
++
+        LD H,A
+        LD A,(BC)
+        ADD H
+        LD (BC),A
+      POP AF
+++
+      ;DE actor
+      ;Can this actor be pushed?
+      LD HL,_Hitbox-3
+      ADD HL,DE
+      BIT 2,(HL)
+      JR z,++
+    POP HL
+    PUSH AF
+      ;Opposite BC
+      BIT 7,H
+      JR z,+
+      CPL
+      INC A
++
+      LD H,A
+      LD A,(DE)
+      ADD H
+      LD (DE),A
+      INC DE
+      INC DE
+    POP AF
+    BIT 7,L
+    JR z,+
+    CPL
+    INC A
++
+    LD H,A
+    LD A,(DE)
+    ADD H
+    LD (DE),A
+++
+  POP DE
+  POP BC
+  JP --
+
+;Like hitboxes, but only against 1 actor, and only when A is freshly pressed
+InteractUpdate_Task:
+
+;HitboxUpdate_Task:
 ;Puts updated hitbox information in the extract area so pushing etc are up to date
 ---
   RST $00
