@@ -245,7 +245,37 @@ FairyFrame:
     AND $0F     ;No Y movement
 +
   POP DE
-  ;Do we shoot?
+  PUSH AF
+    ;Do we shoot?
+    LD HL,_ShootTimer
+    ADD HL,DE
+    LD A,(HL)
+    SUB 1
+    LDI (HL),A
+    LD A,(HL)
+    SBC 0
+    LDD (HL),A
+    JR nc,+
+    ;Shoot
+    ;Reset timer
+    RST $18   ;Get random number
+    SWAP A
+    LDI (HL),A
+    AND $0F
+    OR $10
+    LD (HL),A
+    LD HL,_MasterX+1
+    ADD HL,DE
+    LDI A,(HL)
+    INC HL
+    LD E,(HL)
+    LD D,A
+    RST $18   ;Random danmaku pattern
+    AND $01
+    LD BC,NewDanmaku
+    CALL NewTask
++
+  POP AF
   RET
 
 ;This is in Animations.asm, adjacent to the animations proper
