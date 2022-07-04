@@ -36,7 +36,8 @@
 
 FairyActorData:
  .dw 100
- .dw %101
+ .db %101
+ .db $00
  .dw FairyFrame
  .dw _HatValues
  .dw FairyAnimations

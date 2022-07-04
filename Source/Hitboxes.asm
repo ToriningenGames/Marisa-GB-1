@@ -6,54 +6,18 @@
 .DEFINE HitboxStart     $C400
 .DEFINE HitboxEndPtr    $C0EC
 
-.DEFINE PlayerButtonBuf $C0E6
 
 ;This is size of BOTH hiboxes together when colliding!
 .DEFINE MasterHitboxSize $08
 
 .SECTION "Collision" FREE
-;Hitbox memory format:
-    ;2 bytes: X position (8.8)
-    ;2 bytes: Y position (8.8)
-    ;2 bytes: Radius     (8.8)
-    ;2 bytes: Owning Actor
-    ;2 bytes: Action
-;Action signature:
-    ;BC->Owning actor
-    ;DE->Touching actor
+;Basic idea:
+;We check every pair of actors once (O(n log n))
+;If the pair can collide, we check their distance using Manhattan geometry
+;If their distance is less the the Master size, they are pushed apart on the easiest axis (smallest push)
+;If they can both be pushed, the distance is split between the two
+;Two immovables is accomodated.
 
-;This task needs more speed.
-    ;Hit detection always uses squares. For close actors, actual hit handlers
-        ;can determine true collisions
-    ;Hit detection only uses integer positions. Close actors as above
-    ;Streamline data organization for execution speed
-    ;TODO: Detect against Marisa only
-    
-;TODO: convert actor hitbox data to a bit array of allowable actions,
-    ;and assume size+location from actor data itself
-    ;After all, no meaningful actor has a disjoint hibox (save the interactor)
-;;
-;Bit assignments:
-;%000000PIC
-;       ||+--- Can collide
-;       |+--- Can be interacted with
-;       +--- Can be pushed
-
-;Get last actor
-;For each actor
-        ;If this actor does not collide, go to next actor
-    ;Get the next actor
-        ;If next actor is invalid, done
-        ;If next actor does not collide, go to next actor
-    ;Get distance
-        ;If distance > a value, go to next actor
-    ;Push away from each other
-        ;(figure out a good algo for this)
-;If A not pressed this frame, done.
-    ;Else, get interactivity point
-    ;Check interactivity point against each actor for
-        ;interactivity
-        ;position
 HitboxUpdate_Task:
   ;Number of actors (and thus location of last actor)
   LD A,(ObjUse)
@@ -266,226 +230,15 @@ HitboxUpdate_Task:
   POP BC
   JP --
 
-;Like hitboxes, but only against 1 actor, and only when A is freshly pressed
-InteractUpdate_Task:
 .ENDS
 
-.SECTION "Hitbox Definitions" FREE
+.SECTION "Interactions" FREE BITWINDOW 8
 
-.ENUMID 0
-.ENUMID HitboxNone
-.ENUMID HitboxCollision
-.ENUMID HitboxTalk
-
-HatHitboxes:
-DanmakuHitboxes:
- .db 1
- .dw $0000,$0000
- .db $03,HitboxNone
- .dw DefaultHitboxAction
-
-FairyHitboxes:
-NarumiHitboxes:
- .db 1
- .dw $0000,$0000
- .db $05,HitboxCollision
- .dw DefaultHitboxAction
-
-PlayerHitboxes:
- .db 2
- .dw $0000,$0000
- .db $04,HitboxCollision
- .dw PlayerHitboxAction
- .dw $0000,$0000
- .db $0C,HitboxTalk
- .dw PlayerTalkAction
-
-AliceHitboxes:
- .db 2
- .dw $0000,$0000
- .db $03,HitboxCollision
- .dw DefaultHitboxAction
- .dw $0000,$0000
- .db $05,HitboxTalk
- .dw Cs_EndingB
- 
-ReimuHitboxes:
- .db 2
- .dw $0000,$0000
- .db $03,HitboxCollision
- .dw DefaultHitboxAction
- .dw $0000,$0000
- .db $05,HitboxTalk
- .dw Cs_ReimuMeet
- 
-MushroomHitboxes:
- .db 1
- .dw $0000,$0000
- .db $04,HitboxTalk
+InteractionActions:
  .dw Cs_MushroomCollect
-.ENDS
-
-.SECTION "Hitbox Behaviors" FREE
-
-PlayerHitboxAction:
-;We have
-  ;Distance we want to be from other actor
-  ;Our hitbox position
-  ;Their hitbox position
-;We need
-  ;Position we want to move
-;We can get it via
-  ;Finding our hitbox position in polar, and using distance to find delta
-  ;Finding our preferred X and Y position, and use our hitbox for finding delta
-    ;Problem: Distance gives us magnitude, but not angle
-  ;Call vec CORDIC on current XY distance
-  ;Use theta value, call rot CORDIC on ideal distance
-  ;Subtract ideal XY distance from current XY distance
-  ;or...
-  ;Call vec CORDIC on current XY distance
-  ;Subtract current distance from ideal distance
-  ;Call rot CORDIC on delta XY distance
-
-  ;Check if our argument is also a collision hitbox
-  LD HL,SP+4    ;Data frame
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
-  DEC HL
-  LDD A,(HL)
-  CP HitboxCollision    ;Hitbox type check
-  RET nz
-;Push ourselves half distance away from the other
-    ;on the largest axis of separation from their hitbox
-  DEC HL
-  LD D,(HL)     ;Their hitbox Y
-  DEC HL
-  LD E,(HL)     ;Their hitbox X
-  INC BC
-  INC BC
-  INC BC
-  LD A,(BC)     ;Our X
-  SUB E
-  JR nc,+   ;Make sure it's positive
-  CPL
-  INC A
-+
-  LD E,A
-  INC BC
-  INC BC
-  LD A,(BC)     ;Our Y
-  SUB D
-  JR nc,+   ;Positive difference
-  CPL
-  INC A
-+
-  CP E
-  JR nc,+++
-  ;Horizontal separation
-  DEC BC
-  DEC BC
-  LD A,(BC)
-  SUB (HL)
-  DEC BC    ;Realign to our actor start
-  DEC BC
-  DEC BC
-  JR nc,++  ;Determine left/right based on sub above
-  ;Go left; movement along negative X
-  LD HL,SP+7    ;Collective radius (This op, though shared, affects carry)
-  ADD (HL)      ;Find difference between radius and current distance, via R + -D
-  CPL
-  INC A
-  JR +  ;Shared code path
-++  ;Go right; movement along positive X
-  LD HL,SP+7    ;Collective radius
-  CPL
-  INC A
-  ADD (HL)      ;Find difference between radius and current distance
-+   ;Shared path for left/right movement
-  LD H,B    ;HL = Actor Data
-  LD L,C
-  LD B,A
-  XOR A     ;DE = Y delta
-  LD D,A
-  LD E,A
-  LD C,A
-  JP Actor_Move
-+++   ;Vertical separation
-  INC HL
-  LD A,(BC)
-  SUB (HL)
-  DEC BC    ;Realign to our actor start
-  DEC BC
-  DEC BC
-  DEC BC
-  DEC BC
-  JR nc,++  ;Determine up/down based on sub above
-  ;Go up; movement along negative Y
-  LD HL,SP+7    ;Collective radius (This op, though shared, affects carry)
-  ADD (HL)      ;Find difference between radius and current distance, via R + -D
-  CPL
-  INC A
-  JR +  ;Shared code path
-++  ;Go down; movement along positive Y
-  LD HL,SP+7    ;Collective radius
-  CPL
-  INC A
-  ADD (HL)      ;Find difference between radius and current distance
-+   ;Shared path for up/down movement
-  LD D,A
-  LD H,B    ;HL = Actor Data
-  LD L,C
-  XOR A     ;BC = X delta
-  LD B,A
-  LD C,A
-  LD E,A
-  JP Actor_Move
-
-DefaultHitboxAction:
-  RET
-
-PlayerTalkAction:
-;If player has talking control, run the cutscene on the other hitbox
-  ;Only talk if freshly interacting
-  LDH A,($FE)
-  LD HL,PlayerButtonBuf
-  XOR (HL)
-  AND %00000001
-  RET z
-  ;Check if chara has control
-  LD A,_ControlState
-  ADD C
-  LD C,A
-  JR nc,+
-  INC B
-+
-  LD A,(BC)
-  AND 2
-  RET z
-  ;Check if our argument is an interaction hitbox
-  LD HL,SP+4    ;Data frame
-  LDI A,(HL)
-  LD H,(HL)
-  LD L,A
-  DEC HL
-  LDI A,(HL)
-  CP HitboxTalk    ;Hitbox type check
-  RET nz
-  ;Run opposing hitbox's cutscene
-  PUSH BC
-    INC HL
-    INC HL
-    LDI A,(HL)
-    LD D,(HL)
-    LD E,A
-    INC DE        ;Skip leading RET
-    LD BC,Cutscene_Task
-    CALL NewTask
-  POP BC
-  RET c ;If cutscene didn't start, don't worry about trying again next frame
-  LD A,(BC)
-  AND $FD
-  LD (BC),A
-  RET
+ .dw Cs_EndingB
+ .dw Cs_ReimuMeet
+ ;.dw Cs_NarumiFightEnd
 
 .ENDS
+

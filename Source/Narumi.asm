@@ -8,7 +8,8 @@
 
 NarumiActorData:
  .dw 0
- .dw %011
+ .db %011
+ .db $03
  .dw NarumiFrame
  .dw _HatValues
  .dw _Animations

@@ -6,7 +6,8 @@
 
 AliceActorData:
  .dw $0100
- .dw %011
+ .db %011
+ .db $01
  .dw AliceFrame
  .dw _HatValues
  .dw _Animations

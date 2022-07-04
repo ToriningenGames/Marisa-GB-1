@@ -6,7 +6,8 @@
 
 ReimuActorData:
  .dw $0100
- .dw %011
+ .db %011
+ .db $02
  .dw ReimuFrame
  .dw _HatValues
  .dw _Animations

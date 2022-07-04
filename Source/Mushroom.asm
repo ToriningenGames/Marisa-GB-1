@@ -7,7 +7,8 @@
 
 MushroomActorData:
  .dw 0
- .dw %010
+ .db %010
+ .db $00
  .dw MushroomFrame
  .dw _HatValues
  .dw _Animations

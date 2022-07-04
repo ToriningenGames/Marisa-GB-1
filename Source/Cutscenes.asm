@@ -922,7 +922,6 @@ Cs_EndingA:
 
 ;Ending B (Escorted by Alice)
 Cs_EndingB:
-  RET   ;Used as interaction function
   ChangeActorControl 1,0
   RunTextStringBlocking StringAliceEscort1
   PlaySong SongDoll
@@ -1004,7 +1003,6 @@ __csNarumiEnd:
 
 ;Feeding Reimu Shrooms
 Cs_ReimuMeet:
-  RET
   ChangeActorControl 1,0
   ;First meet?
   JumpRelNZ varReimuMet,__csReimuNotFirst-CADDR-1
@@ -1062,7 +1060,6 @@ __csReimuStillShrooms:
   Return
 
 Cs_MushroomCollect:
-  RET
   DeleteActor 2   ;Mushroom plucked
   ;Check for map 30
   CompareVar16 varOldMap,MapForest30map

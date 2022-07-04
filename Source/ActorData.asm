@@ -101,6 +101,13 @@
 ; +---------- Free camera
 ;$FF: Self Destruct
 
+;Hitbox format:
+;%AAAAAAAA 000000PIC
+; ||||||||       ||+--- Can collide
+; ||||||||       |+--- Can be interacted with
+; ||||||||       +--- Can be pushed
+; ++++++++--- Interaction cutscene ID
+
 ;Animation IDs:
 ;0:   Face Left
 ;1:   Face Down
