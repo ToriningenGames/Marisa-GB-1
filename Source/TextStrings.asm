@@ -75,7 +75,7 @@ MAP "h" = $7F
     
     ;"0123456789ABCD"
 StringOpeningMessage1:
-.DB CtrlSpeed,2, CtrlEnd, CtrlFaceLoad1|$03, CtrlFaceLoad2|$01, CtrlBorder0, CtrlWait|1, CtrlFaceShow1, CtrlClear, CtrlRaise
+.DB CtrlSpeed,2, CtrlFaceLoad1|$03, CtrlFaceLoad2|$01, CtrlBorder0, CtrlWait|1, CtrlFaceShow1, CtrlClear, CtrlRaise
 .ASC "ALL THAT", CtrlLine
 .ASC "RUCKUS OVER A", CtrlLine
 .ASC "FEW LITTLE", CtrlLine

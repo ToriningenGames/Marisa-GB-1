@@ -658,7 +658,7 @@ Cs_Intro:
   ;First Scene setup
   LoadMap MapForestBKG03
   CreateActor 0,ChHat,0,0
-  CreateActor 1,ChMarisa,138,85
+  CreateActor 1,ChMarisa,132,65+35
   AssignHat 0,1
   ChangeActorControl 1,0     ;Cutscene control of Marisa
   AnimateActor 1,AnimFaceDown
@@ -669,11 +669,18 @@ Cs_Intro:
   WaitOnMap
   ;Marisa walk into scene here
   CallCs Cs_MapFadein
-  RunTextStringBlocking StringOpeningMessage1
+  WaitOnMap, 50     ;Short pause
+  MoveActorRel 1,AnimWalkUp,DirVert,-35,79, 105
+  AnimateActor 1,AnimFaceDown
+  RunTextStringBlocking StringOpeningMessage1, 60
   ;Marisa does a shuffle here
- ;RunTextStringBlocking StringOpeningMessage2
+  MoveActorRel 1,AnimWalkRight,DirHort,4,12, 70
+  MoveActorRel 1,AnimWalkLeft,DirHort,-9,12, 70
+  AnimateActor 1,AnimFaceUp, 95
+  AnimateActor 1,AnimFaceDown
+  RunTextStringBlocking StringOpeningMessage2
   PlaySong SongMagus  ;Load main actioney song
- ;RunTextStringBlocking StringOpeningMessage3
+  RunTextStringBlocking StringOpeningMessage3
   ChangeActorControl 1,$87   ;Playable
   Return
 
