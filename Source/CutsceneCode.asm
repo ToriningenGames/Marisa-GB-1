@@ -100,7 +100,10 @@
         ; |+++++++--- Constant
         ; +--- Wait time posted after
     ;Danmaku Start
-        ;%W1110001
+        ;%W1110001 TTTTTTTT XXXXXXXX YYYYYYYY
+        ; |||||||| |||||||| |||||||| ++++++++--- Y position
+        ; |||||||| |||||||| ++++++++--- X position
+        ; |||||||| ++++++++--- Danmaku type
         ; |+++++++--- Constant
         ; +--- Wait time posted after
     ;Show this map file

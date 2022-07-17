@@ -522,6 +522,7 @@
 .DEFINE varDirDistInvert    26
 .DEFINE varFairyCount       27
 .DEFINE varHitSize          28
+.DEFINE varFightTimer       29
 .DEFINE varOldMap           32
 
 
@@ -896,18 +897,18 @@ Cs_EndingC:
     CALL BreakRet
   CallCs Cs_CloseDoor, 25
 ;Delete all fairies
-  DeleteActor 2
+  DeleteActor 5
   DeleteActor 3
   DeleteActor 4
   ;Alice comes home
-  CreateActor 5,ChAlice,72,140
-  MoveActor 5,AnimWalkUp,DirVert,123,75
+  CreateActor 2,ChAlice,72,140
+  MoveActor 2,AnimWalkUp,DirVert,123,75
   CallCs Cs_MapFadein
   ;Alice pauses before door
   SetVarQ 0,0, 115   ;nop
-  MoveActor 5,AnimWalkUp,DirVert,103,30, 30
+  MoveActor 2,AnimWalkUp,DirVert,103,30, 30
   ;Closes door behind her
-  DeleteActor 5
+  DeleteActor 2
   ShowMap       ;Close door
   PlaySong SongMagus
   RunTextStringBlocking StringHouseBack4
@@ -919,7 +920,7 @@ Cs_EndingCFairies:
 Cs_EndingCFairiesLoop:
 ;Fairy 1
     ;Send to top, wait
-  MoveActorRel 2,AnimWalkUp,DirVert,-70,143, 143-90 ;53
+  MoveActorRel 5,AnimWalkUp,DirVert,-70,143, 143-90 ;53
     ;Catch Fairy 3
   MoveActor 4,AnimWalkUp,DirVert,168,1, 70-(143-90) ;17
 ;Fairy 2
@@ -927,7 +928,7 @@ Cs_EndingCFairiesLoop:
   MoveActorRel 3,AnimWalkUp,DirVert,-70,143, 143-70 ;73
     ;Catch Fairy 1
   ShowMap       ;Open door
-  MoveActor 2,AnimWalkUp,DirVert,168,1, 110-(143-70);37
+  MoveActor 5,AnimWalkUp,DirVert,168,1, 110-(143-70);37
 ;Fairy 3
     ;Send to top, wait
   MoveActorRel 4,AnimWalkUp,DirVert,-70,143, 143-110;33
@@ -1044,8 +1045,8 @@ Cs_NarumiFightStart:
   CallCs Cs_ResetFairies
   PlaySong SongNull   ;No song plays if the fight is finished
   SetVar varKeepMusic,0
-  CreateActor 5,ChNarumi,64,88
-  AnimateActor 5,AnimFaceDown
+  CreateActor 2,ChNarumi,64,88
+  AnimateActor 2,AnimFaceDown
   CallCs Cs_TransitionIn
   ChangeActorControl 1,$87
   JumpRelNZ varNarumiBeat,__csNarumiEnd-CADDR-1     ;No text etc if the fight already happened
@@ -1056,23 +1057,48 @@ Cs_NarumiFightStart:
   RunTextStringBlocking StringNarumiStart2
   ChangeActorControl 1,$83  ;No leaving the room
   ;Create the 3 fairies
-  CreateFairies 3,Cs_NarumiFightFairies
+  CreateFairies 3,Cs_NarumiFightFairies, 5
   ;Move 2 of them into the room
-  MoveActorRel 2,AnimWalkRight,DirHort,24,50
-  MoveActorRel 3,AnimWalkLeft,DirHort,-24,50
-  ;Move the 3rd fairy 
-  MoveActorRel 4,AnimWalkUp,DirVert,-32,66
+  MoveActorRel 3,AnimWalkRight,DirHort,24,50
+  MoveActorRel 4,AnimWalkLeft,DirHort,-24,50
+  SetVar8 varFightTimer,-4
   ;Periodically fire danmaku
-  ShootDanmaku 0,0,0
-  ;Wait some time
-  ;Finish the fight
-    ;Fairies get bored, leave one by one
-    ;Narumi firing gets more spaced out
+  ShootDanmaku 0,56,74, 1
+  AddVarQ varFightTimer,1
+  JumpRelNZ varFightTimer,-10
+  ;Move the 3rd fairy 
+  MoveActorRel 5,AnimWalkUp,DirVert,-32,66
+  ;High energy for some time
+  SetVar8 varFightTimer,-12
+  ;Periodically fire danmaku
+  ShootDanmaku 0,56,74, 1
+  AddVarQ varFightTimer,1
+  JumpRelNZ varFightTimer,-10
+  ;Mid energy
+  MoveActor 4,AnimWalkDown,DirVert,150,150
+  SetVar8 varFightTimer,-12
+  ShootDanmaku 0,56,74, 1
+  AddVarQ varFightTimer,1
+  JumpRelNZ varFightTimer,-10
+  ;Low energy
+  MoveActor 3,AnimWalkDown,DirVert,150,150
+  SetVar8 varFightTimer,-12
+  ShootDanmaku 0,56,74, 1
+  AddVarQ varFightTimer,1
+  JumpRelNZ varFightTimer,-10
+  ;No energy
+  MoveActor 5,AnimWalkDown,DirVert,150,150, 30
+  ChangeActorControl 1,0, 60
+  CallCs Cs_MapFadeout
+  MoveActor 1,AnimFaceUp,DirVert,109,1
+  MoveActor 1,AnimFaceUp,DirHort,56,1
+  DeleteActor 3
+  DeleteActor 4
+  DeleteActor 5, 25
+  CallCs Cs_MapFadein
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
-  ChangeActorControl 1,0
-  AnimateActor 1,AnimFaceUp
-  PlaySong SongDoll
+  PlaySong SongDoll, 40
   RunTextStringBlocking StringNarumiEnd
   SetVar varNarumiBeat,1
   SetVar varHitSize,8
