@@ -8,7 +8,8 @@
 
 
 ;This is size of BOTH hiboxes together when colliding!
-.DEFINE MasterHitboxSize $08
+;This value is also negative
+.DEFINE MasterHitboxSize $C01C
 
 .SECTION "Collision" FREE
 ;Basic idea:
@@ -113,10 +114,12 @@ HitboxUpdate_Task:
     INC A
 +
     ADD H
-    SUB MasterHitboxSize
+    LD L,A
+    LD A,(MasterHitboxSize)
+    SUB L
   POP DE
   POP BC
-  JR nc,--
+  JR c,--
   ;Collided, move them apart
   PUSH BC
   PUSH DE
@@ -184,9 +187,6 @@ HitboxUpdate_Task:
       POP HL
       LD H,A    ;Save present delta to determine sign later
     POP AF
-    CPL     ;absolute value
-    INC A
-    OR A  ;No carry
     RRA
     ADC 0 ;Err to larger movements
     BIT 7,H

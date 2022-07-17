@@ -82,7 +82,7 @@ ShowMap_Task:
   LD BC,LoadToVRAM_Task
 -
   RST $00
-  CALL NewTask
+  RST $28
   JR c,-
   LD A,B
   CALL WaitOnTask

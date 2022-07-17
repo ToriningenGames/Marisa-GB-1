@@ -67,6 +67,16 @@ EndTask:    ;JUMP here as a simple self-terminate
   LD A,$FF  ;Set flag to unoccupied
   LD (BC),A
   JP HL     ;RET
+
+KillTask:   ;WARNING: Does not free local resources of target
+  ADD A
+  ADD A
+  ADD A
+  LD H,>taskpointer
+  LD L,A
+  LD (HL),$FF
+  RET
+
 HaltTask:   ;Relinquish time to other tasks, but pick up where you leave off
 ;Although it is a "halt", it must be called with an empty stack because its
     ;behavior is that of a return.
@@ -233,7 +243,11 @@ OpenTask:   ;Hack used by sprite priority task
 
 DoTaskLoop:
 --
+  LD HL,FrameCount  ;Guard against other interrupts making the game faster
+  LD A,(HL)
   HALT
+  CP (HL)
+  JR z,--
   LD HL,taskpointer
 -
   LDI A,(HL)

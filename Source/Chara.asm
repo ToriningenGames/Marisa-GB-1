@@ -152,7 +152,7 @@ CharaFrame:
       LD D,(HL)
       LD E,A
       LD BC,Cutscene_Task
-      CALL NewTask
+      RST $28
 ++
     POP BC
   POP DE

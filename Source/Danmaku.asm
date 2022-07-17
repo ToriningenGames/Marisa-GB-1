@@ -425,5 +425,6 @@ _DanmakuFunction_AliceDanmaku:
 
 _DanmakuFunction_StraightShot:
 
+;Unit speed 40/60
 
 .ENDS

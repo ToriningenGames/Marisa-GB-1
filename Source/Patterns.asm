@@ -39,7 +39,7 @@ PatternFire:
   DEC A
   PUSH BC
     LD BC,Danmaku_Entry
-    CALL NewTask
+    RST $28
   POP BC
   JR nc,--
   RET

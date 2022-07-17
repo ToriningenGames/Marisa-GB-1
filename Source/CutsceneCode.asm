@@ -276,12 +276,12 @@ Cutscene_Task:
 
 CutsceneDecode:
 ;Decodes and executes one instruction
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
   BIT 7,C
   JR z,+
   ;Wait time here
-  CALL NextCutsceneByte
+  RST $10
   LD (WaitCount),A
 +
 ;Decode the instruction
@@ -339,7 +339,7 @@ UseVar:
   INC L
   ;Offset first
   PUSH HL
-    CALL NextCutsceneByte
+    RST $10
   POP HL
   LDI (HL),A
   ;Var val next
@@ -352,7 +352,7 @@ UseVar:
   RET
 
 ChangeControl:
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
   LD A,%00011111
   AND C
@@ -385,9 +385,9 @@ CallTable:
   ADD A
   LD C,A
   ;Get address
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
-  CALL NextCutsceneByte
+  RST $10
   LD H,A
   LD L,B
   ;Squish them together
@@ -401,15 +401,15 @@ CallTable:
   JR _CallCutsceneInternal
 
 CallCutscene:
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
-  CALL NextCutsceneByte
+  RST $10
 _CallCutsceneInternal:
   PUSH DE
     LD E,B
     LD D,A
     LD BC,Cutscene_Task
-    CALL NewTask
+    RST $28
   POP DE
   POP BC    ;Return
   LD HL,CutsceneActiveCnt
@@ -423,15 +423,15 @@ _CallCutsceneInternal:
   RET
   
 Jump:
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
-  CALL NextCutsceneByte
+  RST $10
   LD D,A
   LD E,B
   RET
 
 CreateActor:
-  CALL NextCutsceneByte
+  RST $10
   PUSH AF
   PUSH DE
     ;Get actor type
@@ -461,13 +461,13 @@ CreateActor:
   CALL Access_ActorDE
   LD B,H
   LD C,L
-  CALL NextCutsceneByte
+  RST $10
   ;Set X
   INC BC
   INC BC
   INC BC
   LD (BC),A
-  CALL NextCutsceneByte
+  RST $10
   ;Set Y
   INC BC
   INC BC
@@ -475,7 +475,7 @@ CreateActor:
   RET
 
 VarQuick:
-  CALL NextCutsceneByte
+  RST $10
   LD H,varPage
   LD L,A
   LD A,%00000111
@@ -499,8 +499,9 @@ CreateFairy:
   JR nz,+
     ;No fairies; make none
     ;Always get following bytes
-    CALL NextCutsceneByte
-    JP NextCutsceneByte
+    RST $10
+    RST $10
+    RET
 +
   LD B,A
   ;Make that many fairies
@@ -524,9 +525,9 @@ CreateFairy:
   RST $00   ;Initialize
   PUSH BC
 +
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
   LD HL,Cutscene_Actors+3
 -
@@ -549,14 +550,14 @@ CreateFairy:
   JR -
 
 AssignHat:
-  CALL NextCutsceneByte    ;Get Target
+  RST $10    ;Get Target
   ADD <Cutscene_Actors
   LD L,A
   LD H,>Cutscene_Actors
   LD A,(HL)
   CALL Access_ActorDE
   PUSH HL
-    CALL NextCutsceneByte      ;Get Hat
+    RST $10      ;Get Hat
     ADD <Cutscene_Actors
     LD L,A
     LD H,>Cutscene_Actors
@@ -703,14 +704,14 @@ MoveActor:
   RRCA
   RRCA
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
-  CALL NextCutsceneByte
+  RST $10
   PUSH AF
     AND %00011111
     OR C
     LD C,A
-    CALL NextCutsceneByte
+    RST $10
     PUSH DE
       BIT 7,C
       JR nz,++      ;Rel bit?
@@ -739,7 +740,7 @@ MoveActor:
       LD E,B      ;Time
       LD A,C      ;Actor, plane
       LD BC,MoveActor_Task
-      CALL NewTask
+      RST $28
     POP DE
   POP AF
   PUSH DE
@@ -753,12 +754,12 @@ MoveActor:
     LD D,A    ;Actor ID
     LD A,B    ;Task ID
     LD BC,MoveActorAnim_Task
-    CALL NewTask
+    RST $28
   POP DE
   RET
 
 ChangeAnim:
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
   AND $1F   ;Get this actor
   ADD <Cutscene_Actors
@@ -783,14 +784,14 @@ MoveCamera:
   ;Horizontal movement
   LD B,<BkgHortScroll
 +
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   PUSH DE
     LD D,B
     LD E,C
     LD BC,MoveCamera_Task
-    CALL NewTask
+    RST $28
   POP DE
   RET
 
@@ -841,14 +842,14 @@ MoveCamera_Task:
 RunText:
   LD A,C
   PUSH AF
-    CALL NextCutsceneByte
+    RST $10
     LD B,A
-    CALL NextCutsceneByte
+    RST $10
     PUSH DE
       LD D,A
       LD E,B
       LD BC,TextStart
-      CALL NewTask
+      RST $28
     POP DE
   POP AF
   ;Are we letting this one finish?
@@ -886,17 +887,18 @@ ShowMap:
   RET z
   PUSH BC
   LD BC,ShowMap_Task
-  JP NewTask
+  RST $28
+  RET
 
 LoadBkgCol:
-  CALL NextCutsceneByte
+  RST $10
   LD (BkgPal),A
   RET
 
 LoadObjCol:
-  CALL NextCutsceneByte
+  RST $10
   LD (SpritePal0),A
-  CALL NextCutsceneByte
+  RST $10
   LD (SpritePal1),A
   RET
 
@@ -931,9 +933,9 @@ JumpVarNZ:
   RET
 
 JumpVar:
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
   LD L,C
   LD H,varPage
@@ -949,14 +951,14 @@ LoadMap:
   BIT 7,(HL)
   RET z
   PUSH BC   ;Return
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   PUSH DE
     LD D,A
     LD E,C
     LD BC,LoadMap_Task
-    CALL NewTask
+    RST $28
   POP DE
   RET
 
@@ -968,9 +970,9 @@ LoadObj:
   BIT 7,(HL)
   RET z
   PUSH BC   ;Return
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
   LD HL,ObjArea
   LD A,8
@@ -985,27 +987,27 @@ LoadObj:
   RET
 
 PlaySong:
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD B,A
   CALL MusicLoad
   LD (HL),$FF
   RET
 
 SetVar:
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD L,C
   LD H,varPage
   LD (HL),A
   RET
 
 AddVar:
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD L,C
   RES 7,L
   LD H,varPage
@@ -1015,7 +1017,7 @@ AddVar:
   RET z
   PUSH AF   ;We need the carry
   PUSH HL
-    CALL NextCutsceneByte
+    RST $10
     LD C,A
   POP HL
   POP AF
@@ -1025,9 +1027,9 @@ AddVar:
   RET
 
 CompareVar:
-  CALL NextCutsceneByte
+  RST $10
   LD C,A
-  CALL NextCutsceneByte
+  RST $10
   LD L,C
   RES 7,L
   LD H,varPage
@@ -1038,7 +1040,7 @@ CompareVar:
   BIT 7,C
   RET z
   PUSH HL
-    CALL NextCutsceneByte
+    RST $10
   POP HL
   SUB (HL)
   OR B      ;Combine results to one register, for zero/nonzero comparisons
@@ -1046,11 +1048,18 @@ CompareVar:
   RET
 
 ShootDanmaku:
-  CALL NextCutsceneByte
+  RST $10
+  PUSH AF
+    RST $10
+    LD B,A
+    RST $10
+    LD C,A
+  POP AF
   PUSH DE
+    LD D,B
+    LD E,C
     LD BC,NewDanmaku
-    LD DE,$4040
-    CALL NewTask
+    RST $28
   POP DE
   RET
 

@@ -117,7 +117,7 @@ ExitCheck_Task:
   LD D,(HL)
   LD E,A
   LD BC,Cutscene_Task
-  CALL NewTask
+  RST $28
   LD A,B
   CALL WaitOnTask
   JP ExitCheck_Task

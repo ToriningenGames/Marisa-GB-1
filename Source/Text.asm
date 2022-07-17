@@ -319,7 +319,7 @@ Text_Pause:
     LD D,H
     LD E,L
     LD BC,LoadRectToVRAM_Task
-    CALL NewTask
+    RST $28
   POP BC
   LD A,32
 -
@@ -390,7 +390,7 @@ Text_Clear:
   LD BC,LoadToVRAM_Task
   LD A,1
   LD DE,(>TextData)<<8 | $9C
-  CALL NewTask
+  RST $28
   POP BC
   POP HL    ;Return
   RST $00
@@ -434,7 +434,7 @@ Text_ShowFace2:
   LD D,B
   LD E,C
   LD BC,FaceShow_Task
-  CALL NewTask
+  RST $28
   LD B,D
   LD C,E
   JP nc,_textWaitLoop
@@ -452,7 +452,7 @@ Text_LoadFace:
   RST $00
   PUSH BC
     LD BC,FaceLoad_Task
-    CALL NewTask
+    RST $28
   POP BC
   JP nc,TextProcessControlReturn
   JR -      ;If task unavailable, try again next time
@@ -487,7 +487,7 @@ Text_LoadBorder3:
     LD DE,TextData & $FF00 | $9C
     LD A,1
     LD BC,LoadToVRAM_Task
-    CALL NewTask
+    RST $28
   POP BC
   RET
 

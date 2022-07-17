@@ -274,7 +274,7 @@ FairyFrame:
     RST $18   ;Random danmaku pattern
     AND $01
     LD BC,NewDanmaku
-    CALL NewTask
+    RST $28
 +
   POP AF
   RET

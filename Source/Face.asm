@@ -120,7 +120,7 @@ FaceLoad_Task:
   LD E,A
   LD A,1
   LD BC,LoadToVRAM_Task
-  CALL NewTask
+  RST $28
   LD A,B
   CALL WaitOnTask
   LD HL,FaceState
@@ -148,7 +148,7 @@ FaceShow_Task:
   LD D,H
   LD E,L
   LD BC,LoadRectToVRAM_Task
-  CALL NewTask
+  RST $28
 ;Copy face tile data to text buffer too.
   LD H,D
   LD L,E

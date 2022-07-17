@@ -153,15 +153,16 @@
     ;Block memory move.
         ;Moves data pointed to in HL to space pointed to in DE. C indicates the amount of bytes. 0 is treated as 256. A register is used.
 ;RST $10
-    ;Block memory move+.
-        ;Performs as above, except BC indicates no. of bytes. 0 in C is treated as 256.
+    ;Next cutscene byte
+        ;Retrieves the next byte of cutscene data (when in a cutscene)
 ;RST $18
-    ;Unused
+    ;Puts a random byte in A, preserving other registers
 ;RST $20
     ;Unsigned division.
         ;Divides the value in A by the value in B. Quotient is then added to C (no carry). Any remainder is in A. B is unchanged. Dividing by 0 results in infinte loop.
 ;RST $28
-    ;Unused
+    ;New Task
+        ;Creates a new task, using BC as the execution address, DE as the data address, and A as supplementary data
 ;RST $30
     ;Equivalent to CALL (HL). 16 cycles
 ;RST $38
@@ -211,15 +212,7 @@ __move:
   RET
 
 .ORG $10
-;Block memory move - up to 65,536 bytes
-  RST $08
-  OR B
-  RET z
-__fullMove:
-  RST $08
-  DEC B
-  JR nz,__fullMove
-  RET
+  JP NextCutsceneByte
 
 .ORG $18
 ;Random byte into A; preserve others
@@ -244,15 +237,11 @@ __fullMove:
   HALT                      ;Allow vBlank to do its thing
   JP $0100
 
+.ORG $28
+  JP NewTask
+
 .ORG $30
   JP HL
-  RST $38
-  RST $38
-  RST $38
-  RST $38
-  RST $38
-  RST $38
-  RST $38
 
 .ORG $38
 ;Panic vector. Everything is on fire!.
@@ -415,19 +404,19 @@ HRAMRoutineLoadLoop:
   XOR A
   LD (ObjUse),A
   LD BC,ObjManage_Task
-  CALL NewTask
+  RST $28
 ;Set up sound initializer as a separate task
   LD BC,SoundInit
-  CALL NewTask
+  RST $28
 ;Initialize memory
   LD BC,MemInitTask
-  CALL NewTask
+  RST $28
 ;Set up graphics loader as a separate task
   LD BC,GraphicsInit
-  CALL NewTask
+  RST $28
 ;Set up Title Screen Loader as a separate task
   LD BC,LoadTitle
-  CALL NewTask
+  RST $28
 ;Now pausable
   LD BC,PauseTask
   CALL NewTaskLo
@@ -508,8 +497,15 @@ GraphicsInit:
 ;Copy the first 512 to somewhere safe
   LD HL,$C400
   LD DE,$C100
-  LD BC,$0200
-  RST $10
+  LD B,$02
+-
+  LDI A,(HL)
+  LD (DE),A
+  INC E
+  JR nz,-
+  INC D
+  DEC B
+  JR nz,-
 ;Extract another 7 times
   LD DE,$C682
   POP BC
@@ -524,7 +520,7 @@ GraphicsInit:
   ;DE Correct
   LD BC,LoadToVRAM_Task
   LD A,1
-  CALL NewTask
+  RST $28
   LD A,B
   LD B,D
   LD C,E
@@ -544,10 +540,17 @@ GraphicsInit:
   LD D,$C8
   PUSH DE
 ;Copy the last kilo back to beginning
-  LD HL,$C900
-  LD DE,$C400
-  LD BC,$0400
-  RST $10
+    LD HL,$C900
+    LD DE,$C400
+    LD B,$04
+--
+    LDI A,(HL)
+    LD (DE),A
+    INC E
+    JR nz,--
+    INC D
+    DEC B
+    JR nz,--
   POP DE
 ;Edit stored state information
   LD HL,$C0E5
@@ -565,7 +568,7 @@ GraphicsInit:
   LD BC,LoadToVRAM_Task
   LD DE,$C180   ;Copy first half a kilobyte
   LD A,2
-  CALL NewTask
+  RST $28
   LD A,B
   CALL WaitOnTask
 ;Setting up text window intially
@@ -598,17 +601,17 @@ LoadTitle:
 ;Play opening cutscene
   LD DE,Cs_Intro        ;Cs_LoadInit
   LD BC,Cutscene_Task
-  CALL NewTask
+  RST $28
 ;Wait for cutscene to finish, so Marisa is initialized
   LD A,B
   CALL WaitOnTask
 ;Exits
   LD BC,ExitCheck_Task
-  CALL NewTask
+  RST $28
 ;Sprites
 ;Collision
   LD BC,HitboxUpdate_Task
-  CALL NewTask
+  RST $28
   JP EndTask
 .ENDS
 
