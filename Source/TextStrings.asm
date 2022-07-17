@@ -322,7 +322,7 @@ StringHouseBack2:
 .ASC "ALL TO", CtrlLine
 .ASC "SMITHEREENS!", CtrlPause
 .DB CtrlLower, CtrlEnd
-StringHouseBack3:
+StringHouseBack4:
 .DB CtrlFaceShow2, CtrlFaceLoad1|$00 CtrlClear, CtrlRaise
 .ASC "WHAT ON EARTH", CtrlLine
 .ASC "IS GOING ON", CtrlLine
@@ -344,7 +344,8 @@ StringHouseBack3:
 .ASC "SHUT UP!", CtrlLine
 .ASC "GET OUT!", CtrlPauseClear
 .DB CtrlFaceShow1
-.ASC "HEY, WHA-", CtrlFaceShow0, CtrlClear
+.ASC "HEY, WHA-", CtrlWait,15, CtrlClear, CtrlFaceShow0, CtrlWait,15
+.ASC "*BOOM*", CtrlPauseClear
 .DB CtrlLower, CtrlEnd
 
 StringReimuMeet:

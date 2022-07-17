@@ -314,13 +314,13 @@
 .db (type*32)|id, x, y
 .ENDM
 
-.MACRO ShootDanmaku ARGS type, wait
+.MACRO ShootDanmaku ARGS type, x, y, wait
 .IF defined(wait)
  .db %11110001, wait
 .ELSE
  .db %01110001
 .ENDIF
-.db type
+.db type, x, y
 .ENDM
 
 .MACRO ShowMap ARGS wait
@@ -516,8 +516,12 @@
 .DEFINE varShroomB          20
 .DEFINE varShroomC          21
 .DEFINE varKeepMusic        22
-
+.DEFINE varDirPlane         23
+.DEFINE varDirAnim          24
+.DEFINE varDirDist          25
+.DEFINE varDirDistInvert    26
 .DEFINE varFairyCount       27
+.DEFINE varHitSize          28
 .DEFINE varOldMap           32
 
 
@@ -650,6 +654,7 @@ Cs_Forest24:
 Cs_Intro:
 ;Data control things
   SetVar $90,$FF    ;Map byte
+  SetVar varHitSize,8
 ;Opening
   PlaySong SongRetrib, 38
   LoadBackPalette $FE, 38
@@ -855,32 +860,85 @@ Cs_EndingC:
   CallCs Cs_TransitionOut
   CallCs Cs_ResetFairies
   PlaySong SongDoll
-  SetVar varEntryDir,DirDown
-  CallCs Cs_TransitionIn
-  ChangeActorControl 1,0    ;No moving
+  SetVarQ varHitSize,0
+  ;Default transition has an odd camera effect for some reason...
+  ;SetVar varEntryDir,DirDown
+  ;CallCs Cs_TransitionIn
+  ;ChangeActorControl 1,0
+  ;Place Marisa in position
+  MoveActor 1,AnimWalkDown,DirVert,35,1
+  MoveActor 1,AnimWalkDown,DirHort,78,1, 1
+  ;Snap camera
+  ChangeActorControl 1,$80, 1
+  ChangeActorControl 1,0
+  ;Ready for walk-in
+  MoveActorRel 1,AnimWalkDown,DirVert,-30,1, 1
+  WaitOnMap
+  ;Walk in
+  MoveActorRel 1,AnimWalkDown,DirVert,30,50, 35
+  CallCs Cs_MapFadein
   CallCs Cs_OpenDoor
   RunTextStringBlocking StringHouseBack1
   MoveActor 1,AnimWalkDown,DirVert,70,90, 120
   RunTextString StringHouseBack2, 120
   ;Fairies sneak in from the front; a lot of them
-  ShowMap       ;Open door
-  
+  Break
+    LD DE,Cs_EndingCFairies
+    LD BC,Cutscene_Task
+    RST $28
+    LD ($C000),A    ;Store cutscene task ID to kill later
+    CALL BreakRet
   WaitOnTextString
-  CallCs Cs_CloseDoor
   CallCs Cs_MapFadeout
+  Break
+    LD A,($C000)
+    CALL KillTask
+    CALL BreakRet
+  CallCs Cs_CloseDoor, 25
+;Delete all fairies
+  DeleteActor 2
+  DeleteActor 3
+  DeleteActor 4
   ;Alice comes home
-  CreateActor 2,ChAlice,72,140, 60*4
-  MoveActor 2,AnimWalkUp,DirVert,123,75
+  CreateActor 5,ChAlice,72,140
+  MoveActor 5,AnimWalkUp,DirVert,123,75
   CallCs Cs_MapFadein
   ;Alice pauses before door
   SetVarQ 0,0, 115   ;nop
-  MoveActor 2,AnimWalkUp,DirVert,103,50, 50
+  MoveActor 5,AnimWalkUp,DirVert,103,30, 30
   ;Closes door behind her
-  DeleteActor 2
+  DeleteActor 5
   ShowMap       ;Close door
   PlaySong SongMagus
-  RunTextStringBlocking StringHouseBack3
+  RunTextStringBlocking StringHouseBack4
   Jump Cs_MapFadeout
+
+;Cutscene for producing fairies during Ending C
+Cs_EndingCFairies:
+  CreateFairies 3,Cs_EndingCFairyLoc
+Cs_EndingCFairiesLoop:
+;Fairy 1
+    ;Send to top, wait
+  MoveActorRel 2,AnimWalkUp,DirVert,-70,143, 143-90 ;53
+    ;Catch Fairy 3
+  MoveActor 4,AnimWalkUp,DirVert,168,1, 70-(143-90) ;17
+;Fairy 2
+    ;Send to top, wait
+  MoveActorRel 3,AnimWalkUp,DirVert,-70,143, 143-70 ;73
+    ;Catch Fairy 1
+  ShowMap       ;Open door
+  MoveActor 2,AnimWalkUp,DirVert,168,1, 110-(143-70);37
+;Fairy 3
+    ;Send to top, wait
+  MoveActorRel 4,AnimWalkUp,DirVert,-70,143, 143-110;33
+    ;Catch Fairy 2
+  MoveActor 3,AnimWalkUp,DirVert,168,1, 90-(143-110);57
+  Jump Cs_EndingCFairiesLoop
+
+Cs_EndingCFairyLoc:
+ .db 71,168
+ .db 71,168
+ .dw 71,168
 
 ;Ending A (Found Alice's house from the front)
 Cs_EndingA:
@@ -986,27 +1044,46 @@ Cs_NarumiFightStart:
   CallCs Cs_ResetFairies
   PlaySong SongNull   ;No song plays if the fight is finished
   SetVar varKeepMusic,0
-  CreateActor 2,ChNarumi,64,88
-  AnimateActor 2,AnimFaceDown
+  CreateActor 5,ChNarumi,64,88
+  AnimateActor 5,AnimFaceDown
   CallCs Cs_TransitionIn
   ChangeActorControl 1,$87
   JumpRelNZ varNarumiBeat,__csNarumiEnd-CADDR-1     ;No text etc if the fight already happened
+  SetVar varHitSize,4
   ChangeActorControl 1,$80   ;Camera follow, but sit still
   RunTextStringBlocking StringNarumiStart1
   PlaySong SongMagus
   RunTextStringBlocking StringNarumiStart2
   ChangeActorControl 1,$83  ;No leaving the room
-  ;Return
-  ShootDanmaku 0
+  ;Create the 3 fairies
+  CreateFairies 3,Cs_NarumiFightFairies
+  ;Move 2 of them into the room
+  MoveActorRel 2,AnimWalkRight,DirHort,24,50
+  MoveActorRel 3,AnimWalkLeft,DirHort,-24,50
+  ;Move the 3rd fairy 
+  MoveActorRel 4,AnimWalkUp,DirVert,-32,66
+  ;Periodically fire danmaku
+  ShootDanmaku 0,0,0
+  ;Wait some time
+  ;Finish the fight
+    ;Fairies get bored, leave one by one
+    ;Narumi firing gets more spaced out
 ;Narumi Fight outro
 Cs_NarumiFightEnd:
   ChangeActorControl 1,0
+  AnimateActor 1,AnimFaceUp
   PlaySong SongDoll
   RunTextStringBlocking StringNarumiEnd
   SetVar varNarumiBeat,1
+  SetVar varHitSize,8
   ChangeActorControl 1,$87
 __csNarumiEnd:
   Return
+
+Cs_NarumiFightFairies:
+ .db -9,80
+ .db 113,80
+ .db 56,153
 
 ;Feeding Reimu Shrooms
 Cs_ReimuMeet:
