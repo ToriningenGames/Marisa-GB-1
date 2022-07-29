@@ -316,7 +316,6 @@ MapForestN23obj:
 .dw MapForestN13    ;down
 .dw 0               ;right
 .dw 0               ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
 MapForestN13obj:
 .dw 0               ;left
 .dw MapForest03     ;down
@@ -371,7 +370,7 @@ MapForest13obj:
 .dw MapForest23     ;down
 .dw 0               ;right
 .dw MapForest03     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
+.dw $3030,$3040,$3050       ;Fairies
 MapForest14obj:
 .dw MapForest13     ;left
 .dw MapForest24     ;down
