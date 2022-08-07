@@ -171,6 +171,19 @@ FairyConstructor:
   JP NewTaskLo
 
 FairyFrame:
+;Init check
+  LD HL,_ShootTimer
+  ADD HL,DE
+  LDI A,(HL)
+  OR (HL)
+  JR nz,+
+  ;Timer was 0; this means we haven't initialized it yet
+  ;Reset timer
+  DEC HL
+  RST $18   ;Get random time
+  LDI (HL),A
+  LD (HL),1
++
   LD HL,$C0A1
   LD A,(HL)
   CALL Access_ActorDE
@@ -256,15 +269,9 @@ FairyFrame:
     LD A,(HL)
     SBC 0
     LDD (HL),A
-    JR nc,+
+    OR (HL)
+    JR nz,+
     ;Shoot
-    ;Reset timer
-    RST $18   ;Get random number
-    SWAP A
-    LDI (HL),A
-    AND $0F
-    OR $10
-    LD (HL),A
     LD HL,_MasterX+1
     ADD HL,DE
     LDI A,(HL)

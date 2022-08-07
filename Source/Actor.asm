@@ -60,7 +60,7 @@ Actor_FrameInit:
       LDI (HL),A
       LDI (HL),A
       XOR A
-      LD C,$11
+      LD C,$16
     -
       LDI (HL),A
       DEC C

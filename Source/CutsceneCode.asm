@@ -366,6 +366,12 @@ ChangeControl:
   LD A,(HL)
   OR A      ;Check for empty actor
   RET z
+  INC B
+  JR nz,+
+  ;We are deleting this actor
+  LD (HL),0
++
+  DEC B
   CALL Access_ActorDE
   LD A,%00011111
   AND C

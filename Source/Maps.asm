@@ -108,7 +108,7 @@ MapForest02:
 .db  64 +8, -14 +16
 .dw Cs_EndingAC
 MapForest03:
-.db $00|$0
+.db $20|$0
 .dw MapForest03map
 .dw MapForest03obj
 .db 209 +8, 116 +16
@@ -117,7 +117,7 @@ MapForest03:
 .db 131 +8, 209 +16
 .dw Cs_StraightTransition
 MapForest04:
-.db $00|$3
+.db $30|$3
 .dw MapForest04map
 .dw MapForest04obj
 .db   0 +8,   0 +16
@@ -135,7 +135,7 @@ MapForest10:
 .db  40 +8, 129 +16
 .dw Cs_StraightTransition
 MapForest11:
-.db $00|$1
+.db $10|$1
 .dw MapForest11map
 .dw MapForest11obj
 .db 145 +8, 114 +16
@@ -144,7 +144,7 @@ MapForest11:
 .db 125 +8, 193 +16
 .dw Cs_Forest11
 MapForest12:
-.db $00|$1
+.db $30|$1
 .dw MapForest12map
 .dw MapForest12obj
 .db 225 +8,  68 +16
@@ -153,7 +153,7 @@ MapForest12:
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest13:
-.db $30|$0
+.db $40|$0
 .dw MapForest13map
 .dw MapForest13obj
 .db 225 +8,  99 +16
@@ -162,7 +162,7 @@ MapForest13:
 .db 126 +8, 225 +16
 .dw Cs_StraightTransition
 MapForest14:
-.db $00|$2
+.db $10|$2
 .dw MapForest14map
 .dw MapForest14obj
 .db   0 +8,   0 +16
@@ -189,7 +189,7 @@ MapForest21:
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest22:
-.db $00|$0
+.db $20|$0
 .dw MapForest22map
 .dw MapForest22obj
 .db 177 +8, 116 +16
@@ -216,7 +216,7 @@ MapForest24:
 .db   0 +8,   0 +16
 .dw Cs_Forest24
 MapForest30:
-.db $00|$1
+.db $10|$1
 .dw MapForest30map
 .dw MapForest30obj
 .db   0 +8,   0 +16
@@ -243,7 +243,7 @@ MapForest32:
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 MapForest33:
-.db $00|$0
+.db $30|$0
 .dw MapForest33map
 .dw MapForest33obj
 .db 145 +8,  63 +16
@@ -252,12 +252,12 @@ MapForest33:
 .db 135 +8, 193 +16
 .dw Cs_StraightTransition
 MapForest34:
-.db $00|$0
+.db $20|$0
 .dw MapForest34map
 .dw MapForest34obj
 .db   0 +8,   0 +16
 .db 128 +8,  16 +16
-.db  15 +8,  65 +16
+.db  17 +8,  65 +16
 .db   0 +8,   0 +16
 .dw Cs_StraightTransition
 
@@ -311,6 +311,21 @@ MapForest34map:
 MapForestEndBmap:
 .incbin "rsc/EndingB.gbm"
 
+.ENDS
+
+;This section is ordered weirdly to ensure no object list is cut by a page boundary
+.SECTION "Map Links and Fairies" ALIGN 32 FREE
+
+MapForest13obj:
+.dw MapForest12     ;left
+.dw MapForest23     ;down
+.dw 0               ;right
+.dw MapForest03     ;up
+;Fairies
+.db $48 +8, $46 +16
+.db $38 +8, $90 +16
+.db $B8 +8, $40 +16
+.db $A0 +8, $80 +16
 MapForestN23obj:
 .dw 0               ;left
 .dw MapForestN13    ;down
@@ -321,62 +336,83 @@ MapForestN13obj:
 .dw MapForest03     ;down
 .dw 0               ;right
 .dw MapForestN23    ;up
-MapForest00obj:
-.dw 0               ;left
-.dw 0               ;down
-.dw MapForest01     ;right
-.dw 0               ;up
-MapForest01obj:
-.dw 0               ;left
-.dw MapForest00     ;down
-.dw MapForest11     ;right
-.dw 0               ;up
-MapForest02obj:
-.dw 0               ;left
-.dw MapForest12     ;down
-.dw 0               ;right
-.dw MapForest24     ;up
+
 MapForest03obj:
 .dw 0               ;left
 .dw MapForest13     ;down
 .dw MapForest04     ;right
 .dw MapForestN13    ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
-MapForest04obj:
-.dw MapForest03     ;left
-.dw MapForest14     ;down
-.dw 0               ;right
-.dw MapForest31     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
-MapForest10obj:
+;Fairies
+.db $48 +8, $28 +16
+.db $90 +8, $80 +16
+MapForest22obj:
+.dw MapForest21     ;left
+.dw MapForest32     ;down
+.dw MapForest23     ;right
+.dw MapForest30     ;up
+;Fairies
+.db $38 +8, $59 +16
+.db $80 +8, $98 +16
+MapForest00obj:
 .dw 0               ;left
 .dw 0               ;down
-.dw 0               ;right
-.dw MapForest00     ;up
+.dw MapForest01     ;right
+.dw 0               ;up
+
+MapForest33obj:
+.dw MapForest32     ;left
+.dw MapForest34     ;down
+.dw MapForest34     ;right
+.dw MapForest23     ;up
+;Fairies
+.db $28,$20     ;Placed in game, so it's accurate
+.db $47 +8, $8A +16
+.db $77 +8, $8A +16
 MapForest11obj:
 .dw 0               ;left
 .dw MapForest21     ;down
 .dw MapForest12     ;right
 .dw MapForest01     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
-MapForest12obj:
-.dw MapForest11     ;left
+.dw $3D4F                   ;Fairies
+MapForest01obj:
+.dw 0               ;left
+.dw MapForest00     ;down
+.dw MapForest11     ;right
+.dw 0               ;up
+
+MapForest34obj:
+.dw MapForest33     ;left
 .dw 0               ;down
-.dw MapForest13     ;right
-.dw MapForest02     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
-MapForest13obj:
-.dw MapForest12     ;left
-.dw MapForest23     ;down
-.dw 0               ;right
-.dw MapForest03     ;up
-.dw $3030,$3040,$3050       ;Fairies
+.dw MapForest00     ;right
+.dw MapForest33     ;up
+;Fairies
+.db $75 +8, $79 +16
+.db $20 +8, $1D +16
 MapForest14obj:
 .dw MapForest13     ;left
 .dw MapForest24     ;down
 .dw 0               ;right
 .dw MapForest04     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
+;Fairies
+.db $28 +8, $38 +16
+MapForest30obj:
+.dw 0               ;left
+.dw MapForest22     ;down
+.dw 0               ;right
+.dw MapForest20     ;up
+;Fairies
+.db $6A +8, $58 +16
+
+MapForest02obj:
+.dw 0               ;left
+.dw MapForest12     ;down
+.dw 0               ;right
+.dw MapForest24     ;up
+MapForest10obj:
+.dw 0               ;left
+.dw 0               ;down
+.dw 0               ;right
+.dw MapForest00     ;up
 MapForest20obj:
 .dw 0               ;left
 .dw 0               ;down
@@ -387,13 +423,7 @@ MapForest21obj:
 .dw 0               ;down
 .dw MapForest22     ;right
 .dw MapForest11     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
-MapForest22obj:
-.dw MapForest21     ;left
-.dw MapForest32     ;down
-.dw MapForest23     ;right
-.dw MapForest30     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
+
 MapForest23obj:
 .dw MapForest22     ;left
 .dw MapForest33     ;down
@@ -404,35 +434,34 @@ MapForest24obj:
 .dw 0               ;down
 .dw 0               ;right
 .dw MapForest14     ;up
-MapForest30obj:
-.dw 0               ;left
-.dw MapForest22     ;down
-.dw 0               ;right
-.dw MapForest20     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
 MapForest31obj:
 .dw 0               ;left
 .dw 0               ;down
 .dw MapForest32     ;right
 .dw 0               ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
 MapForest32obj:
 .dw MapForest31     ;left
 .dw 0               ;down
 .dw MapForest33     ;right
 .dw 0               ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
-MapForest33obj:
-.dw MapForest32     ;left
-.dw MapForest34     ;down
-.dw MapForest34     ;right
-.dw MapForest23     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
-MapForest34obj:
-.dw MapForest33     ;left
+
+MapForest04obj:
+.dw MapForest03     ;left
+.dw MapForest14     ;down
+.dw 0               ;right
+.dw MapForest31     ;up
+;Fairies
+.db $6C +8, $15 +16
+.db $3E +8, $76 +16
+.db $35 +8, $2E +16
+MapForest12obj:
+.dw MapForest11     ;left
 .dw 0               ;down
-.dw MapForest00     ;right
-.dw MapForest33     ;up
-.dw $3030,$3040,$3050,$3060 ;Fairies
+.dw MapForest13     ;right
+.dw MapForest02     ;up
+;Fairies
+.db $38 +8, $28 +16
+.db $7D +8, $78 +16
+.db $A6 +8, $48 +16
 
 .ENDS
