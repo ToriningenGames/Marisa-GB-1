@@ -182,7 +182,6 @@ FairyFrame:
   DEC HL
   RST $18   ;Get random time
   LDI (HL),A
-  LD (HL),1
 +
   LD HL,$C0A1
   LD A,(HL)
@@ -259,18 +258,12 @@ FairyFrame:
     AND $0F     ;No Y movement
 +
   POP DE
+  ;Do we shoot?
+  LD HL,_ShootTimer
+  ADD HL,DE
+  DEC (HL)
+  JR nz,+
   PUSH AF
-    ;Do we shoot?
-    LD HL,_ShootTimer
-    ADD HL,DE
-    LD A,(HL)
-    SUB 1
-    LDI (HL),A
-    LD A,(HL)
-    SBC 0
-    LDD (HL),A
-    OR (HL)
-    JR nz,+
     ;Shoot
     LD HL,_MasterX+1
     ADD HL,DE
@@ -282,8 +275,8 @@ FairyFrame:
     AND $01
     LD BC,NewDanmaku
     RST $28
-+
   POP AF
++
   RET
 
 ;This is in Animations.asm, adjacent to the animations proper

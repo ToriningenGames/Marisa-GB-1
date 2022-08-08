@@ -129,11 +129,6 @@ NewDanmaku:
 ;Frame
   RST $00
   ;Age
-  LD HL,_AnimWait
-  ADD HL,DE
-  DEC (HL)
-  JR nz,+
-  LD (HL),SpinSpeed
   LD HL,_Lifetime
   ADD HL,DE
   DEC (HL)
@@ -160,18 +155,22 @@ NewDanmaku:
   ;...which is updating the sprite visual block
   ;Calculate one the hard way...
   ;First delta
-  LD HL,_MoveData
-  ADD HL,DE
   PUSH DE
+    LD HL,_Lifetime
+    ADD HL,DE
+    LD A,(HL)
+    LD HL,_MoveData
+    ADD HL,DE
     PUSH HL
-      LDI A,(HL)
-      LD E,A
-      LDI A,(HL)
-      LD D,A
-      LDI A,(HL)
-      LD H,(HL)
-      LD L,A
-      XOR A
+      PUSH AF
+        LDI A,(HL)
+        LD E,A
+        LDI A,(HL)
+        LD D,A
+        LDI A,(HL)
+        LD H,(HL)
+        LD L,A
+      POP AF
       RST $30
     POP HL
     LD A,E
@@ -297,134 +296,75 @@ NewDanmaku:
 DanmakuList:
 ;1 byte:  Base tile
 ;1 byte: %TLLLLLLL
-         ;|+++++++--- Lifetime (frames/anim cycle)
+         ;|+++++++--- Lifetime (frames)
          ;+--- Animation Type
                 ;0 = Undirected
                 ;1 = Spinny
 ;2 bytes: Movement function
-;Reimu orbs
-.db $68,%10000000
-.dw DanmakuMove_Orbs
-;Reimu ofuda
-.db $79,%00000000
-.dw DanmakuMove_Ofuda
+
+;Spike
+.db $74,%00001111
+;Movement: net 5 tiles over 0.25 second
+.dw DanmakuMove_Spike
+;Clover
+.db $68,%10101000
+;Movement: net 0 tiles over 0.667 second
+.dw DanmakuMove_Clover
+;Triangle
+.db $78,%01011010
+;Movement: net 2 tiles over 1.5 second
+.dw DanmakuMove_Triangle
+;Guard
+.db $6C,%11111000
+;Movement: net 3 tiles over 2 second
+.dw DanmakuMove_Guard
+;Windmill
+.db $70,%10101000
+;Movement: net 1 tiles over 0.667 second
+.dw DanmakuMove_Windmill
+
+;Scythe
+.db $68,%11100000
+;Movement: net 4 tiles over 1.6 second
+.dw DanmakuMove_Scythe
+;Wave
+.db $6C,%11001000
+;Movement: net 5 tiles over 1.2 second
+.dw DanmakuMove_Wave
+;Curtain
+.db $78,%00010100
+;Movement: net 8 tiles over 0.333 second
+.dw DanmakuMove_Curtain
+;Wiggle Snake Down
+.db $6C,%10111100
+;Movement: net 8 tiles over 1 second
+.dw DanmakuMove_WiggleSnakeDown
+;Wiggle Snake Up
+.db $6C,%10111100
+;Movement: net 8 tiles over 1 second
+.dw DanmakuMove_WiggleSnakeUp
 
 ;Danmaku Actions
     ;DE=Move Data
-    ;A!=0 if being destroyed
+    ;A =Frames remaining
 ;Return
     ;B=Move X (2.6)
     ;C=Move Y (2.6)
     ;DE=Move Data
     ;Move data is private to each Danmaku; edit it as you please
-DanmakuMove_Orbs:
-;2 phases:
-    ;Extend
-    ;Speen
-  OR A
-  LD H,D
-  LD L,E
-  JP nz,MemFree
-  LD A,D
-  OR E
-  JR nz,+
-;Init
-  CALL MemAlloc
-  LD A,$10
-  LD H,D
-  LD L,E
-  LDI (HL),A
-  XOR A
-  LDI (HL),A
-  LD (HL),$C0
-+
-  LD H,D
-  LD L,E
-  DEC (HL)
-  LD BC,$00F0
-  RET nz    ;Extend phase
-;Spin phase
-  INC (HL)
-  INC HL
-  LDI A,(HL)    ;Y (4.4)
-  LD C,A
-  LD B,(HL)     ;X (4.4)
-  SRA A
-  SRA A
-  SRA A
-  ADD B
-  LD B,A
-  SRA A
-  SRA A
-  SRA A
-  CPL
-  INC A
-  ADD C
-  LD C,A
-  LD (HL),B
-  DEC HL
-  LDI (HL),A
-  RET
 
+DanmakuMove_Spike:
+DanmakuMove_Guard:
+DanmakuMove_Triangle:
+DanmakuMove_Star:
+DanmakuMove_Curtain:
+DanmakuMove_Windmill:
+DanmakuMove_WiggleSnakeDown:
+DanmakuMove_WiggleSnakeUp:
+DanmakuMove_Clover:
+DanmakuMove_Wave:
+DanmakuMove_Scythe:
 DanmakuMove_Ofuda:
-  LD A,D
-  OR E
-  JR nz,+
-  ;First run; "correct" the heading data
-  INC D
-  LD HL,SP+$04
-  LDI A,(HL)
-  LD D,(HL)
-  LD E,A
-  LD HL,_RelData+2
-  ADD HL,DE
-  INC (HL)      ;First sprite: face down
-  INC (HL)
-  INC HL
-  INC HL
-  INC HL        ;Second sprite: go up-right
-  INC HL
-  INC (HL)
-  INC HL
-  LD A,%01000000
-  OR (HL)
-  LDI (HL),A
-  INC HL        ;Third sprite: go up-left
-  INC HL
-  INC (HL)
-  INC HL
-  LD A,%01100000
-  OR (HL)
-  LD (HL),A
-+
-  LD BC,$0080
   RET
-
-
-;Deploys options, sits there
-;Data option 0: Distance to move, x2
-_DanmakuFunction_ReimuOptions:
-
-_DanmakuFunction_ReimuDanmaku:
-  ;Directed ofuda
-  ;3 streams, laserlike, waving back and forth
-  ;Implement: 3 equidistant sprites, moving outward, direction set via data
-    ;Fire repeatedly, and quickly, with slightly changing data values
-
-_DanmakuFunction_MarisaDanmaku:
-  ;Undirected Star-like
-  ;6 streams spiraling outwards, all equidistant
-  ;Implement: 6 equidistant sprites, moving outward, curving
-
-_DanmakuFunction_AliceDanmaku:
-  ;Directed orblike
-  ;Two circles, and 3 swirling lines outward
-  ;Implement: Lines are each fired straight, but direction changes for each fire
-  ;Circles are circles
-  ;If necessary, remove the swirls
-
-_DanmakuFunction_StraightShot:
-
-;Unit speed 40/60
 
 .ENDS
