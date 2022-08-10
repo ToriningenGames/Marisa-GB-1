@@ -353,18 +353,120 @@ DanmakuList:
     ;DE=Move Data
     ;Move data is private to each Danmaku; edit it as you please
 
-DanmakuMove_Spike:
-DanmakuMove_Guard:
-DanmakuMove_Triangle:
-DanmakuMove_Star:
 DanmakuMove_Curtain:
+DanmakuMove_Spike:
+  LD BC,$0040
+  RET
+
+DanmakuMove_Guard:
+  LD BC,$0000
+  CP %00111100  ;1 second from end
+  RET c
+  LD C,$C0
+  RET
+
+DanmakuMove_Triangle:
+  LD BC,$0000
+  CP $00
+  RET c
+  LD BC,$0000
+  CP $00
+  RET c
+  LD BC,$0000
+  CP $00
+  RET c
+  LD BC,$0000
+  RET
+
 DanmakuMove_Windmill:
+  LD BC,$0000
+  CP $00
+  RET c
+  LD BC,$0000
+  CP $00
+  RET c
+  LD BC,$0000
+  CP $00
+  RET c
+  LD BC,$0000
+  RET
+
 DanmakuMove_WiggleSnakeDown:
+  ;Like the other one, but negative
+  CALL DanmakuMove_WiggleSnakeUp
+  LD A,C
+  CPL
+  LD C,A
+  INC C
+  RET
+
 DanmakuMove_WiggleSnakeUp:
+  CP %00111100
+  JR nz,+
+  ;Start
+  LD DE,$3000
++
+  LD C,$30
+  LD A,D
+  BIT 0,E
+  JR nz,+
+  SUB $04
+  .db $21   ;Opcode for LD HL,nn ~ Effectively skips next two bytes (aka the ADD $04)
++
+  ADD $04
+  LD D,A
+  LD B,A
+  CP $30
+  JR nc,+
+  BIT 7,A
+  JR nz,+
+  ;Hit max angle
+  INC E
+  RET
++
+  CP $D0
+  RET nc
+  BIT 7,A
+  RET z
+  ;Hit min angle
+  DEC E
+  RET
+
 DanmakuMove_Clover:
+  CP $00
+  JR nz,+
+  ;Start
+  LD DE,$00C0
+  LD B,D
+  LD C,E
+  RET
++
+  ;Minsky here
+  RET
+
 DanmakuMove_Wave:
+  CP %00010100
+  JR nz,+
+  ;Start
+  LD DE,$C020
++
+  LD C,E
+  LD A,$04
+  ADD D
+  LD D,A
+  LD B,A
+  RET
+
 DanmakuMove_Scythe:
-DanmakuMove_Ofuda:
+  LD BC,$0000
+  CP $00
+  RET c
+  CP $00
+  JR c,+
+  ;Minsky right (the broader one)
+  RET
++
+  ;Minsky left
   RET
 
 .ENDS
