@@ -304,44 +304,34 @@ DanmakuList:
 
 ;Spike
 .db $74,%00001111
-;Movement: net 5 tiles over 0.25 second
 .dw DanmakuMove_Spike
 ;Clover
 .db $68,%10101000
-;Movement: net 0 tiles over 0.667 second
 .dw DanmakuMove_Clover
 ;Triangle
 .db $78,%01011010
-;Movement: net 2 tiles over 1.5 second
 .dw DanmakuMove_Triangle
 ;Guard
 .db $6C,%11111000
-;Movement: net 3 tiles over 2 second
 .dw DanmakuMove_Guard
 ;Windmill
 .db $70,%10101000
-;Movement: net 1 tiles over 0.667 second
 .dw DanmakuMove_Windmill
 
 ;Scythe
-.db $68,%11100000
-;Movement: net 4 tiles over 1.6 second
+.db $68,%10111011
 .dw DanmakuMove_Scythe
 ;Wave
 .db $6C,%11001000
-;Movement: net 5 tiles over 1.2 second
 .dw DanmakuMove_Wave
 ;Curtain
 .db $78,%00010100
-;Movement: net 8 tiles over 0.333 second
 .dw DanmakuMove_Curtain
 ;Wiggle Snake Down
 .db $6C,%10111100
-;Movement: net 8 tiles over 1 second
 .dw DanmakuMove_WiggleSnakeDown
 ;Wiggle Snake Up
 .db $6C,%10111100
-;Movement: net 8 tiles over 1 second
 .dw DanmakuMove_WiggleSnakeUp
 
 ;Danmaku Actions
@@ -366,29 +356,26 @@ DanmakuMove_Guard:
   RET
 
 DanmakuMove_Triangle:
-  LD BC,$0000
-  CP $00
-  RET c
-  LD BC,$0000
-  CP $00
-  RET c
-  LD BC,$0000
-  CP $00
-  RET c
-  LD BC,$0000
+  LD BC,%0000000011010101
+  CP 90-15
+  RET nc
+  LD BC,%0001011011011001
+  CP 75-25
+  RET nc
+  LD BC,%1101001100000000
+  CP 50-25
+  RET nc
+  LD BC,%0001011000100110
   RET
 
 DanmakuMove_Windmill:
-  LD BC,$0000
-  CP $00
-  RET c
-  LD BC,$0000
-  CP $00
-  RET c
-  LD BC,$0000
-  CP $00
-  RET c
-  LD BC,$0000
+  LD BC,%0001101101010001
+  CP 28
+  RET nc
+  LD BC,%0001101010111000
+  CP 12
+  RET nc
+  LD BC,%1100001000010000
   RET
 
 DanmakuMove_WiggleSnakeDown:
@@ -433,15 +420,30 @@ DanmakuMove_WiggleSnakeUp:
   RET
 
 DanmakuMove_Clover:
-  CP $00
+  CP %00101000
   JR nz,+
   ;Start
-  LD DE,$00C0
-  LD B,D
-  LD C,E
-  RET
-+
-  ;Minsky here
+  LD DE,$C000   ;Initial position on circle (4.4)
++   ;Minsky move
+  LD A,E
+  SRA A
+  LD B,A    ;(4.4) to (2.6)
+  SRA A
+  SRA A
+  ADD D
+  LD D,A
+  SRA A
+  LD C,A    ;(4.4) to (2.6)
+  SRA A
+  SRA A
+  CPL
+  INC A
+  ADD E
+  LD E,A
+  ;Negate Y
+  XOR A
+  SUB C
+  LD C,A
   RET
 
 DanmakuMove_Wave:
@@ -458,15 +460,52 @@ DanmakuMove_Wave:
   RET
 
 DanmakuMove_Scythe:
-  LD BC,$0000
-  CP $00
-  RET c
-  CP $00
+  LD BC,%0000000011100111
+  CP 59-20
+  RET nc
+  JR z,++
+  CP 25
   JR c,+
-  ;Minsky right (the broader one)
+  .db $21   ;Opcode for LD HL,nn ~ Effectively skips next two bytes (aka the LD DE). The third byte becomes a LD A,(BC)
+++
+  LD DE,%0000101000111110   ;Initial position on first circle (5.3)
+  ;Minsky left
+  LD A,E
+  CPL
+  INC A
+  LD B,A    ;(5.3) to (2.6)
+  SRA A
+  SRA A
+  SRA A
+  ADD D
+  LD D,A
+  LD C,A    ;(5.3) to (2.6)
+  SRA A
+  SRA A
+  SRA A
+  ADD E
+  LD E,A
   RET
 +
-  ;Minsky left
+  JR nz,++
+  LD DE,%1010010011101000   ;Initial position on second circle (5.3)
+++
+  ;Minsky right (the broader one)
+  LD A,E
+  LD B,A    ;(5.3) to (2.6)
+  SRA A
+  SRA A
+  SRA A
+  ADD D
+  LD D,A
+  CPL
+  INC A
+  LD C,A    ;(5.3) to (2.6)
+  SRA A
+  SRA A
+  SRA A
+  ADD E
+  LD E,A
   RET
 
 .ENDS
