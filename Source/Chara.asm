@@ -157,6 +157,33 @@ CharaFrame:
     POP BC
   POP DE
 +
+;Defensive Danmaku
+  LDH A,($FE)
+  LD HL,PlayerButtonBuf
+  XOR (HL)
+  AND %00000100
+  JR z,+
+  AND (HL)
+  JR nz,+
+  PUSH DE
+    LD BC,NewDanmaku
+    LD HL,_MasterX+1
+    ADD HL,DE
+    LDI A,(HL)
+    INC HL
+    LD E,(HL)
+    LD D,A
+    LD HL,$FFA4
+    LD A,(HL)
+    INC A
+    CP 10
+    JR c,++
+    XOR A
+++
+    LD (HL),A
+    CALL NewTask
+  POP DE
++
 ;Perform movement
   LDH A,($FE)
   LD C,A

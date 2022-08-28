@@ -181,6 +181,8 @@ FairyFrame:
   ;Reset timer
   DEC HL
   RST $18   ;Get random time
+  AND $0F   ;between 47
+  ADD 15    ;and 15
   LDI (HL),A
 +
   LD HL,$C0A1
@@ -272,7 +274,7 @@ FairyFrame:
     LD E,(HL)
     LD D,A
     RST $18   ;Random danmaku pattern
-    AND $01
+    AND $07
     LD BC,NewDanmaku
     RST $28
   POP AF

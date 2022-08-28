@@ -134,22 +134,22 @@ NewDanmaku:
   DEC (HL)
   JR nz,+
   ;Die
-  PUSH DE
-    INC HL
-    LDI A,(HL)    ;Move Data
-    LD E,A
-    LDI A,(HL)
-    LD D,A
-    LDI A,(HL)    ;Move Func
-    LD H,(HL)
-    LD L,A
-    LD A,D        ;If the function has data to free, D is nonzero
-    RST $30       ;Otherwise, finals don't matter
-  POP DE
-  JP Actor_Delete
+  CALL Actor_Hide
+  LD H,D
+  LD L,E
+  CALL MemFree
+  JP EndTask
 + ;Collision
 
   ;Do collision here
+  ;Each of the three is in their own position
+  ;For each danmaku
+    ;Check against Marisa position
+    ;If hit
+        ;If hat
+            ;Remove hat
+        ;Else
+            ;Push Marisa
 
   ;Movement...
   ;...which is updating the sprite visual block
@@ -158,9 +158,7 @@ NewDanmaku:
   PUSH DE
     LD HL,_Lifetime
     ADD HL,DE
-    LD A,(HL)
-    LD HL,_MoveData
-    ADD HL,DE
+    LDI A,(HL)
     PUSH HL
       PUSH AF
         LDI A,(HL)
@@ -303,35 +301,35 @@ DanmakuList:
 ;2 bytes: Movement function
 
 ;Spike
-.db $74,%00001111
+.db $74,%00100000
 .dw DanmakuMove_Spike
 ;Clover
-.db $68,%10101000
+.db $68,%10101001
 .dw DanmakuMove_Clover
 ;Triangle
-.db $78,%01011010
+.db $78,%01011011
 .dw DanmakuMove_Triangle
 ;Guard
-.db $6C,%11111000
+.db $6C,%11111001
 .dw DanmakuMove_Guard
 ;Windmill
-.db $70,%10101000
+.db $70,%10111001
 .dw DanmakuMove_Windmill
 
 ;Scythe
-.db $68,%10111011
+.db $68,%10111100
 .dw DanmakuMove_Scythe
 ;Wave
-.db $6C,%11001000
+.db $6C,%11001001
 .dw DanmakuMove_Wave
 ;Curtain
-.db $78,%00010100
+.db $78,%00010101
 .dw DanmakuMove_Curtain
 ;Wiggle Snake Down
-.db $6C,%10111100
+.db $6C,%10111101
 .dw DanmakuMove_WiggleSnakeDown
 ;Wiggle Snake Up
-.db $6C,%10111100
+.db $6C,%10111101
 .dw DanmakuMove_WiggleSnakeUp
 
 ;Danmaku Actions
@@ -343,39 +341,41 @@ DanmakuList:
     ;DE=Move Data
     ;Move data is private to each Danmaku; edit it as you please
 
+;Idea for saving precision: move twice as much every other frame
+
 DanmakuMove_Curtain:
 DanmakuMove_Spike:
-  LD BC,$0040
+  LD BC,$0078
   RET
 
 DanmakuMove_Guard:
   LD BC,$0000
-  CP %00111100  ;1 second from end
+  CP 120-15
   RET c
-  LD C,$C0
+  LD C,$90
   RET
 
 DanmakuMove_Triangle:
   LD BC,%0000000011010101
   CP 90-15
   RET nc
-  LD BC,%0001011011011001
+  LD BC,%0010110010110010
   CP 75-25
   RET nc
-  LD BC,%1101001100000000
+  LD BC,%1010011000000000
   CP 50-25
   RET nc
-  LD BC,%0001011000100110
+  LD BC,%1101100011111000
   RET
 
 DanmakuMove_Windmill:
   LD BC,%0001101101010001
-  CP 28
+  CP 24+8
   RET nc
   LD BC,%0001101010111000
-  CP 12
+  CP 12+8
   RET nc
-  LD BC,%1100001000010000
+  LD BC,%1100001000110000
   RET
 
 DanmakuMove_WiggleSnakeDown:
@@ -393,7 +393,7 @@ DanmakuMove_WiggleSnakeUp:
   ;Start
   LD DE,$3000
 +
-  LD C,$30
+  LD C,$20
   LD A,D
   BIT 0,E
   JR nz,+
@@ -403,7 +403,7 @@ DanmakuMove_WiggleSnakeUp:
   ADD $04
   LD D,A
   LD B,A
-  CP $30
+  CP $20
   JR nc,+
   BIT 7,A
   JR nz,+
@@ -411,7 +411,7 @@ DanmakuMove_WiggleSnakeUp:
   INC E
   RET
 +
-  CP $D0
+  CP $E0
   RET nc
   BIT 7,A
   RET z
@@ -423,34 +423,30 @@ DanmakuMove_Clover:
   CP %00101000
   JR nz,+
   ;Start
-  LD DE,$C000   ;Initial position on circle (4.4)
+  LD DE,$C000   ;Initial position on circle (5.3)
 +   ;Minsky move
   LD A,E
+  LD B,A    ;(5.3) to (2.6)
   SRA A
-  LD B,A    ;(4.4) to (2.6)
   SRA A
   SRA A
   ADD D
   LD D,A
-  SRA A
-  LD C,A    ;(4.4) to (2.6)
-  SRA A
-  SRA A
   CPL
   INC A
+  LD C,A    ;(5.3) to (2.6)
+  SRA A
+  SRA A
+  SRA A
   ADD E
   LD E,A
-  ;Negate Y
-  XOR A
-  SUB C
-  LD C,A
   RET
 
 DanmakuMove_Wave:
   CP %00010100
   JR nz,+
   ;Start
-  LD DE,$C020
+  LD DE,$B050
 +
   LD C,E
   LD A,$04
@@ -461,8 +457,9 @@ DanmakuMove_Wave:
 
 DanmakuMove_Scythe:
   LD BC,%0000000011100111
-  CP 59-20
+  CP 59-19
   RET nc
+  CP 59-20
   JR z,++
   CP 25
   JR c,+
