@@ -108,8 +108,9 @@ Inside game:
 <li />[x] Rewrite Love-Colored Master Spark to be more fitting and smaller
 <li />[x] Rewrite the fairy behavior to be more RAM based and modular
 <li />[x] Reimplement danmaku
-<li />[ ] Write up patterns for the fairies
-<li />[ ] Write up patterns for Narumi
-<li />[ ] Tie the patterns to their characters
+<li />[x] Write up patterns for the fairies
+<li />[x] Write up patterns for Narumi
+<li />[x] Tie the patterns to their characters
+<li />[ ] Clean up Narumi fight
 <li />[ ] Add the hat interaction
 </ul>
