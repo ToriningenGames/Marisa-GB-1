@@ -440,6 +440,18 @@ Actor_LoadAnim:
   ADD HL,DE
   LD A,(BC)
   AND $07
+;If the sprite count is more now than it was before, our sprite pointer is invalid
+  DEC A
+  CP (HL)
+  JR c,+
+  LD A,$05
+  LD (DE),A
+  INC DE
+  LD (DE),A
+  DEC DE
++
+  LD A,(BC)
+  AND $07
   LD (HL),A
 ;Load initial data into anim ram
   LD HL,_RelData
@@ -754,6 +766,9 @@ Actor_Hide:
   DEC L
   LD B,H
   LD C,L
+  LD A,B
+  CP $D0
+  RET nc    ;Guard against the actor not existing in the order, but not being marked "Hidden"
 ;Decrement ObjUse
   LD HL,ObjUse
   DEC (HL)
@@ -772,6 +787,10 @@ Actor_Hide:
   INC BC
   LD A,(HL)
   LD (BC),A
+;Clear the vacated slot (as a guard against extra calls to Hide with unmarked hidden actors)
+  XOR A
+  LDD (HL),A
+  LD (HL),A
   RET
 
 ;Start showing actor on screen

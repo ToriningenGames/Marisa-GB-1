@@ -29,6 +29,9 @@ MemInitTask:
   LD A,>MemEnd
   CP D
   JR nz,-
+  XOR A
+  LDI (HL),A
+  LD (HL),A
   JP EndTask
 
 MemAlloc:
@@ -45,10 +48,20 @@ MemAlloc:
   LD A,(DE)
   LDD (HL),A
   DEC E
+;If the pointer is $0000, we ran out of memory (bad!)
+  LD A,D
+  OR E
+  RET nz
+  LD B,B    ;Software breakpoint
   RET
 
 MemFree:
 ;DE -> Allocated memory
+;If the pointer isn't beginning with $C or $D, it isn't a pointer
+  LD A,%11100000
+  AND D
+  XOR %11000000
+  RET nz
   LD HL,RingStart
   LDI A,(HL)
   LD (DE),A

@@ -181,8 +181,8 @@ FairyFrame:
   ;Reset timer
   DEC HL
   RST $18   ;Get random time
-  AND $0F   ;between 47
-  ADD 15    ;and 15
+  AND $3F   ;between ?
+  ADD 40    ;and ?
   LDI (HL),A
 +
   LD HL,$C0A1
@@ -266,6 +266,7 @@ FairyFrame:
   DEC (HL)
   JR nz,+
   PUSH AF
+  PUSH DE
     ;Shoot
     LD HL,_MasterX+1
     ADD HL,DE
@@ -277,6 +278,7 @@ FairyFrame:
     AND $07
     LD BC,NewDanmaku
     RST $28
+  POP DE
   POP AF
 +
   RET

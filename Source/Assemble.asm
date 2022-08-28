@@ -369,7 +369,6 @@ Start:
   LD (HL),A         ;OBP0: C1=white, C2=light grey, C3=black. OBP1: C1=light grey, C2=dark grey, C3=black.
   LD L,$A0
   XOR A
-  LD (ObjUse),A ;No objects yet
   LD (HL),A ;No vBlank procedures get run yet
   LD L,$AB
   LD (HL),A ;Zero frame counter
@@ -401,8 +400,6 @@ HRAMRoutineLoadLoop:
   DEC B
   JR nz,-
 ;Set up Object manager first
-  XOR A
-  LD (ObjUse),A
   LD BC,ObjManage_Task
   RST $28
 ;Set up sound initializer as a separate task
