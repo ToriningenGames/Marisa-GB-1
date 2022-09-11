@@ -14,6 +14,8 @@ MushroomActorData:
  .dw _Animations
 
 MushroomFrame:
+  LD BC,Cs_MushroomCollect
+  CALL HitboxInteractAdd
   XOR A
   RET
 

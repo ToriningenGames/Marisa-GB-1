@@ -13,6 +13,8 @@ ReimuActorData:
  .dw _Animations
 
 ReimuFrame:
+  LD BC,Cs_ReimuMeet
+  CALL HitboxInteractAdd
   XOR A
   RET
 

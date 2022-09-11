@@ -112,5 +112,6 @@ Inside game:
 <li />[x] Write up patterns for Narumi
 <li />[x] Tie the patterns to their characters
 <li />[ ] Clean up Narumi fight
+<li />[ ] Redo collision to be more robust and less slow!
 <li />[ ] Add the hat interaction
 </ul>

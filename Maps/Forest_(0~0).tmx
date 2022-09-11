@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.1" orientation="orthogonal" renderorder="right-down" width="20" height="18" tilewidth="8" tileheight="8" infinite="0" nextlayerid="9" nextobjectid="1">
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="20" height="18" tilewidth="8" tileheight="8" infinite="0" nextlayerid="9" nextobjectid="1">
  <tileset firstgid="1" source="Tiledata.tsx"/>
  <tileset firstgid="385" source="System.tsx"/>
  <layer id="5" name="Tilemap" width="20" height="18">
@@ -15,8 +15,8 @@
 0,0,0,0,0,0,0,0,0,0,0,168,169,147,171,168,169,147,148,147,
 0,0,0,0,0,0,0,0,0,0,0,154,165,153,152,154,165,142,143,0,
 0,0,0,0,0,0,0,0,0,168,169,149,166,164,148,149,166,138,139,164,
-0,0,0,0,0,0,0,0,0,154,165,144,240,240,141,144,240,240,240,240,
-0,0,0,0,0,0,0,0,0,172,167,140,240,240,137,140,240,240,240,240,
+0,0,0,0,0,0,0,0,0,154,165,144,253,254,141,144,240,240,240,240,
+0,0,0,0,0,0,0,0,0,172,167,140,255,256,137,140,240,240,240,240,
 0,0,0,0,0,0,0,0,0,154,155,240,240,240,240,240,240,240,240,240,
 0,0,0,0,0,0,0,0,0,175,176,159,160,240,240,240,240,240,240,156,
 0,0,0,0,0,0,0,0,0,0,0,154,155,240,240,240,240,240,240,151,
@@ -24,7 +24,7 @@
 0,0,0,0,0,0,0,0,0,154,165,144,240,240,240,240,240,151,0,0
 </data>
  </layer>
- <layer id="6" name="Collision" width="20" height="18" visible="0" opacity="0.33">
+ <layer id="6" name="Collision" width="20" height="18" opacity="0.33">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -46,7 +46,7 @@
 0,0,0,0,0,0,0,0,385,385,385,385,0,0,0,0,0,0,385,385
 </data>
  </layer>
- <layer id="8" name="Priority" width="20" height="18" opacity="0.33">
+ <layer id="8" name="Priority" width="20" height="18" visible="0" opacity="0.33">
   <data encoding="csv">
 387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,
 387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,387,

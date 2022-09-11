@@ -1058,46 +1058,37 @@ Cs_NarumiFightStart:
   ChangeActorControl 1,$83  ;No leaving the room
   ;Create the 3 fairies
   CreateFairies 3,Cs_NarumiFightFairies, 5
+  ChangeActorControl 5,0
   ;Move 2 of them into the room
   MoveActorRel 3,AnimWalkRight,DirHort,24,50
   MoveActorRel 4,AnimWalkLeft,DirHort,-24,50
-  SetVar8 varFightTimer,-4
-  ;Periodically fire danmaku
-  ShootDanmaku 0,56,74, 1
-  AddVarQ varFightTimer,1
-  JumpRelNZ varFightTimer,-10
-  ;Move the 3rd fairy 
-  MoveActorRel 5,AnimWalkUp,DirVert,-32,66
-  ;High energy for some time
-  SetVar8 varFightTimer,-12
-  ;Periodically fire danmaku
-  ShootDanmaku 0,56,74, 1
-  AddVarQ varFightTimer,1
-  JumpRelNZ varFightTimer,-10
-  ;Mid energy
-  MoveActor 4,AnimWalkDown,DirVert,150,150
-  SetVar8 varFightTimer,-12
-  ShootDanmaku 0,56,74, 1
-  AddVarQ varFightTimer,1
-  JumpRelNZ varFightTimer,-10
-  ;Low energy
-  MoveActor 3,AnimWalkDown,DirVert,150,150
-  SetVar8 varFightTimer,-12
-  ShootDanmaku 0,56,74, 1
-  AddVarQ varFightTimer,1
-  JumpRelNZ varFightTimer,-10
-  ;No energy
-  MoveActor 5,AnimWalkDown,DirVert,150,150, 30
-  ChangeActorControl 1,0, 60
+  ;Stage 1 (3 minutes) (Move the 3rd fairy in)
+  ChangeActorControl 2,1, 3*30
+  MoveActorRel 5,AnimWalkUp,DirVert,-32,66, 3*30
+  ChangeActorControl 5,1
+  ;Stage 2 (7 minutes) (Fairy gets bored)
+  ChangeActorControl 4,0
+  MoveActor 4,AnimWalkDown,DirVert,200,110, 7*30
+  SetVarQ varAns,1, 7*30
+  ;Stage 3 (5 minutes) (Fairy gest bored)
+  ChangeActorControl 3,0
+  MoveActor 3,AnimWalkDown,DirVert,200,110, 5*30
+  SetVarQ varAns,1, 5*30
+  ;Stage 4 (2 minutes) (Last fairy gets bored)
+  ChangeActorControl 5,0
+  MoveActor 5,AnimWalkDown,DirVert,200,110
+  Return
+;Narumi Fight outro
+Cs_NarumiFightEnd:
+  ChangeActorControl 2,0, 120   ;Narumi, stop
   CallCs Cs_MapFadeout
+  ChangeActorControl 1,0
   MoveActor 1,AnimFaceUp,DirVert,109,1
   MoveActor 1,AnimFaceUp,DirHort,56,1
   DeleteActor 3
   DeleteActor 4
   DeleteActor 5, 25
   CallCs Cs_MapFadein
-;Narumi Fight outro
-Cs_NarumiFightEnd:
   PlaySong SongDoll, 40
   RunTextStringBlocking StringNarumiEnd
   SetVar varNarumiBeat,1
@@ -1109,7 +1100,7 @@ __csNarumiEnd:
 Cs_NarumiFightFairies:
  .db -9,80
  .db 113,80
- .db 56,153
+ .db 56,173
 
 ;Feeding Reimu Shrooms
 Cs_ReimuMeet:

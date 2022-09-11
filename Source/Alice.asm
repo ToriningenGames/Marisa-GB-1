@@ -13,6 +13,8 @@ AliceActorData:
  .dw _Animations
 
 AliceFrame:
+  LD BC,Cs_EndingB
+  CALL HitboxInteractAdd
   XOR A
   RET
 

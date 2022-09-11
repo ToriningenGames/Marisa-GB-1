@@ -32,8 +32,8 @@
     ;Object manager state
 ;$C0EA:
     ;Text status (Text.asm)
-;$C0EC - $C0ED:
-    ;End of Hitboxes pointer
+;$C0EB - $C0ED:
+    ;Hitbox counters
 ;$C0EE - $C0FA:
     ;VRAM update buffer
         ;Contains, in order, an 8 bit counter, a 16 bit source, and a 16 bit destination
@@ -607,6 +607,10 @@ LoadTitle:
   RST $28
 ;Sprites
 ;Collision
+  XOR A
+  LD ($C0EB),A
+  LD ($C0EC),A
+  LD ($C0ED),A
   LD BC,HitboxUpdate_Task
   RST $28
   JP EndTask

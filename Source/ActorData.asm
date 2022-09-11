@@ -46,17 +46,6 @@
     ; |+--------- Y mirror
     ; +---------- Hide behind BKG
 
-;Hitbox data format:
-;All actor hitboxes are squares
-    ;1 byte: hitbox count
-    ;2 bytes: X position (8.8)
-    ;2 bytes: Y position (8.8)
-    ;1 byte:  radius (pixels)
-    ;1 byte:  type
-    ;2 bytes: Action. Signature:
-        ;BC->Owning actor
-        ;DE->Touching actor
-
 ;Memory format:
 ;Global
     ;+$00, size 2: Sprite pointer (to shadow OAM)
@@ -91,7 +80,9 @@
     ;+$13, size 1: Remaining number of frames to execute
     ;+$14, size 2: Data for danmaku movement function
 ;Fairy
-    ;+$12, size 2: Delay timer for danmaku firing
+    ;+$12, size 1: Delay timer for danmaku firing
+;Narumi
+    ;+$12, size 2: Which fight phase (and, by extension, when to fire)
 
 ;Control bit states:
 ;%C0000OTE
@@ -100,13 +91,6 @@
 ; |    +----- Can exit room
 ; +---------- Free camera
 ;$FF: Self Destruct
-
-;Hitbox format:
-;%AAAAAAAA 000000PIC
-; ||||||||       ||+--- Can collide
-; ||||||||       |+--- Can be interacted with
-; ||||||||       +--- Can be pushed
-; ++++++++--- Interaction cutscene ID
 
 ;Animation IDs:
 ;0:   Face Left
@@ -180,4 +164,5 @@
 .DEFINE _MoveData $14
 
 ;Fairy
+;Narumi
 .DEFINE _ShootTimer $12
