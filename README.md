@@ -111,7 +111,10 @@ Inside game:
 <li />[x] Write up patterns for the fairies
 <li />[x] Write up patterns for Narumi
 <li />[x] Tie the patterns to their characters
-<li />[ ] Clean up Narumi fight
-<li />[ ] Redo collision to be more robust and less slow!
+<li />[x] Clean up Narumi fight
+<li />~~[ ] Redo collision to be more robust and less slow!~~
+<li />[ ] Give up on optimizing collision speed and find a way to accept lag
 <li />[ ] Add the hat interaction
+<li />[x] Add danmaku to the second ending
+<li />[x] Make danmaku animated
 </ul>
