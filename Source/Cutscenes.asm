@@ -515,6 +515,9 @@
 .DEFINE varShroomA          19
 .DEFINE varShroomB          20
 .DEFINE varShroomC          21
+.DEFINE varEndingBWait      19
+.DEFINE varEndingBMari      20
+.DEFINE varEndingBAlc       21
 .DEFINE varKeepMusic        22
 .DEFINE varDirPlane         23
 .DEFINE varDirAnim          24
@@ -999,7 +1002,7 @@ Cs_EndingB:
   MoveActorRel 1,AnimWalkDown,DirVert,60,110, 60
   ;Alice moves right
   MoveActor 2,AnimWalkRight,DirHort,200,230, 50
-  MoveActor 1,AnimWalkRight,DirHort,160,180, 170
+  MoveActor 1,AnimWalkRight,DirHort,180,180, 170
   CallCs Cs_MapFadeout
   LoadMap MapForestBKG01
   LoadMap MapForest02map
@@ -1026,7 +1029,7 @@ Cs_EndingB:
   RunTextStringBlocking StringAliceEscort2
   ;Marisa moves around Alice to closer to house
   MoveActorRel 1,AnimWalkLeft,DirHort,-17,35, 30
-  MoveActorRel 1,AnimWalkUp,DirVert,-44,80, 70
+  MoveActorRel 1,AnimWalkUp,DirVert,-54,90, 75
   MoveActorRel 1,AnimWalkRight,DirHort,12,30, 31
   ;Marisa faces Alice
   AnimateActor 1,AnimFaceDown
@@ -1034,10 +1037,48 @@ Cs_EndingB:
   PlaySong SongMagus
   RunTextStringBlocking StringAliceEscort4
   ;Danmaku
-  
+  Break
+    LD BC,EndingBDanmaku_Task
+    RST $28
+    CALL BreakRet
   ;Fade to black
+  SetVarQ 0,0, 160
   CallCs Cs_MapFadeout
   Return
+
+;Danmaku throwing task
+;Throws danmaku for Marisa and Alice
+EndingBDanmaku_Task:
+;Throw for Alice (every 10 frames)
+  LD HL,$C000+varEndingBAlc
+  INC (HL)
+  LD A,(HL)
+  CP 19
+  JR nz,++
+  LD (HL),0
+  LD A,10
+  LD DE,$6677
+  LD BC,NewDanmaku
+  RST $28
+++
+;Throw for Marisa (after 58 frames) (every 5 frames)
+  LD HL,$C000+varEndingBWait
+  INC (HL)
+  LD A,(HL)
+  CP 58
+  RET c
+  DEC (HL)
+  LD L,varEndingBMari
+  INC (HL)
+  LD A,(HL)
+  CP 14
+  RET nz
+  LD (HL),0
+  LD A,4
+  LD DE,$605D
+  LD BC,NewDanmaku
+  RST $28
+  RET
 
 ;Narumi Fight intro
 Cs_NarumiFightStart:

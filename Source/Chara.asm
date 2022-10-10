@@ -109,6 +109,14 @@ _HatValues:
  .db 33
  .db 49
 
+;This is what happens when a danmaku hits Marisa
+Hit_Task:
+  ;If Marisa is wearing her hat
+    ;Hat flies off
+    ;Done!
+  ;Push her back
+  JP EndTask
+
 .ENDS
 
 .SECTION "Hat" FREE
