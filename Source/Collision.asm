@@ -47,6 +47,10 @@
 .DEFINE HitboxInteractStart $C500
 .DEFINE HitboxInteractEnd   $C5FF
 .DEFINE HitboxInteractCount $C0EC
+    ;X Position
+    ;Y Position
+    ;Cutscene pointer lo
+    ;Cutscene pointer hi
 ;At least 64
 .DEFINE HitboxHitStart      $C600
 .DEFINE HitboxHitEnd        $C6FF
@@ -56,20 +60,18 @@
 
 HitboxHitAdd:
 ;DE=Actor to add
-  LD L,<HitboxHitCount
-  LD H,>HitboxHitStart
+  LD HL,((>HitboxHitStart)<<8)|<HitboxHitCount
+  JR _hitboxAdd
 
 HitboxInteractAdd:
 ;DE=Actor to add
 ;BC=Cutscene to run
-  LD L,<HitboxInteractCount
-  LD H,>HitboxInteractStart
+  LD HL,((>HitboxInteractStart)<<8)|<HitboxInteractCount
   JR _hitboxAdd
 
 HitboxPushAdd:
 ;DE=Actor to add
-  LD L,<HitboxPushCount
-  LD H,>HitboxPushStart
+  LD HL,((>HitboxPushStart)<<8)|<HitboxPushCount
   LD B,D
   LD C,E
 _hitboxAdd:
@@ -104,7 +106,15 @@ HitboxUpdate_Task:
   LDI (HL),A
   LDI (HL),A
   LDI (HL),A
-  RET
+  RST $00
+  CALL HitboxHit
+  XOR A
+  LD HL,HitboxPushCount
+  LDI (HL),A
+  LDI (HL),A
+  LDI (HL),A
+  RST $00
+  JR HitboxUpdate_Task
 
 HitboxPush:
   ;Only try if there are 2+ hitboxes
@@ -114,13 +124,14 @@ HitboxPush:
   RET c
   LD C,A
   LD B,1
+  LD D,>HitboxPushStart
 --
-  LD DE,HitboxPushStart
+  LD E,<HitboxPushStart
   LD A,C
   ADD A
   ADD A
   LD L,A
-  LD H,>HitboxPushStart
+  LD H,D
   PUSH BC
 -
     LD A,(DE)   ;Dirty approximation of euclidean distance (manhattan)
@@ -243,9 +254,6 @@ HitboxPush:
   JP nz,--
   RET
 
-HitboxHit:
-  RET
-
 HitboxInteract:
   LD A,(HitboxInteractCount)
   OR A
@@ -313,6 +321,64 @@ HitboxInteract:
     LD D,(HL)
     LD E,A
     LD BC,Cutscene_Task
+    RST $28
+    LD E,1
++
+    INC L
+    INC L
+    DEC E
+    JR nz,-
+  ;No point hit
+  POP DE
+  RET
+
+;Like Interact, but with a different action
+HitboxHit:
+  LD A,(HitboxHitCount)
+  OR A
+  RET z
+  PUSH DE
+;Get the relevant point
+    LD HL,_AnimID
+    ADD HL,DE
+    INC DE
+    INC DE
+    INC DE
+    LD A,(DE)
+    LD B,A
+    INC DE
+    INC DE
+    LD A,(DE)
+    LD C,A
+;Got point in BC
+;For each hitbox:
+    LD A,(HitboxHitCount)
+    LD E,A
+    LD HL,HitboxHitStart
+-
+    LDI A,(HL)  ;Dirty approximation of euclidean distance (manhattan)
+    SUB B
+    BIT 7,A
+    JR z,+
+    CPL
+    INC A
++
+    LD D,A
+    LDI A,(HL)
+    SUB C
+    BIT 7,A
+    JR z,+
+    CPL
+    INC A
++
+    ADD D
+    CP 12
+    JR nc,+
+    ;Point hit
+    LDI A,(HL)
+    LD D,(HL)
+    LD E,A
+    LD BC,Hit_Task
     RST $28
     LD E,1
 +
