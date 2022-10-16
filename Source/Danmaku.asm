@@ -137,17 +137,33 @@ NewDanmaku:
   CALL MemFree
   JP EndTask
 + ;Collision
-
-  ;Do collision here
-  ;Each of the three is in their own position
-  ;For each danmaku
-    ;Check against Marisa position
-    ;If hit
-        ;If hat
-            ;Remove hat
-        ;Else
-            ;Push Marisa
-
+  ;Register position for this frame
+  LD HL,_RelData
+  ADD HL,DE
+  LD A,3
+-
+  PUSH AF
+    LDI A,(HL)    ;Y
+    LD C,A
+    LDI A,(HL)    ;X
+    LD B,A
+    INC HL
+    INC HL
+    PUSH HL
+      LD HL,_MasterX+1
+      ADD HL,DE
+      LDI A,(HL)
+      ADD B
+      LD B,A
+      INC HL
+      LD A,(HL)
+      ADD C
+      LD C,A
+      CALL HitboxHitAdd
+    POP HL
+  POP AF
+  DEC A
+  JR nz,-
   ;Movement...
   ;...which is updating the sprite visual block
   ;Calculate one the hard way...

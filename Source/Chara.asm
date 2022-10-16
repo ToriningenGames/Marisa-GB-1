@@ -109,12 +109,145 @@ _HatValues:
  .db 33
  .db 49
 
+.DEFINE Hitstun $C01E
+.EXPORT Hitstun
+
 ;This is what happens when a danmaku hits Marisa
 Hit_Task:
-  ;If Marisa is wearing her hat
-    ;Hat flies off
-    ;Done!
-  ;Push her back
+  ;DE=(X,Y) of attack source direction
+;Is Marisa wearing her hat?
+  LD HL,HatSig
+  LDI A,(HL)
+  LD H,(HL)
+  LD L,A
+  LD BC,_ParentChar
+  ADD HL,BC
+  LDI A,(HL)
+  LD B,(HL)
+  LD C,A
+  LD A,(Cutscene_Actors+1)
+  CALL Access_ActorDE
+  LD A,L    ;Trick to check if two pointers are the same
+  XOR C     ;Works since there's less than 256 possible memory pointers, and they all use different bits
+  XOR H     ;Done here so the check can be reversed to a pointer equality check over inequality
+  XOR B
+  JP z,+
+;Marisa not wearing her hat. Push her back
+  LD A,60
+  LD (Hitstun),A
+-
+  RST $00
+  ;Straight line away from the danmaku
+  ;for a fixed number of frames
+  JP EndTask
++
+;Marisa wearing her hat. Make it fly away
+  ;Free hat
+  LD HL,HatSig
+  LDI A,(HL)
+  LD B,(HL)
+  LD C,A
+  LD HL,_ParentChar
+  ADD HL,BC
+  LD A,C
+  LDI (HL),A
+  LD (HL),B
+  LD A,120
+  LD (Hitstun),A
+  LD A,1
+  LD ($C0D0),A
+  LD HL,_HatVal
+  ADD HL,BC
+  LD A,(HL)
+  AND $30
+  LD (HL),A
+  ;Hi hat
+  PUSH BC
+  PUSH DE
+    LD D,B
+    LD E,C
+    CALL Actor_HighPriority
+  POP DE
+  POP BC
+  ;Fly at a 45 degree angle away from the danmaku source
+  LD A,D
+  LD DE,$20E0
+  BIT 7,A
+  JR z,++
+  LD D,$E0
+++
+-
+  RST $00
+  ;Hat speen
+  ;Once every 20 frames
+  LD HL,$C0D0
+  DEC (HL)
+  JR nz,++
+  LD (HL),9
+  LD HL,_HatVal
+  ADD HL,BC
+  LD A,(HL)
+  ADD $10
+  AND $30
+  LD (HL),A
+++
+  ;Parabolic arc, via moving constant X and incremented Y each frame
+  ;Finish once either X under/overflows or Y overflows (NOT under)
+  INC E
+  LD HL,_MasterX
+  ADD HL,BC
+  PUSH DE
+    LD A,D
+    RLCA
+    RLCA
+    LD D,A
+    AND $03
+    BIT 1,A
+    JR z,++
+    OR $FC
+++
+    LD E,A
+    LD A,$FC
+    AND D
+    ADD (HL)
+    LDI (HL),A
+    LD A,E
+    ADC (HL)
+    LDI (HL),A
+    BIT 7,E       ;End when we cross 0
+  POP DE
+  JR z,++
+  JR nc,+++
+  .db $D2       ;Skip the following conditional jump with JP nc,xxxx (guaranteed to miss)
+++
+  JR c,+++
+  PUSH DE
+    LD A,E
+    RLCA
+    RLCA
+    LD E,A
+    AND $03
+    BIT 1,A
+    JR z,++
+    OR $FC
+++
+    LD D,A
+    LD A,$FC
+    AND E
+    ADD (HL)
+    LDI (HL),A
+    LD A,D
+    ADC (HL)
+    LD (HL),A
+    BIT 7,E       ;End only if Y overflows
+  POP DE
+  JR nz,-   ;Not done if moving up
+  JR nc,-
++++
+  ;Finished moving off screen; now the hat dies :(
+  ;(do this using the cutscene function... sneakily)
+  LD BC,$FF00
+  CALL ChangeControl+2  ;skip the read part of the cutscene function
   JP EndTask
 
 .ENDS
@@ -124,11 +257,14 @@ Hit_Task:
 .DEFINE HatSig $C09E    ;To identify a data pointer as a hat
 .EXPORT HatSig
 
+_hatHatVals:
+.db $00,$10,$20,$30
+
 HatActorData:
  .dw 0          ;Don't let Actor Control move the hat
  .dw %000
  .dw HatFrame
- .dw HeadPosTable
+ .dw _hatHatVals
  .dw _Animations
 
 HatFrame:
@@ -141,7 +277,7 @@ HatFrame:
   LDI (HL),A
   LD (HL),D
   ;Enforce drawing at top sprites (the Hat Hack)
-  LD A,0
+  XOR A
   LD (DE),A
   INC DE
   LD A,$CF
@@ -215,7 +351,9 @@ HatFrame:
     ADD (HL)
     LD (HL),A
   POP AF
-  RET
+  POP HL    ;Return
+  LD C,0
+  JP ActorHatRet
 
 _Animations:
  .dw HatLeft

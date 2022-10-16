@@ -130,10 +130,6 @@ Actor_FrameInit:
   RST $00
 ;Given an appropriate data set, runs the given actor
 Actor_Frame:
-  ;Check for doing AI stuffs here
-    ;v: Cutscene control
-    ;v: Play animation
-    ;v: Destruct
   ;Cutscene detect
   LD HL,_ControlState
   ADD HL,DE
@@ -216,6 +212,7 @@ Actor_Frame:
   ;L==4,D==5,R==6,U==7
   ;A=%00UD00LR
   LD C,4
+ActorHatRet:
   AND %00110001
   JR z,+++
   INC C

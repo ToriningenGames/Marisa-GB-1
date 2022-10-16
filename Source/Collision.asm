@@ -59,9 +59,17 @@
 .SECTION "Collision" FREE
 
 HitboxHitAdd:
-;DE=Actor to add
-  LD HL,((>HitboxHitStart)<<8)|<HitboxHitCount
-  JR _hitboxAdd
+;BC=(X,Y) to add
+  LD HL,HitboxHitCount
+  LD A,(HL)
+  INC (HL)
+  ADD A
+  LD L,A
+  LD H,>HitboxHitStart
+  LD (HL),B
+  INC L
+  LD (HL),C
+  RET
 
 HitboxInteractAdd:
 ;DE=Actor to add
@@ -322,7 +330,8 @@ HitboxInteract:
     LD E,A
     LD BC,Cutscene_Task
     RST $28
-    LD E,1
+  POP DE
+  RET
 +
     INC L
     INC L
@@ -334,60 +343,66 @@ HitboxInteract:
 
 ;Like Interact, but with a different action
 HitboxHit:
+;Hitstun?
+  LD HL,Hitstun
+  DEC (HL)
+  RET nz
+  INC (HL)
   LD A,(HitboxHitCount)
   OR A
   RET z
-  PUSH DE
-;Get the relevant point
-    LD HL,_AnimID
-    ADD HL,DE
-    INC DE
-    INC DE
-    INC DE
-    LD A,(DE)
-    LD B,A
-    INC DE
-    INC DE
-    LD A,(DE)
-    LD C,A
-;Got point in BC
-;For each hitbox:
-    LD A,(HitboxHitCount)
-    LD E,A
-    LD HL,HitboxHitStart
+;Get Marisa's position
+  LD A,(Cutscene_Actors+1)
+  CALL Access_ActorDE
+  INC HL
+  INC HL
+  INC HL
+  LDI A,(HL)    ;Marisa X
+  LD B,A
+  INC HL
+  LD C,(HL)     ;Marisa Y
+;For each danmaku
+  LD A,(HitboxHitCount)
+  ADD A
+  DEC A
+  LD L,A
+  LD H,>HitboxHitStart
 -
-    LDI A,(HL)  ;Dirty approximation of euclidean distance (manhattan)
-    SUB B
-    BIT 7,A
-    JR z,+
-    CPL
-    INC A
+  LDD A,(HL)  ;Dirty approximation of euclidean distance (manhattan)
+  SUB C
+  BIT 7,A
+  JR z,+
+  CPL
+  INC A
 +
-    LD D,A
-    LDI A,(HL)
-    SUB C
-    BIT 7,A
-    JR z,+
-    CPL
-    INC A
+  LD D,A
+  LDD A,(HL)
+  SUB B
+  BIT 7,A
+  JR z,+
+  CPL
+  INC A
 +
-    ADD D
-    CP 12
-    JR nc,+
-    ;Point hit
-    LDI A,(HL)
-    LD D,(HL)
-    LD E,A
-    LD BC,Hit_Task
-    RST $28
-    LD E,1
+  ADD D
+  CP 6
+  JR nc,+
+  ;Point hit
+  ;Get hit direction into DE for the hit task
+  INC L
+  LDI A,(HL)
+  SUB B
+  LD D,A
+  LD A,(HL)
+  SUB C
+  LD E,A
+  LD BC,Hit_Task
+  RST $28
+  RET
 +
-    INC L
-    INC L
-    DEC E
-    JR nz,-
-  ;No point hit
-  POP DE
+  LD A,L
+  INC A
+  JR nz,-
+  ;No hit
   RET
 
 .ENDS

@@ -526,6 +526,7 @@
 .DEFINE varFairyCount       27
 .DEFINE varHitSize          28
 .DEFINE varFightTimer       29
+.DEFINE varHitstun          30
 .DEFINE varOldMap           32
 
 
@@ -800,6 +801,7 @@ Cs_TransitionIn:
   SetVar8 varOldMap,0
   UseVarAsVal varMapPtr+1,2
   SetVar8 varOldMap+1,0
+  SetVar varHitstun,127
   Return
 
 Cs_ResetFairies:

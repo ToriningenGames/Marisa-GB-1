@@ -246,7 +246,7 @@ FairyFrame:
       LD D,A
       LD A,E
       SWAP A
-      AND $0F
+      AND $1F
       LD A,D
       JR nz,+
       AND $F0   ;No X movement
@@ -255,7 +255,7 @@ FairyFrame:
     LD E,A
     LD A,D
     SWAP A
-    AND $0F
+    AND $1F
     LD A,E
     JR nz,+
     AND $0F     ;No Y movement
