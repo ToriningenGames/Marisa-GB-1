@@ -130,7 +130,7 @@
 ;$FF80 - $FF87
     ;HRAM Routine for OAM updating
 ;$FF88 - $FF89
-    ;Huffman state
+    ;RNG state
 ;$FF90 - $FFA3
     ;Sound effect state
 ;$FFA4 - $FFFD
@@ -650,6 +650,10 @@ LoadTitle:
     ;DE = ???
     ;HL = Unchanged
 LFSR:
+  LDH A,($88)
+  LD C,A
+  LDH A,($89)
+  LD B,A
   LD E,$00
   LD A,C
   SLA A ;Most direct method given CY and A are unknown
@@ -674,9 +678,11 @@ LFSR:
   LD A,C
   ADC D     ;D is already 0
   LD C,A
+  LDH ($88),A
   LD A,B
   ADC D     ;Carry through 16 bits
   LD B,A
+  LDH ($89),A
 ;BC contains the current state of the LFSR.
   LDH A,($04)   ;Timer divider register as additional entropy
   XOR C

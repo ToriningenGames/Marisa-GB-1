@@ -26,5 +26,6 @@ _Animations:
  .dw MushroomUp
 
 _HatValues:
+.db 6,6,6,6
 
 .ENDS

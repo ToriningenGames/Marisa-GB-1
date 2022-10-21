@@ -46,7 +46,8 @@
 ;At least 4
 .DEFINE HitboxInteractStart $C500
 .DEFINE HitboxInteractEnd   $C5FF
-.DEFINE HitboxInteractCount $C0EC
+.DEFINE HitboxInteractCount $C0ED
+.EXPORT HitboxInteractCount
     ;X Position
     ;Y Position
     ;Cutscene pointer lo
@@ -54,7 +55,7 @@
 ;At least 64
 .DEFINE HitboxHitStart      $C600
 .DEFINE HitboxHitEnd        $C6FF
-.DEFINE HitboxHitCount      $C0ED
+.DEFINE HitboxHitCount      $C0EC
 
 .SECTION "Collision" FREE
 
@@ -113,12 +114,10 @@ HitboxUpdate_Task:
   LD HL,HitboxPushCount
   LDI (HL),A
   LDI (HL),A
-  LDI (HL),A
   RST $00
   CALL HitboxHit
   XOR A
   LD HL,HitboxPushCount
-  LDI (HL),A
   LDI (HL),A
   LDI (HL),A
   RST $00

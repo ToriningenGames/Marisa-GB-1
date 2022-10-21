@@ -99,6 +99,12 @@ Outside game:
 <li />[x] Release the "picnic" demo
 <li />[ ] Write a prereq script
 <li />[ ] Release video?
+<li />[ ] Flash game to cartridge
+<li />[ ] Manual booklet!
+<li />[ ] Box art!
+<li />[ ] Cartridge sticker!
+<li />[ ] Assemble boxed game!
+<li />[ ] Shrink wrap?
 </ul>
 Inside game:
 <ul>
@@ -114,7 +120,9 @@ Inside game:
 <li />[x] Clean up Narumi fight
 <li />~~[ ] Redo collision to be more robust and less slow!~~
 <li />[ ] Give up on optimizing collision speed and find a way to accept lag
-<li />[ ] Add the hat interaction
+<li />[x] Add the hat interactions
+<li />[ ] Push Marisa when she's hit without her hat to protect her
+<li />[ ] Fix the danmaku hitboxes being stupid
 <li />[x] Add danmaku to the second ending
 <li />[x] Make danmaku animated
 </ul>

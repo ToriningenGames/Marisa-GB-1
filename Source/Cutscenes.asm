@@ -1040,6 +1040,22 @@ Cs_EndingB:
   RunTextStringBlocking StringAliceEscort4
   ;Danmaku
   Break
+    ;Keep the hat from flying off
+    LD A,(Cutscene_Actors)
+    OR A
+    JR z,+
+    CALL Access_ActorDE
+    LD B,H
+    LD C,L
+    LD HL,$12       ;_ParentChar
+    ADD HL,BC
+    LD (HL),C
+    INC HL
+    LD (HL),B
+    LD HL,$1F       ;_HatVal
+    ADD HL,BC
+    LD (HL),1
++
     LD BC,EndingBDanmaku_Task
     RST $28
     CALL BreakRet
@@ -1204,6 +1220,28 @@ __csReimuStillShrooms:
   Return
 
 Cs_MushroomCollect:
+  ;If the mushroom is wearing a hat, make Marisa wear that hat
+  SetVarQ varAns,1
+  Break
+    LD A,(Cutscene_Actors)
+    OR A
+    CALL z,BreakRet
+    CALL Access_ActorDE
+    LD BC,$12       ;_ParentChar
+    ADD HL,BC
+    LDI A,(HL)
+    LD B,(HL)
+    LD C,A
+    LD A,(Cutscene_Actors+2)
+    CALL Access_ActorDE
+    LD A,H
+    XOR L
+    XOR C
+    XOR B
+    LD ($C000),A
+    CALL BreakRet
+  JumpRelNZ varAns,3
+  AssignHat 0,1
   DeleteActor 2   ;Mushroom plucked
   ;Check for map 30
   CompareVar16 varOldMap,MapForest30map

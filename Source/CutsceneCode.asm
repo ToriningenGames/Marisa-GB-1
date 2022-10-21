@@ -354,6 +354,7 @@ UseVar:
   LD (HL),A
   RET
 
+;(delete hat too if worn by actor)
 ChangeControl:
   RST $10
   LD B,A
@@ -370,9 +371,39 @@ ChangeControl:
   JR nz,+
   ;We are deleting this actor
   LD (HL),0
+  PUSH AF
+  PUSH BC
+  PUSH DE
+    CALL Access_ActorDE
+    LD B,H
+    LD C,L
+    ;Are they hatted?
+    LD A,(Cutscene_Actors)
+    OR A    ;Check for no hat period
+    JR z,++
+    CALL Access_ActorDE
+    LD D,H
+    LD E,L
+    LD HL,_ParentChar
+    ADD HL,DE
+    LDI A,(HL)  ;Is this actor the hat's parent?
+    XOR (HL)
+    XOR B
+    XOR C
+    JR nz,++
+    ;Hatted. Delete the hat too
+    LD HL,_ControlState
+    ADD HL,DE
+    LD (HL),$FF
+    XOR A
+    LD (Cutscene_Actors),A
+++
+  POP DE
+  POP BC
+  POP AF
 +
-  DEC B
   CALL Access_ActorDE
+  DEC B
   LD A,%00011111
   AND C
   DEC A         ;Ready zero flag for Player Character check here
@@ -439,6 +470,8 @@ Jump:
   LD E,B
   RET
 
+;Add a very small chance of spawning w/hat if Marisa not wearing it
+    ;Not the hat, obv.
 CreateActor:
   RST $10
   PUSH AF
@@ -468,20 +501,57 @@ CreateActor:
   RST $00 ;Give actor a moment to initialize
   PUSH BC       ;Return
   CALL Access_ActorDE
-  LD B,H
-  LD C,L
-  RST $10
-  ;Set X
-  INC BC
-  INC BC
-  INC BC
-  LD (BC),A
-  RST $10
-  ;Set Y
-  INC BC
-  INC BC
-  LD (BC),A
+  PUSH HL
+    LD B,H
+    LD C,L
+    RST $10
+    ;Set X
+    INC BC
+    INC BC
+    INC BC
+    LD (BC),A
+    RST $10
+    ;Set Y
+    INC BC
+    INC BC
+    LD (BC),A
+  POP HL
+  ;Hat check
+  PUSH DE
+    LD BC,_hatCharacter
+    LD D,H
+    LD E,L
+    RST $28
+  POP DE
   RET
+
+_hatCharacter:
+  ;Hat check!
+  ;Is there already a hat?
+  LD A,(Cutscene_Actors)
+  OR A
+  JR nz,+
+  ;No hat right now. Should this character get one?
+  RST $18
+  XOR $FF
+  JR nz,+
+  ;1 in 256 chance; this character found Marisa's hat!
+  ;Make the hat
+  PUSH DE
+    LD BC,Actor_FrameInit
+    LD DE,HatActorData
+    CALL NewTaskLo
+    LD (Cutscene_Actors),A
+  POP DE
+  RST $00
+  CALL Access_ActorDE
+  LD BC,_ParentChar
+  ADD HL,BC
+  LD A,E
+  LDI (HL),A
+  LD (HL),D
++
+  JP EndTask
 
 VarQuick:
   RST $10
@@ -539,24 +609,37 @@ CreateFairy:
   RST $10
   LD B,A
   LD HL,Cutscene_Actors+3
+  PUSH DE
+    LDI A,(HL)
 -
-  LDI A,(HL)
-  OR A
-  RET z
-  PUSH HL
-    CALL Access_ActorDE
-    INC HL
-    INC HL
-    INC HL
-    LD A,(BC)
-    INC BC
-    LDI (HL),A    ;X pos
-    INC HL
-    LD A,(BC)
-    INC BC
-    LD (HL),A     ;Y pos
-  POP HL
-  JR -
+    PUSH HL
+      CALL Access_ActorDE
+      ;Hat check
+      PUSH BC
+      PUSH HL
+        LD BC,_hatCharacter
+        LD D,H
+        LD E,L
+        RST $28
+      POP HL
+      POP BC
+      INC HL
+      INC HL
+      INC HL
+      LD A,(BC)
+      INC BC
+      LDI (HL),A    ;X pos
+      INC HL
+      LD A,(BC)
+      INC BC
+      LD (HL),A     ;Y pos
+    POP HL
+    LDI A,(HL)
+    OR A
+    JR nz,-
++
+  POP DE
+  RET
 
 AssignHat:
   RST $10    ;Get Target

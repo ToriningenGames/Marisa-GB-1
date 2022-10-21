@@ -53,33 +53,9 @@ CharaFrame:
   XOR (HL)
   AND %00000001
   CALL nz,HitboxInteract
-;Defensive Danmaku
-  LDH A,($FE)
-  LD HL,PlayerButtonBuf
-  XOR (HL)
-  AND %00000100
-  JR z,+
-  AND (HL)
-  JR nz,+
-  PUSH DE
-    LD BC,NewDanmaku
-    LD HL,_MasterX+1
-    ADD HL,DE
-    LDI A,(HL)
-    INC HL
-    LD E,(HL)
-    LD D,A
-    LD HL,$FFA4
-    LD A,(HL)
-    INC A
-    CP 10
-    JR c,++
-    XOR A
-++
-    LD (HL),A
-    CALL NewTask
-  POP DE
-+
+  ;Since interactions are checked, we can clear the list
+  XOR A
+  LD (HitboxInteractCount),A
 ;Perform movement
   LDH A,($FE)
   LD C,A
@@ -131,7 +107,7 @@ Hit_Task:
   XOR C     ;Works since there's less than 256 possible memory pointers, and they all use different bits
   XOR H     ;Done here so the check can be reversed to a pointer equality check over inequality
   XOR B
-  JP z,+
+  JR z,+
 ;Marisa not wearing her hat. Push her back
   LD A,60
   LD (Hitstun),A
@@ -364,12 +340,12 @@ _Animations:
 ;Character offset value
 HeadPosTable:
 ;Y,X
- .db    0, 0    ;None
- .db  -12, 0    ;Marisa
- .db  -12, 0    ;Fairy
- .db  -10, 0    ;Narumi
- .db  -16, 0    ;Alice
- .db  -14, 0    ;Reimu
- .db    0, 0    ;Danmaku
+ .db    0,  0    ;None
+ .db  -12,  0    ;Marisa
+ .db  -12,  0    ;Fairy
+ .db  -15,  0    ;Narumi
+ .db  -16,  0    ;Alice
+ .db  -13,  0    ;Reimu
+ .db   -8, -3    ;Mushroom
 
 .ENDS
