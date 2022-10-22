@@ -49,10 +49,10 @@ MemAlloc:
   LDD (HL),A
   DEC E
 ;If the pointer is $0000, we ran out of memory (bad!)
-  LD A,D
-  OR E
-  RET nz
-  LD B,B    ;Software breakpoint
+;  LD A,D
+;  OR E
+;  RET nz
+;  LD B,B    ;Software breakpoint
   RET
 
 MemFree:

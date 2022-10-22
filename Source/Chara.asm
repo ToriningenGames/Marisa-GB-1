@@ -90,7 +90,7 @@ _HatValues:
 
 ;This is what happens when a danmaku hits Marisa
 Hit_Task:
-  ;DE=(X,Y) of attack source direction
+  ;D=X of attack source direction
 ;Is Marisa wearing her hat?
   LD HL,HatSig
   LDI A,(HL)
@@ -109,12 +109,17 @@ Hit_Task:
   XOR B
   JR z,+
 ;Marisa not wearing her hat. Push her back
-  LD A,60
+  LD A,20
   LD (Hitstun),A
+  LD C,15
 -
   RST $00
-  ;Straight line away from the danmaku
-  ;for a fixed number of frames
+  ;Hold still for a bit?
+  LDH A,($FE)
+  AND %00001111
+  LDH ($FE),A
+  DEC C
+  JR nz,-
   JP EndTask
 +
 ;Marisa wearing her hat. Make it fly away
@@ -128,7 +133,7 @@ Hit_Task:
   LD A,C
   LDI (HL),A
   LD (HL),B
-  LD A,120
+  LD A,60
   LD (Hitstun),A
   LD A,1
   LD ($C0D0),A

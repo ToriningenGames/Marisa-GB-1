@@ -121,8 +121,8 @@ Inside game:
 <li />~~[ ] Redo collision to be more robust and less slow!~~
 <li />[ ] Give up on optimizing collision speed and find a way to accept lag
 <li />[x] Add the hat interactions
-<li />[ ] Push Marisa when she's hit without her hat to protect her
-<li />[ ] Fix the danmaku hitboxes being stupid
+<li />[x] ~~Push~~ Stop Marisa when she's hit without her hat to protect her
+<li />[x] Fix the danmaku hitboxes being stupid
 <li />[x] Add danmaku to the second ending
 <li />[x] Make danmaku animated
 </ul>

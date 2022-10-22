@@ -801,7 +801,7 @@ Cs_TransitionIn:
   SetVar8 varOldMap,0
   UseVarAsVal varMapPtr+1,2
   SetVar8 varOldMap+1,0
-  SetVar varHitstun,127
+  SetVar varHitstun,40
   Return
 
 Cs_ResetFairies:
@@ -1225,7 +1225,7 @@ Cs_MushroomCollect:
   Break
     LD A,(Cutscene_Actors)
     OR A
-    CALL z,BreakRet
+    JR z,+
     CALL Access_ActorDE
     LD BC,$12       ;_ParentChar
     ADD HL,BC
@@ -1239,6 +1239,7 @@ Cs_MushroomCollect:
     XOR C
     XOR B
     LD ($C000),A
++
     CALL BreakRet
   JumpRelNZ varAns,3
   AssignHat 0,1

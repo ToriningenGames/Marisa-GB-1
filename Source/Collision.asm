@@ -368,6 +368,7 @@ HitboxHit:
   LD H,>HitboxHitStart
 -
   LDD A,(HL)  ;Dirty approximation of euclidean distance (manhattan)
+  ADD 4
   SUB C
   BIT 7,A
   JR z,+
@@ -376,6 +377,7 @@ HitboxHit:
 +
   LD D,A
   LDD A,(HL)
+  ADD 4
   SUB B
   BIT 7,A
   JR z,+
@@ -383,17 +385,15 @@ HitboxHit:
   INC A
 +
   ADD D
-  CP 6
+  CP 8
   JR nc,+
   ;Point hit
   ;Get hit direction into DE for the hit task
   INC L
   LDI A,(HL)
+  ADD 4
   SUB B
   LD D,A
-  LD A,(HL)
-  SUB C
-  LD E,A
   LD BC,Hit_Task
   RST $28
   RET

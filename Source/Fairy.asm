@@ -171,7 +171,6 @@ FairyConstructor:
   JP NewTaskLo
 
 FairyFrame:
-  CALL HitboxPushAdd
 ;Init check
   LD HL,_ShootTimer
   ADD HL,DE
