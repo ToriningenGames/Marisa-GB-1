@@ -118,10 +118,10 @@ Inside game:
 <li />[x] Write up patterns for Narumi
 <li />[x] Tie the patterns to their characters
 <li />[x] Clean up Narumi fight
-<li />~~[ ] Redo collision to be more robust and less slow!~~
+<li />[ ] <s>Redo collision to be more robust and less slow!</s>
 <li />[ ] Give up on optimizing collision speed and find a way to accept lag
 <li />[x] Add the hat interactions
-<li />[x] ~~Push~~ Stop Marisa when she's hit without her hat to protect her
+<li />[x] <s>Push</s> Stop Marisa when she's hit without her hat to protect her
 <li />[x] Fix the danmaku hitboxes being stupid
 <li />[x] Add danmaku to the second ending
 <li />[x] Make danmaku animated

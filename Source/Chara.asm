@@ -37,7 +37,7 @@
 .INCLUDE "ActorData.asm"
 
 CharaActorData:
- .dw 120*3
+ .dw 120*2
  .db %101
  .db $00
  .dw CharaFrame
